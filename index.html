@@ -868,7 +868,15 @@ footer .container {
 
     <div class="hero-steps">
       <div class="hero-step">
-        <span class="hero-step-label">1. Add to Claude Code</span>
+        <span class="hero-step-label">1. Install</span>
+        <div class="hero-cmd" onclick="copyCmd('npm install -g sverklo', this)" title="Click to copy">
+          <span class="prompt">$</span>
+          <span>npm install -g sverklo</span>
+          <svg class="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg>
+        </div>
+      </div>
+      <div class="hero-step">
+        <span class="hero-step-label">2. Connect to your agent</span>
         <div class="hero-cmd" onclick="copyCmd('claude mcp add sverklo -- sverklo .', this)" title="Click to copy">
           <span class="prompt">$</span>
           <span>claude mcp add sverklo -- sverklo .</span>
@@ -876,14 +884,7 @@ footer .container {
         </div>
       </div>
       <div class="hero-step">
-        <span class="hero-step-label">2. Ask your agent anything</span>
-        <div class="hero-cmd hero-cmd-example">
-          <span class="prompt">&gt;</span>
-          <span>"How does the auth middleware work?"</span>
-        </div>
-      </div>
-      <div class="hero-step">
-        <span class="hero-step-label">3. It searches &amp; remembers</span>
+        <span class="hero-step-label">3. Ask anything</span>
         <div class="hero-cmd hero-cmd-example">
           <span class="prompt">&#x26A1;</span>
           <span>Found 4 results in 23ms — hybrid search across 1,200 files</span>
