@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo -- Code Intelligence for AI Agents</title>
+<meta name="description" content="Local-first code search MCP server that gives AI coding agents deep codebase understanding. Hybrid search, real embeddings, session memory. Zero config.">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:title" content="Sverklo -- Code Intelligence for AI Agents">
+<meta property="og:description" content="Local-first code search MCP server for Claude Code, Cursor, and other AI coding agents.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x26A1;</text></svg>">
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0a0a0a;
+  --bg-raised: #111111;
+  --bg-card: #161616;
+  --bg-card-hover: #1a1a1a;
+  --border: #222222;
+  --border-light: #2a2a2a;
+  --text: #ededed;
+  --text-secondary: #888888;
+  --text-tertiary: #555555;
+  --accent: #7c6aef;
+  --accent-dim: #6355c0;
+  --accent-glow: rgba(124, 106, 239, 0.15);
+  --green: #34d399;
+  --green-dim: rgba(52, 211, 153, 0.1);
+  --code-bg: #0d0d0d;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+a:hover {
+  opacity: 0.8;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- NAV ---- */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.nav-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.nav-logo span {
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.nav-links a:hover {
+  color: var(--text);
+  opacity: 1;
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--text);
+  color: var(--bg) !important;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.nav-cta:hover {
+  background: #d4d4d4;
+  opacity: 1 !important;
+}
+
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ---- HERO ---- */
+.hero {
+  padding: 160px 0 100px;
+  text-align: center;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.hero-badges img {
+  height: 20px;
+}
+
+.badge-link {
+  display: inline-block;
+  border-radius: 4px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+h1 {
+  font-size: clamp(48px, 7vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 20px;
+}
+
+h1 .accent {
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+}
+
+.hero-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.hero-cmd:hover {
+  border-color: var(--border-light);
+}
+.hero-cmd .prompt {
+  color: var(--accent);
+  user-select: none;
+}
+.hero-cmd .copy-icon {
+  color: var(--text-tertiary);
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.hero-cmd:hover .copy-icon {
+  color: var(--text-secondary);
+}
+
+.hero-sub-links {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 14px;
+  color: var(--text-tertiary);
+}
+
+.hero-sub-links a {
+  color: var(--text-secondary);
+}
+
+/* ---- SECTIONS ---- */
+section {
+  padding: 100px 0;
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 16px;
+  max-width: 540px;
+  line-height: 1.7;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.section-header .section-desc {
+  margin: 0 auto;
+}
+
+/* ---- FEATURES ---- */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.feature-card:hover {
+  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 20px;
+  background: var(--accent-glow);
+  border: 1px solid rgba(124, 106, 239, 0.2);
+}
+
+.feature-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ---- PIPELINE ---- */
+.pipeline {
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.pipeline-steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+  flex: 0 0 auto;
+}
+
+.pipeline-step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.pipeline-step h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.pipeline-step p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 140px;
+  line-height: 1.5;
+}
+
+.pipeline-arrow {
+  font-size: 20px;
+  color: var(--text-tertiary);
+  margin-top: 12px;
+  flex-shrink: 0;
+}
+
+/* ---- TOOLS ---- */
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tools-group-label {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  padding: 8px 0 0;
+}
+.tools-group-label:first-child {
+  padding-top: 0;
+}
+
+.tool-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s;
+}
+.tool-item:hover {
+  border-color: var(--border-light);
+}
+
+.tool-name {
+  font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.tool-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ---- PRICING ---- */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+}
+.pricing-card.featured {
+  border-color: var(--accent);
+  position: relative;
+  background: linear-gradient(180deg, rgba(124, 106, 239, 0.05) 0%, var(--bg-card) 40%);
+}
+
+.pricing-badge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+.pricing-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.pricing-price {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 16px 0 4px;
+}
+.pricing-price span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.pricing-note {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-bottom: 24px;
+}
+
+.pricing-features {
+  list-style: none;
+  flex: 1;
+  margin-bottom: 28px;
+}
+.pricing-features li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.pricing-features li::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: var(--green);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z'/%3E%3C/svg%3E") no-repeat center;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z'/%3E%3C/svg%3E") no-repeat center;
+}
+.pricing-features li.dimmed::before {
+  background: var(--text-tertiary);
+}
+.pricing-features li.dimmed {
+  color: var(--text-tertiary);
+}
+
+.pricing-btn {
+  display: block;
+  text-align: center;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+.pricing-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-tertiary);
+  opacity: 1;
+}
+.pricing-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.pricing-btn.primary:hover {
+  background: var(--accent-dim);
+}
+
+/* ---- QUICKSTART ---- */
+.quickstart {
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.quickstart-steps {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qs-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.qs-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  border: 1px solid rgba(124, 106, 239, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.qs-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.qs-content p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.code-block {
+  position: relative;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 48px 14px 16px;
+  font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.code-block .comment {
+  color: var(--text-tertiary);
+}
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+.copy-btn:hover {
+  color: var(--text-secondary);
+  border-color: var(--border-light);
+}
+.copy-btn.copied {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* ---- LANGUAGES ---- */
+.langs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 48px;
+}
+
+.lang-tag {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+/* ---- FOOTER ---- */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0;
+}
+
+footer .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-left {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+.footer-links a {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* ---- MOBILE ---- */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  .nav-hamburger {
+    display: block;
+  }
+  nav.open .nav-links {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    gap: 16px;
+  }
+
+  .hero {
+    padding: 120px 0 64px;
+  }
+  h1 {
+    font-size: 36px;
+  }
+  .hero-sub {
+    font-size: 16px;
+  }
+  .hero-cmd {
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+
+  section {
+    padding: 64px 0;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+
+  .pipeline-steps {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .pipeline-arrow {
+    transform: rotate(90deg);
+    margin: 0;
+  }
+
+  footer .container {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-badges {
+    flex-wrap: wrap;
+  }
+  .hero-sub-links {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Copy toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--green);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  z-index: 200;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="#" class="nav-logo"><span>$</span> sverklo</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#quickstart">Install</a></li>
+      <li><a href="https://github.com/sverklo/sverklo" class="nav-cta" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a></li>
+    </ul>
+    <button class="nav-hamburger" onclick="document.querySelector('nav').classList.toggle('open')" aria-label="Toggle menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badges">
+      <a href="https://github.com/sverklo/sverklo" class="badge-link" target="_blank" rel="noopener">
+        <img src="https://img.shields.io/github/stars/sverklo/sverklo?style=flat&color=7c6aef&labelColor=1a1a1a" alt="GitHub stars" loading="lazy">
+      </a>
+      <a href="https://www.npmjs.com/package/sverklo" class="badge-link" target="_blank" rel="noopener">
+        <img src="https://img.shields.io/npm/v/sverklo?style=flat&color=34d399&labelColor=1a1a1a" alt="npm version" loading="lazy">
+      </a>
+      <a href="https://github.com/sverklo/sverklo/blob/main/LICENSE" class="badge-link" target="_blank" rel="noopener">
+        <img src="https://img.shields.io/badge/license-MIT-888?style=flat&labelColor=1a1a1a" alt="MIT license" loading="lazy">
+      </a>
+    </div>
+
+    <h1>Code intelligence<br>for <span class="accent">AI agents</span></h1>
+    <p class="hero-sub">
+      Local-first code search MCP server that gives AI coding agents deep codebase understanding. Zero config, real embeddings, instant results.
+    </p>
+
+    <div class="hero-cmd" onclick="copyText('npx sverklo .', this)" title="Click to copy">
+      <span class="prompt">$</span>
+      <span>npx sverklo .</span>
+      <svg class="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg>
+    </div>
+
+    <div class="hero-sub-links">
+      <span>Works with</span>
+      <a href="https://claude.ai/code" target="_blank" rel="noopener">Claude Code</a>
+      <a href="https://cursor.com" target="_blank" rel="noopener">Cursor</a>
+      <span>&amp; any MCP client</span>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Features</p>
+      <h2 class="section-title">Search that understands your code</h2>
+      <p class="section-desc">Hybrid retrieval with real ONNX embeddings, graph-based ranking, and session memory. Everything runs locally.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent)" stroke-width="1.5"><circle cx="8.5" cy="8.5" r="6"/><path d="M13 13l4.5 4.5"/></svg>
+        </div>
+        <h3>Hybrid Search</h3>
+        <p>BM25 text matching combined with vector semantic search, PageRank graph ranking, and reciprocal rank fusion for precise results.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M10 2v4M10 14v4M2 10h4M14 10h4M4 4l2.8 2.8M13.2 13.2L16 16M4 16l2.8-2.8M13.2 6.8L16 4"/></svg>
+        </div>
+        <h3>Real ONNX Embeddings</h3>
+        <p>all-MiniLM-L6-v2 runs locally via ONNX runtime. No API keys, no network calls, no data leaving your machine.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M4 6h12M4 10h12M4 14h8"/></svg>
+        </div>
+        <h3>10 Languages</h3>
+        <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Tree-sitter parsing for accurate symbol extraction.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M10 2a3 3 0 013 3v2a3 3 0 01-6 0V5a3 3 0 013-3zM3 10a7 7 0 0014 0"/><path d="M10 17v2"/></svg>
+        </div>
+        <h3>Session Memory</h3>
+        <p>Remember decisions, patterns, and context across sessions. Git-state linking, quality scoring, and automatic staleness detection.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M17 10l-7-7-7 7M3 10v7a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-7"/></svg>
+        </div>
+        <h3>Zero Config</h3>
+        <p>Auto-indexes your codebase, respects .gitignore, incremental updates with file watcher. Just run it and search.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M13 2H7l-4 8 7 8 7-8-4-8z"/><path d="M3 10h14"/></svg>
+        </div>
+        <h3>Token-Budgeted</h3>
+        <p>Responses are trimmed to fit within LLM context windows. Your agent gets the most relevant code without wasting tokens.</p>
+      </div>
+    </div>
+
+    <div class="langs">
+      <span class="lang-tag">TypeScript</span>
+      <span class="lang-tag">JavaScript</span>
+      <span class="lang-tag">Python</span>
+      <span class="lang-tag">Go</span>
+      <span class="lang-tag">Rust</span>
+      <span class="lang-tag">Java</span>
+      <span class="lang-tag">C</span>
+      <span class="lang-tag">C++</span>
+      <span class="lang-tag">Ruby</span>
+      <span class="lang-tag">PHP</span>
+    </div>
+  </div>
+</section>
+
+<!-- Pipeline -->
+<section class="pipeline" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">From code to answers in milliseconds</h2>
+      <p class="section-desc">30 files indexed in 500ms. Search results in under 50ms. All local.</p>
+    </div>
+
+    <div class="pipeline-steps">
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">1</div>
+        <h3>Watch</h3>
+        <p>File watcher detects changes, respects .gitignore</p>
+      </div>
+      <div class="pipeline-arrow" aria-hidden="true">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">2</div>
+        <h3>Parse</h3>
+        <p>Tree-sitter extracts symbols, types, references</p>
+      </div>
+      <div class="pipeline-arrow" aria-hidden="true">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">3</div>
+        <h3>Embed</h3>
+        <p>ONNX model creates vector embeddings locally</p>
+      </div>
+      <div class="pipeline-arrow" aria-hidden="true">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">4</div>
+        <h3>Index</h3>
+        <p>BM25 + vector index + PageRank graph built</p>
+      </div>
+      <div class="pipeline-arrow" aria-hidden="true">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="pipeline-step-num">5</div>
+        <h3>Search</h3>
+        <p>Hybrid retrieval with RRF fusion, ranked results</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tools -->
+<section id="tools">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">MCP Tools</p>
+      <h2 class="section-title">10 tools your agent actually needs</h2>
+      <p class="section-desc">Code search and session memory designed for how AI agents work.</p>
+    </div>
+
+    <div class="tools-grid">
+      <div class="tools-group-label">Code Search</div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">search</div>
+          <div class="tool-desc">Hybrid code search across your entire codebase. Combines text matching, semantic similarity, and graph ranking.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">overview</div>
+          <div class="tool-desc">Get a high-level structural overview of the project: key modules, entry points, architecture patterns.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">lookup</div>
+          <div class="tool-desc">Jump directly to a symbol definition. Retrieve function signatures, class definitions, type declarations.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">find_references</div>
+          <div class="tool-desc">Find all usages of a symbol across the codebase. Understand impact before refactoring.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">dependencies</div>
+          <div class="tool-desc">Map import graphs and dependency chains. See what depends on what.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">index_status</div>
+          <div class="tool-desc">Check indexing progress, file counts, and embedding status for the current project.</div>
+        </div>
+      </div>
+
+      <div class="tools-group-label">Session Memory</div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">remember</div>
+          <div class="tool-desc">Save a decision, pattern, or context to persistent memory. Linked to current git state automatically.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">recall</div>
+          <div class="tool-desc">Retrieve relevant memories for the current context. Quality-scored and staleness-aware.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">forget</div>
+          <div class="tool-desc">Remove outdated or incorrect memories. Keep your memory store clean and accurate.</div>
+        </div>
+      </div>
+
+      <div class="tool-item">
+        <div>
+          <div class="tool-name">memories</div>
+          <div class="tool-desc">List and browse all stored memories. Filter by topic, recency, or quality score.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Pricing</p>
+      <h2 class="section-title">Open core, free forever</h2>
+      <p class="section-desc">Full-featured code search and memory, MIT licensed. Pro and Team tiers are coming for advanced needs.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card featured">
+        <span class="pricing-badge">Available now</span>
+        <h3>Free</h3>
+        <div class="pricing-price">$0</div>
+        <p class="pricing-note">MIT licensed, forever</p>
+        <ul class="pricing-features">
+          <li>Hybrid code search (BM25 + vector + PageRank)</li>
+          <li>Real ONNX embeddings, fully local</li>
+          <li>10 language support</li>
+          <li>Session memory with git linking</li>
+          <li>10 MCP tools</li>
+          <li>Incremental indexing &amp; file watcher</li>
+          <li>Token-budgeted responses</li>
+        </ul>
+        <a href="#quickstart" class="pricing-btn primary">Get started</a>
+      </div>
+
+      <div class="pricing-card">
+        <h3>Pro</h3>
+        <div class="pricing-price">TBD <span>/ month</span></div>
+        <p class="pricing-note">Coming soon</p>
+        <ul class="pricing-features">
+          <li>Everything in Free</li>
+          <li class="dimmed">Better embedding models</li>
+          <li class="dimmed">Cross-project pattern detection</li>
+          <li class="dimmed">Search analytics &amp; insights</li>
+          <li class="dimmed">Priority support</li>
+        </ul>
+        <span class="pricing-btn" style="opacity:0.5;cursor:default">Coming soon</span>
+      </div>
+
+      <div class="pricing-card">
+        <h3>Team</h3>
+        <div class="pricing-price">TBD <span>/ seat / month</span></div>
+        <p class="pricing-note">Coming soon</p>
+        <ul class="pricing-features">
+          <li>Everything in Pro</li>
+          <li class="dimmed">Shared team memory</li>
+          <li class="dimmed">On-premise deployment</li>
+          <li class="dimmed">Agent coordination</li>
+          <li class="dimmed">Admin &amp; access controls</li>
+        </ul>
+        <span class="pricing-btn" style="opacity:0.5;cursor:default">Coming soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section class="quickstart" id="quickstart">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Quick Start</p>
+      <h2 class="section-title">Up and running in 60 seconds</h2>
+    </div>
+
+    <div class="quickstart-steps">
+      <div class="qs-step">
+        <div class="qs-num">1</div>
+        <div class="qs-content">
+          <p>Download the embedding model (one-time, ~90MB)</p>
+          <div class="code-block" data-code="npx sverklo setup">npx sverklo setup
+<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
+        </div>
+      </div>
+
+      <div class="qs-step">
+        <div class="qs-num">2</div>
+        <div class="qs-content">
+          <p>Start the MCP server in your project directory</p>
+          <div class="code-block" data-code="npx sverklo .">npx sverklo .
+<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
+        </div>
+      </div>
+
+      <div class="qs-step">
+        <div class="qs-num">3</div>
+        <div class="qs-content">
+          <p>Add to Claude Code (or any MCP client)</p>
+          <div class="code-block" data-code="claude mcp add sverklo -- npx sverklo .">claude mcp add sverklo -- npx sverklo .
+<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
+        </div>
+      </div>
+
+      <div class="qs-step">
+        <div class="qs-num">4</div>
+        <div class="qs-content">
+          <p>Start coding. Your agent now has deep codebase search and persistent memory.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-left">
+      Sverklo &middot; MIT License &middot; Built for developers
+    </div>
+    <ul class="footer-links">
+      <li><a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">npm</a></li>
+      <li><a href="https://github.com/sverklo/sverklo/issues" target="_blank" rel="noopener">Issues</a></li>
+    </ul>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg || 'Copied to clipboard';
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(function() { showToast(); });
+}
+
+function copyCode(btn) {
+  var block = btn.closest('.code-block');
+  var text = block.getAttribute('data-code') || block.textContent.trim();
+  navigator.clipboard.writeText(text).then(function() {
+    btn.classList.add('copied');
+    showToast();
+    setTimeout(function() { btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// Close mobile nav on link click
+document.querySelectorAll('.nav-links a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    document.querySelector('nav').classList.remove('open');
+  });
+});
+
+// Subtle fade-in on scroll
+(function() {
+  var cards = document.querySelectorAll('.feature-card, .tool-item, .pricing-card, .qs-step, .pipeline-step');
+  cards.forEach(function(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  cards.forEach(function(el) { observer.observe(el); });
+})();
+</script>
+</body>
+</html>
