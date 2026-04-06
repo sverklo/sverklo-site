@@ -199,22 +199,46 @@ h1 .accent {
   line-height: 1.7;
 }
 
+.hero-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  align-items: center;
+}
+.hero-step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 560px;
+}
+.hero-step-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
 .hero-cmd {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 12px;
   background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 14px 20px;
+  padding: 12px 16px;
   font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text);
   cursor: pointer;
   transition: border-color 0.15s;
 }
 .hero-cmd:hover {
   border-color: var(--border-light);
+}
+.hero-cmd-example {
+  cursor: default;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 .hero-cmd .prompt {
   color: var(--accent);
@@ -224,6 +248,7 @@ h1 .accent {
   color: var(--text-tertiary);
   transition: color 0.15s;
   flex-shrink: 0;
+  margin-left: auto;
 }
 .hero-cmd:hover .copy-icon {
   color: var(--text-secondary);
@@ -825,13 +850,32 @@ footer .container {
 
     <h1>Code intelligence<br>for <span class="accent">AI agents</span></h1>
     <p class="hero-sub">
-      Local-first code search MCP server that gives AI coding agents deep codebase understanding. Zero config, real embeddings, instant results.
+      Your AI agent wastes 70% of tokens reading irrelevant files. Sverklo indexes your codebase locally, so agents find the right code instantly &mdash; fewer tokens, faster results, better answers.
     </p>
 
-    <div class="hero-cmd" onclick="copyText('npx sverklo .', this)" title="Click to copy">
-      <span class="prompt">$</span>
-      <span>npx sverklo .</span>
-      <svg class="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg>
+    <div class="hero-steps">
+      <div class="hero-step">
+        <span class="hero-step-label">1. Add to Claude Code</span>
+        <div class="hero-cmd" onclick="copyCmd('claude mcp add sverklo -- npx sverklo .', this)" title="Click to copy">
+          <span class="prompt">$</span>
+          <span>claude mcp add sverklo -- npx sverklo .</span>
+          <svg class="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg>
+        </div>
+      </div>
+      <div class="hero-step">
+        <span class="hero-step-label">2. Ask your agent anything</span>
+        <div class="hero-cmd hero-cmd-example">
+          <span class="prompt">&gt;</span>
+          <span>"How does the auth middleware work?"</span>
+        </div>
+      </div>
+      <div class="hero-step">
+        <span class="hero-step-label">3. It searches &amp; remembers</span>
+        <div class="hero-cmd hero-cmd-example">
+          <span class="prompt">&#x26A1;</span>
+          <span>Found 4 results in 23ms — hybrid search across 1,200 files</span>
+        </div>
+      </div>
     </div>
 
     <div class="hero-sub-links">
@@ -839,6 +883,33 @@ footer .container {
       <a href="https://claude.ai/code" target="_blank" rel="noopener">Claude Code</a>
       <a href="https://cursor.com" target="_blank" rel="noopener">Cursor</a>
       <span>&amp; any MCP client</span>
+    </div>
+  </div>
+</section>
+
+<!-- Why -->
+<section id="why" style="padding: 60px 0 20px;">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">The problem</p>
+      <h2 class="section-title">AI agents are blind without context</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 32px;">
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+        <div style="font-size: 32px; font-weight: 700; color: var(--accent);">70%</div>
+        <div style="font-size: 15px; color: var(--text); margin-top: 4px; font-weight: 600;">of tokens wasted</div>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">AI agents read irrelevant files via grep, burning through your context window and rate limits.</div>
+      </div>
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+        <div style="font-size: 32px; font-weight: 700; color: var(--accent);">10-30 min</div>
+        <div style="font-size: 15px; color: var(--text); margin-top: 4px; font-weight: 600;">lost per session</div>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">Developers rebuild context every session. Decisions, patterns, and preferences vanish after compaction.</div>
+      </div>
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+        <div style="font-size: 32px; font-weight: 700; color: var(--green);">&lt;50ms</div>
+        <div style="font-size: 15px; color: var(--text); margin-top: 4px; font-weight: 600;">with Sverklo</div>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">Semantic search finds exactly the right code. Memories persist across sessions. Your agent stays smart.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1179,6 +1250,14 @@ function showToast(msg) {
 
 function copyText(text) {
   navigator.clipboard.writeText(text).then(function() { showToast(); });
+}
+
+function copyCmd(text, el) {
+  navigator.clipboard.writeText(text).then(function() {
+    showToast();
+    var icon = el.querySelector('.copy-icon');
+    if (icon) { icon.style.color = 'var(--green)'; setTimeout(function() { icon.style.color = ''; }, 1500); }
+  });
 }
 
 function copyCode(btn) {
