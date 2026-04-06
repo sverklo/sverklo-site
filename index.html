@@ -1248,12 +1248,27 @@ function showToast(msg) {
   t._tid = setTimeout(function() { t.classList.remove('show'); }, 1800);
 }
 
+function clipCopy(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  return Promise.resolve();
+}
+
 function copyText(text) {
-  navigator.clipboard.writeText(text).then(function() { showToast(); });
+  clipCopy(text).then(function() { showToast(); });
 }
 
 function copyCmd(text, el) {
-  navigator.clipboard.writeText(text).then(function() {
+  clipCopy(text).then(function() {
     showToast();
     var icon = el.querySelector('.copy-icon');
     if (icon) { icon.style.color = 'var(--green)'; setTimeout(function() { icon.style.color = ''; }, 1500); }
@@ -1263,7 +1278,7 @@ function copyCmd(text, el) {
 function copyCode(btn) {
   var block = btn.closest('.code-block');
   var text = block.getAttribute('data-code') || block.textContent.trim();
-  navigator.clipboard.writeText(text).then(function() {
+  clipCopy(text).then(function() {
     btn.classList.add('copied');
     showToast();
     setTimeout(function() { btn.classList.remove('copied'); }, 1800);
