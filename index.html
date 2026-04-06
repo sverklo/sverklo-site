@@ -869,9 +869,9 @@ footer .container {
     <div class="hero-steps">
       <div class="hero-step">
         <span class="hero-step-label">1. Add to Claude Code</span>
-        <div class="hero-cmd" onclick="copyCmd('claude mcp add sverklo -- npx sverklo .', this)" title="Click to copy">
+        <div class="hero-cmd" onclick="copyCmd('claude mcp add sverklo -- sverklo .', this)" title="Click to copy">
           <span class="prompt">$</span>
-          <span>claude mcp add sverklo -- npx sverklo .</span>
+          <span>claude mcp add sverklo -- sverklo .</span>
           <svg class="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg>
         </div>
       </div>
@@ -1157,18 +1157,8 @@ footer .container {
       <div class="qs-step">
         <div class="qs-num">1</div>
         <div class="qs-content">
-          <p><strong>Claude Code</strong></p>
-          <div class="code-block" data-code="claude mcp add sverklo -- npx sverklo .">claude mcp add sverklo -- npx sverklo .
-<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
-        </div>
-      </div>
-
-      <div class="qs-step">
-        <div class="qs-num">1</div>
-        <div class="qs-content">
-          <p><strong>Cursor / Windsurf / VS Code</strong> &mdash; add to <code>.cursor/mcp.json</code></p>
-          <div class="code-block" data-code='{"mcpServers":{"sverklo":{"command":"npx","args":["sverklo","."]}}}'><span style="color:var(--dim)">// .cursor/mcp.json or .vscode/mcp.json</span>
-{ "mcpServers": { "sverklo": { "command": "npx", "args": ["sverklo", "."] } } }
+          <p>Install Sverklo</p>
+          <div class="code-block" data-code="npm install -g sverklo">npm install -g sverklo
 <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
         </div>
       </div>
@@ -1176,15 +1166,28 @@ footer .container {
       <div class="qs-step">
         <div class="qs-num">2</div>
         <div class="qs-content">
-          <p>Ask your agent anything. The ONNX model downloads automatically on first run (~30s).</p>
+          <p>Add to your AI agent</p>
+          <div class="code-block" data-code="claude mcp add sverklo -- sverklo ."><span style="color:var(--dim)"># Claude Code</span>
+claude mcp add sverklo -- sverklo .
+<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
+          <div class="code-block" data-code='{"mcpServers":{"sverklo":{"command":"sverklo","args":["."]}}}' style="margin-top:8px"><span style="color:var(--dim)">// Cursor / Windsurf / VS Code — add to mcp.json</span>
+{ "mcpServers": { "sverklo": { "command": "sverklo", "args": ["."] } } }
+<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
         </div>
       </div>
 
       <div class="qs-step">
         <div class="qs-num">3</div>
         <div class="qs-content">
+          <p>Start coding. The embedding model (~90MB) downloads automatically on first run. After that, instant.</p>
+        </div>
+      </div>
+
+      <div class="qs-step">
+        <div class="qs-num">&#x26A1;</div>
+        <div class="qs-content">
           <p><strong>Optional:</strong> Open the dashboard to see what's indexed</p>
-          <div class="code-block" data-code="npx sverklo ui .">npx sverklo ui .
+          <div class="code-block" data-code="sverklo ui .">sverklo ui .
 <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
         </div>
       </div>
