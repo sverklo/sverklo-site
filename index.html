@@ -266,6 +266,19 @@ h1 .accent {
 .hero-sub-links a {
   color: var(--text-secondary);
 }
+.tool-pill {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--pill-color, var(--border));
+  color: var(--pill-color, var(--text-secondary)) !important;
+  font-weight: 500;
+  font-size: 13px;
+  transition: background .15s;
+}
+.tool-pill:hover {
+  background: rgba(255,255,255,.05);
+  opacity: 1 !important;
+}
 
 /* ---- SECTIONS ---- */
 section {
@@ -880,8 +893,11 @@ footer .container {
 
     <div class="hero-sub-links">
       <span>Works with</span>
-      <a href="https://claude.ai/code" target="_blank" rel="noopener">Claude Code</a>
-      <a href="https://cursor.com" target="_blank" rel="noopener">Cursor</a>
+      <a href="https://claude.ai/code" target="_blank" rel="noopener" class="tool-pill" style="--pill-color:#d97706">Claude Code</a>
+      <a href="https://cursor.com" target="_blank" rel="noopener" class="tool-pill" style="--pill-color:#0ea5e9">Cursor</a>
+      <a href="https://windsurf.ai" target="_blank" rel="noopener" class="tool-pill" style="--pill-color:#22c55e">Windsurf</a>
+      <a href="https://code.visualstudio.com" target="_blank" rel="noopener" class="tool-pill" style="--pill-color:#3b82f6">VS Code</a>
+      <a href="https://www.jetbrains.com" target="_blank" rel="noopener" class="tool-pill" style="--pill-color:#f97316">JetBrains</a>
       <span>&amp; any MCP client</span>
     </div>
   </div>
@@ -1188,8 +1204,18 @@ footer .container {
       <div class="qs-step">
         <div class="qs-num">1</div>
         <div class="qs-content">
-          <p>Download the embedding model (one-time, ~90MB)</p>
-          <div class="code-block" data-code="npx sverklo setup">npx sverklo setup
+          <p><strong>Claude Code</strong></p>
+          <div class="code-block" data-code="claude mcp add sverklo -- npx sverklo .">claude mcp add sverklo -- npx sverklo .
+<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
+        </div>
+      </div>
+
+      <div class="qs-step">
+        <div class="qs-num">1</div>
+        <div class="qs-content">
+          <p><strong>Cursor / Windsurf / VS Code</strong> &mdash; add to <code>.cursor/mcp.json</code></p>
+          <div class="code-block" data-code='{"mcpServers":{"sverklo":{"command":"npx","args":["sverklo","."]}}}'><span style="color:var(--dim)">// .cursor/mcp.json or .vscode/mcp.json</span>
+{ "mcpServers": { "sverklo": { "command": "npx", "args": ["sverklo", "."] } } }
 <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
         </div>
       </div>
@@ -1197,25 +1223,16 @@ footer .container {
       <div class="qs-step">
         <div class="qs-num">2</div>
         <div class="qs-content">
-          <p>Start the MCP server in your project directory</p>
-          <div class="code-block" data-code="npx sverklo .">npx sverklo .
-<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
+          <p>Ask your agent anything. The ONNX model downloads automatically on first run (~30s).</p>
         </div>
       </div>
 
       <div class="qs-step">
         <div class="qs-num">3</div>
         <div class="qs-content">
-          <p>Add to Claude Code (or any MCP client)</p>
-          <div class="code-block" data-code="claude mcp add sverklo -- npx sverklo .">claude mcp add sverklo -- npx sverklo .
+          <p><strong>Optional:</strong> Open the dashboard to see what's indexed</p>
+          <div class="code-block" data-code="npx sverklo ui .">npx sverklo ui .
 <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11V2.5A1.5 1.5 0 014.5 1H11"/></svg></button></div>
-        </div>
-      </div>
-
-      <div class="qs-step">
-        <div class="qs-num">4</div>
-        <div class="qs-content">
-          <p>Start coding. Your agent now has deep codebase search and persistent memory.</p>
         </div>
       </div>
     </div>
