@@ -554,6 +554,7 @@ footer .col-items a:hover { color: var(--accent); }
     <div class="brand mono">sverklo</div>
     <nav class="top-nav">
       <a href="#why">why</a>
+      <a href="#memory">memory</a>
       <a href="#tools">tools</a>
       <a href="#install">install</a>
       <a href="https://github.com/sverklo/sverklo">github</a>
@@ -665,6 +666,72 @@ footer .col-items a:hover { color: var(--accent); }
       <div class="feature-num">06</div>
       <h3>ten languages</h3>
       <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP. More coming. Structural parsing for each.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── MEMORY ───────── -->
+<section class="two-col" id="memory">
+  <div class="grid">
+    <div class="kicker">/* persistent memory */</div>
+    <h2>your agent<br>finally<br>remembers.</h2>
+    <div class="sidebar">
+      Every AI coding session starts from zero. Decisions vanish after context compaction. Sverklo fixes this with <strong>persistent memory linked to git state</strong> — so the next session knows what the last one decided, and when the code looked like that.
+      <br><br>
+      Just tell your agent to remember something. It gets embedded, indexed, and auto-recalled when relevant.
+    </div>
+
+    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 48px;">
+      <div class="terminal-head">
+        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 1 · tuesday</span>
+        <span>remember</span>
+      </div>
+      <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">we decided to use Prisma for the ORM because it gives better TypeScript types than Drizzle</span>
+
+  <span class="tool">⚡ sverklo_remember</span>   <span class="dim">category="decision"</span>
+  <span class="dim">content: "We chose Prisma over Drizzle for better TypeScript types"</span>
+  <span class="dim">tags: ["database", "orm"]</span>
+  <span class="dim">git: main@a3f29e1</span>
+  <span class="dim">confidence: 1.0</span>
+  <span class="ok">✓ memory #42 saved</span>
+</div>
+    </div>
+
+    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 24px;">
+      <div class="terminal-head">
+        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 2 · thursday (new conversation)</span>
+        <span>recall</span>
+      </div>
+      <div class="terminal-body"><span class="comment"># session start — sverklo://context auto-injected</span>
+<span class="dim">Loaded 3 memories: ORM choice, auth pattern, API conventions</span>
+
+<span class="prompt">&gt;</span> <span class="cmd">add a new API endpoint for user profiles</span>
+
+<span class="comment"># Claude knows: Prisma for DB (from memory #42)</span>
+<span class="comment"># Claude knows: JWT validation before DB calls (from memory #43)</span>
+<span class="tool">⚡ writes endpoint with Prisma + JWT validation — no rediscovery</span>
+</div>
+    </div>
+
+    <div class="feature" style="grid-column: span 6; padding-top: 48px;">
+      <div class="feature-num">·</div>
+      <h3>git-state linked</h3>
+      <p>Every memory carries the git SHA and branch from when it was created. Know what the code looked like when the decision was made.</p>
+    </div>
+    <div class="feature" style="grid-column: span 6; padding-top: 48px;">
+      <div class="feature-num">·</div>
+      <h3>staleness detection</h3>
+      <p>If a memory references a file that no longer exists, it's flagged as stale. No more advice based on deleted code.</p>
+    </div>
+    <div class="feature" style="grid-column: span 6;">
+      <div class="feature-num">·</div>
+      <h3>semantic recall</h3>
+      <p>Memories are embedded and searched the same way as code. Ask "what did we decide about auth?" and get the relevant memory.</p>
+    </div>
+    <div class="feature" style="grid-column: span 6;">
+      <div class="feature-num">·</div>
+      <h3>auto-inject on session start</h3>
+      <p>An MCP resource surfaces top memories to Claude before you type anything. Your decisions travel across sessions automatically.</p>
     </div>
   </div>
 </section>
