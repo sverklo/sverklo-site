@@ -556,11 +556,12 @@ footer .col-items a:hover { color: var(--accent); }
       <a href="#why">why</a>
       <a href="#memory">memory</a>
       <a href="#tools">tools</a>
+      <a href="#compare">vs</a>
       <a href="#install">install</a>
       <a href="https://github.com/sverklo/sverklo">github</a>
     </nav>
     <div class="top-cta">
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.1.7</a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">loading…</a>
     </div>
   </div>
 </header>
@@ -664,8 +665,8 @@ footer .col-items a:hover { color: var(--accent); }
     </div>
     <div class="feature">
       <div class="feature-num">06</div>
-      <h3>ten languages</h3>
-      <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP. More coming. Structural parsing for each.</p>
+      <h3>twenty languages</h3>
+      <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml.</p>
     </div>
   </div>
 </section>
@@ -742,8 +743,8 @@ footer .col-items a:hover { color: var(--accent); }
     </div>
     <div class="feature" style="grid-column: span 6; padding-top: 48px;">
       <div class="feature-num">·</div>
-      <h3>git-state linked</h3>
-      <p>Every memory carries the git SHA and branch from when it was created. Know what the code looked like when the decision was made.</p>
+      <h3>bi-temporal (unique to sverklo)</h3>
+      <p>Every memory has <code style="color:var(--accent)">valid_from_sha</code> and <code style="color:var(--accent)">valid_until_sha</code>. Memories are never deleted, only superseded — so you can query "what we believed at commit X". Zep does this for conversations; sverklo is the only one doing it for code.</p>
     </div>
     <div class="feature" style="grid-column: span 6; padding-top: 48px;">
       <div class="feature-num">·</div>
@@ -767,7 +768,7 @@ footer .col-items a:hover { color: var(--accent); }
 <section class="tools-section" id="tools">
   <div class="grid">
     <div class="kicker">/* mcp tools */</div>
-    <h2>ten tools<br>your agent<br>actually uses.</h2>
+    <h2>fifteen tools<br>your agent<br>actually uses.</h2>
     <div class="desc">Each tool gets registered with the MCP server's instructions field, telling Claude to prefer them over built-in grep. Combined with a SessionStart hook, adoption is guaranteed.</div>
 
     <div class="tools-list">
@@ -821,6 +822,140 @@ footer .col-items a:hover { color: var(--accent); }
         <div class="tool-desc">List memories with health metrics — age, access count, staleness.</div>
         <div class="tool-tag">memory</div>
       </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_impact</div>
+        <div class="tool-desc">Find every function/class that references a symbol. Safe refactoring across the symbol graph.</div>
+        <div class="tool-tag">search</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_promote</div>
+        <div class="tool-desc">Promote a memory to core tier — auto-injected into every session as a project invariant.</div>
+        <div class="tool-tag">memory</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_demote</div>
+        <div class="tool-desc">Demote a core memory back to archive. Searched on demand instead of auto-injected.</div>
+        <div class="tool-tag">memory</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_ast_grep</div>
+        <div class="tool-desc">Structural pattern matching via ast-grep binary. Precise symbol queries without embeddings.</div>
+        <div class="tool-tag">search</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── COMPARISON ───────── -->
+<section class="tools-section" id="compare">
+  <div class="grid">
+    <div class="kicker">/* vs the competition */</div>
+    <h2>only one tool<br>has everything.</h2>
+    <div class="desc">
+      The code intelligence and memory space is fragmented. Each competitor gives up at least two of these six dimensions. Sverklo is the only one with all six.
+    </div>
+
+    <div style="grid-column: 1 / 13; margin-top: 48px; overflow-x: auto;">
+      <table style="width:100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; min-width: 780px;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <th style="text-align: left; padding: 14px 12px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Tool</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Code-native</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Local-first</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">MCP drop-in</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Git-aware memory</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Symbol graph</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Bi-temporal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--rule); background: var(--accent-glow);">
+            <td style="padding: 16px 12px; color: var(--accent); font-weight: 700;">sverklo</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">claude-mem</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">CC only</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">Mem0</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">crippled</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">SDK</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">Zep / Graphiti</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">Neo4j</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">Augment Code</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">cloud</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">Greptile</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">cloud</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">3rd party</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">Aider repo-map</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">Zilliz claude-context</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">Milvus</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 12px; color: var(--text);">XRAY MCP</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--warn); font-size: 10px;">partial</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="grid-column: 1 / 13; margin-top: 32px; padding: 24px; background: var(--bg-2); border-left: 2px solid var(--accent); font-size: 14px; color: var(--text-2); line-height: 1.7;">
+      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">The wedge:</strong> <strong style="color: var(--accent);">git-aware bi-temporal memory</strong>. Sverklo is the only tool that can tell you what the code looked like when you made that decision — and warn you when the code has drifted since. No one else is code-native <em>and</em> has proper temporal memory.
     </div>
   </div>
 </section>
@@ -928,6 +1063,21 @@ function cp(text, el) {
     el.style.borderColor = '';
   }, 1500);
 }
+
+// Fetch latest version from npm registry
+(async () => {
+  try {
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest');
+    const data = await r.json();
+    if (data.version) {
+      document.getElementById('version-badge').textContent = 'v' + data.version;
+    } else {
+      document.getElementById('version-badge').textContent = 'v0.2.0';
+    }
+  } catch {
+    document.getElementById('version-badge').textContent = 'v0.2.0';
+  }
+})();
 </script>
 
 </body>
