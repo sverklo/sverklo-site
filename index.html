@@ -609,7 +609,7 @@ footer .col-items a:hover { color: var(--accent); }
     <div class="lede">
       Other tools remember your conversations. <strong>Sverklo understands your code.</strong>
       <br><br>
-      Local-first code intelligence MCP with hybrid semantic search, symbol-level impact analysis, and bi-temporal memory tied to git state. <strong>5× fewer tokens</strong> than grep, <strong>~$78–$390/month</strong> saved per developer.
+      Local-first code intelligence MCP with hybrid semantic search, symbol-level impact analysis, and bi-temporal memory tied to git state. Runs entirely on your machine — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
     </div>
 
     <div class="terminal-block">
@@ -638,24 +638,35 @@ footer .col-items a:hover { color: var(--accent); }
   </div>
 </section>
 
-<!-- ───────── STATS ───────── -->
+<!-- ───────── WHEN IT HELPS ───────── -->
 <section class="stats" id="why">
   <div class="grid">
-    <div class="label">/* measured on a real codebase */</div>
+    <div class="label">/* honest about when this helps */</div>
     <div class="stat">
-      <div class="stat-num">5.1<span style="font-size:32px;">×</span></div>
-      <div class="stat-label">fewer tokens</div>
-      <div class="stat-desc">vs grep + file read baseline. 108K → 21K tokens across 5 realistic queries. <a href="https://github.com/sverklo/sverklo/tree/main/benchmark" target="_blank" rel="noopener" style="color:var(--accent);border:none;">see benchmark →</a></div>
+      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">SVERKLO WINS</div>
+      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
+        Exploratory questions ("how does X flow work?")<br>
+        Refactor blast radius (`sverklo_impact`)<br>
+        Large interconnected codebases<br>
+        Memory across sessions, tied to git SHAs<br>
+        Project audits — god nodes, dead code
+      </div>
     </div>
     <div class="stat">
-      <div class="stat-num">$78–$390</div>
-      <div class="stat-label">saved / dev / month</div>
-      <div class="stat-desc">At Claude Sonnet 4.5 ($78) to Opus 4.6 ($390) pricing, assuming 50 code searches/day. Your rate limit lasts 5× longer.</div>
+      <div class="stat-label" style="font-size:14px;color:var(--text-2);margin-bottom:8px;">GREP WINS</div>
+      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
+        Focused diff review<br>
+        Exact string matching<br>
+        Reading file contents<br>
+        Build & test verification<br>
+        Anything where you already know the symbol
+      </div>
     </div>
     <div class="stat">
-      <div class="stat-num">&lt;50<span style="font-size:32px;">ms</span></div>
-      <div class="stat-label">per query (warm)</div>
-      <div class="stat-desc">Hybrid BM25 + vector + PageRank, all local. No cloud round-trip, no API costs.</div>
+      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">THE PATTERN</div>
+      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
+        Sverklo is the right tool when you <strong>don't know exactly what to search for</strong>. When you do know, grep is fine. We benchmarked both on real MRs — sverklo doesn't replace grep, it complements it.
+      </div>
     </div>
   </div>
 </section>
