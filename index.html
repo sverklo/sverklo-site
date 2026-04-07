@@ -607,7 +607,9 @@ footer .col-items a:hover { color: var(--accent); }
     <h1>sverklo<span class="cursor">&nbsp;</span></h1>
 
     <div class="lede">
-      Your AI agent wastes tokens reading irrelevant files. Sverklo indexes your codebase locally — <strong>5× fewer tokens per query</strong> in benchmarks, with hybrid semantic search, persistent memory, and zero config.
+      Other tools remember your conversations. <strong>Sverklo understands your code.</strong>
+      <br><br>
+      Local-first code intelligence MCP with hybrid semantic search, symbol-level impact analysis, and bi-temporal memory tied to git state. <strong>5× fewer tokens</strong> than grep, <strong>~$78–$390/month</strong> saved per developer.
     </div>
 
     <div class="terminal-block">
@@ -646,9 +648,9 @@ footer .col-items a:hover { color: var(--accent); }
       <div class="stat-desc">vs grep + file read baseline. 108K → 21K tokens across 5 realistic queries. <a href="https://github.com/sverklo/sverklo/tree/main/benchmark" target="_blank" rel="noopener" style="color:var(--accent);border:none;">see benchmark →</a></div>
     </div>
     <div class="stat">
-      <div class="stat-num">80%</div>
-      <div class="stat-label">context saved</div>
-      <div class="stat-desc">Same answers, same accuracy — in a fifth of the tokens. That's 5× your effective rate limit.</div>
+      <div class="stat-num">$78–$390</div>
+      <div class="stat-label">saved / dev / month</div>
+      <div class="stat-desc">At Claude Sonnet 4.5 ($78) to Opus 4.6 ($390) pricing, assuming 50 code searches/day. Your rate limit lasts 5× longer.</div>
     </div>
     <div class="stat">
       <div class="stat-num">&lt;50<span style="font-size:32px;">ms</span></div>
@@ -912,6 +914,15 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
           </tr>
           <tr style="border-bottom: 1px solid var(--rule);">
+            <td style="padding: 16px 12px; color: var(--text);">mempalace</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--ok);">●</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--rule);">
             <td style="padding: 16px 12px; color: var(--text);">claude-mem</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--ok);">●</td>
@@ -988,7 +999,9 @@ footer .col-items a:hover { color: var(--accent); }
     </div>
 
     <div style="grid-column: 1 / 13; margin-top: 32px; padding: 24px; background: var(--bg-2); border-left: 2px solid var(--accent); font-size: 14px; color: var(--text-2); line-height: 1.7;">
-      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">The wedge:</strong> <strong style="color: var(--accent);">git-aware bi-temporal memory</strong>. Sverklo is the only tool that can tell you what the code looked like when you made that decision — and warn you when the code has drifted since. No one else is code-native <em>and</em> has proper temporal memory.
+      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 20 languages with tree-sitter-style parsers, build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
+      <br><br>
+      <strong style="color: var(--accent);">The wedge:</strong> Sverklo is the only tool that knows what the code looked like when you made that decision — and warns you when the code has drifted since. If you want conversation memory, use mempalace. If you want your agent to actually understand a codebase, use sverklo.
     </div>
   </div>
 </section>
