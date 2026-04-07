@@ -607,7 +607,7 @@ footer .col-items a:hover { color: var(--accent); }
     <h1>sverklo<span class="cursor">&nbsp;</span></h1>
 
     <div class="lede">
-      Your AI agent wastes <strong>70% of tokens</strong> reading irrelevant files. Sverklo indexes your codebase locally — hybrid semantic search with PageRank ranking and persistent memory. Zero config.
+      Your AI agent wastes tokens reading irrelevant files. Sverklo indexes your codebase locally — <strong>5× fewer tokens per query</strong> in benchmarks, with hybrid semantic search, persistent memory, and zero config.
     </div>
 
     <div class="terminal-block">
@@ -639,21 +639,21 @@ footer .col-items a:hover { color: var(--accent); }
 <!-- ───────── STATS ───────── -->
 <section class="stats" id="why">
   <div class="grid">
-    <div class="label">/* the problem */</div>
+    <div class="label">/* measured on a real codebase */</div>
     <div class="stat">
-      <div class="stat-num">70%</div>
-      <div class="stat-label">tokens wasted</div>
-      <div class="stat-desc">Agents grep through irrelevant files, burning your context window on noise.</div>
+      <div class="stat-num">5.1<span style="font-size:32px;">×</span></div>
+      <div class="stat-label">fewer tokens</div>
+      <div class="stat-desc">vs grep + file read baseline. 108K → 21K tokens across 5 realistic queries. <a href="https://github.com/sverklo/sverklo/tree/main/benchmark" target="_blank" rel="noopener" style="color:var(--accent);border:none;">see benchmark →</a></div>
     </div>
     <div class="stat">
-      <div class="stat-num">10–30<span style="font-size:32px;">m</span></div>
-      <div class="stat-label">lost per session</div>
-      <div class="stat-desc">Developers rebuild context every session. Decisions vanish after compaction.</div>
+      <div class="stat-num">80%</div>
+      <div class="stat-label">context saved</div>
+      <div class="stat-desc">Same answers, same accuracy — in a fifth of the tokens. That's 5× your effective rate limit.</div>
     </div>
     <div class="stat">
       <div class="stat-num">&lt;50<span style="font-size:32px;">ms</span></div>
-      <div class="stat-label">with sverklo</div>
-      <div class="stat-desc">Semantic search finds exactly the right code. Memories persist across sessions.</div>
+      <div class="stat-label">per query (warm)</div>
+      <div class="stat-desc">Hybrid BM25 + vector + PageRank, all local. No cloud round-trip, no API costs.</div>
     </div>
   </div>
 </section>
