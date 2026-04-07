@@ -676,12 +676,34 @@ footer .col-items a:hover { color: var(--accent); }
     <div class="kicker">/* persistent memory */</div>
     <h2>your agent<br>finally<br>remembers.</h2>
     <div class="sidebar">
-      Every AI coding session starts from zero. Decisions vanish after context compaction. Sverklo fixes this with <strong>persistent memory linked to git state</strong> — so the next session knows what the last one decided, and when the code looked like that.
+      Every AI coding session starts from zero. Decisions vanish after context compaction. Sverklo fixes this with <strong>persistent memory linked to git state</strong>.
       <br><br>
-      Just tell your agent to remember something. It gets embedded, indexed, and auto-recalled when relevant.
+      On <code style="color: var(--accent);">sverklo init</code>, your existing <strong>CLAUDE.md, .cursorrules, and ADRs</strong> get parsed into searchable memories — categorized, tagged, and embedded automatically.
+      <br><br>
+      Tell your agent to remember new things as they come up. Ask later. It's already there.
     </div>
 
     <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 48px;">
+      <div class="terminal-head">
+        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 0 · day one</span>
+        <span>import</span>
+      </div>
+      <div class="terminal-body"><span class="comment"># bring your existing docs — sverklo ingests them automatically</span>
+<span class="prompt">$</span> <span class="cmd">sverklo init</span>
+
+  <span class="ok">✓</span> <span class="dim">.claude/mcp.json · .claude/settings.local.json · CLAUDE.md</span>
+
+<span class="dim">Scanning for existing project knowledge...</span>
+  <span class="ok">✓</span> <span class="dim">imported 18 memories from:</span>
+    <span class="dim">· CLAUDE.md (12)           — conventions, tech stack</span>
+    <span class="dim">· .cursorrules (3)         — style preferences</span>
+    <span class="dim">· docs/adr/001-prisma.md   — decision, tagged adr</span>
+    <span class="dim">· docs/adr/002-auth.md     — decision, tagged adr</span>
+    <span class="dim">· CONTRIBUTING.md (1)      — review process</span>
+</div>
+    </div>
+
+    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 24px;">
       <div class="terminal-head">
         <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 1 · tuesday</span>
         <span>remember</span>
@@ -713,6 +735,11 @@ footer .col-items a:hover { color: var(--accent); }
 </div>
     </div>
 
+    <div class="feature" style="grid-column: span 6; padding-top: 48px;">
+      <div class="feature-num">·</div>
+      <h3>bring your own docs</h3>
+      <p>Auto-imports memories from CLAUDE.md, .cursorrules, AGENTS.md, CONTRIBUTING.md, and ADRs on init. Your existing project knowledge becomes semantically searchable instantly.</p>
+    </div>
     <div class="feature" style="grid-column: span 6; padding-top: 48px;">
       <div class="feature-num">·</div>
       <h3>git-state linked</h3>
