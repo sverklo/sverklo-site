@@ -218,6 +218,36 @@ nav.top-nav a:hover { color: var(--text); }
 .terminal-body .dim { color: var(--text-2); }
 .terminal-body .cmd { color: var(--text); }
 
+/* Tabbed terminal — IDE picker */
+.term-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+.term-tab {
+  padding: 12px 18px;
+  color: var(--text-3);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-right: 1px solid var(--rule);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: 0.02em;
+}
+.term-tab:hover { color: var(--text-2); background: var(--bg-2); }
+.term-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--bg-2);
+}
+.term-pane { display: none; }
+.term-pane.active { display: block; }
+
 /* ───────── STATS STRIP ───────── */
 .stats {
   padding: 64px 0;
@@ -614,20 +644,28 @@ footer .col-items a:hover { color: var(--accent); }
       Diff-aware MR review with <strong>risk scoring, missing-test detection, and dangling-reference checks</strong>. Hybrid semantic search, symbol-level impact graph, and bi-temporal memory tied to git state. Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
     </div>
 
-    <div class="terminal-block">
+    <div class="terminal-block" id="hero-term">
       <div class="terminal-head">
         <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>~/your-project</span>
-        <span>claude code</span>
+        <span class="term-current-label">claude code</span>
       </div>
-      <div class="terminal-body"><span class="comment"># install sverklo and set it up in any project</span>
+      <div class="term-tabs" role="tablist">
+        <button class="term-tab active" data-tab="claude" data-label="claude code" onclick="switchTab(this)">Claude Code</button>
+        <button class="term-tab" data-tab="cursor" data-label="cursor" onclick="switchTab(this)">Cursor</button>
+        <button class="term-tab" data-tab="antigravity" data-label="antigravity" onclick="switchTab(this)">Antigravity</button>
+        <button class="term-tab" data-tab="other" data-label="any mcp client" onclick="switchTab(this)">Other</button>
+      </div>
+
+      <div class="term-pane active" data-pane="claude">
+        <div class="terminal-body"><span class="comment"># install sverklo and set it up in your project</span>
 <span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
 <span class="prompt">$</span> <span class="cmd">cd your-project &amp;&amp; sverklo init</span>
 
-  <span class="ok">✓</span> <span class="dim">.claude/mcp.json</span>
-  <span class="ok">✓</span> <span class="dim">.claude/settings.local.json</span>
-  <span class="ok">✓</span> <span class="dim">CLAUDE.md</span>
+  <span class="ok">✓</span> <span class="dim">.mcp.json                   ← project-scoped MCP server</span>
+  <span class="ok">✓</span> <span class="dim">.claude/settings.local.json ← auto-allow sverklo tools</span>
+  <span class="ok">✓</span> <span class="dim">CLAUDE.md                   ← prefer-sverklo instructions</span>
 
-<span class="comment"># ask your agent anything — sverklo is preferred automatically</span>
+<span class="comment"># ask Claude anything — sverklo is preferred automatically</span>
 <span class="prompt">&gt;</span> <span class="cmd">how does the auth middleware work?</span>
 
   <span class="tool">⚡ sverklo_search</span>   <span class="dim">query="authentication middleware"</span>
@@ -636,6 +674,68 @@ footer .col-items a:hover { color: var(--accent); }
   <span class="dim">─ src/lib/jwt.ts:12           verifyJWT()         score: 0.81</span>
   <span class="ok">✓ 3 results in 23ms — 847 files searched, 2,431 tokens used</span>
 </div>
+      </div>
+
+      <div class="term-pane" data-pane="cursor">
+        <div class="terminal-body"><span class="comment"># install sverklo</span>
+<span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
+
+<span class="comment"># add to .cursor/mcp.json (or Cursor Settings → MCP)</span>
+<span class="prompt">$</span> <span class="cmd">cat .cursor/mcp.json</span>
+  <span class="dim">{</span>
+  <span class="dim">  "mcpServers": {</span>
+  <span class="dim">    "sverklo": {</span>
+  <span class="dim">      "command": "sverklo",</span>
+  <span class="dim">      "args": ["mcp", "."]</span>
+  <span class="dim">    }</span>
+  <span class="dim">  }</span>
+  <span class="dim">}</span>
+
+<span class="comment"># Cursor agent picks up sverklo on next session</span>
+<span class="prompt">&gt;</span> <span class="cmd">where do we handle stripe webhooks?</span>
+
+  <span class="tool">⚡ sverklo_context</span>  <span class="dim">task="stripe webhook handling"</span>
+  <span class="dim">─ src/api/webhooks/stripe.ts:14  handleStripeEvent()  score: 0.92</span>
+  <span class="dim">─ src/billing/events.ts:31       processCharge()      score: 0.78</span>
+  <span class="ok">✓ bundle: 4 files, 2 memories — 1,840 tokens</span>
+</div>
+      </div>
+
+      <div class="term-pane" data-pane="antigravity">
+        <div class="terminal-body"><span class="comment"># install sverklo and run init — Antigravity is auto-detected</span>
+<span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
+<span class="prompt">$</span> <span class="cmd">cd your-project &amp;&amp; sverklo init</span>
+
+  <span class="ok">✓</span> <span class="dim">~/.gemini/antigravity/mcp_config.json  ← global MCP config</span>
+  <span class="ok">✓</span> <span class="dim">  added sverklo (project: ~/your-project)</span>
+  <span class="dim">  Restart Antigravity to pick up the new MCP server.</span>
+
+<span class="comment"># Gemini in Antigravity uses sverklo via MCP</span>
+<span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge ref:main..HEAD</span>
+
+  <span class="tool">⚡ sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
+  <span class="warn">─ 🟠 risk 52  src/api/billing.ts</span>
+  <span class="dim">    2 removed symbols still referenced; 8 importers</span>
+  <span class="ok">verdict: BLOCKED — must update callers in 3 files</span>
+</div>
+      </div>
+
+      <div class="term-pane" data-pane="other">
+        <div class="terminal-body"><span class="comment"># Sverklo speaks vanilla MCP over stdio — works with any MCP client</span>
+<span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
+
+<span class="comment"># point your MCP client at this command</span>
+  <span class="dim">command: sverklo</span>
+  <span class="dim">args:    ["mcp", "/absolute/path/to/your-project"]</span>
+
+<span class="comment"># tested with Claude Code, Cursor, Antigravity, Windsurf,</span>
+<span class="comment"># VS Code (Continue), JetBrains, Codex, and any MCP-compatible host</span>
+
+<span class="prompt">$</span> <span class="cmd">sverklo mcp .</span>
+  <span class="ok">✓ MCP server started — 20 tools, 5 prompts registered</span>
+  <span class="ok">✓ index ready: 847 files, 12,431 symbols</span>
+</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1157,7 +1257,7 @@ footer .col-items a:hover { color: var(--accent); }
       <div class="qs-num">02 — setup</div>
       <div class="qs-title">Initialize in your project</div>
       <div class="qs-cmd" onclick="cp('sverklo init', this)">sverklo init<span class="copy">copy</span></div>
-      <div class="qs-note">Creates .claude/mcp.json, adds SessionStart hook, appends CLAUDE.md instructions. Idempotent.</div>
+      <div class="qs-note">Creates .mcp.json, .claude/settings.local.json, CLAUDE.md. Auto-detects Antigravity. Idempotent.</div>
     </div>
 
     <div class="qs-step">
@@ -1244,6 +1344,16 @@ footer .col-items a:hover { color: var(--accent); }
 </footer>
 
 <script>
+function switchTab(btn) {
+  const term = btn.closest('.terminal-block');
+  if (!term) return;
+  const tab = btn.dataset.tab;
+  term.querySelectorAll('.term-tab').forEach((b) => b.classList.toggle('active', b === btn));
+  term.querySelectorAll('.term-pane').forEach((p) => p.classList.toggle('active', p.dataset.pane === tab));
+  const label = term.querySelector('.term-current-label');
+  if (label && btn.dataset.label) label.textContent = btn.dataset.label;
+}
+
 function cp(text, el) {
   const ta = document.createElement('textarea');
   ta.value = text;
