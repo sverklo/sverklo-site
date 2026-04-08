@@ -711,12 +711,14 @@ footer .col-items a:hover { color: var(--accent); }
   <span class="dim">  Restart Antigravity to pick up the new MCP server.</span>
 
 <span class="comment"># Gemini in Antigravity uses sverklo via MCP</span>
-<span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge ref:main..HEAD</span>
+<span class="prompt">&gt;</span> <span class="cmd">review my branch before I merge to main</span>
 
   <span class="tool">⚡ sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
   <span class="warn">─ 🟠 risk 52  src/api/billing.ts</span>
   <span class="dim">    2 removed symbols still referenced; 8 importers</span>
-  <span class="ok">verdict: BLOCKED — must update callers in 3 files</span>
+  <span class="tool">⚡ sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
+  <span class="dim">─ 5 covered · 1 uncovered (risk 78)</span>
+  <span class="ok">verdict: BLOCKED — fix dangling refs in 3 files</span>
 </div>
       </div>
 
