@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- background -->
+  <rect width="1200" height="630" fill="#0E0D0B"/>
+
+  <!-- subtle warm grid -->
+  <g opacity="0.05" stroke="#E85A2A" stroke-width="1">
+    <line x1="0" y1="120" x2="1200" y2="120"/>
+    <line x1="0" y1="510" x2="1200" y2="510"/>
+    <line x1="80" y1="0" x2="80" y2="630"/>
+    <line x1="1120" y1="0" x2="1120" y2="630"/>
+  </g>
+
+  <!-- top label -->
+  <text x="80" y="105" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600" fill="#E85A2A" letter-spacing="2">/* LOCAL-FIRST CODE INTELLIGENCE MCP */</text>
+
+  <!-- big wordmark -->
+  <text x="80" y="245" font-family="JetBrains Mono, monospace" font-size="148" font-weight="700" fill="#EDE7D9" letter-spacing="-4">sverklo</text>
+  <rect x="868" y="155" width="22" height="100" fill="#E85A2A"/>
+
+  <!-- tagline line 1 -->
+  <text x="80" y="340" font-family="Public Sans, sans-serif" font-size="40" font-weight="600" fill="#EDE7D9">Other tools remember your conversations.</text>
+  <!-- tagline line 2 -->
+  <text x="80" y="395" font-family="Public Sans, sans-serif" font-size="40" font-weight="600" fill="#E85A2A">Sverklo understands your code.</text>
+
+  <!-- feature row -->
+  <g font-family="JetBrains Mono, monospace" font-size="20" font-weight="500" fill="#A39886">
+    <text x="80" y="478">▸ hybrid search</text>
+    <text x="320" y="478">▸ impact analysis</text>
+    <text x="600" y="478">▸ diff-aware review</text>
+    <text x="900" y="478">▸ git-aware memory</text>
+  </g>
+
+  <!-- bottom row: install + clients -->
+  <g>
+    <rect x="80" y="520" width="540" height="60" fill="none" stroke="#E85A2A" stroke-width="2"/>
+    <text x="100" y="558" font-family="JetBrains Mono, monospace" font-size="22" font-weight="600" fill="#EDE7D9">npm install -g sverklo</text>
+    <text x="380" y="558" font-family="JetBrains Mono, monospace" font-size="20" font-weight="500" fill="#E85A2A"> · sverklo init</text>
+  </g>
+
+  <text x="1120" y="558" font-family="JetBrains Mono, monospace" font-size="18" font-weight="500" fill="#A39886" text-anchor="end">Claude Code · Cursor · Antigravity · 6 IDEs</text>
+
+  <!-- bottom-right brand mark -->
+  <text x="1120" y="100" font-family="JetBrains Mono, monospace" font-size="18" font-weight="600" fill="#A39886" text-anchor="end">sverklo.com</text>
+</svg>
