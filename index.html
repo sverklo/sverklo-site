@@ -957,10 +957,10 @@ footer .col-items a:hover { color: var(--accent); }
   </div>
 </section>
 
-<!-- ───────── BENCHMARKS ───────── -->
+<!-- ───────── REVIEW QUALITY BENCHMARK ───────── -->
 <section class="stats" id="benchmarks">
   <div class="grid">
-    <div class="label">/* benchmarks — published, not claimed */</div>
+    <div class="label">/* review-quality benchmark — published, not claimed */</div>
     <div class="stat">
       <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">METHOD</div>
       <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
@@ -978,6 +978,39 @@ footer .col-items a:hover { color: var(--accent); }
       <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
         Competitors claim "5–10× fewer tokens" with no methodology. We'd rather be the tool you trust than the one you screenshot. The benchmark harness is in the repo — clone it, run it on your codebase, decide for yourself.
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── PERFORMANCE BENCHMARK ───────── -->
+<section class="stats" id="performance" style="border-top:1px solid var(--rule);">
+  <div class="grid">
+    <div class="label">/* performance benchmark — three real codebases, one laptop */</div>
+    <div class="stat">
+      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">SEARCH p95</div>
+      <div class="stat-num" style="font-size:56px;color:var(--text);">26<span style="font-size:24px;color:var(--text-2);"> ms</span></div>
+      <div class="stat-desc" style="font-size:13px;color:var(--text-2);margin-top:8px;">
+        On <strong style="color:var(--text);">facebook/react</strong> (4,368 files, 20k chunks). On smaller repos (gin, nestjs) it drops to 11–14 ms. Sverklo lives in the agent's hot loop — the latency budget allows it.
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">IMPACT ANALYSIS</div>
+      <div class="stat-num" style="font-size:56px;color:var(--text);">&lt;1.2<span style="font-size:24px;color:var(--text-2);"> ms</span></div>
+      <div class="stat-desc" style="font-size:13px;color:var(--text-2);margin-top:8px;">
+        <code style="color:var(--accent);">sverklo_impact render</code> on React's most-called symbol. Sub-millisecond on every repo we tested — it's an indexed SQL join, not a 200-grep-match scan.
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" style="font-size:14px;color:var(--text-2);margin-bottom:8px;">COLD INDEX (REACT)</div>
+      <div class="stat-num" style="font-size:56px;color:var(--text);">152<span style="font-size:24px;color:var(--text-2);"> s</span></div>
+      <div class="stat-desc" style="font-size:13px;color:var(--text-2);margin-top:8px;">
+        2.5 minutes for a 4k-file monorepo, ~7 ms/chunk. Pay it once per project; incremental refresh after that only re-processes changed files. The honest trade-off — listed first because we think you'd rather know.
+      </div>
+    </div>
+  </div>
+  <div class="grid" style="margin-top:32px;">
+    <div style="grid-column:1/13;font-size:13px;color:var(--text-2);font-family:'JetBrains Mono',monospace;">
+      Run on Apple Silicon. Steady-state RAM ~200 MB; peak during indexing 400–700 MB while the embedder batches. Full methodology, all metrics, and the reproducer harness in <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md" style="color:var(--accent);">BENCHMARKS.md</a>.
     </div>
   </div>
 </section>
