@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reciprocal Rank Fusion is doing 80% of the work in our hybrid search — Sverklo</title>
+<meta name="description" content="I tried half a dozen scoring schemes for combining BM25, vector similarity, and PageRank into a single ranked code-search result. Most required tuning weights, calibrating scores, and explaining the result to skeptical reviewers. Reciprocal Rank Fusion is three lines of math, has no tunable parameters, and beats every alternative I tested.">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/blog/rrf-is-doing-80-percent-of-the-work/">
+
+<meta property="og:title" content="Reciprocal Rank Fusion is doing 80% of the work in our hybrid search">
+<meta property="og:description" content="A practical writeup on how Sverklo combines BM25, ONNX embeddings, and PageRank into one ranked result — and why the combination function is more important than any individual signal.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/rrf-is-doing-80-percent-of-the-work/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="article:published_time" content="2026-04-08">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="code search">
+<meta property="article:tag" content="information retrieval">
+<meta property="article:tag" content="reciprocal rank fusion">
+<meta property="article:tag" content="hybrid search">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reciprocal Rank Fusion is doing 80% of the work in our hybrid search">
+<meta name="twitter:description" content="The combination function is more important than any individual signal in hybrid code search. Here's what we tried and why RRF won.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Reciprocal Rank Fusion is doing 80% of the work in our hybrid search",
+  "description": "A practical writeup on how Sverklo combines BM25, ONNX embeddings, and PageRank into one ranked result — and why the combination function matters more than any individual signal.",
+  "datePublished": "2026-04-08",
+  "dateModified": "2026-04-08",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/rrf-is-doing-80-percent-of-the-work/"},
+  "articleSection": "Engineering",
+  "keywords": "reciprocal rank fusion, RRF, hybrid search, code search, BM25, vector search, PageRank, information retrieval"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230E0D0B'/><text x='50' y='68' text-anchor='middle' font-family='JetBrains Mono,monospace' font-weight='700' font-size='60' fill='%23E85A2A'>s</text></svg>">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+  --bg-3: #1C1A14;
+  --rule: #2A2620;
+  --rule-2: #403A30;
+  --text: #EDE7D9;
+  --text-2: #A39886;
+  --text-3: #6B6354;
+  --accent: #E85A2A;
+  --accent-dim: #B8441C;
+}
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-dim);
+  transition: border-color 0.15s, color 0.15s;
+}
+a:hover { color: var(--text); border-color: var(--text); }
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+header.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(14, 13, 11, 0.92);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.brand .accent { color: var(--accent); }
+.brand:hover { border: none; color: var(--text); }
+nav.top-nav { display: flex; gap: 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+nav.top-nav a { border: none; color: var(--text-2); }
+nav.top-nav a:hover { color: var(--accent); }
+
+article {
+  padding: 80px 0 100px;
+}
+
+.article-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+}
+.article-meta .date { color: var(--accent); }
+.article-meta .tag {
+  border: 1px solid var(--rule-2);
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: var(--text-2);
+}
+
+article h1 {
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+
+article h2 {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 56px 0 16px;
+  letter-spacing: -0.01em;
+}
+
+article h3 {
+  font-size: 21px;
+  font-weight: 600;
+  margin: 36px 0 12px;
+  color: var(--text);
+}
+
+article p {
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+article p.lede {
+  font-size: 19px;
+  color: var(--text-2);
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+article ul, article ol {
+  margin: 0 0 24px 24px;
+  color: var(--text);
+}
+article li { margin-bottom: 8px; }
+
+article code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+article pre {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+article pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+article blockquote {
+  border-left: 3px solid var(--rule-2);
+  padding: 4px 0 4px 24px;
+  margin: 24px 0;
+  color: var(--text-2);
+  font-style: italic;
+}
+
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14px;
+}
+article table th, article table td {
+  border: 1px solid var(--rule);
+  padding: 10px 14px;
+  text-align: left;
+}
+article table th {
+  background: var(--bg-2);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+}
+article table td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+
+.kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.callout {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 20px 24px;
+  margin: 32px 0;
+  border-radius: 4px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.callout strong { color: var(--text); }
+
+.cta {
+  background: var(--bg-2);
+  border: 1px solid var(--accent);
+  padding: 32px;
+  margin: 48px 0;
+  border-radius: 4px;
+  text-align: center;
+}
+.cta h3 { margin-top: 0; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+.cta pre { background: transparent; border: none; padding: 12px 0; margin: 12px 0; color: var(--text); border-left: none; }
+.cta a { display: inline-block; margin-top: 8px; }
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 64px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-3);
+}
+footer .container {
+  display: flex;
+  justify-content: space-between;
+}
+footer a { border: none; color: var(--text-2); }
+
+@media (max-width: 640px) {
+  article h1 { font-size: 32px; }
+  article h2 { font-size: 24px; }
+  body { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="container">
+    <a class="brand" href="/">sverklo<span class="accent">.</span></a>
+    <nav class="top-nav">
+      <a href="/#tools">tools</a>
+      <a href="/#install">install</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo">github</a>
+    </nav>
+  </div>
+</header>
+
+<article>
+  <div class="container">
+    <div class="article-meta">
+      <span class="date">2026-04-08</span>
+      <span class="tag">retrieval</span>
+      <span class="tag">information retrieval</span>
+      <span class="tag">deep dive</span>
+    </div>
+
+    <div class="kicker">Engineering · Sverklo</div>
+    <h1>Reciprocal Rank Fusion is doing 80% of the work in our hybrid search</h1>
+
+    <p class="lede">I tried half a dozen scoring schemes for combining BM25, vector similarity, and PageRank into a single ranked code-search result. Most required tuning weights, calibrating scores, and explaining the result to skeptical reviewers. Reciprocal Rank Fusion is three lines of math, has no tunable parameters, and beats every alternative I tested. Here's what it does, why it works, and why it should be your default.</p>
+
+    <h2>The setup</h2>
+
+    <p>Sverklo's job is to take a natural-language query like <code>"where does the auth token get refreshed?"</code> and return a ranked list of code chunks that an AI agent can read to answer the question. The agent then reads the top-N results, builds a mental model, and replies. The quality of the answer is bounded above by the quality of the retrieval — if the right code chunk isn't in the top results, the agent has no chance.</p>
+
+    <p>Almost everyone building this kind of tool reaches for a hybrid setup: <strong>multiple retrievers, each good at different things, combined into one final ranking</strong>. Sverklo combines three retrievers:</p>
+
+    <ul>
+      <li><strong>BM25</strong> over the chunk content. Classic keyword search. Excellent at exact-token recall — if the user types <code>refreshAuthToken</code>, BM25 finds the literal symbol immediately. Terrible at concept search — it doesn't know <code>renewSession</code> is semantically the same thing.</li>
+      <li><strong>ONNX vector similarity</strong> using all-MiniLM-L6-v2 (384-dimensional, runs locally). Excellent at concept search — embeddings put <code>renewSession</code> and <code>refreshAuthToken</code> near each other in vector space. Surprisingly bad at exact-name lookups — if you type <code>UserService.authenticate</code>, the model returns synonyms (<code>AuthHelper.verify</code>, <code>LoginController.signIn</code>) before the literal symbol.</li>
+      <li><strong>PageRank</strong> over the file dependency graph. Doesn't answer the query at all. Tells us which results, when there's a tie or near-tie, are structurally important. The reason your agent reads <code>OrderProcessor.ts</code> instead of <code>OrderProcessor.test.ts</code>.</li>
+    </ul>
+
+    <p>Three retrievers, three rankings, one final result. The interesting question — the one this post is about — isn't <em>which retriever to pick</em>. It's <em>how to combine them</em>.</p>
+
+    <h2>The obvious combinations don't work</h2>
+
+    <p>The first thing you try is a weighted sum:</p>
+
+    <pre><code>final_score = w1 * bm25_score + w2 * cosine_similarity + w3 * pagerank</code></pre>
+
+    <p>This fails for one specific, structural reason: <strong>the three signals are on incompatible scales</strong>.</p>
+
+    <table>
+      <thead>
+        <tr><th>Signal</th><th>Range</th><th>Distribution</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>BM25</td><td class="num">[0, ∞)</td><td>Long-tail; top result might score 12.4 while the 50th scores 0.3</td></tr>
+        <tr><td>Cosine similarity</td><td class="num">[-1, 1]</td><td>Bunched near 0.6–0.9 for any plausible match</td></tr>
+        <tr><td>PageRank</td><td class="num">[0, 1]</td><td>Tiny probabilities; top file in a 4k-file repo might score 0.003</td></tr>
+      </tbody>
+    </table>
+
+    <p>You can't add these. Adding a BM25 score of 12.4 and a cosine similarity of 0.85 gives you 13.25, which is dominated by the BM25 term entirely. The cosine similarity might as well not exist.</p>
+
+    <p>The fix everyone tries next is to <strong>normalize each signal to [0, 1]</strong> first — min-max scaling, z-score, sigmoid, whatever. This works in theory and breaks in practice. Min-max scaling is unstable when one query has very few results (the min and max are too close together). Z-score requires you to know the population distribution in advance, which you don't. Sigmoid squashing throws away information at the extremes. Every option has a failure mode and every failure mode requires a tunable parameter to paper over.</p>
+
+    <p>The second thing you try is a learned ranking function. Train a model to combine the three scores. This works extremely well for web search, where Google has a billion queries a day to train on. It's a non-starter for sverklo, where the entire training set is "the user typed something three minutes ago."</p>
+
+    <p>The third thing you try is to pick a single signal and use that. Most embedding-only "code search" tools end up here. You lose the precision of BM25 and you lose the structural importance signal from PageRank, and your top result for <code>UserService.authenticate</code> is a function called <code>AuthHelper.verify</code> in a file your agent has never seen. This is what 90% of public RAG-over-code projects shipped in 2023–2025 look like.</p>
+
+    <p>The fourth thing you try, and the thing that actually works, is Reciprocal Rank Fusion.</p>
+
+    <h2>What Reciprocal Rank Fusion is</h2>
+
+    <p>RRF was published by Cormack, Clarke, and Büttcher in 2009 as a way to combine rankings from completely different retrieval systems without normalizing scores. The trick is to <strong>throw away the scores entirely and combine the ranks instead</strong>.</p>
+
+    <p>Each retriever produces an ordered list. For each item that appears in any list, you compute:</p>
+
+    <pre><code>RRF(item) = Σ (1 / (k + rank_i(item)))   for each retriever i where the item appears
+
+where:
+  rank_i(item) = the 1-indexed position of item in retriever i's ranked list
+  k = a constant, conventionally 60 (more on this in a moment)</code></pre>
+
+    <p>Then you sort items by their RRF score, descending. That's it. That's the entire algorithm.</p>
+
+    <p>Three things are worth noticing immediately:</p>
+
+    <ol>
+      <li><strong>There are no scale issues.</strong> Ranks are integers from 1 to N. The transformation <code>1/(k+rank)</code> maps every retriever's output to the same range, regardless of whether the underlying scores were unbounded BM25 or [-1,1] cosine similarities.</li>
+      <li><strong>There are no tunable weights per retriever.</strong> Every signal contributes equally. You can't accidentally over-trust embeddings or over-trust grep — they each get the same vote-by-rank.</li>
+      <li><strong>The k constant matters less than you'd think.</strong> 60 is the value from the original paper and it's what the literature has converged on. Sverklo uses 60. I tried 30 and 100 and the results were almost identical — the function is logarithmic in k near typical values.</li>
+    </ol>
+
+    <p>The implementation in sverklo is small enough to fit on screen:</p>
+
+    <pre><code>// src/server/tools/recall.ts (similar code in src/search/)
+const RRF_K = 60;
+
+const rrfScores = new Map&lt;number, number&gt;();
+
+// Signal A: BM25 / FTS
+for (let rank = 0; rank &lt; bm25Results.length; rank++) {
+  const id = bm25Results[rank].id;
+  rrfScores.set(id, (rrfScores.get(id) || 0) + 1 / (RRF_K + rank + 1));
+}
+
+// Signal B: vector similarity
+for (let rank = 0; rank &lt; vectorResults.length; rank++) {
+  const id = vectorResults[rank].id;
+  rrfScores.set(id, (rrfScores.get(id) || 0) + 1 / (RRF_K + rank + 1));
+}
+
+// Signal C: PageRank — used as a tiebreaker boost on the fused score
+// (full implementation in graph-builder.ts; here we re-rank by PR after RRF)
+const candidates = [...rrfScores.entries()].map(([id, rrfScore]) =&gt; {
+  const file = chunkStore.fileFor(id);
+  const finalScore = rrfScore * (1 + 0.1 * file.pagerank);
+  return { id, score: finalScore };
+});
+
+candidates.sort((a, b) =&gt; b.score - a.score);</code></pre>
+
+    <p>That's the entire fusion stage. Eight lines of substantive code. No weights to tune, no scores to calibrate, no model to train, no failure mode I've found in nine months of dogfooding.</p>
+
+    <h2>Why does this work?</h2>
+
+    <p>The intuition is simple and the proof is annoyingly slippery, so let me give you the intuition first.</p>
+
+    <p>RRF rewards <strong>consensus across retrievers</strong>. An item that ranks 1st in BM25 and 1st in vector search has the highest possible RRF score. An item that ranks 1st in BM25 but is missing entirely from vector search has only the BM25 contribution — much lower. Items that show up in the top 5 of both retrievers float above items that show up in the top 1 of just one.</p>
+
+    <p>This is exactly the property you want for hybrid code search. The case where BM25 is right is the case where the user typed a literal symbol; the case where vector search is right is the case where the user described what they wanted. <strong>The case where they're <em>both</em> right is the case where both retrievers agree</strong>, and that's the case RRF rewards most strongly.</p>
+
+    <p>The <code>1/(k+rank)</code> shape matters. The score drops off fast at the top (rank 1 gives <code>1/61 ≈ 0.0164</code>, rank 2 gives <code>1/62 ≈ 0.0161</code>, rank 10 gives <code>1/70 ≈ 0.0143</code>) and slowly at the tail (rank 50 gives <code>1/110 ≈ 0.0091</code>, rank 100 gives <code>1/160 ≈ 0.0063</code>). The result: top results matter a lot, mid results contribute meaningfully, tail results contribute almost nothing. Exactly the curve you'd hand-design if you were trying to write a "good combination" function from scratch.</p>
+
+    <p>The deeper reason it works — and the reason the original paper mathematically justifies it — is that ranks contain less information than scores, and <em>less information is exactly what you want when you don't trust any single retriever to be calibrated</em>. By throwing away the scores you also throw away the calibration problem. You can't be wrong about a calibration you never relied on.</p>
+
+    <h2>Concrete example from a real query</h2>
+
+    <p>Take the query <code>"hybrid search ranking function"</code> against sverklo's own codebase. Here's what each retriever returns, top 5 only:</p>
+
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>BM25</th><th>Vector</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">1</td><td>src/search/hybrid.ts</td><td>src/search/hybrid.ts</td></tr>
+        <tr><td class="num">2</td><td>src/search/bm25.ts</td><td>src/server/tools/recall.ts</td></tr>
+        <tr><td class="num">3</td><td>src/search/scoring.ts</td><td>src/search/scoring.ts</td></tr>
+        <tr><td class="num">4</td><td>benchmark/src/types.ts</td><td>src/search/hybrid-fusion.ts</td></tr>
+        <tr><td class="num">5</td><td>src/server/tools/search.ts</td><td>src/search/bm25.ts</td></tr>
+      </tbody>
+    </table>
+
+    <p>Computing RRF (k=60) and adding the PageRank tiebreaker, the fused result is:</p>
+
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>File</th><th>RRF score</th><th>Why it ranks here</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">1</td><td>src/search/hybrid.ts</td><td class="num">0.0328</td><td>1st in both retrievers — strongest possible signal</td></tr>
+        <tr><td class="num">2</td><td>src/search/scoring.ts</td><td class="num">0.0317</td><td>3rd in both retrievers — strong consensus</td></tr>
+        <tr><td class="num">3</td><td>src/search/bm25.ts</td><td class="num">0.0316</td><td>2nd in BM25, 5th in vector — strong literal match, weaker concept</td></tr>
+        <tr><td class="num">4</td><td>src/server/tools/recall.ts</td><td class="num">0.0161</td><td>2nd in vector only — concept match, no literal hit</td></tr>
+        <tr><td class="num">5</td><td>src/search/hybrid-fusion.ts</td><td class="num">0.0156</td><td>4th in vector only — same pattern</td></tr>
+      </tbody>
+    </table>
+
+    <p>Notice the failure mode RRF avoids: BM25 had <code>benchmark/src/types.ts</code> at rank 4 (because the file contains the strings "hybrid", "search", "ranking", and "function" in type definitions) but it's not in the vector top-5 because semantically it's a type-definitions file, not a ranking implementation. RRF correctly demotes it out of the top results because it has no consensus support. A naive weighted-sum would have included it.</p>
+
+    <p>And notice the win RRF gives you: <code>src/search/scoring.ts</code> ranks #2 in the fused list even though it ranked #3 in both retrievers. The combination of "consistently in the top 3 of both signals" is more valuable than being #1 in just one. RRF surfaces consistent mid-rankers above lopsided top-rankers, and that's exactly the right behavior when you're combining noisy retrievers that each have their own failure modes.</p>
+
+    <h2>What RRF doesn't do</h2>
+
+    <p>I'd be lying if I said RRF was free. Three things it doesn't solve:</p>
+
+    <h3>1. Calibrated probabilities</h3>
+
+    <p>RRF gives you a <em>ranking</em>, not a probability that any given result is correct. If you want to threshold ("only return results with confidence &gt; 0.9"), you can't do it with RRF scores directly. The score depends on the size of the candidate pool and the rank distribution, not on any absolute notion of relevance.</p>
+
+    <p>Sverklo doesn't need calibrated probabilities — the agent reads the top N regardless. But if you're building something that does (a search UI that hides low-confidence results, say), RRF gives you an ordering and not much else.</p>
+
+    <h3>2. Recall when one retriever is silent</h3>
+
+    <p>If BM25 returns zero results (the user's query has no exact-token matches at all) and vector search returns ten, RRF reduces to "use vector search". That's the right behavior, but it's not magic — you're as good as the better retriever in that case, no better.</p>
+
+    <p>The case where this hurts is queries that fall in the gap between both retrievers — concept queries where the embedding isn't quite right AND there are no literal-string anchors. For those queries, the only fix is a third or fourth retriever (a specialized code embedding model, a graph-walk over symbol references, etc.). Sverklo's <code>sverklo_impact</code> tool exists exactly for this case — it's a different way of asking "what's structurally related to X?" that doesn't depend on either BM25 or vector search.</p>
+
+    <h3>3. Diversity</h3>
+
+    <p>RRF doesn't penalize duplicates. If your top 5 BM25 hits are all in the same file at different chunks, RRF will happily put all 5 in the top of the fused result. For a code-search tool returning chunks, this is sometimes what you want and sometimes not.</p>
+
+    <p>Sverklo handles this with a post-fusion deduplication pass that caps each file's contribution at 3 chunks. It's a hack, but it's a 5-line hack and it covers the failure mode.</p>
+
+    <h2>Why I'm writing this</h2>
+
+    <p>I built sverklo expecting the embedding model to do most of the heavy lifting. I assumed I'd spend most of my time tuning the model, picking better embeddings, maybe fine-tuning on code. The model picker is one of the most common decision points in any RAG project, and there's a whole sub-industry of "best embedding model 2026" benchmarks selling that decision as the important one.</p>
+
+    <p>Then I built the hybrid stack and discovered that <strong>the combination function was more important than any individual signal</strong>. Better BM25, better embeddings, better PageRank — none of them moved the quality needle as much as switching from weighted-sum to RRF. The day I ripped out my weighted-sum-with-min-max-normalization code and replaced it with the eight lines above was the day sverklo's search results stopped feeling random.</p>
+
+    <p>I see a lot of "code search" tools shipping in 2026 that pick a single embedding model, normalize it however they normalize it, and return the top vector hits. Most of them would be visibly better — measurably better, in user-visible time-to-correct-answer — if they spent ten minutes adding a BM25 fallback and an RRF combiner. That work is so cheap and the upside is so large that I'm a little embarrassed it took me as long as it did to get there.</p>
+
+    <p>The TL;DR if you're building a hybrid retrieval system in 2026 and you're tempted to start with a weighted sum of normalized scores: <strong>don't</strong>. Use RRF. It's eight lines, has no tunable parameters, and outperforms every alternative I've tried. The only reason it isn't the default in every retrieval library is that "Reciprocal Rank Fusion" sounds more complicated than "weighted average," and people who haven't read the 2009 paper assume it must be exotic. It isn't. It's a one-liner.</p>
+
+    <div class="callout">
+      <strong>Further reading.</strong> The original paper is <a href="https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf">Cormack, Clarke, and Büttcher (2009): "Reciprocal Rank Fusion outperforms Condorcet and individual rank learning methods."</a> It's 2 pages, no math beyond what's in this post, and worth your time if any part of the above felt hand-wavy.
+    </div>
+
+    <div class="cta">
+      <h3>Try it on your own codebase</h3>
+      <pre>npm install -g sverklo
+cd your-project &amp;&amp; sverklo init</pre>
+      <p>Then ask your agent a question that grep is bad at — "what replaced the deleted X class?", "what handles auth across this codebase?", "what calls Y indirectly?" — and see what comes back. The fusion code above is what's running.</p>
+      <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a>
+    </div>
+
+    <h2>Notes</h2>
+
+    <ul>
+      <li>The k=60 constant in the original paper was picked empirically across TREC datasets. It generalizes well to code retrieval in our testing but if you're doing something exotic (very small candidate pools, very different retrievers) you should sweep it on your own data.</li>
+      <li>The PageRank multiplier in the snippet above (<code>1 + 0.1 * pagerank</code>) is a 10% boost ceiling, which sounds tiny but is enough to break ties consistently in favor of structurally important files. Larger multipliers start to dominate the RRF signal and behave like a weighted sum, which is what we were trying to avoid.</li>
+      <li>RRF was originally published as a way to combine rankings from systems with completely different document representations (text systems vs. structured systems). Hybrid keyword + vector + graph for code is a much friendlier setup and the technique works even better there than in the original paper.</li>
+      <li>There's a more sophisticated extension called <strong>weighted RRF</strong> that lets you give different retrievers different importances. We don't use it. The whole point of RRF is to avoid tuning per-retriever weights, and once you reintroduce them you're back to the calibration problem you were trying to escape.</li>
+    </ul>
+
+  </div>
+</article>
+
+<footer>
+  <div class="container">
+    <span>© 2026 · sverklo (сверкло) · <a href="/blog/">more posts</a></span>
+    <span><a href="/">sverklo.com</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
