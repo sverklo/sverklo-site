@@ -1,0 +1,74 @@
+[
+  {
+    "repo": "gin-gonic/gin",
+    "label": "Top-ranked files (overview)",
+    "query": "Show the top structurally important files",
+    "tool": "sverklo_overview",
+    "output": "# gin-gonic/gin — structural overview\n\n## Top files by PageRank\n- context.go (PR 1.00) — 180 symbols\n- gin.go (PR 0.87) — 95 symbols\n- routergroup.go (PR 0.74) — 48 symbols\n- tree.go (PR 0.69) — 33 symbols\n- errors.go (PR 0.52) — 22 symbols\n\n## Languages\nGo: 99 files · 1,784 symbols\n\n_This is a placeholder snapshot. Run `npm run bench:playground` in the sverklo repo to regenerate with real data._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "gin-gonic/gin",
+    "label": "Search: error handling",
+    "query": "how is error handling done",
+    "tool": "sverklo_search",
+    "output": "# Results for: error handling middleware panic recovery\n\n## errors.go:23-88 (function: Errors)\n```go\nfunc (c *Context) Errors() errorMsgs {\n  return c.errors\n}\n```\n\n## recovery.go:10-66 (function: Recovery)\n```go\nfunc Recovery() HandlerFunc {\n  return RecoveryWithWriter(DefaultErrorWriter)\n}\n```\n\n## context.go:180-220 (function: Error)\n```go\nfunc (c *Context) Error(err error) *Error {\n  // attaches an error to the current context\n}\n```\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "gin-gonic/gin",
+    "label": "Lookup: Context",
+    "query": "Find the Context struct",
+    "tool": "sverklo_lookup",
+    "output": "## context.go:65-140 (type: Context)\n```go\ntype Context struct {\n  writermem responseWriter\n  Request   *http.Request\n  Writer    ResponseWriter\n  Params    Params\n  handlers  HandlersChain\n  index     int8\n  fullPath  string\n  engine    *Engine\n  params    *Params\n  // ...\n}\n```\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "nestjs/nest",
+    "label": "Top-ranked files (overview)",
+    "query": "Show the top structurally important files",
+    "tool": "sverklo_overview",
+    "output": "# nestjs/nest — structural overview\n\n## Top files by PageRank\n- packages/core/injector/injector.ts (PR 1.00)\n- packages/common/decorators/modules/module.decorator.ts (PR 0.92)\n- packages/core/nest-application.ts (PR 0.88)\n- packages/core/nest-factory.ts (PR 0.81)\n- packages/common/decorators/core/injectable.decorator.ts (PR 0.79)\n\n## Languages\nTypeScript: 1,709 files · 18,400 symbols\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "nestjs/nest",
+    "label": "Search: dependency injection",
+    "query": "how does dependency injection work",
+    "tool": "sverklo_search",
+    "output": "# Results for: dependency injection container provider lookup\n\n## packages/core/injector/injector.ts:45-180 (class: Injector)\nThe core DI container — resolves providers, walks the module graph, handles circular dependencies.\n\n## packages/core/injector/container.ts:22-95 (class: NestContainer)\nTop-level container holding all modules and their providers.\n\n## packages/common/decorators/core/injectable.decorator.ts (function: Injectable)\nThe @Injectable() decorator that marks a class as a provider.\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "facebook/react",
+    "label": "Top-ranked files (overview)",
+    "query": "Show the top structurally important files",
+    "tool": "sverklo_overview",
+    "output": "# facebook/react — structural overview\n\n## Top files by PageRank\n- packages/react-reconciler/src/ReactFiberWorkLoop.js (PR 1.00)\n- packages/react/src/ReactHooks.js (PR 0.93)\n- packages/react-dom/src/client/ReactDOMRoot.js (PR 0.89)\n- packages/react-reconciler/src/ReactFiberBeginWork.js (PR 0.86)\n- packages/react-reconciler/src/ReactFiberCompleteWork.js (PR 0.82)\n\n## Languages\nJavaScript: 4,368 files · 48,200 symbols\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "facebook/react",
+    "label": "Lookup: useState",
+    "query": "Find the useState hook",
+    "tool": "sverklo_lookup",
+    "output": "## packages/react/src/ReactHooks.js:120-145 (function: useState)\n```js\nexport function useState<S>(\n  initialState: (() => S) | S,\n): [S, Dispatch<BasicStateAction<S>>] {\n  const dispatcher = resolveDispatcher();\n  return dispatcher.useState(initialState);\n}\n```\n\n## packages/react-reconciler/src/ReactFiberHooks.js:1880-1920 (function: mountState)\n```js\nfunction mountState<S>(\n  initialState: (() => S) | S,\n): [S, Dispatch<BasicStateAction<S>>] {\n  // ...\n}\n```\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  },
+  {
+    "repo": "facebook/react",
+    "label": "Refs: ReactElement",
+    "query": "Who uses ReactElement?",
+    "tool": "sverklo_refs",
+    "output": "# References to `ReactElement` (57 call sites in 31 files)\n\n## packages/react/src/ReactElement.js:15 — definition\n## packages/react-reconciler/src/ReactFiber.js:240 — used as type param\n## packages/react-dom/src/client/ReactDOMLegacy.js:88 — argument type\n## packages/react-test-renderer/src/ReactTestRenderer.js:60 — argument type\n## packages/react/src/jsx/jsx-runtime.js:45 — return type\n\n... and 52 more\n\n_Placeholder snapshot — run `npm run bench:playground` to regenerate with real output._",
+    "captured_at": "2026-04-08",
+    "version": "v0.2.12"
+  }
+]

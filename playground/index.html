@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sverklo Playground — see real queries on real repos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="See what sverklo returns for real queries on real repos. No install required — browse pre-captured responses for gin, nestjs, and react."
+    />
+    <meta property="og:title" content="Sverklo Playground" />
+    <meta property="og:description" content="See what sverklo returns for real queries on real repos. No install required." />
+    <meta property="og:url" content="https://sverklo.com/playground" />
+    <meta property="og:image" content="https://sverklo.com/og.png" />
+    <link rel="icon" type="image/svg+xml" href="/og.svg" />
+    <style>
+      :root {
+        --bg: #f7f5f2;
+        --fg: #1a1a1a;
+        --muted: #6b6b6b;
+        --accent: #e85a2a;
+        --border: #e6e1db;
+        --code-bg: #ffffff;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.55;
+      }
+      header {
+        padding: 2rem 1.5rem 1rem;
+        border-bottom: 1px solid var(--border);
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      header h1 {
+        font-size: 1.6rem;
+        margin: 0 0 0.3rem;
+        color: var(--accent);
+      }
+      header p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 60ch;
+      }
+      header a { color: var(--accent); }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 1.5rem;
+      }
+      @media (max-width: 720px) {
+        main { grid-template-columns: 1fr; }
+      }
+      .sidebar {
+        border-right: 1px solid var(--border);
+        padding-right: 1rem;
+      }
+      @media (max-width: 720px) {
+        .sidebar { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+      }
+      .repo-group { margin-bottom: 1.5rem; }
+      .repo-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        margin-bottom: 0.4rem;
+      }
+      .query-btn {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: 1px solid transparent;
+        padding: 0.45rem 0.6rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.87rem;
+        color: var(--fg);
+        margin-bottom: 0.2rem;
+        font-family: inherit;
+      }
+      .query-btn:hover { background: #fff; border-color: var(--border); }
+      .query-btn.active { background: var(--accent); color: white; }
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+      }
+      .result-header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+      }
+      .result-meta {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .tool-chip {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        padding: 0.1rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        margin-right: 0.4rem;
+      }
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      .cta {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+      .cta p { margin: 0 0 0.5rem; font-size: 0.9rem; }
+      .cta code {
+        background: #f0ece6;
+        padding: 0.15rem 0.35rem;
+        border-radius: 4px;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 0.85rem;
+      }
+      footer {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--muted);
+        border-top: 1px solid var(--border);
+      }
+      footer a { color: var(--muted); }
+      .loading { color: var(--muted); font-style: italic; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Sverklo Playground</h1>
+      <p>
+        Real queries, real repos, real responses — captured from actual
+        <code>sverklo</code> runs. Click any query on the left to see what the
+        tool returns. No install needed. <a href="https://github.com/sverklo/sverklo">GitHub</a> ·
+        <a href="/">sverklo.com</a>
+      </p>
+    </header>
+    <main>
+      <div class="sidebar" id="sidebar">
+        <div class="loading">Loading canned queries…</div>
+      </div>
+      <div class="content">
+        <div class="result-header" id="result-header">
+          <h2>Pick a query on the left</h2>
+          <div class="result-meta">These are static snapshots captured at a specific sverklo version, not live queries.</div>
+        </div>
+        <pre id="result-body">Select a query to see the response…</pre>
+        <div class="cta">
+          <p><strong>Like what you see?</strong> Run the same queries on your own codebase:</p>
+          <p><code>npx sverklo init</code> — sets up sverklo for Claude Code, Cursor, Windsurf, or Antigravity in one command.</p>
+          <p>Or read the <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md">benchmarks</a> to see how it performs on real codebases.</p>
+        </div>
+      </div>
+    </main>
+    <footer>
+      Sverklo is MIT-licensed and local-first. <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a>
+      · Snapshots regenerated with <code>npm run bench:playground</code> in the sverklo repo.
+    </footer>
+    <script>
+      // The snapshot file is generated by scripts/generate-playground-data.mjs
+      // in the sverklo repo. Each entry has { repo, query, tool, args, output, captured_at, version }.
+      async function load() {
+        try {
+          const res = await fetch("./snapshots.json");
+          if (!res.ok) throw new Error("snapshot fetch failed");
+          const snapshots = await res.json();
+          render(snapshots);
+        } catch (e) {
+          document.getElementById("sidebar").innerHTML =
+            '<div class="loading">Could not load snapshots. This is a Phase C static playground — data is generated offline from the sverklo repo.</div>';
+        }
+      }
+
+      function render(snapshots) {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.innerHTML = "";
+
+        const byRepo = new Map();
+        for (const s of snapshots) {
+          if (!byRepo.has(s.repo)) byRepo.set(s.repo, []);
+          byRepo.get(s.repo).push(s);
+        }
+
+        for (const [repo, entries] of byRepo) {
+          const group = document.createElement("div");
+          group.className = "repo-group";
+          const label = document.createElement("div");
+          label.className = "repo-label";
+          label.textContent = repo;
+          group.appendChild(label);
+          for (const entry of entries) {
+            const btn = document.createElement("button");
+            btn.className = "query-btn";
+            btn.textContent = entry.label || entry.query;
+            btn.addEventListener("click", () => {
+              document.querySelectorAll(".query-btn").forEach((b) => b.classList.remove("active"));
+              btn.classList.add("active");
+              show(entry);
+            });
+            group.appendChild(btn);
+          }
+          sidebar.appendChild(group);
+        }
+
+        // Auto-show first entry
+        if (snapshots.length > 0) {
+          const firstBtn = document.querySelector(".query-btn");
+          firstBtn?.click();
+        }
+      }
+
+      function show(entry) {
+        const header = document.getElementById("result-header");
+        header.innerHTML =
+          '<div><span class="tool-chip">' +
+          escapeHtml(entry.tool) +
+          "</span><h2 style='display:inline'>" +
+          escapeHtml(entry.query) +
+          "</h2></div>" +
+          '<div class="result-meta">Repo: <strong>' +
+          escapeHtml(entry.repo) +
+          "</strong> · Captured " +
+          escapeHtml(entry.captured_at || "unknown") +
+          " · sverklo " +
+          escapeHtml(entry.version || "?") +
+          "</div>";
+        document.getElementById("result-body").textContent = entry.output;
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+
+      load();
+    </script>
+  </body>
+</html>
