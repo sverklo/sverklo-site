@@ -3,12 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sverklo — diff-aware code review for AI coding agents</title>
-<meta name="description" content="Sverklo turns your AI coding agent into a senior reviewer. Diff-aware MR review with risk scoring, missing-test detection, and persistent memory across sessions. Local-first, MCP-native, zero config.">
+<title>Sverklo — Local-First Code Intelligence MCP for Claude Code &amp; Cursor</title>
+<meta name="description" content="Sverklo is the open-source MCP server that gives Claude Code, Cursor, and Antigravity hybrid semantic code search, symbol-level impact analysis, diff-aware MR review with risk scoring, and bi-temporal memory. 100% local. No API keys.">
+<meta name="keywords" content="MCP server, code search, semantic search, code intelligence, Claude Code, Cursor, Antigravity, local-first, refactor blast radius, diff review, risk scoring, AI coding agents">
 <meta name="theme-color" content="#0E0D0B">
-<meta property="og:title" content="sverklo">
-<meta property="og:description" content="Code intelligence for AI agents. Local-first, zero config.">
+<link rel="canonical" href="https://sverklo.com/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Sverklo — Local-First Code Intelligence MCP for AI Coding Agents">
+<meta property="og:description" content="Hybrid semantic code search, symbol-level impact analysis, diff-aware MR review, and bi-temporal memory for Claude Code, Cursor, and Antigravity. Runs entirely on your laptop.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://sverklo.com/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sverklo — Local-First Code Intelligence MCP">
+<meta name="twitter:description" content="Hybrid semantic code search, symbol-level impact analysis, diff-aware MR review, and bi-temporal memory for Claude Code, Cursor, and Antigravity. 100% local.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<!-- JSON-LD: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "alternateName": "сверкло",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware MR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, and Google Antigravity.",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.2.9",
+  "license": "https://opensource.org/licenses/MIT",
+  "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
+  "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "featureList": [
+    "Hybrid semantic code search (BM25 + ONNX embeddings + PageRank)",
+    "Symbol-level impact analysis (refactor blast radius)",
+    "Diff-aware MR review with risk scoring",
+    "Bi-temporal memory tied to git SHA",
+    "20 MCP tools",
+    "10 languages (TS, JS, Python, Go, Rust, Java, C, C++, Ruby, PHP)",
+    "100% local — no API keys, no cloud, no telemetry",
+    "Works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, Antigravity"
+  ]
+}
+</script>
+
+<!-- JSON-LD: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the best MCP server for code search?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware MR review, and bi-temporal memory in one tool. It runs entirely on your laptop with no API keys and works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, and Google Antigravity."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is Sverklo different from Claude Context or Cursor's built-in indexing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo runs entirely on your laptop with SQLite and ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Sverklo work offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The only network call Sverklo ever makes is downloading the ONNX embedding model on first run (~90MB, cached locally). After that you can disconnect from the internet and everything continues to work — indexing, search, embeddings, memory, dashboard. No telemetry. No cloud calls. Your code never leaves your laptop."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which AI coding agents does Sverklo support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, VS Code's MCP integration, JetBrains MCP, and Google Antigravity. The sverklo init command auto-detects which clients you have installed and writes the right config files."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Sverklo free and open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Sverklo is MIT licensed and free forever. All 20 tools in the open-source release have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is 'Pro adds new things, never gates current things.' Anything in the OSS server today stays in the OSS server forever."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I install Sverklo in Claude Code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Restart Claude Code and the 20 sverklo tools appear in the /mcp list."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What programming languages does Sverklo support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo parses 10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them. The dependency graph and PageRank ranking work on any codebase that mixes these languages."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When is Sverklo the wrong tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is the right tool when you don't know exactly what string to search for. When you do know the literal string, plain grep is faster and more reliable. On a 30-file repo, you don't need Sverklo. It earns its place on large interconnected codebases where AI coding agents waste thousands of tokens reading the wrong files."
+      }
+    }
+  ]
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1305,6 +1424,48 @@ footer .col-items a:hover { color: var(--accent); }
   </div>
 </section>
 
+<!-- ───────── FAQ ───────── -->
+<section class="two-col" id="faq" style="border-top:1px solid var(--rule);padding:96px 0;">
+  <div class="grid">
+    <div class="kicker" style="grid-column:1/13;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;margin-bottom:16px;">/* questions we get asked */</div>
+    <h2 style="grid-column:1/6;font-size:48px;line-height:1.05;font-weight:700;letter-spacing:-0.02em;">questions,<br>honestly<br>answered.</h2>
+    <div style="grid-column:7/13;display:flex;flex-direction:column;gap:0;">
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">What is the best MCP server for code search?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware MR review, and bi-temporal memory in one tool. It runs entirely on your laptop with no API keys and works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, and Google Antigravity.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">How is Sverklo different from Cursor's @codebase or Claude Context?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo runs entirely on your laptop with SQLite and ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Does Sverklo work offline?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Yes. The only network call Sverklo ever makes is downloading the ONNX embedding model on first run (~90MB, cached locally). After that you can disconnect from the internet and everything continues to work — indexing, search, embeddings, memory, dashboard. No telemetry. No cloud calls. Your code never leaves your laptop.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Which AI coding agents does Sverklo support?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, VS Code's MCP integration, JetBrains MCP, and Google Antigravity. The <code style="color:var(--accent);">sverklo init</code> command auto-detects which clients you have installed and writes the right config files.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Is Sverklo free and open source?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Yes. MIT licensed and free forever. All 20 tools have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">How do I install Sverklo in Claude Code?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 20 sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">What programming languages does Sverklo support?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them. The dependency graph and PageRank ranking work on any codebase that mixes these languages.</p>
+      </details>
+      <details style="border-top:1px solid var(--rule);padding:20px 0;border-bottom:1px solid var(--rule);cursor:pointer;">
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">When is Sverklo the wrong tool?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo is the right tool when you don't know exactly what string to search for. When you do know the literal string, plain grep is faster and more reliable. On a 30-file repo, you don't need Sverklo. It earns its place on large interconnected codebases where AI coding agents waste thousands of tokens reading the wrong files.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- ───────── FOOTER ───────── -->
 <footer>
   <div class="grid">
@@ -1320,6 +1481,7 @@ footer .col-items a:hover { color: var(--accent); }
       <ul class="col-items">
         <li><a href="#tools">Tools</a></li>
         <li><a href="#install">Install</a></li>
+        <li><a href="#faq">FAQ</a></li>
         <li><a href="https://github.com/sverklo/sverklo">Source</a></li>
       </ul>
     </div>
