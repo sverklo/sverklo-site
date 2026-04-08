@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sverklo — code intelligence for AI agents</title>
-<meta name="description" content="Your AI agent wastes 70% of tokens reading irrelevant files. Sverklo indexes your codebase locally — hybrid semantic search, PageRank ranking, persistent memory. Zero config.">
+<title>sverklo — diff-aware code review for AI coding agents</title>
+<meta name="description" content="Sverklo turns your AI coding agent into a senior reviewer. Diff-aware MR review with risk scoring, missing-test detection, and persistent memory across sessions. Local-first, MCP-native, zero config.">
 <meta name="theme-color" content="#0E0D0B">
 <meta property="og:title" content="sverklo">
 <meta property="og:description" content="Code intelligence for AI agents. Local-first, zero config.">
@@ -587,8 +587,9 @@ footer .col-items a:hover { color: var(--accent); }
   <div class="grid">
     <div class="brand mono">sverklo</div>
     <nav class="top-nav">
-      <a href="#why">why</a>
+      <a href="#review">review</a>
       <a href="#memory">memory</a>
+      <a href="#benchmarks">benchmarks</a>
       <a href="#tools">tools</a>
       <a href="#compare">vs</a>
       <a href="#install">install</a>
@@ -608,9 +609,9 @@ footer .col-items a:hover { color: var(--accent); }
     <h1>sverklo<span class="cursor">&nbsp;</span></h1>
 
     <div class="lede">
-      Other tools remember your conversations. <strong>Sverklo understands your code.</strong>
+      Your AI agent reads diffs the way a junior reviewer does — line by line, no context. <strong>Sverklo gives it senior-reviewer eyes.</strong>
       <br><br>
-      Local-first code intelligence MCP with hybrid semantic search, symbol-level impact analysis, and bi-temporal memory tied to git state. Runs entirely on your machine — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
+      Diff-aware MR review with <strong>risk scoring, missing-test detection, and dangling-reference checks</strong>. Hybrid semantic search, symbol-level impact graph, and bi-temporal memory tied to git state. Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
     </div>
 
     <div class="terminal-block">
@@ -667,6 +668,94 @@ footer .col-items a:hover { color: var(--accent); }
       <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">THE PATTERN</div>
       <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
         Sverklo is the right tool when you <strong>don't know exactly what to search for</strong>. When you do know, grep is fine. We benchmarked both on real MRs — sverklo doesn't replace grep, it complements it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── DIFF-AWARE MR REVIEW ───────── -->
+<section class="two-col" id="review">
+  <div class="grid">
+    <div class="kicker">/* diff-aware mr review */</div>
+    <h2>your agent<br>reviews like<br>a senior dev.</h2>
+    <div class="sidebar">
+      AI coding agents are bad at code review for one reason: they read the diff, not the codebase. Sverklo's diff-aware tools fix this.
+      <br><br>
+      Point them at any git ref or range and get <strong>blast radius, dangling references, missing tests, and a per-file risk score</strong> in one round trip — not twenty greps.
+      <br><br>
+      Five reviewer workflows ship as MCP prompts. Visible in every IDE picker.
+    </div>
+
+    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 48px;">
+      <div class="terminal-head">
+        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>~/your-project</span>
+        <span>review main..HEAD</span>
+      </div>
+      <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge</span>
+
+  <span class="tool">⚡ sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
+  <span class="dim">─ 7 files changed (12 added, 3 removed, 4 modified)</span>
+
+  <span class="warn">## ⚠️ Highest-risk files</span>
+  <span class="dim">─ 🔴 risk 78 (critical)  src/auth/session.ts</span>
+  <span class="dim">    no matching tests; security-sensitive; 14 importers</span>
+  <span class="dim">─ 🟠 risk 52 (high)      src/api/billing.ts</span>
+  <span class="dim">    2 removed symbols still referenced; 8 importers</span>
+
+  <span class="tool">⚡ sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
+  <span class="dim">─ 5 covered · 2 uncovered</span>
+  <span class="warn">─ 🔴 risk 78 src/auth/session.ts ← block merge</span>
+
+  <span class="tool">⚡ sverklo_impact</span>       <span class="dim">symbol="oldValidateToken"</span>
+  <span class="dim">─ 4 dangling references in 3 files — must fix</span>
+
+  <span class="ok">verdict: BLOCKED — 1 critical, 4 dangling refs</span>
+</div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-num">01</div>
+      <h3>risk score</h3>
+      <p>Every changed file gets a 0–100 score combining untested status, security-sensitive paths, importer fan-in, caller count, dangling references, and churn. Reasons are explicit — no black box.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-num">02</div>
+      <h3>missing-test detection</h3>
+      <p><code style="color:var(--accent)">sverklo_test_map</code> walks the diff, the import graph, and filename conventions to flag changed code without matching tests — ranked by risk.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-num">03</div>
+      <h3>dangling-ref check</h3>
+      <p>Every removed symbol is checked against the symbol-reference graph. If a caller still exists, the merge is blocked with file:line evidence.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-num">04</div>
+      <h3>mcp prompts</h3>
+      <p>Five workflows: <code style="color:var(--accent)">/sverklo:review-changes</code>, <code style="color:var(--accent)">/sverklo:pre-merge</code>, <code style="color:var(--accent)">/sverklo:onboard</code>, <code style="color:var(--accent)">/sverklo:architecture-map</code>, <code style="color:var(--accent)">/sverklo:debug-issue</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── BENCHMARKS ───────── -->
+<section class="stats" id="benchmarks">
+  <div class="grid">
+    <div class="label">/* benchmarks — published, not claimed */</div>
+    <div class="stat">
+      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">METHOD</div>
+      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
+        Real merge requests across 5 OSS repos (Express, FastAPI, etc). Same Claude model, same prompt, with and without sverklo's diff-aware tools. F1 vs human-written review. Harness in <code style="color:var(--accent)">benchmark/</code> — reproducible.
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">RESULTS</div>
+      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
+        <strong>+29% F1</strong> after parser improvements on P1/P2 categories. <strong>2–4× fewer tokens</strong> per review on most repos. Mixed results on small focused diffs (built-in tools win there). Honest receipts beat marketing math.
+      </div>
+    </div>
+    <div class="stat">
+      <div class="stat-label" style="font-size:14px;color:var(--text-2);margin-bottom:8px;">WHY WE PUBLISH MIXED</div>
+      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
+        Competitors claim "5–10× fewer tokens" with no methodology. We'd rather be the tool you trust than the one you screenshot. The benchmark harness is in the repo — clone it, run it on your codebase, decide for yourself.
       </div>
     </div>
   </div>
@@ -815,10 +904,15 @@ footer .col-items a:hover { color: var(--accent); }
 <section class="tools-section" id="tools">
   <div class="grid">
     <div class="kicker">/* mcp tools */</div>
-    <h2>fifteen tools<br>your agent<br>actually uses.</h2>
+    <h2>twenty tools<br>your agent<br>actually uses.</h2>
     <div class="desc">Each tool gets registered with the MCP server's instructions field, telling Claude to prefer them over built-in grep. Combined with a SessionStart hook, adoption is guaranteed.</div>
 
     <div class="tools-list">
+      <div class="tool">
+        <div class="tool-name">sverklo_context</div>
+        <div class="tool-desc">Umbrella "give me everything relevant to this task" bundler. One call returns overview + relevant code + memories. Use as the front door.</div>
+        <div class="tool-tag">search</div>
+      </div>
       <div class="tool">
         <div class="tool-name">sverklo_search</div>
         <div class="tool-desc">Hybrid semantic + text search across the codebase. Preferred over grep.</div>
@@ -889,6 +983,34 @@ footer .col-items a:hover { color: var(--accent); }
         <div class="tool-desc">Structural pattern matching via ast-grep binary. Precise symbol queries without embeddings.</div>
         <div class="tool-tag">search</div>
       </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_review_diff</div>
+        <div class="tool-desc">Diff-aware review bundler: changed files, semantic delta, dangling refs, risk score per file. Replaces 10–20 grep calls.</div>
+        <div class="tool-tag">review</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_test_map</div>
+        <div class="tool-desc">Map a git diff to its test coverage. Flags untested changes ranked by risk score.</div>
+        <div class="tool-tag">review</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_diff_search</div>
+        <div class="tool-desc">Semantic search constrained to files touched by a diff. For drilling into a specific MR.</div>
+        <div class="tool-tag">review</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_audit</div>
+        <div class="tool-desc">Project audit: god-nodes, dead code, dependency cycles, fan-in/fan-out outliers.</div>
+        <div class="tool-tag">meta</div>
+      </div>
+      <div class="tool">
+        <div class="tool-name">sverklo_wakeup</div>
+        <div class="tool-desc">Session-start primer. Returns recent git activity, hot files, and core memories in one bundle.</div>
+        <div class="tool-tag">meta</div>
+      </div>
+    </div>
+    <div style="grid-column: 1 / 13; margin-top: 32px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-3);">
+      // Plus five MCP prompts: <span style="color:var(--accent)">/sverklo:review-changes</span>, <span style="color:var(--accent)">/sverklo:pre-merge</span>, <span style="color:var(--accent)">/sverklo:onboard</span>, <span style="color:var(--accent)">/sverklo:architecture-map</span>, <span style="color:var(--accent)">/sverklo:debug-issue</span>
     </div>
   </div>
 </section>
