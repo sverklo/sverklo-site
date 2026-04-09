@@ -215,6 +215,29 @@
       footer a { color: var(--muted); }
       .loading { color: var(--muted); font-style: italic; }
     </style>
+    <!-- Prism.js for syntax highlighting in code blocks. Core + autoloader
+         fetches language grammars on demand by class="language-X" on <code>.
+         Served from cdnjs (Cloudflare's own CDN, whitelisted in CSP). -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"
+      defer
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+      defer
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      data-autoloader-path="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/"
+    ></script>
+
     <!-- Minimal, privacy-first analytics. Mirror of the script on /. Source and rationale in sverklo-site/index.html. -->
     <script>
     (function () {
@@ -351,7 +374,13 @@
           " · sverklo " +
           escapeHtml(entry.version || "?") +
           "</div>";
-        document.getElementById("result-body").innerHTML = renderMarkdown(entry.output || "");
+        const body = document.getElementById("result-body");
+        body.innerHTML = renderMarkdown(entry.output || "");
+        // Kick Prism to re-highlight any new code blocks. The autoloader
+        // lazy-loads language grammars on first use and caches them.
+        if (window.Prism && typeof window.Prism.highlightAllUnder === "function") {
+          window.Prism.highlightAllUnder(body);
+        }
       }
 
       function escapeHtml(s) {
@@ -399,8 +428,10 @@
           if (cbMatch) {
             const cb = codeBlocks[parseInt(cbMatch[1], 10)];
             out.push(
-              '<pre><code class="lang-' +
-                escapeHtml(cb.lang) +
+              '<pre class="language-' +
+                escapeHtml(cb.lang || "plaintext") +
+                '"><code class="language-' +
+                escapeHtml(cb.lang || "plaintext") +
                 '">' +
                 escapeHtml(cb.code.replace(/\n$/, "")) +
                 "</code></pre>"
@@ -515,6 +546,16 @@
       }
 
       load();
+
+      // Prism is loaded with `defer`, so it might finish after our
+      // first render. When it becomes available, re-highlight the
+      // result body so the initial snapshot gets colored too.
+      window.addEventListener("load", function () {
+        if (window.Prism && typeof window.Prism.highlightAllUnder === "function") {
+          const body = document.getElementById("result-body");
+          if (body) window.Prism.highlightAllUnder(body);
+        }
+      });
     </script>
   </body>
 </html>
