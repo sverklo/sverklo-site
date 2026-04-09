@@ -361,80 +361,141 @@
           .replaceAll(">", "&gt;");
       }
 
-      // Minimal markdown renderer for sverklo tool output.
+      // Minimal line-based markdown renderer for sverklo tool output.
       // Handles: fenced code blocks, headings (##, ###), bold, italic,
-      // inline code, GFM-style tables, unordered lists, paragraphs.
-      // Escapes HTML aggressively to stay XSS-safe on untrusted JSON.
-      // Order matters — code blocks extracted first so their content
-      // doesn't get parsed as markdown.
+      // inline code, GFM-style tables, unordered lists, blockquotes,
+      // paragraphs. Mixed content within a block (e.g. a heading
+      // followed by list items without a blank line between them) is
+      // handled because we walk line-by-line instead of splitting on
+      // blank lines first.
+      //
+      // XSS note: escapeHtml is called on all text before markdown tags
+      // are added back in, so untrusted JSON from snapshots.json cannot
+      // inject raw HTML.
       function renderMarkdown(src) {
-        // 1. Extract fenced code blocks to placeholders so their
-        //    contents escape paragraph/inline parsing.
+        // 1. Extract fenced code blocks to placeholders first so their
+        //    contents escape paragraph/inline parsing entirely.
         const codeBlocks = [];
         src = src.replace(/```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g, function (_m, lang, code) {
           const idx = codeBlocks.push({ lang: lang, code: code }) - 1;
           return "\u0000CODEBLOCK" + idx + "\u0000";
         });
 
-        // 2. Split into paragraph-ish blocks on blank lines.
-        const blocks = src.split(/\n{2,}/);
-        const html = blocks.map(function (block) {
-          const b = block.replace(/^\n+|\n+$/g, "");
-          if (!b) return "";
+        const lines = src.split("\n");
+        const out = [];
+        let i = 0;
 
-          // Code block placeholder
-          const cbMatch = b.match(/^\u0000CODEBLOCK(\d+)\u0000$/);
+        while (i < lines.length) {
+          const line = lines[i];
+
+          // Empty line → paragraph break
+          if (line.trim() === "") {
+            i++;
+            continue;
+          }
+
+          // Code block placeholder (single line token)
+          const cbMatch = line.trim().match(/^\u0000CODEBLOCK(\d+)\u0000$/);
           if (cbMatch) {
             const cb = codeBlocks[parseInt(cbMatch[1], 10)];
-            return '<pre><code class="lang-' + escapeHtml(cb.lang) + '">' + escapeHtml(cb.code.replace(/\n$/, "")) + "</code></pre>";
+            out.push(
+              '<pre><code class="lang-' +
+                escapeHtml(cb.lang) +
+                '">' +
+                escapeHtml(cb.code.replace(/\n$/, "")) +
+                "</code></pre>"
+            );
+            i++;
+            continue;
           }
 
-          // Heading
-          if (/^#{1,6} /.test(b)) {
-            const m = b.match(/^(#{1,6}) (.*)$/);
-            if (m) {
-              const level = Math.min(m[1].length + 1, 6); // h1→h2, h2→h3 visually
-              return "<h" + level + ">" + renderInline(m[2]) + "</h" + level + ">";
+          // Heading — exactly one line
+          const headingMatch = line.match(/^(#{1,6}) (.*)$/);
+          if (headingMatch) {
+            const level = Math.min(headingMatch[1].length + 1, 6);
+            out.push("<h" + level + ">" + renderInline(headingMatch[2]) + "</h" + level + ">");
+            i++;
+            continue;
+          }
+
+          // Unordered list — consume consecutive list lines
+          if (/^[-*] /.test(line)) {
+            const items = [];
+            while (i < lines.length && /^[-*] /.test(lines[i])) {
+              items.push("<li>" + renderInline(lines[i].replace(/^[-*] /, "")) + "</li>");
+              i++;
+            }
+            out.push("<ul>" + items.join("") + "</ul>");
+            continue;
+          }
+
+          // GFM-style table — detected by pipe on current line + separator row next
+          if (
+            line.indexOf("|") >= 0 &&
+            i + 1 < lines.length &&
+            /^\s*\|?[\s|:\-]+\|?\s*$/.test(lines[i + 1]) &&
+            /\|/.test(lines[i + 1])
+          ) {
+            const tableLines = [];
+            while (i < lines.length && lines[i].indexOf("|") >= 0 && lines[i].trim() !== "") {
+              tableLines.push(lines[i]);
+              i++;
+            }
+            if (tableLines.length >= 2) {
+              const splitRow = function (l) {
+                return l
+                  .replace(/^\s*\|/, "")
+                  .replace(/\|\s*$/, "")
+                  .split("|")
+                  .map(function (c) { return c.trim(); });
+              };
+              const headerCells = splitRow(tableLines[0]);
+              const rows = tableLines.slice(2).map(splitRow);
+              let t = "<table><thead><tr>";
+              for (const h of headerCells) t += "<th>" + renderInline(h) + "</th>";
+              t += "</tr></thead><tbody>";
+              for (const row of rows) {
+                t += "<tr>";
+                for (const cell of row) t += "<td>" + renderInline(cell) + "</td>";
+                t += "</tr>";
+              }
+              t += "</tbody></table>";
+              out.push(t);
+              continue;
             }
           }
 
-          // GFM-style table: first line with pipes, second line with --- separators
-          if (/^\|.+\|\s*$/.test(b.split("\n")[0]) && /^\|[-:|\s]+\|\s*$/.test((b.split("\n")[1] || ""))) {
-            const lines = b.split("\n").filter(function (l) { return l.trim(); });
-            const headerCells = lines[0].split("|").slice(1, -1).map(function (c) { return c.trim(); });
-            const rows = lines.slice(2).map(function (l) {
-              return l.split("|").slice(1, -1).map(function (c) { return c.trim(); });
-            });
-            let t = "<table><thead><tr>";
-            for (let i = 0; i < headerCells.length; i++) t += "<th>" + renderInline(headerCells[i]) + "</th>";
-            t += "</tr></thead><tbody>";
-            for (const row of rows) {
-              t += "<tr>";
-              for (const cell of row) t += "<td>" + renderInline(cell) + "</td>";
-              t += "</tr>";
+          // Blockquote — consume consecutive > lines
+          if (/^> /.test(line) || /^>$/.test(line)) {
+            const parts = [];
+            while (i < lines.length && /^>/.test(lines[i])) {
+              parts.push(lines[i].replace(/^> ?/, ""));
+              i++;
             }
-            t += "</tbody></table>";
-            return t;
+            out.push("<blockquote>" + renderInline(parts.join(" ")) + "</blockquote>");
+            continue;
           }
 
-          // Unordered list
-          if (/^(?:[-*] )/m.test(b) && b.split("\n").every(function (l) { return /^([-*] |\s)/.test(l) || l.trim() === ""; })) {
-            const items = b.split(/\n(?=[-*] )/).map(function (item) {
-              return "<li>" + renderInline(item.replace(/^[-*] /, "").trim()) + "</li>";
-            });
-            return "<ul>" + items.join("") + "</ul>";
+          // Paragraph — consume consecutive non-special lines
+          const paraLines = [];
+          while (i < lines.length) {
+            const pl = lines[i];
+            if (
+              pl.trim() === "" ||
+              /^#{1,6} /.test(pl) ||
+              /^[-*] /.test(pl) ||
+              /^> /.test(pl) ||
+              /\u0000CODEBLOCK/.test(pl)
+            ) break;
+            paraLines.push(pl);
+            i++;
           }
-
-          // Blockquote
-          if (/^> /.test(b)) {
-            return "<blockquote>" + renderInline(b.replace(/^> ?/gm, "")) + "</blockquote>";
+          if (paraLines.length > 0) {
+            out.push("<p>" + renderInline(paraLines.join(" ")) + "</p>");
           }
+        }
 
-          // Paragraph
-          return "<p>" + renderInline(b) + "</p>";
-        }).join("\n");
-
-        return html;
+        return out.join("\n");
       }
 
       // Inline markdown: **bold**, *italic*, `code`, [text](url).
