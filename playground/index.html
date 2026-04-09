@@ -131,6 +131,62 @@
         font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
         white-space: pre-wrap;
         word-wrap: break-word;
+        margin: 0.6rem 0;
+      }
+      pre code {
+        font-family: inherit;
+        font-size: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .md {
+        font-size: 0.88rem;
+        line-height: 1.6;
+      }
+      .md h1, .md h2, .md h3 {
+        font-weight: 600;
+        margin: 1rem 0 0.4rem;
+        line-height: 1.3;
+      }
+      .md h1 { font-size: 1.15rem; }
+      .md h2 { font-size: 1rem; }
+      .md h3 { font-size: 0.92rem; color: var(--muted); }
+      .md h1:first-child, .md h2:first-child { margin-top: 0; }
+      .md p {
+        margin: 0.5rem 0;
+        color: var(--fg);
+      }
+      .md ul, .md ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+      }
+      .md li { margin: 0.15rem 0; }
+      .md strong { font-weight: 600; }
+      .md em { font-style: italic; color: var(--muted); }
+      .md code {
+        background: #f0ece6;
+        padding: 0.12rem 0.3rem;
+        border-radius: 3px;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 0.85em;
+      }
+      .md table {
+        border-collapse: collapse;
+        margin: 0.6rem 0;
+        font-size: 0.85rem;
+      }
+      .md th, .md td {
+        border: 1px solid var(--border);
+        padding: 0.3rem 0.6rem;
+        text-align: left;
+      }
+      .md th { background: #f5f1ea; font-weight: 600; }
+      .md blockquote {
+        border-left: 3px solid var(--border);
+        padding: 0.3rem 0.8rem;
+        margin: 0.6rem 0;
+        color: var(--muted);
       }
       .cta {
         margin-top: 1rem;
@@ -215,7 +271,7 @@
           <h2>Pick a query on the left</h2>
           <div class="result-meta">These are static snapshots captured at a specific sverklo version, not live queries.</div>
         </div>
-        <pre id="result-body">Select a query to see the response…</pre>
+        <div id="result-body" class="md">Select a query to see the response…</div>
         <div class="cta">
           <p><strong>Like what you see?</strong> Run the same queries on your own codebase:</p>
           <p><code>npx sverklo init</code> — sets up sverklo for Claude Code, Cursor, Windsurf, or Antigravity in one command.</p>
@@ -295,7 +351,7 @@
           " · sverklo " +
           escapeHtml(entry.version || "?") +
           "</div>";
-        document.getElementById("result-body").textContent = entry.output;
+        document.getElementById("result-body").innerHTML = renderMarkdown(entry.output || "");
       }
 
       function escapeHtml(s) {
@@ -303,6 +359,98 @@
           .replaceAll("&", "&amp;")
           .replaceAll("<", "&lt;")
           .replaceAll(">", "&gt;");
+      }
+
+      // Minimal markdown renderer for sverklo tool output.
+      // Handles: fenced code blocks, headings (##, ###), bold, italic,
+      // inline code, GFM-style tables, unordered lists, paragraphs.
+      // Escapes HTML aggressively to stay XSS-safe on untrusted JSON.
+      // Order matters — code blocks extracted first so their content
+      // doesn't get parsed as markdown.
+      function renderMarkdown(src) {
+        // 1. Extract fenced code blocks to placeholders so their
+        //    contents escape paragraph/inline parsing.
+        const codeBlocks = [];
+        src = src.replace(/```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g, function (_m, lang, code) {
+          const idx = codeBlocks.push({ lang: lang, code: code }) - 1;
+          return "\u0000CODEBLOCK" + idx + "\u0000";
+        });
+
+        // 2. Split into paragraph-ish blocks on blank lines.
+        const blocks = src.split(/\n{2,}/);
+        const html = blocks.map(function (block) {
+          const b = block.replace(/^\n+|\n+$/g, "");
+          if (!b) return "";
+
+          // Code block placeholder
+          const cbMatch = b.match(/^\u0000CODEBLOCK(\d+)\u0000$/);
+          if (cbMatch) {
+            const cb = codeBlocks[parseInt(cbMatch[1], 10)];
+            return '<pre><code class="lang-' + escapeHtml(cb.lang) + '">' + escapeHtml(cb.code.replace(/\n$/, "")) + "</code></pre>";
+          }
+
+          // Heading
+          if (/^#{1,6} /.test(b)) {
+            const m = b.match(/^(#{1,6}) (.*)$/);
+            if (m) {
+              const level = Math.min(m[1].length + 1, 6); // h1→h2, h2→h3 visually
+              return "<h" + level + ">" + renderInline(m[2]) + "</h" + level + ">";
+            }
+          }
+
+          // GFM-style table: first line with pipes, second line with --- separators
+          if (/^\|.+\|\s*$/.test(b.split("\n")[0]) && /^\|[-:|\s]+\|\s*$/.test((b.split("\n")[1] || ""))) {
+            const lines = b.split("\n").filter(function (l) { return l.trim(); });
+            const headerCells = lines[0].split("|").slice(1, -1).map(function (c) { return c.trim(); });
+            const rows = lines.slice(2).map(function (l) {
+              return l.split("|").slice(1, -1).map(function (c) { return c.trim(); });
+            });
+            let t = "<table><thead><tr>";
+            for (let i = 0; i < headerCells.length; i++) t += "<th>" + renderInline(headerCells[i]) + "</th>";
+            t += "</tr></thead><tbody>";
+            for (const row of rows) {
+              t += "<tr>";
+              for (const cell of row) t += "<td>" + renderInline(cell) + "</td>";
+              t += "</tr>";
+            }
+            t += "</tbody></table>";
+            return t;
+          }
+
+          // Unordered list
+          if (/^(?:[-*] )/m.test(b) && b.split("\n").every(function (l) { return /^([-*] |\s)/.test(l) || l.trim() === ""; })) {
+            const items = b.split(/\n(?=[-*] )/).map(function (item) {
+              return "<li>" + renderInline(item.replace(/^[-*] /, "").trim()) + "</li>";
+            });
+            return "<ul>" + items.join("") + "</ul>";
+          }
+
+          // Blockquote
+          if (/^> /.test(b)) {
+            return "<blockquote>" + renderInline(b.replace(/^> ?/gm, "")) + "</blockquote>";
+          }
+
+          // Paragraph
+          return "<p>" + renderInline(b) + "</p>";
+        }).join("\n");
+
+        return html;
+      }
+
+      // Inline markdown: **bold**, *italic*, `code`, [text](url).
+      // Applied after escapeHtml so we can reinsert tags safely.
+      function renderInline(text) {
+        let out = escapeHtml(text);
+        // Inline code first so its contents don't get parsed further.
+        out = out.replace(/`([^`]+)`/g, function (_m, c) { return "<code>" + c + "</code>"; });
+        // Bold before italic.
+        out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        // Underscore italic (avoid inside words).
+        out = out.replace(/(^|\W)_([^_]+)_(\W|$)/g, "$1<em>$2</em>$3");
+        // Links [text](url) — only http/https to block javascript: and data:.
+        out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        return out;
       }
 
       load();
