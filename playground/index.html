@@ -159,6 +159,42 @@
       footer a { color: var(--muted); }
       .loading { color: var(--muted); font-style: italic; }
     </style>
+    <!-- Minimal, privacy-first analytics. Mirror of the script on /. Source and rationale in sverklo-site/index.html. -->
+    <script>
+    (function () {
+      try {
+        if (navigator.doNotTrack === "1" || window.doNotTrack === "1") return;
+        var path = location.pathname;
+        if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+        if (path === "") path = "/";
+        var device = "unknown";
+        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean") {
+          device = navigator.userAgentData.mobile ? "mobile" : "desktop";
+        } else if (window.innerWidth) {
+          device = window.innerWidth < 600 ? "mobile"
+                 : window.innerWidth < 1024 ? "tablet"
+                 : "desktop";
+        }
+        var params = new URLSearchParams(location.search);
+        function clip(s) { return s && s.length <= 64 ? s : null; }
+        var body = {
+          page: path,
+          referrer: document.referrer || "",
+          utm_source: clip(params.get("utm_source")),
+          utm_medium: clip(params.get("utm_medium")),
+          utm_campaign: clip(params.get("utm_campaign")),
+          device: device,
+        };
+        var blob = new Blob([JSON.stringify(body)], { type: "application/json" });
+        var url = "https://t.sverklo.com/v1/pageview";
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(url, blob);
+        } else {
+          fetch(url, { method: "POST", body: JSON.stringify(body), keepalive: true, headers: { "content-type": "application/json" } }).catch(function () {});
+        }
+      } catch (e) { /* analytics must never break the page */ }
+    })();
+    </script>
   </head>
   <body>
     <header>

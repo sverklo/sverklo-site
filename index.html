@@ -728,6 +728,80 @@ footer .col-items a:hover { color: var(--accent); }
   footer .col { grid-column: 1 / 7; margin-bottom: 24px; }
 }
 </style>
+
+<!--
+  Minimal, privacy-first landing analytics.
+
+  What it sends:
+    - page path (/, /playground, /blog)
+    - bucketed referrer (hn/reddit/x/github/google/direct/other)
+    - utm_* query params if present
+    - device class (mobile/tablet/desktop/unknown) from userAgentData or width
+    - timestamp (added server-side)
+
+  What it does NOT send:
+    - cookies (we set none)
+    - IP addresses (the server drops them)
+    - raw referrer URLs (bucketed and dropped server-side)
+    - user agent strings beyond the device class
+    - anything personally identifying
+
+  Respects navigator.doNotTrack — if DNT is on, no beacon is sent.
+
+  Endpoint is our own Cloudflare Worker at t.sverklo.com (source at
+  github.com/sverklo/sverklo/blob/main/telemetry-endpoint/worker.ts).
+  Fires once per page load via navigator.sendBeacon so it never
+  blocks rendering or delays navigation.
+-->
+<script>
+(function () {
+  try {
+    if (navigator.doNotTrack === "1" || window.doNotTrack === "1") return;
+
+    var path = location.pathname;
+    // Normalize trailing slashes the server's ALLOWED_PAGES accepts both,
+    // but we pick the canonical form for cleaner aggregation.
+    if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+    if (path === "") path = "/";
+
+    // Device class — ua-ch first, falls back to width heuristic.
+    var device = "unknown";
+    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean") {
+      device = navigator.userAgentData.mobile ? "mobile" : "desktop";
+    } else if (window.innerWidth) {
+      device = window.innerWidth < 600 ? "mobile"
+             : window.innerWidth < 1024 ? "tablet"
+             : "desktop";
+    }
+
+    // UTM params for campaign attribution.
+    var params = new URLSearchParams(location.search);
+    var utm_source = params.get("utm_source");
+    var utm_medium = params.get("utm_medium");
+    var utm_campaign = params.get("utm_campaign");
+    // Cap length defensively.
+    function clip(s) { return s && s.length <= 64 ? s : null; }
+
+    var body = {
+      page: path,
+      referrer: document.referrer || "",
+      utm_source: clip(utm_source),
+      utm_medium: clip(utm_medium),
+      utm_campaign: clip(utm_campaign),
+      device: device,
+    };
+
+    var blob = new Blob([JSON.stringify(body)], { type: "application/json" });
+    var url = "https://t.sverklo.com/v1/pageview";
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, blob);
+    } else {
+      // Fallback for old browsers — fire-and-forget fetch.
+      fetch(url, { method: "POST", body: JSON.stringify(body), keepalive: true, headers: { "content-type": "application/json" } }).catch(function () {});
+    }
+  } catch (e) { /* analytics must never break the page */ }
+})();
+</script>
 </head>
 <body>
 
