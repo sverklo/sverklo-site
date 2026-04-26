@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sverklo — Local-First Code Intelligence MCP for Claude Code &amp; Cursor</title>
-<meta name="description" content="Sverklo is the open-source MCP server that gives Claude Code, Cursor, and Antigravity hybrid semantic code search, symbol-level impact analysis, diff-aware MR review with risk scoring, and bi-temporal memory. 100% local. No API keys.">
+<meta name="description" content="Sverklo is the open-source MCP server that gives Claude Code, Cursor, Windsurf, Zed, and more hybrid semantic code search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory. 100% local. No API keys.">
 <meta name="keywords" content="MCP server, code search, semantic search, code intelligence, Claude Code, Cursor, Antigravity, local-first, refactor blast radius, diff review, risk scoring, AI coding agents">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/">
 
 <!-- Open Graph -->
 <meta property="og:title" content="Sverklo — Local-First Code Intelligence MCP for AI Coding Agents">
-<meta property="og:description" content="Hybrid semantic code search, symbol-level impact analysis, diff-aware MR review, and bi-temporal memory for Claude Code, Cursor, and Antigravity. Runs entirely on your laptop.">
+<meta property="og:description" content="Hybrid semantic code search, symbol-level impact analysis, diff-aware PR review, and bi-temporal memory for Claude Code, Cursor, Windsurf, Zed, and more. Runs entirely on your laptop.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/">
 <meta property="og:site_name" content="Sverklo">
@@ -23,7 +23,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sverklo — Local-First Code Intelligence MCP">
-<meta name="twitter:description" content="Hybrid semantic code search, symbol-level impact analysis, diff-aware MR review, and bi-temporal memory for Claude Code, Cursor, and Antigravity. 100% local.">
+<meta name="twitter:description" content="Hybrid semantic code search, symbol-level impact analysis, diff-aware PR review, and bi-temporal memory for Claude Code, Cursor, Windsurf, Zed, and more. 100% local.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -35,22 +35,35 @@
   "alternateName": "сверкло",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
-  "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware MR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, and Google Antigravity.",
+  "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.2.9",
+  "softwareVersion": "0.12.5",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
   "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
   "featureList": [
     "Hybrid semantic code search (BM25 + ONNX embeddings + PageRank)",
     "Symbol-level impact analysis (refactor blast radius)",
-    "Diff-aware MR review with risk scoring",
+    "Cross-repo impact analysis (trace changes across dependent repositories)",
+    "Diff-aware PR review with risk scoring",
     "Bi-temporal memory tied to git SHA",
-    "20 MCP tools",
-    "10 languages (TS, JS, Python, Go, Rust, Java, C, C++, Ruby, PHP)",
+    "24 MCP tools",
+    "10 languages via tree-sitter (TS, JS, Python, Go, Rust, Java, C, C++, Ruby, PHP)",
+    "Configurable PageRank weights via .sverklo.yaml",
+    "Pluggable embedding models (ONNX default, Ollama for local models)",
+    "GitHub Action for automated PR review with risk scoring",
+    "CLI review with --ci --fail-on quality gate",
+    "CLI audit with shareable HTML reports",
+    "Interactive dependency graph visualization (D3.js force layout in sverklo ui)",
+    "Functional cluster detection via Label Propagation (sverklo_clusters)",
+    "Wiki generation from indexed codebase (sverklo wiki, no LLM required)",
+    "Global registry — one MCP server serves all indexed repos, no per-project config needed",
+    "Web dashboard with dependency graph visualization (sverklo ui)",
+    "File watcher for incremental reindex",
+    "Token budget improvements with per-tool config",
     "100% local — no API keys, no cloud, no telemetry",
-    "Works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, Antigravity"
+    "Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Antigravity"
   ]
 }
 </script>
@@ -66,7 +79,7 @@
       "name": "What is the best MCP server for code search?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware MR review, and bi-temporal memory in one tool. It runs entirely on your laptop with no API keys and works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, and Google Antigravity."
+        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It runs entirely on your laptop with no API keys and works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
       }
     },
     {
@@ -90,7 +103,7 @@
       "name": "Which AI coding agents does Sverklo support?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, VS Code's MCP integration, JetBrains MCP, and Google Antigravity. The sverklo init command auto-detects which clients you have installed and writes the right config files."
+        "text": "Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity. The sverklo init command auto-detects which clients you have installed and writes the right config files."
       }
     },
     {
@@ -98,7 +111,7 @@
       "name": "Is Sverklo free and open source?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo is MIT licensed and free forever. All 20 tools in the open-source release have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is 'Pro adds new things, never gates current things.' Anything in the OSS server today stays in the OSS server forever."
+        "text": "Yes. Sverklo is MIT licensed and free forever. All 24 tools in the open-source release have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is 'Pro adds new things, never gates current things.' Anything in the OSS server today stays in the OSS server forever."
       }
     },
     {
@@ -106,7 +119,7 @@
       "name": "How do I install Sverklo in Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Restart Claude Code and the 20 sverklo tools appear in the /mcp list."
+        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Restart Claude Code and the 24 sverklo tools appear in the /mcp list."
       }
     },
     {
@@ -114,7 +127,7 @@
       "name": "What programming languages does Sverklo support?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo parses 10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them. The dependency graph and PageRank ranking work on any codebase that mixes these languages."
+        "text": "Sverklo parses 10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them."
       }
     },
     {
@@ -133,7 +146,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230E0D0B'/><text x='50' y='68' text-anchor='middle' font-family='JetBrains Mono,monospace' font-weight='700' font-size='60' fill='%23E85A2A'>s</text></svg>">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -147,7 +163,7 @@
   --rule-2: #403A30;
   --text: #EDE7D9;
   --text-2: #A39886;
-  --text-3: #6B6354;
+  --text-3: #8A8270;
   --accent: #E85A2A;
   --accent-dim: #B8441C;
   --accent-glow: rgba(232, 90, 42, 0.12);
@@ -218,7 +234,7 @@ header.top .grid {
   border: none;
 }
 .brand::before {
-  content: "▌ ";
+  content: "\25CC ";
   color: var(--accent);
 }
 nav.top-nav {
@@ -247,7 +263,7 @@ nav.top-nav a:hover { color: var(--text); }
 
 /* ───────── HERO ───────── */
 .hero {
-  padding: 120px 0 80px;
+  padding: 80px 0 60px;
   border-bottom: 1px solid var(--rule);
   position: relative;
   overflow: hidden;
@@ -259,7 +275,7 @@ nav.top-nav a:hover { color: var(--text); }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-3);
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 .hero .label::before {
   content: "// ";
@@ -267,7 +283,7 @@ nav.top-nav a:hover { color: var(--text); }
 }
 
 .hero h1 {
-  grid-column: 1 / 9;
+  grid-column: 1 / 7;
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(48px, 8vw, 112px);
   line-height: 0.92;
@@ -290,12 +306,11 @@ nav.top-nav a:hover { color: var(--text); }
 }
 
 .hero .lede {
-  grid-column: 9 / 13;
-  padding-top: 12px;
-  font-size: 16px;
+  grid-column: 7 / 13;
+  padding-top: 0;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--text-2);
-  max-width: 32ch;
 }
 .hero .lede strong { color: var(--text); font-weight: 500; }
 
@@ -414,6 +429,21 @@ nav.top-nav a:hover { color: var(--text); }
 }
 
 /* ───────── TWO COLUMN ───────── */
+#faq details { position: relative; }
+#faq summary { cursor: pointer; padding-right: 28px; }
+#faq summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 400;
+  transition: transform .2s;
+}
+#faq details[open] summary::after { content: "−"; }
+
 .two-col {
   padding: 96px 0;
   border-bottom: 1px solid var(--rule);
@@ -588,6 +618,8 @@ nav.top-nav a:hover { color: var(--text); }
   justify-content: space-between;
   align-items: center;
   transition: border-color 0.15s;
+  width: 100%;
+  text-align: left;
 }
 .qs-cmd:hover { border-color: var(--accent); }
 .qs-cmd::before { content: "$ "; color: var(--accent); }
@@ -626,27 +658,29 @@ nav.top-nav a:hover { color: var(--text); }
   font-size: 14px;
   color: var(--text-2);
 }
-.clients .list a.tool-chip {
+a.tool-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
+  gap: 6px;
+  padding: 4px 12px;
   border: 1px solid var(--rule);
   background: var(--bg-2);
   color: var(--text);
   text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  border-radius: 4px;
   transition: border-color 0.15s ease, opacity 0.15s ease;
 }
-.clients .list a.tool-chip:hover {
+a.tool-chip:hover {
   border-color: var(--accent-dim);
   opacity: 0.85;
   color: var(--text);
 }
-.clients .list a.tool-chip img,
-.clients .list a.tool-chip .tool-glyph {
+a.tool-chip .tool-glyph {
   display: block;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
 }
 .clients .list .tool-any {
@@ -704,9 +738,15 @@ footer .col-items a:hover { color: var(--accent); }
 /* ───────── RESPONSIVE ───────── */
 @media (max-width: 900px) {
   .grid { gap: 16px; padding: 0 20px; }
-  .brand { grid-column: 1 / 7; }
-  nav.top-nav { display: none; }
-  .top-cta { grid-column: 7 / 13; }
+  .brand { grid-column: 1 / 13; margin-bottom: 8px; }
+  nav.top-nav {
+    grid-column: 1 / 13;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    padding-bottom: 8px;
+  }
+  .top-cta { grid-column: 1 / 13; justify-self: start; }
   .hero { padding: 64px 0 48px; }
   .hero h1 { grid-column: 1 / 13; font-size: 44px; }
   .hero .lede { grid-column: 1 / 13; margin-top: 24px; max-width: none; }
@@ -727,6 +767,58 @@ footer .col-items a:hover { color: var(--accent); }
   .qs-step { grid-column: 1 / 13; margin-bottom: 16px; }
   footer .col { grid-column: 1 / 7; margin-bottom: 24px; }
 }
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
 </style>
 
 <!--
@@ -804,37 +896,47 @@ footer .col-items a:hover { color: var(--accent); }
 </script>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <!-- ───────── TOP BAR ───────── -->
 <header class="top">
   <div class="grid">
     <div class="brand mono">sverklo</div>
     <nav class="top-nav">
-      <a href="#review">review</a>
-      <a href="#memory">memory</a>
-      <a href="#benchmarks">benchmarks</a>
-      <a href="#tools">tools</a>
-      <a href="#compare">vs</a>
-      <a href="#install">install</a>
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo">github</a>
     </nav>
     <div class="top-cta">
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">loading…</a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block;">v0.12.5</a>
     </div>
   </div>
 </header>
 
+<main id="main">
+
 <!-- ───────── HERO ───────── -->
 <section class="hero">
   <div class="grid">
-    <div class="label">/* code intelligence for ai agents */</div>
+    <div class="label">/* stop your AI from making things up about your codebase */</div>
 
-    <h1>sverklo<span class="cursor">&nbsp;</span></h1>
+    <h1>Stop your AI from making things up about your codebase.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
+    <p class="hero-tagline" style="font-family: 'JetBrains Mono', monospace; font-size: clamp(16px, 2.5vw, 22px); font-weight: 500; color: var(--accent); letter-spacing: 0.02em; margin-top: 12px; line-height: 1.3; grid-column: 1 / 13;">sverklo — local-first MCP for Claude Code, Cursor, Windsurf, Zed</p>
 
     <div class="lede">
-      Your AI agent reads diffs the way a junior reviewer does — line by line, no context. <strong>Sverklo gives it senior-reviewer eyes.</strong>
+      Cursor, Claude Code, and Windsurf hallucinate because they're guessing from grep. <strong>Sverklo drills your repo into a real symbol graph</strong> — call sites, blast radius, dead code, and a git-pinned memory of every decision you've made — so the agent reasons about <em>your</em> code instead of pattern-matching from training data.
       <br><br>
-      Diff-aware MR review with <strong>risk scoring, missing-test detection, and dangling-reference checks</strong>. Hybrid semantic search, symbol-level impact graph, and bi-temporal memory tied to git state. Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
+      Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
+      <br><br>
+      <span style="display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--ok); border: 1px solid var(--ok); padding: 4px 12px; border-radius: 4px;">MIT Licensed — free for commercial use.</span>
+    </div>
+
+    <div style="grid-column: 1 / 13; margin: 24px 0 0; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+      <button type="button" class="qs-cmd" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo" style="max-width: 420px; font-size: 15px; padding: 14px 18px; background: var(--bg-2); border: 1px solid var(--rule-2);">npm install -g sverklo<span class="copy">copy</span></button>
+      <a href="/playground/" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding: 13px 18px; border: 1px solid var(--rule-2); border-radius: 0; background: transparent;">try it without installing →</a>
     </div>
 
     <div class="terminal-block" id="hero-term">
@@ -842,14 +944,14 @@ footer .col-items a:hover { color: var(--accent); }
         <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>~/your-project</span>
         <span class="term-current-label">claude code</span>
       </div>
-      <div class="term-tabs" role="tablist">
-        <button class="term-tab active" data-tab="claude" data-label="claude code" onclick="switchTab(this)">Claude Code</button>
-        <button class="term-tab" data-tab="cursor" data-label="cursor" onclick="switchTab(this)">Cursor</button>
-        <button class="term-tab" data-tab="antigravity" data-label="antigravity" onclick="switchTab(this)">Antigravity</button>
-        <button class="term-tab" data-tab="other" data-label="any mcp client" onclick="switchTab(this)">Other</button>
+      <div class="term-tabs" role="tablist" aria-label="MCP client install commands">
+        <button class="term-tab active" role="tab" id="tab-claude" aria-selected="true" aria-controls="pane-claude" data-tab="claude" data-label="claude code" onclick="switchTab(this)">Claude Code</button>
+        <button class="term-tab" role="tab" id="tab-cursor" aria-selected="false" aria-controls="pane-cursor" tabindex="-1" data-tab="cursor" data-label="cursor" onclick="switchTab(this)">Cursor</button>
+        <button class="term-tab" role="tab" id="tab-antigravity" aria-selected="false" aria-controls="pane-antigravity" tabindex="-1" data-tab="antigravity" data-label="antigravity" onclick="switchTab(this)">Antigravity</button>
+        <button class="term-tab" role="tab" id="tab-other" aria-selected="false" aria-controls="pane-other" tabindex="-1" data-tab="other" data-label="any mcp client" onclick="switchTab(this)">Other</button>
       </div>
 
-      <div class="term-pane active" data-pane="claude">
+      <div class="term-pane active" role="tabpanel" id="pane-claude" aria-labelledby="tab-claude" data-pane="claude">
         <div class="terminal-body"><span class="comment"># install sverklo and set it up in your project</span>
 <span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
 <span class="prompt">$</span> <span class="cmd">cd your-project &amp;&amp; sverklo init</span>
@@ -869,7 +971,7 @@ footer .col-items a:hover { color: var(--accent); }
 </div>
       </div>
 
-      <div class="term-pane" data-pane="cursor">
+      <div class="term-pane" role="tabpanel" id="pane-cursor" aria-labelledby="tab-cursor" data-pane="cursor">
         <div class="terminal-body"><span class="comment"># install sverklo</span>
 <span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
 
@@ -894,7 +996,7 @@ footer .col-items a:hover { color: var(--accent); }
 </div>
       </div>
 
-      <div class="term-pane" data-pane="antigravity">
+      <div class="term-pane" role="tabpanel" id="pane-antigravity" aria-labelledby="tab-antigravity" data-pane="antigravity">
         <div class="terminal-body"><span class="comment"># install sverklo and run init — Antigravity is auto-detected</span>
 <span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
 <span class="prompt">$</span> <span class="cmd">cd your-project &amp;&amp; sverklo init</span>
@@ -915,20 +1017,17 @@ footer .col-items a:hover { color: var(--accent); }
 </div>
       </div>
 
-      <div class="term-pane" data-pane="other">
-        <div class="terminal-body"><span class="comment"># Sverklo speaks vanilla MCP over stdio — works with any MCP client</span>
+      <div class="term-pane" role="tabpanel" id="pane-other" aria-labelledby="tab-other" data-pane="other">
+        <div class="terminal-body"><span class="comment"># one server, all your repos — no per-project config needed</span>
 <span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
+<span class="prompt">$</span> <span class="cmd">cd ~/api &amp;&amp; sverklo init</span>          <span class="comment"># auto-registers</span>
+<span class="prompt">$</span> <span class="cmd">cd ~/frontend &amp;&amp; sverklo init</span>     <span class="comment"># auto-registers</span>
+<span class="prompt">$</span> <span class="cmd">sverklo setup --global</span>            <span class="comment"># one-time global MCP config</span>
 
-<span class="comment"># point your MCP client at this command</span>
-  <span class="dim">command: sverklo</span>
-  <span class="dim">args:    ["mcp", "/absolute/path/to/your-project"]</span>
-
-<span class="comment"># tested with Claude Code, Cursor, Antigravity, Windsurf,</span>
-<span class="comment"># VS Code (Continue), JetBrains, Codex, and any MCP-compatible host</span>
-
-<span class="prompt">$</span> <span class="cmd">sverklo mcp .</span>
-  <span class="ok">✓ MCP server started — 20 tools, 5 prompts registered</span>
-  <span class="ok">✓ index ready: 847 files, 12,431 symbols</span>
+<span class="comment"># now every AI editor has access to all your repos</span>
+<span class="prompt">$</span> <span class="cmd">sverklo list</span>
+  <span class="ok">api       ~/api        24 tools  fresh</span>
+  <span class="ok">frontend  ~/frontend   24 tools  fresh</span>
 </div>
       </div>
     </div>
@@ -1084,7 +1183,7 @@ footer .col-items a:hover { color: var(--accent); }
   </div>
   <div class="grid" style="margin-top:32px;">
     <div style="grid-column:1/13;font-size:13px;color:var(--text-2);font-family:'JetBrains Mono',monospace;">
-      Run on Apple Silicon. Steady-state RAM ~200 MB; peak during indexing 400–700 MB while the embedder batches. Full methodology, all metrics, and the reproducer harness in <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md" style="color:var(--accent);">BENCHMARKS.md</a>.
+      Run on Apple Silicon. Steady-state RAM ~200 MB; peak during indexing 400–700 MB while the embedder batches. Full methodology, all metrics, and the reproducer harness in <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md" style="color:var(--accent);">BENCHMARKS.md</a>. See the <a href="/benchmarks/" style="color:var(--accent);">MCP benchmark comparison</a>.
     </div>
   </div>
 </section>
@@ -1124,13 +1223,23 @@ footer .col-items a:hover { color: var(--accent); }
     </div>
     <div class="feature">
       <div class="feature-num">05</div>
+      <h3>multi-repo + cross impact</h3>
+      <p>One MCP server serves all your repos via a global registry. Trace how a change ripples across dependent repos. No per-project config needed — <code>sverklo init</code> in any repo, done.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-num">06</div>
+      <h3>configurable pagerank</h3>
+      <p>Drop a <code style="color:var(--accent)">.sverklo.yaml</code> in your project root to tune PageRank weights, boost or penalize paths, and customize ranking to match your codebase's shape.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-num">07</div>
       <h3>incremental</h3>
       <p>File watcher updates the index on every save. Dependency graph and PageRank recompute in real time. Always fresh.</p>
     </div>
     <div class="feature">
-      <div class="feature-num">06</div>
-      <h3>twenty languages</h3>
-      <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml.</p>
+      <div class="feature-num">08</div>
+      <h3>ten languages</h3>
+      <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP.</p>
     </div>
   </div>
 </section>
@@ -1231,114 +1340,8 @@ footer .col-items a:hover { color: var(--accent); }
 <!-- ───────── TOOLS ───────── -->
 <section class="tools-section" id="tools">
   <div class="grid">
-    <div class="kicker">/* mcp tools */</div>
-    <h2>twenty tools<br>your agent<br>actually uses.</h2>
-    <div class="desc">Each tool gets registered with the MCP server's instructions field, telling Claude to prefer them over built-in grep. Combined with a SessionStart hook, adoption is guaranteed.</div>
-
-    <div class="tools-list">
-      <div class="tool">
-        <div class="tool-name">sverklo_context</div>
-        <div class="tool-desc">Umbrella "give me everything relevant to this task" bundler. One call returns overview + relevant code + memories. Use as the front door.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_search</div>
-        <div class="tool-desc">Hybrid semantic + text search across the codebase. Preferred over grep.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_overview</div>
-        <div class="tool-desc">Structural codebase map ranked by PageRank importance.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_lookup</div>
-        <div class="tool-desc">Direct symbol lookup by name with full definitions.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_refs</div>
-        <div class="tool-desc">Find all references to a function, class, or type.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_deps</div>
-        <div class="tool-desc">Show file dependency graph — imports and importers with ref counts.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_status</div>
-        <div class="tool-desc">Index health check. File count, chunk count, languages.</div>
-        <div class="tool-tag">meta</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_remember</div>
-        <div class="tool-desc">Save decisions, patterns, preferences. Linked to current git state.</div>
-        <div class="tool-tag">memory</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_recall</div>
-        <div class="tool-desc">Semantic search over saved memories. Stale detection included.</div>
-        <div class="tool-tag">memory</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_forget</div>
-        <div class="tool-desc">Remove a memory by ID.</div>
-        <div class="tool-tag">memory</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_memories</div>
-        <div class="tool-desc">List memories with health metrics — age, access count, staleness.</div>
-        <div class="tool-tag">memory</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_impact</div>
-        <div class="tool-desc">Find every function/class that references a symbol. Safe refactoring across the symbol graph.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_promote</div>
-        <div class="tool-desc">Promote a memory to core tier — auto-injected into every session as a project invariant.</div>
-        <div class="tool-tag">memory</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_demote</div>
-        <div class="tool-desc">Demote a core memory back to archive. Searched on demand instead of auto-injected.</div>
-        <div class="tool-tag">memory</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_ast_grep</div>
-        <div class="tool-desc">Structural pattern matching via ast-grep binary. Precise symbol queries without embeddings.</div>
-        <div class="tool-tag">search</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_review_diff</div>
-        <div class="tool-desc">Diff-aware review bundler: changed files, semantic delta, dangling refs, risk score per file. Replaces 10–20 grep calls.</div>
-        <div class="tool-tag">review</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_test_map</div>
-        <div class="tool-desc">Map a git diff to its test coverage. Flags untested changes ranked by risk score.</div>
-        <div class="tool-tag">review</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_diff_search</div>
-        <div class="tool-desc">Semantic search constrained to files touched by a diff. For drilling into a specific MR.</div>
-        <div class="tool-tag">review</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_audit</div>
-        <div class="tool-desc">Project audit: god-nodes, dead code, dependency cycles, fan-in/fan-out outliers.</div>
-        <div class="tool-tag">meta</div>
-      </div>
-      <div class="tool">
-        <div class="tool-name">sverklo_wakeup</div>
-        <div class="tool-desc">Session-start primer. Returns recent git activity, hot files, and core memories in one bundle.</div>
-        <div class="tool-tag">meta</div>
-      </div>
-    </div>
-    <div style="grid-column: 1 / 13; margin-top: 32px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-3);">
-      // Plus five MCP prompts: <span style="color:var(--accent)">/sverklo:review-changes</span>, <span style="color:var(--accent)">/sverklo:pre-merge</span>, <span style="color:var(--accent)">/sverklo:onboard</span>, <span style="color:var(--accent)">/sverklo:architecture-map</span>, <span style="color:var(--accent)">/sverklo:debug-issue</span>
+    <div style="grid-column: 1 / 13; font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--text-2); padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+      <span style="color: var(--accent); font-weight: 600;">24 MCP tools</span> for search, impact analysis, review, and memory. <a href="https://github.com/sverklo/sverklo#tools" style="color: var(--accent);">Full reference on GitHub.</a>
     </div>
   </div>
 </section>
@@ -1349,7 +1352,7 @@ footer .col-items a:hover { color: var(--accent); }
     <div class="kicker">/* vs the competition */</div>
     <h2>only one tool<br>has everything.</h2>
     <div class="desc">
-      The code intelligence and memory space is fragmented. Each competitor gives up at least two of these six dimensions. Sverklo is the only one with all six.
+      The code intelligence and memory space is fragmented. Each competitor gives up at least two of these dimensions. Sverklo is the only tool with all of them.
     </div>
 
     <div style="grid-column: 1 / 13; margin-top: 48px; overflow-x: auto;">
@@ -1363,11 +1366,13 @@ footer .col-items a:hover { color: var(--accent); }
             <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Git-aware memory</th>
             <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Symbol graph</th>
             <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Bi-temporal</th>
+            <th style="padding: 14px 8px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Cross-repo</th>
           </tr>
         </thead>
         <tbody>
           <tr style="border-bottom: 1px solid var(--rule); background: var(--accent-glow);">
             <td style="padding: 16px 12px; color: var(--accent); font-weight: 700;">sverklo</td>
+            <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
@@ -1383,12 +1388,14 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
           <tr style="border-bottom: 1px solid var(--rule);">
             <td style="padding: 16px 12px; color: var(--text);">claude-mem</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--ok);">●</td>
             <td style="text-align:center; color: var(--warn); font-size: 10px;">CC only</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
@@ -1401,6 +1408,7 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
           <tr style="border-bottom: 1px solid var(--rule);">
             <td style="padding: 16px 12px; color: var(--text);">Zep / Graphiti</td>
@@ -1410,6 +1418,7 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
           <tr style="border-bottom: 1px solid var(--rule);">
             <td style="padding: 16px 12px; color: var(--text);">Augment Code</td>
@@ -1418,6 +1427,7 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--ok);">●</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
           <tr style="border-bottom: 1px solid var(--rule);">
@@ -1428,11 +1438,13 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--ok);">●</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
           <tr style="border-bottom: 1px solid var(--rule);">
             <td style="padding: 16px 12px; color: var(--text);">Aider repo-map</td>
             <td style="text-align:center; color: var(--ok);">●</td>
             <td style="text-align:center; color: var(--ok);">●</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
@@ -1446,6 +1458,7 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
           <tr>
             <td style="padding: 16px 12px; color: var(--text);">XRAY MCP</td>
@@ -1455,15 +1468,18 @@ footer .col-items a:hover { color: var(--accent); }
             <td style="text-align:center; color: var(--text-3);">—</td>
             <td style="text-align:center; color: var(--warn); font-size: 10px;">partial</td>
             <td style="text-align:center; color: var(--text-3);">—</td>
+            <td style="text-align:center; color: var(--text-3);">—</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div style="grid-column: 1 / 13; margin-top: 32px; padding: 24px; background: var(--bg-2); border-left: 2px solid var(--accent); font-size: 14px; color: var(--text-2); line-height: 1.7;">
-      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 20 languages with tree-sitter-style parsers, build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
+      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 10 languages with tree-sitter-style parsers, build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
       <br><br>
       <strong style="color: var(--accent);">The wedge:</strong> Sverklo is the only tool that knows what the code looked like when you made that decision — and warns you when the code has drifted since. If you want conversation memory, use mempalace. If you want your agent to actually understand a codebase, use sverklo.
+      <br><br>
+      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Want a deeper dive?</strong> <a href="/vs/" style="color: var(--accent);">See side-by-side comparisons →</a> against Serena, GitNexus, codebase-memory-mcp, Cursor @codebase, and Sourcegraph Cody.
     </div>
   </div>
 </section>
@@ -1474,62 +1490,41 @@ footer .col-items a:hover { color: var(--accent); }
     <div class="kicker">/* install */</div>
     <h2>three commands.<br>zero config.</h2>
 
+    <div style="grid-column: 1 / 13; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 48px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+      <span style="color: var(--text-2); letter-spacing: 1px; font-size: 11px;">WORKS WITH</span>
+      <a href="https://claude.ai/code" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#CC785C"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#0E0D0B">C</text></svg><span>Claude Code</span></a>
+      <a href="https://cursor.com" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#FFFFFF"/><path d="M5 4 L13 9 L5 14 Z" fill="#0E0D0B"/></svg><span>Cursor</span></a>
+      <a href="https://windsurf.com" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#09B6A2"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#0E0D0B">W</text></svg><span>Windsurf</span></a>
+      <a href="https://zed.dev" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#8B5CF6"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#FFFFFF">Z</text></svg><span>Zed</span></a>
+      <a href="https://code.visualstudio.com" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#0078D4"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#FFFFFF">V</text></svg><span>VS Code</span></a>
+      <a href="https://www.jetbrains.com" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#E85A2A"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#0E0D0B">J</text></svg><span>JetBrains</span></a>
+      <a href="https://antigravity.google" target="_blank" rel="noopener" class="tool-chip"><svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#3186FF"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#FFFFFF">A</text></svg><span>Antigravity</span></a>
+      <span class="tool-any">&amp; any MCP client</span>
+    </div>
+
     <div class="qs-step">
       <div class="qs-num">01 — install</div>
       <div class="qs-title">Global npm install</div>
-      <div class="qs-cmd" onclick="cp('npm install -g sverklo', this)">npm install -g sverklo<span class="copy">copy</span></div>
+      <button type="button" class="qs-cmd" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">npm install -g sverklo<span class="copy">copy</span></button>
       <div class="qs-note">Requires Node 20+. Works on macOS, Linux, Windows.</div>
     </div>
 
     <div class="qs-step">
       <div class="qs-num">02 — setup</div>
       <div class="qs-title">Initialize in your project</div>
-      <div class="qs-cmd" onclick="cp('sverklo init', this)">sverklo init<span class="copy">copy</span></div>
+      <button type="button" class="qs-cmd" onclick="cp('sverklo init', this)" aria-label="Copy: sverklo init">sverklo init<span class="copy">copy</span></button>
       <div class="qs-note">Creates .mcp.json, .claude/settings.local.json, CLAUDE.md. Auto-detects Antigravity. Idempotent.</div>
     </div>
 
     <div class="qs-step">
       <div class="qs-num">03 — start coding</div>
       <div class="qs-title">Open your agent</div>
-      <div class="qs-cmd" onclick="cp('claude', this)">claude<span class="copy">copy</span></div>
+      <button type="button" class="qs-cmd" onclick="cp('claude', this)" aria-label="Copy: claude">claude<span class="copy">copy</span></button>
       <div class="qs-note">First run downloads the embedding model (~90MB, ~30s). After that, instant.</div>
     </div>
   </div>
 </section>
 
-<!-- ───────── CLIENTS ───────── -->
-<section class="clients">
-  <div class="grid">
-    <div class="label">/* works with */</div>
-    <div class="list">
-      <a href="https://claude.ai/code" target="_blank" rel="noopener" class="tool-chip">
-        <svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#CC785C"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#0E0D0B">C</text></svg>
-        <span>Claude Code</span>
-      </a>
-      <a href="https://cursor.com" target="_blank" rel="noopener" class="tool-chip">
-        <svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#FFFFFF"/><path d="M5 4 L13 9 L5 14 Z" fill="#0E0D0B"/></svg>
-        <span>Cursor</span>
-      </a>
-      <a href="https://windsurf.com" target="_blank" rel="noopener" class="tool-chip">
-        <svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#09B6A2"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#0E0D0B">W</text></svg>
-        <span>Windsurf</span>
-      </a>
-      <a href="https://code.visualstudio.com" target="_blank" rel="noopener" class="tool-chip">
-        <svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#0078D4"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#FFFFFF">V</text></svg>
-        <span>VS Code</span>
-      </a>
-      <a href="https://www.jetbrains.com" target="_blank" rel="noopener" class="tool-chip">
-        <svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#E85A2A"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#0E0D0B">J</text></svg>
-        <span>JetBrains</span>
-      </a>
-      <a href="https://antigravity.google" target="_blank" rel="noopener" class="tool-chip">
-        <svg class="tool-glyph" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" rx="3" fill="#3186FF"/><text x="9" y="13" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#FFFFFF">A</text></svg>
-        <span>Antigravity</span>
-      </a>
-      <span class="tool-any">&amp; any MCP client</span>
-    </div>
-  </div>
-</section>
 
 <!-- ───────── FAQ ───────── -->
 <section class="two-col" id="faq" style="border-top:1px solid var(--rule);padding:96px 0;">
@@ -1538,8 +1533,8 @@ footer .col-items a:hover { color: var(--accent); }
     <h2 style="grid-column:1/6;font-size:48px;line-height:1.05;font-weight:700;letter-spacing:-0.02em;">questions,<br>honestly<br>answered.</h2>
     <div style="grid-column:7/13;display:flex;flex-direction:column;gap:0;">
       <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">What is the best MCP server for code search?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware MR review, and bi-temporal memory in one tool. It runs entirely on your laptop with no API keys and works with Claude Code, Cursor, Windsurf, VS Code, JetBrains, and Google Antigravity.</p>
+        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Why would I install another MCP server?</summary>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory — all running on your laptop with no API keys. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 24 new tools alongside whatever else you run.</p>
       </details>
       <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
         <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">How is Sverklo different from Cursor's @codebase or Claude Context?</summary>
@@ -1551,19 +1546,19 @@ footer .col-items a:hover { color: var(--accent); }
       </details>
       <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
         <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Which AI coding agents does Sverklo support?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, VS Code's MCP integration, JetBrains MCP, and Google Antigravity. The <code style="color:var(--accent);">sverklo init</code> command auto-detects which clients you have installed and writes the right config files.</p>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity. The <code style="color:var(--accent);">sverklo init</code> command auto-detects which clients you have installed and writes the right config files.</p>
       </details>
       <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
         <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Is Sverklo free and open source?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Yes. MIT licensed and free forever. All 20 tools have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Yes. MIT licensed and free forever. All 24 tools have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
       </details>
       <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
         <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">How do I install Sverklo in Claude Code?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 20 sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 24 sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
       </details>
       <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
         <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">What programming languages does Sverklo support?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them. The dependency graph and PageRank ranking work on any codebase that mixes these languages.</p>
+        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them.</p>
       </details>
       <details style="border-top:1px solid var(--rule);padding:20px 0;border-bottom:1px solid var(--rule);cursor:pointer;">
         <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">When is Sverklo the wrong tool?</summary>
@@ -1572,6 +1567,8 @@ footer .col-items a:hover { color: var(--accent); }
     </div>
   </div>
 </section>
+
+</main>
 
 <!-- ───────── FOOTER ───────── -->
 <footer>
@@ -1586,31 +1583,40 @@ footer .col-items a:hover { color: var(--accent); }
     <div class="col">
       <div class="col-label">product</div>
       <ul class="col-items">
-        <li><a href="#tools">Tools</a></li>
-        <li><a href="#install">Install</a></li>
-        <li><a href="#faq">FAQ</a></li>
+        <li><a href="/report/">Reports</a></li>
+        <li><a href="/vs/">Compare</a></li>
+        <li><a href="/benchmarks/">Benchmarks</a></li>
+        <li><a href="/playground/">Playground</a></li>
+        <li><a href="/badge/">Badge</a></li>
         <li><a href="/blog/">Blog</a></li>
-        <li><a href="https://github.com/sverklo/sverklo">Source</a></li>
       </ul>
     </div>
     <div class="col">
       <div class="col-label">links</div>
       <ul class="col-items">
-        <li><a href="https://github.com/sverklo/sverklo" target="_blank">GitHub</a></li>
-        <li><a href="https://www.npmjs.com/package/sverklo" target="_blank">npm</a></li>
-        <li><a href="https://github.com/sverklo/sverklo/issues" target="_blank">Issues</a></li>
+        <li><a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener noreferrer">npm</a></li>
+        <li><a href="https://github.com/sverklo/sverklo/issues" target="_blank" rel="noopener noreferrer">Issues</a></li>
       </ul>
     </div>
     <div class="col">
       <div class="col-label">docs</div>
       <ul class="col-items">
-        <li><a href="https://github.com/sverklo/sverklo#readme" target="_blank">README</a></li>
-        <li><a href="https://github.com/sverklo/sverklo/blob/main/CLAUDE.md" target="_blank">CLAUDE.md</a></li>
+        <li><a href="https://github.com/sverklo/sverklo#readme" target="_blank" rel="noopener noreferrer">README</a></li>
+        <li><a href="https://github.com/sverklo/sverklo/blob/main/CLAUDE.md" target="_blank" rel="noopener noreferrer">CLAUDE.md</a></li>
       </ul>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; padding-top: 16px; border-top: 1px solid var(--rule);">
+      <span style="font-size: 11px; color: var(--text-3); letter-spacing: 1px; margin-right: 4px;">LISTED ON</span>
+      <a href="https://registry.modelcontextprotocol.io" target="_blank" rel="noopener" style="border: none;"><img src="https://img.shields.io/badge/MCP_Registry-official-E85A2A?style=flat" alt="MCP Registry" height="18"></a>
+      <a href="https://www.pulsemcp.com/servers/sverklo" target="_blank" rel="noopener" style="border: none;"><img src="https://img.shields.io/badge/PulseMCP-listed-555?style=flat&labelColor=333" alt="PulseMCP" height="18"></a>
+      <a href="https://devhunt.org/tool/sverklo" target="_blank" rel="noopener" style="border: none;"><img src="https://img.shields.io/badge/DevHunt-listed-E85A2A?style=flat&labelColor=333" alt="DevHunt" height="18"></a>
+      <a href="https://stackshare.io/sverklo" target="_blank" rel="noopener" style="border: none;"><img src="https://img.shields.io/badge/StackShare-listed-555?style=flat&labelColor=333" alt="StackShare" height="18"></a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" style="border: none;"><img src="https://img.shields.io/npm/v/sverklo?style=flat&label=npm&color=E85A2A&labelColor=333" alt="npm" height="18"></a>
     </div>
     <div class="footer-bottom">
       <span>© 2026 · sverklo (сверкло)</span>
-      <span><span style="color: var(--accent)">▌</span> built by humans who hate grep</span>
+      <span><span style="color: var(--accent)">&#x25CC;</span> built by humans who lost hours to grep</span>
     </div>
   </div>
 </footer>
@@ -1620,11 +1626,34 @@ function switchTab(btn) {
   const term = btn.closest('.terminal-block');
   if (!term) return;
   const tab = btn.dataset.tab;
-  term.querySelectorAll('.term-tab').forEach((b) => b.classList.toggle('active', b === btn));
+  term.querySelectorAll('.term-tab').forEach((b) => {
+    const on = b === btn;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    b.setAttribute('tabindex', on ? '0' : '-1');
+  });
   term.querySelectorAll('.term-pane').forEach((p) => p.classList.toggle('active', p.dataset.pane === tab));
   const label = term.querySelector('.term-current-label');
   if (label && btn.dataset.label) label.textContent = btn.dataset.label;
 }
+
+// Arrow-key navigation for the tab group (WAI-ARIA tabs pattern).
+document.addEventListener('keydown', function(e) {
+  const focused = document.activeElement;
+  if (!focused || !focused.matches('.term-tab')) return;
+  const tabs = Array.from(focused.closest('.term-tabs').querySelectorAll('.term-tab'));
+  const i = tabs.indexOf(focused);
+  let next = -1;
+  if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+  else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+  else if (e.key === 'Home') next = 0;
+  else if (e.key === 'End') next = tabs.length - 1;
+  if (next >= 0) {
+    e.preventDefault();
+    tabs[next].focus();
+    switchTab(tabs[next]);
+  }
+});
 
 function cp(text, el) {
   const ta = document.createElement('textarea');
@@ -1639,25 +1668,37 @@ function cp(text, el) {
   const orig = el.querySelector('.copy').textContent;
   el.querySelector('.copy').textContent = 'copied';
   el.style.borderColor = 'var(--accent)';
+  // announce to screen readers via a single shared live region
+  let live = document.getElementById('copy-live');
+  if (!live) {
+    live = document.createElement('div');
+    live.id = 'copy-live';
+    live.setAttribute('role', 'status');
+    live.setAttribute('aria-live', 'polite');
+    live.className = 'visually-hidden';
+    document.body.appendChild(live);
+  }
+  live.textContent = 'Copied ' + text + ' to clipboard';
   setTimeout(() => {
     el.querySelector('.copy').textContent = orig;
     el.style.borderColor = '';
   }, 1500);
 }
 
-// Fetch latest version from npm registry
+// Version badge: render known-good version synchronously (avoids CLS),
+// then try to refresh from npm with a 2s timeout. If npm is slow/offline,
+// we keep the static value.
 (async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
   try {
-    const r = await fetch('https://registry.npmjs.org/sverklo/latest');
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
     const data = await r.json();
-    if (data.version) {
-      document.getElementById('version-badge').textContent = 'v' + data.version;
-    } else {
-      document.getElementById('version-badge').textContent = 'v0.2.11';
-    }
-  } catch {
-    document.getElementById('version-badge').textContent = 'v0.2.11';
-  }
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
 })();
 </script>
 

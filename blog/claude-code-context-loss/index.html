@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Keeps Losing Context After Compaction — Here's How to Fix It — Sverklo</title>
+<meta name="description" content="Every long Claude Code session hits compaction. When it does, your agent forgets the architecture, the conventions, and the decisions you made 30 minutes ago. Persistent code intelligence fixes this without fighting the context window.">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/blog/claude-code-context-loss/">
+
+<meta property="og:title" content="Claude Code Keeps Losing Context After Compaction — Here's How to Fix It">
+<meta property="og:description" content="Compaction drops file contents and search results first. Your agent forgets which files matter, what was decided, and what's risky to change. Here's how persistent code intelligence survives the context window reset.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/claude-code-context-loss/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-04-09">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="claude code">
+<meta property="article:tag" content="context window">
+<meta property="article:tag" content="compaction">
+<meta property="article:tag" content="code intelligence">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claude Code Keeps Losing Context After Compaction — Here's How to Fix It">
+<meta name="twitter:description" content="Compaction drops file contents first. Your agent forgets the architecture. Persistent code intelligence fixes this.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+<meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Code Keeps Losing Context After Compaction — Here's How to Fix It",
+  "description": "Compaction drops file contents and search results first. Your agent forgets which files matter, what was decided, and what's risky to change. Here's how persistent code intelligence survives the context window reset.",
+  "datePublished": "2026-04-09",
+  "dateModified": "2026-04-09",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/claude-code-context-loss/"},
+  "articleSection": "Engineering",
+  "keywords": "claude code, context loss, compaction, context window, large codebase, code intelligence, MCP, sverklo"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+  --bg-3: #1C1A14;
+  --rule: #2A2620;
+  --rule-2: #403A30;
+  --text: #EDE7D9;
+  --text-2: #A39886;
+  --text-3: #8A8270;
+  --accent: #E85A2A;
+  --accent-dim: #B8441C;
+}
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+  transition: border-color 0.15s, color 0.15s;
+}
+a:hover { color: var(--accent); border-color: var(--accent); }
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+header.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(14, 13, 11, 0.92);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.brand::before { content: "\25CC "; color: var(--accent); }
+.brand .accent { color: var(--accent); }
+.brand:hover { border: none; color: var(--text); }
+nav.top-nav { display: flex; gap: 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+nav.top-nav a { border: none; color: var(--text-2); }
+nav.top-nav a:hover { color: var(--accent); }
+
+article {
+  padding: 80px 0 100px;
+}
+
+.article-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+}
+.article-meta .date { color: var(--accent); }
+.article-meta .tag {
+  border: 1px solid var(--rule-2);
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: var(--text-2);
+}
+
+article h1 {
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+
+article h2 {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 56px 0 16px;
+  letter-spacing: -0.01em;
+}
+
+article h3 {
+  font-size: 21px;
+  font-weight: 600;
+  margin: 36px 0 12px;
+  color: var(--text);
+}
+
+article p {
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+article p.lede {
+  font-size: 19px;
+  color: var(--text-2);
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+article ul, article ol {
+  margin: 0 0 24px 24px;
+  color: var(--text);
+}
+article li { margin-bottom: 8px; }
+
+article code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+article pre {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+article pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+article blockquote {
+  border-left: 3px solid var(--rule-2);
+  padding: 4px 0 4px 24px;
+  margin: 24px 0;
+  color: var(--text-2);
+  font-style: italic;
+}
+
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14px;
+}
+article table th, article table td {
+  border: 1px solid var(--rule);
+  padding: 10px 14px;
+  text-align: left;
+}
+article table th {
+  background: var(--bg-2);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+}
+article table td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+
+.kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.callout {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 20px 24px;
+  margin: 32px 0;
+  border-radius: 4px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.callout strong { color: var(--text); }
+
+.cta {
+  background: var(--bg-2);
+  border: 1px solid var(--accent);
+  padding: 32px;
+  margin: 48px 0;
+  border-radius: 4px;
+  text-align: center;
+}
+.cta h3 { margin-top: 0; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+.cta pre { background: transparent; border: none; padding: 12px 0; margin: 12px 0; color: var(--text); border-left: none; }
+.cta a { display: inline-block; margin-top: 8px; }
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 64px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-3);
+}
+footer .container {
+  display: flex;
+  justify-content: space-between;
+}
+footer a { border: none; color: var(--text-2); }
+
+@media (max-width: 640px) {
+  article h1 { font-size: 32px; }
+  article h2 { font-size: 24px; }
+  body { font-size: 16px; }
+}
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<article>
+  <div class="container">
+    <div class="article-meta">
+      <span class="date">2026-04-09</span>
+      <span class="tag">claude code</span>
+      <span class="tag">context window</span>
+      <span class="tag">developer tools</span>
+    </div>
+
+    <div class="kicker">Engineering &middot; Sverklo</div>
+    <h1>Claude Code keeps losing context after compaction &mdash; here's how to fix it</h1>
+
+    <p class="lede">Every Claude Code session starts fresh. After context compaction, your agent forgets the architecture, the conventions, the decisions you made 30 minutes ago. You re-explain the same things every session. The problem isn't Claude &mdash; it's that code knowledge lives in the context window, and the context window is temporary by design.</p>
+
+    <h2>What actually happens during compaction</h2>
+
+    <p>Claude Code runs on a finite context window. Opus gives you roughly 200K tokens. That sounds like a lot until you start reading files, running searches, and iterating on a real codebase &mdash; which is the entire point of using Claude Code.</p>
+
+    <p>Here's how the budget gets spent in a typical session:</p>
+
+    <div class="table-scroll" style="overflow-x:auto;margin:0.6rem 0;"><table>
+      <thead>
+        <tr><th>Activity</th><th>Tokens</th><th>Cumulative</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>System prompt + CLAUDE.md</td><td class="num">~4K</td><td class="num">4K</td></tr>
+        <tr><td>You explain the task</td><td class="num">~1K</td><td class="num">5K</td></tr>
+        <tr><td>Agent reads 3 files</td><td class="num">~12K</td><td class="num">17K</td></tr>
+        <tr><td>Agent searches, reads 4 more files</td><td class="num">~18K</td><td class="num">35K</td></tr>
+        <tr><td>First edit + test cycle</td><td class="num">~25K</td><td class="num">60K</td></tr>
+        <tr><td>Second iteration (more reads, more edits)</td><td class="num">~40K</td><td class="num">100K</td></tr>
+        <tr><td>Third iteration</td><td class="num">~45K</td><td class="num">145K</td></tr>
+        <tr><td>You ask a follow-up question</td><td class="num">~2K</td><td class="num">147K</td></tr>
+        <tr><td>Agent reads more files to answer</td><td class="num">~20K</td><td class="num">167K</td></tr>
+      </tbody>
+    </table></div>
+
+    <p>At some point between 150K and 200K, Claude Code triggers <strong>compaction</strong>. Earlier messages get summarized. The summaries are lossy. And here's the part that matters: <strong>file contents and tool outputs get dropped first</strong>.</p>
+
+    <p>After compaction, the agent retains a general sense of what happened &mdash; "I edited auth.ts to fix a token refresh bug" &mdash; but loses the specifics. Which files did it read? What was the exact function signature? What was in that config file that constrained the solution? What other approach did it consider and reject, and why?</p>
+
+    <p>All of that is gone. The agent doesn't know it's gone. It continues working with a vague summary where detailed knowledge used to be.</p>
+
+    <h2>The five things your agent forgets</h2>
+
+    <p>From nine months of building with Claude Code on a real codebase, these are the categories of knowledge that consistently get lost after compaction:</p>
+
+    <ol>
+      <li><strong>Which files matter.</strong> In a repo with 1,000+ files, maybe 40 of them are structurally important &mdash; the core modules, the main entry points, the shared types. After compaction, the agent has no way to distinguish <code>OrderProcessor.ts</code> from <code>OrderProcessor.test.fixtures.ts</code>. It treats the codebase as flat.</li>
+      <li><strong>What was decided.</strong> "We're not using the deprecated v1 auth flow because it doesn't support refresh tokens." That decision, made 45 minutes ago after reading three files, is now a faint summary. The agent might re-discover the v1 flow and try to use it.</li>
+      <li><strong>What's risky to change.</strong> Some files have 30 downstream dependents. Some have zero. After compaction, the agent doesn't remember which is which. It edits a core utility with the same confidence it edits a leaf component.</li>
+      <li><strong>What it already tried.</strong> The agent explored an approach, hit a wall, backed off. After compaction, it may explore the same dead end again. You watch it re-discover the same constraint you both already worked through.</li>
+      <li><strong>The conventions.</strong> Error handling patterns, naming conventions, import ordering, test structure. These aren't in CLAUDE.md (they're too detailed and numerous). The agent learned them by reading code in the first half of the session. Now they're gone.</li>
+    </ol>
+
+    <h2>Why "just read the file again" doesn't work</h2>
+
+    <p>The obvious fix is: if the agent lost context on a file, it can just read it again. This is what happens in practice, and it's worse than it sounds.</p>
+
+    <p>The first problem is that <strong>the agent doesn't remember which files to read</strong>. It knows vaguely that it was working on "auth," but was the implementation in <code>src/auth/token.ts</code> or <code>src/services/auth-service.ts</code> or <code>lib/session/refresh.ts</code>? In a large codebase, there might be a dozen plausible files. The agent picks one. Often it picks wrong.</p>
+
+    <p>The second problem is that <strong>each re-read burns context window budget</strong>. You're spending tokens to re-acquire knowledge the agent already had. This accelerates the next compaction, which triggers more re-reads, which accelerates the next compaction. It's a degenerative loop.</p>
+
+    <p>The third problem is <strong>the agent reads indiscriminately</strong>. Without memory of what it learned before, it can't be selective. It reads entire files when it only needed one function. It reads test fixtures thinking they're implementation. It reads generated code &mdash; migration files, lock files, build artifacts &mdash; that a human would skip instinctively.</p>
+
+    <p>The fourth problem is the subtle one: <strong>re-reading isn't re-understanding</strong>. The first time the agent read those files, it was building a mental model. It saw how <code>auth-service.ts</code> calls <code>token.ts</code> which calls <code>session-store.ts</code>. That structural understanding &mdash; the dependency chain, the data flow &mdash; came from reading multiple files in sequence. Re-reading one file doesn't reconstruct the model. The agent gets facts without structure.</p>
+
+    <h2>The structural fix: intelligence that lives outside the context window</h2>
+
+    <p>The context window is temporary storage. Compaction is a garbage collector you can't control. Any knowledge that only exists in the context window has a half-life measured in minutes during an active session.</p>
+
+    <p>The fix is to stop storing code intelligence in the context window entirely. Store it somewhere persistent &mdash; somewhere the agent can query on demand without re-reading files, without burning tokens to re-discover things, without losing decisions across compactions.</p>
+
+    <p>This is what we built Sverklo to do. It's an MCP server that builds and maintains a local code intelligence index &mdash; a SQLite database with the structural knowledge that compaction destroys. The agent queries sverklo instead of re-reading files. Sverklo's answers come from the index, not from the context window, so they survive compaction.</p>
+
+    <p>Concretely, here's what sverklo keeps that the context window doesn't:</p>
+
+    <h3>PageRank over the dependency graph</h3>
+
+    <p>Sverklo builds a file-level dependency graph and runs PageRank over it. The result is a number for every file in the repo: how structurally central is this file? <code>src/core/types.ts</code> with 47 importers gets a high score. <code>test/fixtures/mock-order.ts</code> with zero importers gets a low score. When the agent asks "which files matter for auth?", sverklo returns results ranked by structural importance, not just textual relevance.</p>
+
+    <p>After compaction, the agent doesn't remember that <code>OrderProcessor.ts</code> is a critical hub. But sverklo does. The PageRank scores are in SQLite, not in the context window.</p>
+
+    <h3>Hybrid search that works on the first query</h3>
+
+    <p>Sverklo combines BM25 keyword search, vector similarity (ONNX embeddings, local, no API calls), and PageRank into a single result using <a href="/blog/rrf-is-doing-80-percent-of-the-work/">Reciprocal Rank Fusion</a>. The agent calls <code>sverklo_search</code> with a natural-language query and gets back the right code on the first try &mdash; not the fifth.</p>
+
+    <p>This matters after compaction because the agent's first instinct is to search. If the search returns the wrong files, the agent reads the wrong files, builds the wrong mental model, and writes the wrong code. Getting the first search right is the highest-leverage intervention.</p>
+
+    <h3>Bi-temporal memory</h3>
+
+    <p>When the agent makes a decision &mdash; "we're using the v2 auth flow because v1 doesn't support refresh" &mdash; it can call <code>sverklo_remember</code> to persist that decision. The memory is stored in SQLite, tagged with the current git SHA. After compaction, the agent calls <code>sverklo_recall</code> and the decision is still there.</p>
+
+    <p>The "bi-temporal" part: sverklo tracks both <em>when the decision was made</em> and <em>which code state it applies to</em>. If you check out a different branch, sverklo knows which memories are valid for that branch's code. If the code changes in a way that invalidates a decision, the memory is flagged. This is strictly more useful than a flat text file of notes because the validity is tied to the codebase, not to a timestamp.</p>
+
+    <h3>Impact analysis</h3>
+
+    <p>Before the agent edits a file, it can call <code>sverklo_impact</code> to see the blast radius &mdash; every file that imports this one, transitively. After compaction, the agent doesn't remember the dependency graph. But sverklo has it indexed. The agent can check "if I change this function signature, what breaks?" without re-reading the entire import tree.</p>
+
+    <p>This is the safety net that compaction removes. A fresh agent treats every file as equally safe to edit. An agent with sverklo knows that changing <code>src/core/types.ts</code> touches 47 downstream files and proceeds accordingly.</p>
+
+    <h2>What this looks like in practice</h2>
+
+    <p>Setup takes about two minutes:</p>
+
+    <pre><code>npm install -g sverklo
+cd your-project &amp;&amp; sverklo init</code></pre>
+
+    <p>That's it. Sverklo indexes the codebase (typically 10-30 seconds for a repo under 5,000 files), builds the dependency graph, computes PageRank, and starts the MCP server. Claude Code auto-discovers it.</p>
+
+    <p>After compaction, the difference is concrete:</p>
+
+    <div class="table-scroll" style="overflow-x:auto;margin:0.6rem 0;"><table>
+      <thead>
+        <tr><th>Without sverklo</th><th>With sverklo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Agent searches with grep, gets 200 results, reads the wrong 3 files</td><td>Agent calls <code>sverklo_search</code>, gets 5 ranked results with PageRank boosting, reads the right file first</td></tr>
+        <tr><td>Agent forgets the v1/v2 auth decision, explores v1 again</td><td>Agent calls <code>sverklo_recall("auth")</code>, gets the decision back in 1 tool call</td></tr>
+        <tr><td>Agent edits a core type with no awareness of downstream impact</td><td>Agent calls <code>sverklo_impact("src/core/types.ts")</code>, sees 47 dependents, adjusts approach</td></tr>
+        <tr><td>Agent re-reads 6 files to rebuild context (~12K tokens burned)</td><td>Agent calls <code>sverklo_search</code> + <code>sverklo_recall</code> (~800 tokens for both responses)</td></tr>
+      </tbody>
+    </table></div>
+
+    <p>The last row is the one that compounds. Fewer tokens spent on re-acquiring context means more tokens available for actual work, which means compaction happens later, which means fewer re-acquisitions. The loop inverts from degenerative to virtuous.</p>
+
+    <h2>The dogfood proof</h2>
+
+    <p>We use sverklo to develop sverklo. Across a 3-session dogfood where sverklo was reviewing its own codebase, the persistent memory and search caught 4 bugs that fresh sessions would have missed &mdash; cases where the agent needed to remember a constraint from session 1 to recognize the bug in session 3.</p>
+
+    <p>One example: the agent discovered in session 1 that a particular file-watcher debounce was set to 100ms, which caused duplicate index updates on fast saves. It remembered this via <code>sverklo_remember</code>. In session 3, while working on a completely different feature, the agent called <code>sverklo_recall</code> before editing the watcher code, got the debounce constraint back, and avoided re-introducing the issue. Without persistent memory, session 3's agent would have had zero context on why that debounce existed.</p>
+
+    <p>This is the pattern persistent intelligence enables: knowledge that accumulates across sessions instead of resetting every time the context window fills up.</p>
+
+    <h2>What sverklo doesn't fix</h2>
+
+    <p>I want to be clear about the limits.</p>
+
+    <p><strong>Compaction is a real LLM limitation, not a bug.</strong> Context windows are finite. Summarization is lossy. This is the architecture. Sverklo doesn't make the context window bigger or prevent compaction from happening. It moves the most valuable knowledge out of the blast radius.</p>
+
+    <p><strong>You still need CLAUDE.md.</strong> Sverklo handles dynamic knowledge &mdash; decisions, search results, structural analysis. Static instructions ("always use pnpm", "tests go in __tests__/", "we use Zod for validation") still belong in CLAUDE.md where they're loaded into every session's system prompt. Sverklo and CLAUDE.md are complementary, not competing.</p>
+
+    <p><strong>Very small codebases don't need this.</strong> If your entire project is 20 files and fits comfortably in the context window without compaction, you won't see much benefit. The pain scales with codebase size. If you're working on a 50-file project and compaction isn't biting you, save your time.</p>
+
+    <p><strong>The agent still has to query sverklo.</strong> Sverklo doesn't inject knowledge into the context window proactively. The agent has to call <code>sverklo_search</code> or <code>sverklo_recall</code>. In practice, Claude Code does this naturally when sverklo is configured as an MCP server &mdash; the tools show up alongside the built-in tools, and the agent uses them when they're relevant. But it's pull, not push.</p>
+
+    <h2>Why this matters now</h2>
+
+    <p>Six months ago, most people using Claude Code were working on small projects or doing one-off tasks. Context loss wasn't a top-5 pain point because sessions were short and codebases were small.</p>
+
+    <p>That's changed. Teams are using Claude Code on production codebases with hundreds of thousands of lines. Sessions are getting longer as tasks get more complex. Multi-step refactors that span an hour. Architecture decisions that build on each other. Code reviews where the agent needs to understand the full picture.</p>
+
+    <p>In this world, compaction isn't an edge case. It's the normal state of any serious session. And without persistent intelligence, every compaction is a partial reset &mdash; the agent gets dumber as the session gets longer, which is the exact inverse of what you want.</p>
+
+    <p>The context window is a cache. Treat it like one. Keep the source of truth somewhere that doesn't evict under pressure.</p>
+
+    <div class="cta">
+      <h3>Try sverklo on your codebase</h3>
+      <pre>npm install -g sverklo
+cd your-project &amp;&amp; sverklo init</pre>
+      <p>Next time Claude Code compacts, <code>sverklo_recall</code> still has your decisions. <code>sverklo_search</code> still finds the right code. <code>sverklo_impact</code> still knows the blast radius.</p>
+      <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a>
+    </div>
+
+  </div>
+</article>
+
+<footer>
+  <div class="container">
+    <span>© 2026 · sverklo (сверкло) · <a href="/blog/">more posts</a></span>
+    <span><a href="/">sverklo.com</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

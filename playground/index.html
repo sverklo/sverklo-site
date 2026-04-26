@@ -10,17 +10,26 @@
     />
     <meta property="og:title" content="Sverklo Playground" />
     <meta property="og:description" content="See what sverklo returns for real queries on real repos. No install required." />
-    <meta property="og:url" content="https://sverklo.com/playground" />
+    <meta property="og:url" content="https://sverklo.com/playground/" />
     <meta property="og:image" content="https://sverklo.com/og.png" />
+    <meta property="og:image:alt" content="Sverklo Playground — see real queries on real repos" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://sverklo.com/og.png" />
+    <meta name="twitter:image:alt" content="Sverklo Playground — see real queries on real repos" />
+    <link rel="canonical" href="https://sverklo.com/playground/" />
     <link rel="icon" type="image/svg+xml" href="/og.svg" />
     <style>
       :root {
-        --bg: #f7f5f2;
-        --fg: #1a1a1a;
-        --muted: #6b6b6b;
-        --accent: #e85a2a;
-        --border: #e6e1db;
-        --code-bg: #ffffff;
+        --bg: #0E0D0B;
+        --bg-2: #16140F;
+        --fg: #EDE7D9;
+        --muted: #A39886;
+        --accent: #E85A2A;
+        --border: #2A2620;
+        --rule-2: #403A30;
+        --code-bg: #16140F;
       }
       * { box-sizing: border-box; }
       html, body {
@@ -40,7 +49,7 @@
       header h1 {
         font-size: 1.6rem;
         margin: 0 0 0.3rem;
-        color: var(--accent);
+        color: var(--fg);
       }
       header p {
         margin: 0;
@@ -56,6 +65,9 @@
         grid-template-columns: 260px 1fr;
         gap: 1.5rem;
       }
+      @media (max-width: 960px) and (min-width: 721px) {
+        main { grid-template-columns: 200px 1fr; gap: 1rem; }
+      }
       @media (max-width: 720px) {
         main { grid-template-columns: 1fr; }
       }
@@ -63,6 +75,8 @@
         border-right: 1px solid var(--border);
         padding-right: 1rem;
       }
+      .content { min-width: 0; }
+      #result-body pre { max-width: 100%; }
       @media (max-width: 720px) {
         .sidebar { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
       }
@@ -89,8 +103,8 @@
         margin-bottom: 0.2rem;
         font-family: inherit;
       }
-      .query-btn:hover { background: #fff; border-color: var(--border); }
-      .query-btn.active { background: var(--accent); color: white; }
+      .query-btn:hover { background: var(--bg-2); border-color: var(--rule-2); }
+      .query-btn.active { background: var(--bg-2); color: var(--fg); border-left: 2px solid var(--accent); }
       .result-header {
         display: flex;
         justify-content: space-between;
@@ -165,7 +179,7 @@
       .md strong { font-weight: 600; }
       .md em { font-style: italic; color: var(--muted); }
       .md code {
-        background: #f0ece6;
+        background: var(--bg-2);
         padding: 0.12rem 0.3rem;
         border-radius: 3px;
         font-family: ui-monospace, SFMono-Regular, monospace;
@@ -181,7 +195,7 @@
         padding: 0.3rem 0.6rem;
         text-align: left;
       }
-      .md th { background: #f5f1ea; font-weight: 600; }
+      .md th { background: var(--bg-2); color: var(--accent); font-weight: 600; }
       .md blockquote {
         border-left: 3px solid var(--border);
         padding: 0.3rem 0.8rem;
@@ -191,13 +205,13 @@
       .cta {
         margin-top: 1rem;
         padding: 1rem;
-        background: #fff;
+        background: var(--bg-2);
         border: 1px solid var(--border);
         border-radius: 8px;
       }
       .cta p { margin: 0 0 0.5rem; font-size: 0.9rem; }
       .cta code {
-        background: #f0ece6;
+        background: var(--bg-2);
         padding: 0.15rem 0.35rem;
         border-radius: 4px;
         font-family: ui-monospace, SFMono-Regular, monospace;
@@ -214,7 +228,169 @@
       }
       footer a { color: var(--muted); }
       .loading { color: var(--muted); font-style: italic; }
-    </style>
+      header.top { border-bottom: 1px solid var(--border); }
+      header.top .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+      }
+      header.top .brand { font-weight: 700; color: var(--fg); margin-right: auto; text-decoration: none; }
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+      }
+      .top-nav a { color: var(--muted); text-decoration: none; }
+      .top-nav a:hover { color: var(--accent); }
+      @media (max-width: 720px) { .top-nav, header.top .wrap { gap: 0.8rem; font-size: 0.8rem; } }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
     <!-- Prism.js for syntax highlighting in code blocks. Core + autoloader
          fetches language grammars on demand by class="language-X" on <code>.
          Served from cdnjs (Cloudflare's own CDN, whitelisted in CSP). -->
@@ -276,16 +452,22 @@
     </script>
   </head>
   <body>
-    <header>
-      <h1>Sverklo Playground</h1>
-      <p>
-        Real queries, real repos, real responses — captured from actual
-        <code>sverklo</code> runs. Click any query on the left to see what the
-        tool returns. No install needed. <a href="https://github.com/sverklo/sverklo">GitHub</a> ·
-        <a href="/">sverklo.com</a>
-      </p>
-    </header>
-    <main>
+<a class="skip-link" href="#main">Skip to content</a>
+    <header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+    <main id="main">
       <div class="sidebar" id="sidebar">
         <div class="loading">Loading canned queries…</div>
       </div>
@@ -294,7 +476,10 @@
           <h2>Pick a query on the left</h2>
           <div class="result-meta">These are static snapshots captured at a specific sverklo version, not live queries.</div>
         </div>
-        <div id="result-body" class="md">Select a query to see the response…</div>
+        <div id="result-body" class="md">
+          <p style="color: var(--muted);">Real sverklo output, frozen so we can show you without running a server.</p>
+          <p style="color: var(--muted);">The sidebar has 18 pre-captured queries across three repos (gin, nestjs, react): overview, hybrid search, symbol lookups, reference finding, and audit output. Click any query to see what sverklo actually returns.</p>
+        </div>
         <div class="cta">
           <p><strong>Like what you see?</strong> Run the same queries on your own codebase:</p>
           <p><code>npx sverklo init</code> — sets up sverklo for Claude Code, Cursor, Windsurf, or Antigravity in one command.</p>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP Code Intelligence Benchmark — Sverklo</title>
+<meta name="description" content="How well does your MCP server understand your codebase? Reproducible benchmarks comparing search relevance, latency, and impact analysis across code intelligence tools.">
+<link rel="canonical" href="https://sverklo.com/benchmarks/">
+<meta property="og:title" content="MCP Code Intelligence Benchmark — Sverklo">
+<meta property="og:description" content="Reproducible benchmarks comparing search relevance, latency, and impact analysis across code intelligence MCP tools.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sverklo.com/benchmarks/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+<meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
+<style>
+  :root { --bg:#0E0D0B; --bg2:#1a1916; --text:#EDE7D9; --text2:#A39886; --accent:#E85A2A; --green:#4ade80; --yellow:#facc15; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.65;padding:48px 20px;max-width:960px;margin:0 auto}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:36px;margin-bottom:8px} h1 span{color:var(--accent)}
+  .subtitle{color:var(--text2);font-size:16px;margin-bottom:32px;font-family:'Public Sans',sans-serif}
+  .meta{color:var(--text2);font-size:12px;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid var(--accent)}
+  h2{color:var(--accent);font-size:20px;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid #333}
+  h3{color:var(--text);font-size:16px;margin:24px 0 12px}
+  p{margin:10px 0;color:var(--text2);font-family:'Public Sans',sans-serif;font-size:15px}
+  p strong{color:var(--text)}
+  .table-scroll{overflow-x:auto;margin:16px 0;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;margin:0;font-size:13px;min-width:680px}
+  th{background:var(--bg2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap}
+  td{padding:8px 12px;border-bottom:1px solid #222}
+  tr:hover td{background:var(--bg2)}
+  .best{color:var(--green);font-weight:700}
+  .good{color:var(--yellow)}
+  .na{color:#7a7060}
+  code{background:var(--bg2);padding:2px 6px;border-radius:3px;font-size:13px}
+  pre{background:var(--bg2);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;border-left:3px solid var(--accent);font-size:13px}
+  ul{margin:8px 0 8px 20px} li{margin:6px 0;color:var(--text2);font-family:'Public Sans',sans-serif;font-size:15px}
+  .footer{margin-top:48px;padding-top:24px;border-top:1px solid #333;text-align:center;color:var(--text2);font-size:12px}
+  .chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-left:6px}
+  .chip-yes{background:#4ade8020;color:var(--green)}
+  .chip-no{background:#55555520;color:#555}
+  .chip-partial{background:#facc1520;color:var(--yellow)}
+  header.top{padding-bottom:24px;margin-bottom:32px;border-bottom:1px solid #222}
+  header.top .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px}
+  header.top .brand{font-weight:700;color:var(--text);margin-right:auto;text-decoration:none}
+  .top-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px}
+  .top-nav a{color:var(--text2)}
+  .top-nav a:hover{color:var(--accent);text-decoration:none}
+  @media(max-width:700px){body{padding:24px 12px;font-size:13px}h1{font-size:26px}table{font-size:11px}th,td{padding:6px 8px}.top-nav{gap:12px;font-size:12px}header.top .wrap{gap:12px}}
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1><span>MCP</span> Code Intelligence Benchmark</h1>
+<p class="subtitle">How well does your MCP server understand your codebase?</p>
+<div class="meta">
+  Last updated: April 2026 · Sverklo v0.12.5 ·<a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md">Full methodology</a>
+</div>
+
+<h2>Latency Results</h2>
+<p>Five real open-source codebases. All measurements on Apple Silicon, Node 22. Reproducible: <code>npm run bench</code> in the sverklo repo.</p>
+
+<div class="table-scroll"><table>
+  <tr>
+    <th>Repo</th><th>Files</th><th>Chunks</th><th>Search p50</th><th>Search p95</th><th>Impact</th><th>Cold Index</th><th>DB Size</th>
+  </tr>
+  <tr>
+    <td><strong>gin-gonic/gin</strong> <small>(Go)</small></td><td>99</td><td>1,413</td>
+    <td class="best">11 ms</td><td class="best">12 ms</td><td class="best">0.75 ms</td><td>10.3 s</td><td>4.2 MB</td>
+  </tr>
+  <tr>
+    <td><strong>microsoft/TypeScript</strong> <small>(TS)</small></td><td>707</td><td>10,873</td>
+    <td class="best">20 ms</td><td>35 ms</td><td class="best">2.44 ms</td><td>71.1 s</td><td>47 MB</td>
+  </tr>
+  <tr>
+    <td><strong>nestjs/nest</strong> <small>(TS/JS)</small></td><td>1,709</td><td>2,976</td>
+    <td class="best">14 ms</td><td class="best">14 ms</td><td class="best">0.88 ms</td><td>22.4 s</td><td>11 MB</td>
+  </tr>
+  <tr>
+    <td><strong>django/django</strong> <small>(Python)</small></td><td>2,942</td><td>10,900</td>
+    <td class="best">20 ms</td><td class="best">22 ms</td><td class="best">2.0 ms</td><td>67.9 s</td><td>56 MB</td>
+  </tr>
+  <tr>
+    <td><strong>facebook/react</strong> <small>(TS/JS)</small></td><td>4,368</td><td>20,144</td>
+    <td class="best">23 ms</td><td class="best">26 ms</td><td class="best">1.18 ms</td><td>152 s</td><td>67 MB</td>
+  </tr>
+</table></div>
+
+<h2>MCP Server Comparison</h2>
+<p>Feature comparison across code intelligence MCP servers. Green = has the feature, dash = does not.</p>
+
+<div class="table-scroll"><table>
+  <tr>
+    <th>Server</th><th>Hybrid Search</th><th>PageRank</th><th>Impact Analysis</th><th>Diff Review</th><th>Cross-Repo</th><th>Memory</th><th>Local-First</th><th>Open Source</th>
+  </tr>
+  <tr>
+    <td><strong><a href="https://sverklo.com">Sverklo</a></strong></td>
+    <td class="best">BM25+Vec+PR</td><td class="best">Yes</td><td class="best">Yes</td><td class="best">Yes</td><td class="best">GraphQL</td><td class="best">Bi-temporal</td><td class="best">Yes</td><td class="best">MIT</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/zilliztech/claude-context">Claude Context</a></td>
+    <td class="good">BM25+Vec</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="chip-partial">Partial</td><td class="best">Apache-2.0</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/ViperJuice/Code-Index-MCP">Code-Index-MCP</a></td>
+    <td class="good">Vec</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="best">Yes</td><td class="best">OSS</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/CSCSoftware/AiDex">AiDex</a></td>
+    <td class="na">Identifier</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="good">Link</td><td class="good">Session</td><td class="best">Yes</td><td class="best">MIT</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/yamadashy/repomix">Repomix</a></td>
+    <td class="na">Pack</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="best">Yes</td><td class="best">MIT</td>
+  </tr>
+</table></div>
+
+<p><em>Community submissions welcome — <a href="https://github.com/sverklo/sverklo/issues">open an issue</a> to add your MCP server to this table.</em></p>
+
+<h2>What We Measure</h2>
+<ul>
+  <li><strong>Search Relevance</strong> — 10 natural-language queries per repo, results manually graded</li>
+  <li><strong>Search Latency</strong> — p50 and p95 across 9 queries (first dropped as warmup)</li>
+  <li><strong>Impact Analysis</strong> — time to walk the call graph for the most-referenced symbol in each repo</li>
+  <li><strong>Token Efficiency</strong> — useful context per token returned (compact mode vs full)</li>
+  <li><strong>Cold Index Time</strong> — full parse → chunk → embed → PageRank pipeline</li>
+</ul>
+
+<h2>Key Findings</h2>
+<ul>
+  <li><strong>Search stays fast at scale.</strong> p95 latency: 12ms on 99 files, 26ms on 4,368 files. Sub-linear scaling.</li>
+  <li><strong>Impact analysis is sub-3ms everywhere.</strong> Even on the TypeScript compiler (10,873 chunks), it's an indexed SQL join — not grep.</li>
+  <li><strong>Indexing is linear in chunks.</strong> ~7ms per chunk regardless of language. A 20k-chunk repo takes ~2.5 min cold-start, then incremental updates only.</li>
+  <li><strong>Steady-state RAM ~200MB.</strong> Peak during indexing is 400-700MB (ONNX embedder batching), drops back after.</li>
+</ul>
+
+<h2>Reproduce It</h2>
+<pre>npm install -g sverklo
+git clone https://github.com/sverklo/sverklo
+cd sverklo
+npm install && npm run build
+npm run bench</pre>
+
+<p>Full methodology and raw data: <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md">BENCHMARKS.md</a></p>
+
+</main>
+
+<div class="footer">
+  <a href="https://sverklo.com">sverklo.com</a> · <a href="https://github.com/sverklo/sverklo">GitHub</a> · <a href="https://www.npmjs.com/package/sverklo">npm</a><br>
+  <code>npm install -g sverklo</code>
+</div>
+
+</body>
+</html>

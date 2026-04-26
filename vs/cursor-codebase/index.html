@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo vs Cursor @Codebase — Code Intelligence MCP Comparison</title>
+<meta name="description" content="Sverklo vs Cursor's built-in @codebase indexing. Symbol-level dependency graphs, blast-radius analysis, and diff-aware review vs seamless IDE integration. Use both for best results.">
+<meta name="keywords" content="cursor alternative, sverklo vs cursor, cursor codebase indexing, MCP server, code intelligence, cursor @codebase, code search">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/vs/cursor-codebase/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Sverklo vs Cursor @Codebase — Code Intelligence MCP Comparison">
+<meta property="og:description" content="Cursor's @codebase gives you seamless indexing inside the IDE. Sverklo adds symbol-level dependency graphs, blast-radius analysis, and works with any MCP client. They complement each other.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/cursor-codebase/">
+<meta property="og:site_name" content="Sverklo">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- JSON-LD FAQ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I use Sverklo and Cursor together?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Sverklo complements Cursor's built-in @codebase indexing. Cursor handles seamless in-IDE search and auto-indexing, while Sverklo adds symbol-level dependency graphs, blast-radius analysis, diff-aware PR review with risk scoring, and git-pinned memory. Many developers use both."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Sverklo work outside of Cursor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Sverklo is an MCP server that works with any MCP-compatible client including Claude Code, Windsurf, Zed, and others. Cursor's @codebase indexing only works inside Cursor."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Sverklo free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Sverklo is MIT licensed and free for all use, including commercial projects. Cursor's @codebase indexing requires Cursor Pro at $20/month."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does Sverklo do that Cursor's @codebase doesn't?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo provides symbol-level dependency graphs with PageRank scoring, blast-radius analysis showing what breaks when you change a function, diff-aware PR review with risk scoring and CI gates, and git-pinned memory that persists across sessions. Cursor's indexing is embedding-based search without structural code analysis."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+  --bg-3: #1C1A14;
+  --rule: #2A2620;
+  --rule-2: #403A30;
+  --text: #EDE7D9;
+  --text-2: #A39886;
+  --text-3: #8A8270;
+  --accent: #E85A2A;
+  --accent-dim: #B8441C;
+  --accent-glow: rgba(232, 90, 42, 0.12);
+  --ok: #8FB339;
+  --warn: #D4A535;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+  transition: border-color 0.15s, color 0.15s;
+}
+a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ───────── TOP BAR ───────── */
+header.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(14, 13, 11, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: none;
+}
+.brand::before {
+  content: "\25CC ";
+  color: var(--accent);
+}
+.top-nav {
+  display: flex;
+  gap: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.top-nav a { border: none; color: var(--text-2); }
+.top-nav a:hover { color: var(--text); }
+
+/* ───────── HERO ───────── */
+.hero {
+  padding: 80px 0 48px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero .kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.hero .kicker::before { content: "// "; color: var(--accent); }
+
+.hero h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.hero h1 .accent { color: var(--accent); }
+
+.hero .lede {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-2);
+  max-width: 68ch;
+}
+.hero .lede strong { color: var(--text); font-weight: 500; }
+
+/* ───────── TABLE ───────── */
+.cmp-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.cmp-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.cmp-section h2::before { content: "# "; color: var(--accent); }
+
+table.cmp {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.6;
+}
+table.cmp th,
+table.cmp td {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+table.cmp th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--bg-2);
+}
+table.cmp th:first-child { width: 22%; }
+table.cmp th:nth-child(2),
+table.cmp th:nth-child(3) { width: 39%; }
+
+table.cmp td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+table.cmp td:nth-child(2) { color: var(--text); }
+table.cmp td:nth-child(3) { color: var(--text-2); }
+
+table.cmp tr:hover td { background: var(--bg-2); }
+
+.tag-mit {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ok);
+  border: 1px solid var(--ok);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.tag-warn {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+/* ───────── WHEN TO USE ───────── */
+.when {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 0;
+}
+.when-card {
+  padding: 28px;
+  border: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.when-card h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.when-card h3 .accent { color: var(--accent); }
+.when-card ul {
+  list-style: none;
+  padding: 0;
+}
+.when-card ul li {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.7;
+  padding-left: 18px;
+  position: relative;
+}
+.when-card ul li::before {
+  content: "\2192";
+  position: absolute;
+  left: 0;
+  color: var(--text-3);
+}
+
+/* ───────── CTA ───────── */
+.cta-section {
+  padding: 80px 0;
+  text-align: center;
+}
+.cta-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.cta-section p {
+  color: var(--text-2);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+.cta-cmd {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule-2);
+  padding: 14px 28px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cta-cmd:hover { border-color: var(--accent); }
+.cta-cmd .prompt { color: var(--accent); }
+
+/* ───────── FOOTER ───────── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+footer .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer a { color: var(--text-3); border: none; }
+footer a:hover { color: var(--text-2); }
+
+@media (max-width: 700px) {
+  .when { grid-template-columns: 1fr; }
+  table.cmp { font-size: 13px; }
+  table.cmp th, table.cmp td { padding: 10px 8px; }
+}
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">/* comparison */</div>
+    <h1>Sverklo vs <span class="accent">Cursor @Codebase</span></h1>
+    <p class="lede">
+      Cursor's built-in @codebase indexing gives you seamless code search inside the IDE. Sverklo is an MCP server that adds symbol-level dependency graphs, blast-radius analysis, and diff-aware PR review to any AI coding client.
+      <strong>They complement each other. This page explains what each does best and where they differ.</strong>
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Feature comparison</h2>
+
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Sverklo</th>
+          <th>Cursor @Codebase</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Type</td>
+          <td>MCP server (works with any client)</td>
+          <td>Built-in IDE feature (Cursor only)</td>
+        </tr>
+        <tr>
+          <td>License / Price</td>
+          <td><span class="tag-mit">MIT</span> Free for all use</td>
+          <td><span class="tag-warn">$20/mo</span> Cursor Pro required</td>
+        </tr>
+        <tr>
+          <td>Client support</td>
+          <td>Claude Code, Windsurf, Zed, Cursor, any MCP client</td>
+          <td>Cursor only</td>
+        </tr>
+        <tr>
+          <td>Indexing approach</td>
+          <td>Tree-sitter AST parsing + symbol graph + embeddings</td>
+          <td>Embedding-based semantic indexing</td>
+        </tr>
+        <tr>
+          <td>Dependency graph</td>
+          <td>Symbol-level with PageRank scoring</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>Blast-radius analysis</td>
+          <td>Shows what breaks when you change a function</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>PR review</td>
+          <td>Risk-scored diffs with CI gate (--fail-on)</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>Memory system</td>
+          <td>Bi-temporal, git-pinned (memories tied to SHA)</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>PR history search</td>
+          <td>Not available</td>
+          <td>Search across PR history and conversations</td>
+        </tr>
+        <tr>
+          <td>Team sharing</td>
+          <td>Local-first, no cloud sync</td>
+          <td>Shared team index and context</td>
+        </tr>
+        <tr>
+          <td>Setup</td>
+          <td>npm install + init</td>
+          <td>Zero setup (automatic in Cursor)</td>
+        </tr>
+        <tr>
+          <td>Privacy</td>
+          <td>100% local, no telemetry, no API keys</td>
+          <td>Indexes sent to Cursor's cloud</td>
+        </tr>
+        <tr>
+          <td>Open source</td>
+          <td>Yes (MIT)</td>
+          <td>No (proprietary)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>When to use each</h2>
+
+    <div class="when">
+      <div class="when-card">
+        <h3>Choose <span class="accent">Sverklo</span> when</h3>
+        <ul>
+          <li>You use Claude Code, Windsurf, Zed, or multiple AI coding tools</li>
+          <li>You need to understand how a change propagates through your codebase</li>
+          <li>Your CI pipeline needs automated PR review with quality gates</li>
+          <li>You want memory that persists across sessions and tracks git state</li>
+          <li>You work on open-source or commercial projects (MIT licensed, free)</li>
+          <li>Your code must stay local with zero cloud dependency</li>
+        </ul>
+      </div>
+      <div class="when-card">
+        <h3>Choose <span class="accent">Cursor @Codebase</span> when</h3>
+        <ul>
+          <li>Cursor is your primary editor and you want zero-setup indexing</li>
+          <li>You need to search PR history and past conversations</li>
+          <li>Your team shares a Cursor workspace and needs shared context</li>
+          <li>Seamless UX matters more than structural code analysis</li>
+          <li>You already pay for Cursor Pro</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cmp-section" style="border-bottom: none;">
+  <div class="wrap">
+    <h2>Better together</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
+      Sverklo and Cursor's @codebase are not mutually exclusive. <strong style="color: var(--text);">Use Cursor for fast in-IDE search and conversational context</strong>, and add Sverklo as an MCP server for the structural analysis Cursor does not provide: dependency graphs, blast-radius queries, diff-aware review with risk scoring, and persistent git-pinned memory.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      If you work across multiple editors or AI coding tools, Sverklo gives you <strong style="color: var(--text);">one code intelligence layer that follows you everywhere</strong> rather than locking your context into a single IDE. It is MIT licensed and free, so there is no cost to adding it alongside Cursor Pro.
+    </p>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <h2>Try Sverklo</h2>
+    <p>MIT licensed. One command. Works with every MCP client.</p>
+    <button type="button" class="cta-cmd" aria-label="Copy: npm install -g sverklo &amp;&amp; sverklo init" onclick="navigator.clipboard.writeText('npm install -g sverklo &amp;&amp; sverklo init').catch(()=>{})"><span class="prompt">$</span> npm install -g sverklo &amp;&amp; sverklo init</button>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-3);">click to copy</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>sverklo &mdash; MIT Licensed</span>
+    <span>
+      <a href="https://github.com/sverklo/sverklo">GitHub</a> &middot;
+      <a href="https://www.npmjs.com/package/sverklo">npm</a> &middot;
+      <a href="/">Home</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo vs Claude Context (Zilliz) — Local Symbol Graph vs Hosted Vector Search</title>
+<meta name="description" content="Sverklo vs Zilliz's claude-context MCP. Local-first hybrid search with PageRank and bi-temporal memory vs cloud Milvus vector search. Compare privacy, capability, and operational cost.">
+<meta name="keywords" content="claude-context alternative, sverklo vs claude-context, Zilliz Milvus MCP, local vector search MCP, MCP server code search, Claude Code codebase memory">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/vs/claude-context/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Sverklo vs Claude Context (Zilliz) — Local Symbol Graph vs Hosted Vector Search">
+<meta property="og:description" content="claude-context is a vector-search MCP server backed by Zilliz Cloud or self-hosted Milvus. Sverklo is a local-first MCP that adds a real symbol graph, PageRank, blast radius, and bi-temporal memory — with embedded SQLite, no cluster to operate.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/claude-context/">
+<meta property="og:site_name" content="Sverklo">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- JSON-LD FAQ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How is Sverklo different from claude-context?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both are MCP servers for codebase Q&A, but they take opposite architectural bets. claude-context is vector-only and stores embeddings in Zilliz Cloud or a self-hosted Milvus cluster — strong at semantic recall, but it doesn't ship a symbol graph and the user is responsible for either paying Zilliz or operating Milvus. Sverklo is a single npm install with embedded SQLite — it ships a symbol graph with PageRank, blast-radius analysis, bi-temporal git-pinned memory, and 37 MCP tools, all running locally with no external service."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a Zilliz account to use Sverklo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Sverklo runs entirely on your machine using embedded SQLite plus an ONNX embedding model. There is no cloud account, no API key, no managed cluster, and no per-vector pricing. claude-context, by contrast, is designed around Zilliz Cloud's free tier or your own Milvus deployment."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Sverklo as good at semantic search as a Milvus-backed tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo runs hybrid retrieval — BM25 (FTS5) plus vector cosine via the same MiniLM-L6-v2 ONNX model the rest of the field uses, fused with Reciprocal Rank Fusion and re-ranked with PageRank over the file dependency graph. On sverklo's own research benchmark it scores 99% recall (31 of 32 perfect) without a managed vector database. Milvus wins on raw vector throughput at 100M+ vector scale; sverklo wins at codebase scale because it ranks by structural importance, not just cosine."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use Sverklo and claude-context together?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can — both are MCP servers and your client can connect to multiple at once. In practice they overlap heavily on the search surface; Sverklo adds the symbol graph, blast radius, diff review, and memory features that claude-context does not, while claude-context's strength is at extreme vector scale. If you're not running a Milvus cluster already, Sverklo replaces claude-context one-for-one with no infrastructure."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+  --bg-3: #1C1A14;
+  --rule: #2A2620;
+  --rule-2: #403A30;
+  --text: #EDE7D9;
+  --text-2: #A39886;
+  --text-3: #8A8270;
+  --accent: #E85A2A;
+  --accent-dim: #B8441C;
+  --accent-glow: rgba(232, 90, 42, 0.12);
+  --ok: #8FB339;
+  --warn: #D4A535;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+  transition: border-color 0.15s, color 0.15s;
+}
+a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ───────── TOP BAR ───────── */
+header.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(14, 13, 11, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: none;
+}
+.brand::before {
+  content: "\25CC ";
+  color: var(--accent);
+}
+.top-nav {
+  display: flex;
+  gap: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.top-nav a { border: none; color: var(--text-2); }
+.top-nav a:hover { color: var(--text); }
+
+/* ───────── HERO ───────── */
+.hero {
+  padding: 80px 0 48px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero .kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.hero .kicker::before { content: "// "; color: var(--accent); }
+
+.hero h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.hero h1 .accent { color: var(--accent); }
+
+.hero .lede {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-2);
+  max-width: 68ch;
+}
+.hero .lede strong { color: var(--text); font-weight: 500; }
+
+/* ───────── TABLE ───────── */
+.cmp-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.cmp-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.cmp-section h2::before { content: "# "; color: var(--accent); }
+
+table.cmp {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.6;
+}
+table.cmp th,
+table.cmp td {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+table.cmp th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--bg-2);
+}
+table.cmp th:first-child { width: 22%; }
+table.cmp th:nth-child(2),
+table.cmp th:nth-child(3) { width: 39%; }
+
+table.cmp td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+table.cmp td:nth-child(2) { color: var(--text); }
+table.cmp td:nth-child(3) { color: var(--text-2); }
+
+table.cmp tr:hover td { background: var(--bg-2); }
+
+.tag-mit {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ok);
+  border: 1px solid var(--ok);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.tag-warn {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+/* ───────── WHEN TO USE ───────── */
+.when {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 0;
+}
+.when-card {
+  padding: 28px;
+  border: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.when-card h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.when-card h3 .accent { color: var(--accent); }
+.when-card ul {
+  list-style: none;
+  padding: 0;
+}
+.when-card ul li {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.7;
+  padding-left: 18px;
+  position: relative;
+}
+.when-card ul li::before {
+  content: "\2192";
+  position: absolute;
+  left: 0;
+  color: var(--text-3);
+}
+
+/* ───────── CTA ───────── */
+.cta-section {
+  padding: 80px 0;
+  text-align: center;
+}
+.cta-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.cta-section p {
+  color: var(--text-2);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+.cta-cmd {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule-2);
+  padding: 14px 28px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cta-cmd:hover { border-color: var(--accent); }
+.cta-cmd .prompt { color: var(--accent); }
+
+/* ───────── FOOTER ───────── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+footer .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer a { color: var(--text-3); border: none; }
+footer a:hover { color: var(--text-2); }
+
+@media (max-width: 700px) {
+  .when { grid-template-columns: 1fr; }
+  table.cmp { font-size: 13px; }
+  table.cmp th, table.cmp td { padding: 10px 8px; }
+}
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">/* comparison */</div>
+    <h1>Sverklo vs <span class="accent">Claude Context (Zilliz)</span></h1>
+    <p class="lede">
+      <a href="https://github.com/zilliztech/claude-context" target="_blank" rel="noopener" style="color: var(--accent);">claude-context</a> is Zilliz's MCP server: cloud-hosted vector search powered by Milvus, designed to give Claude an indexed view of large codebases. Sverklo is a local-first MCP that ships a real <em>symbol graph</em> alongside vector search — embedded SQLite, no external cluster, MIT-licensed.
+      <strong>This page compares architecture, privacy, capability, and what each does best.</strong>
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Feature comparison</h2>
+
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Sverklo</th>
+          <th>claude-context (Zilliz)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Storage</td>
+          <td>Embedded SQLite (one file per repo)</td>
+          <td>Zilliz Cloud or self-hosted Milvus cluster</td>
+        </tr>
+        <tr>
+          <td>License / Price</td>
+          <td><span class="tag-mit">MIT</span> Free</td>
+          <td>MIT code, but you pay Zilliz or operate Milvus</td>
+        </tr>
+        <tr>
+          <td>Where your code lives</td>
+          <td>100% local — never uploaded</td>
+          <td>Embeddings + chunks live in Zilliz/Milvus</td>
+        </tr>
+        <tr>
+          <td>Operational footprint</td>
+          <td><code>npm install -g sverklo</code> — single binary</td>
+          <td>Plus Milvus cluster or Zilliz account + API key</td>
+        </tr>
+        <tr>
+          <td>Retrieval</td>
+          <td>Hybrid BM25 + vector + PageRank, fused with RRF</td>
+          <td>Vector search (Milvus HNSW)</td>
+        </tr>
+        <tr>
+          <td>Symbol graph</td>
+          <td>File-level + symbol-level dependency graph</td>
+          <td>Not provided — chunks only</td>
+        </tr>
+        <tr>
+          <td>Blast-radius analysis</td>
+          <td><code>sverklo_impact</code>: callers, callees, test coverage</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>PR review</td>
+          <td>Risk-scored diffs with CI gate (<code>--fail-on high</code>)</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>Memory of past decisions</td>
+          <td>Bi-temporal, git-pinned, queryable at any past commit</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>Audit / dead code</td>
+          <td><code>sverklo audit</code> — graded report, dead-symbol detection</td>
+          <td>Not available</td>
+        </tr>
+        <tr>
+          <td>Tool surface</td>
+          <td>37 MCP tools (search, refs, deps, impact, memory, evidence, ctx_*, …)</td>
+          <td>Index + search MCP tools</td>
+        </tr>
+        <tr>
+          <td>Scale ceiling</td>
+          <td>Millions of chunks per repo on a laptop</td>
+          <td>Billions of vectors on Milvus cluster</td>
+        </tr>
+        <tr>
+          <td>Open source</td>
+          <td>Yes (MIT)</td>
+          <td>Yes (MIT, but tied to Zilliz infra)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>When to use each</h2>
+
+    <div class="when">
+      <div class="when-card">
+        <h3>Choose <span class="accent">Sverklo</span> when</h3>
+        <ul>
+          <li>You don't want to operate a Milvus cluster or pay Zilliz</li>
+          <li>Your codebase fits on a laptop (millions of chunks, not billions)</li>
+          <li>You need a symbol graph and blast-radius analysis, not just vector search</li>
+          <li>You want a queryable memory of past design decisions, git-pinned</li>
+          <li>You want diff-aware PR review with CI gates</li>
+          <li>Your code can't leave the machine — compliance, contract, or preference</li>
+        </ul>
+      </div>
+      <div class="when-card">
+        <h3>Choose <span class="accent">claude-context</span> when</h3>
+        <ul>
+          <li>You're indexing many billions of vectors across a fleet of repos</li>
+          <li>You already operate Milvus or have a Zilliz Cloud account</li>
+          <li>You only need vector retrieval — no symbol graph, no diff review</li>
+          <li>You want a managed cluster instead of a per-machine SQLite database</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cmp-section" style="border-bottom: none;">
+  <div class="wrap">
+    <h2>Same problem, opposite architecture</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
+      Both projects want to give Claude (and other agents) a queryable view of the codebase. They diverge on where the data lives and how it's ranked. <strong style="color: var(--text);">claude-context bets on a managed vector database</strong>: Milvus does the heavy lifting, the MCP layer is thin, and you scale horizontally by adding cluster capacity. <strong style="color: var(--text);">Sverklo bets on local SQLite plus a symbol graph</strong>: the index is one file per repo, the ranker is hybrid BM25 + vector + PageRank, and the structural analysis (impact, refs, deps, risk-scored review) is built in.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      For most individual developers and small teams, sverklo is the simpler answer — there's no cluster to operate and the symbol graph eliminates the entire class of "vector search returned the wrong file because the embedding got noisy" failures. For organisations already running Milvus at scale, claude-context is a clean MCP entry point.
+    </p>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <h2>Try Sverklo</h2>
+    <p>MIT licensed. One command. Works with every MCP client.</p>
+    <button type="button" class="cta-cmd" aria-label="Copy: npm install -g sverklo &amp;&amp; sverklo init" onclick="navigator.clipboard.writeText('npm install -g sverklo &amp;&amp; sverklo init').catch(()=>{})"><span class="prompt">$</span> npm install -g sverklo &amp;&amp; sverklo init</button>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-3);">click to copy</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>sverklo &mdash; MIT Licensed</span>
+    <span>
+      <a href="https://github.com/sverklo/sverklo">GitHub</a> &middot;
+      <a href="https://www.npmjs.com/package/sverklo">npm</a> &middot;
+      <a href="/">Home</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

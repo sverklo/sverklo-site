@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo Audit — prisma/prisma</title>
+<meta name="description" content="Sverklo code-intelligence audit of prisma/prisma. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<link rel="canonical" href="https://sverklo.com/report/prisma/prisma/">
+<meta property="og:title" content="Sverklo Audit — prisma/prisma — Grade D">
+<meta property="og:description" content="Sverklo code-intelligence audit of prisma/prisma. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/report/prisma/prisma/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sverklo Audit — prisma/prisma — Grade D">
+<meta name="twitter:description" content="Sverklo code-intelligence audit of prisma/prisma. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<meta name="twitter:image" content="https://sverklo.com/og.png"><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0D0B;
+    --surface: #16140F;
+    --border: #2A2620;
+    --text: #EDE7D9;
+    --muted: #A39886;
+    --accent: #E85A2A;
+    --grade-a: #4c1;
+    --grade-b: #97ca00;
+    --grade-c: #dfb317;
+    --grade-d: #fe7d37;
+    --grade-f: #e05d44;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(237,231,217,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(237,231,217,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+
+  /* ── Top bar (site-standard header) ── */
+  header.top {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(14, 13, 11, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+  header.top .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+    border: none;
+  }
+  .brand::before {
+    content: "\25CC ";
+    color: var(--accent);
+  }
+  .top-nav {
+    display: flex;
+    gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .top-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    border: none;
+  }
+  .top-nav a:hover { color: var(--text); }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .header .meta {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+  .header .meta .project-name {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── Overall grade circle ── */
+  .grade-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    position: relative;
+  }
+  .grade-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: inherit;
+    opacity: 0.3;
+  }
+  .grade-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: inherit;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+  }
+  .grade-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 72px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .grade-label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Dimension cards ── */
+  .dimensions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 40px 0 48px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .dim-grade {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 600;
+    width: 52px;
+    height: 52px;
+    line-height: 48px;
+    border: 2px solid;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+  }
+  .dim-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: capitalize;
+  }
+  .dim-detail {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── Section cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-body p {
+    margin: 6px 0;
+    color: var(--text);
+  }
+  .card-body ul {
+    list-style: none;
+    margin: 8px 0;
+    padding: 0;
+  }
+  .card-body ul li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(42,38,32,0.5);
+    font-size: 14px;
+  }
+  .card-body ul li:last-child {
+    border-bottom: none;
+  }
+  .card-body ul li::before {
+    content: "\203A";
+    color: var(--accent);
+    margin-right: 8px;
+    font-weight: 600;
+  }
+  .card-body ol {
+    margin: 8px 0 8px 20px;
+    color: var(--text);
+  }
+  .card-body ol li {
+    padding: 4px 0;
+    font-size: 14px;
+  }
+  .card-body h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 16px 0 8px;
+  }
+
+  /* Inline formatting */
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--muted); font-style: italic; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(232,90,42,0.08);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(42,38,32,0.4);
+    color: var(--text);
+  }
+  tr:hover td { background: rgba(42,38,32,0.3); }
+
+  /* ── Badge section ── */
+  .badge-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .badge-section p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .badge-section code {
+    display: block;
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    word-break: break-all;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer a:hover { text-decoration: underline; }
+  .footer .install {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .wrapper { padding: 32px 16px 48px; }
+    .dimensions { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .grade-ring { width: 110px; height: 110px; }
+    .grade-letter { font-size: 56px; }
+    .card { padding: 20px 18px 18px; }
+    .card h2 { font-size: 15px; }
+  }
+  @media (max-width: 400px) {
+    .dimensions { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dim-card { padding: 14px 10px; }
+    .dim-grade { font-size: 24px; width: 42px; height: 42px; line-height: 38px; }
+  }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo">sverklo audit</div>
+    <div class="grade-ring" style="color:#fe7d37;border-color:#fe7d37">
+      <span class="grade-letter" style="color:#fe7d37">D</span>
+    </div>
+    <div class="grade-label">Overall Health</div>
+    <div class="meta">
+      <h1 class="project-name">prisma/prisma</h1><br>
+      <a href="https://github.com/prisma/prisma">https://github.com/prisma/prisma</a><br>
+      2026-04-19 00:12:28
+    </div>
+  </div>
+
+  <div class="dimensions">
+    
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#dfb317;border-color:#dfb317">C</div>
+        <div class="dim-name">Dead code</div>
+        <div class="dim-detail">24% orphan symbols (485/2059)</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#e05d44;border-color:#e05d44">F</div>
+        <div class="dim-name">Circular deps</div>
+        <div class="dim-detail">46 cycles detected</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#fe7d37;border-color:#fe7d37">D</div>
+        <div class="dim-name">Coupling</div>
+        <div class="dim-detail">max fan-in: 45 (helpers/compile/build.ts)</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#e05d44;border-color:#e05d44">F</div>
+        <div class="dim-name">Security</div>
+        <div class="dim-detail">52 concerns found</div>
+      </div>
+  </div>
+
+  
+    <div class="card">
+      <h2>Overview</h2>
+      <div class="card-body"><ul>
+<li><strong>2840</strong> files indexed</li>
+<li><strong>6823</strong> code symbols extracted</li>
+<li><strong>42334</strong> symbol references tracked</li>
+<li><strong>0</strong> active memories (0 core, 0 stale)</li>
+<li>Languages: typescript (2725), javascript (115)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>God Nodes (most-referenced symbols)</h2>
+      <div class="card-body"><p>These are the symbols your codebase depends on most. Changes here have the largest blast radius.</p>
+<ul>
+<li><strong>create</strong> — 547 references</li>
+<li><strong>query</strong> — 484 references</li>
+<li><strong>defineConfig</strong> — 413 references</li>
+<li><strong>parse</strong> — 402 references</li>
+<li><strong>stringify</strong> — 338 references</li>
+<li><strong>write</strong> — 281 references</li>
+<li><strong>namedType</strong> — 265 references</li>
+<li><strong>idForProvider</strong> — 256 references</li>
+<li><strong>PrismaClient</strong> — 249 references</li>
+<li><strong>setupTestSuite</strong> — 224 references</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Hub Files (highest PageRank)</h2>
+      <div class="card-body"><p>Core architectural files — imported by many others.</p>
+<ul>
+<li><code>packages/client/tests/functional/_utils/providers.ts</code> (1.00)</li>
+<li><code>packages/client/tests/functional/_utils/defineMatrix.ts</code> (0.65)</li>
+<li><code>packages/client/tests/functional/_utils/getTestSuiteInfo.ts</code> (0.30)</li>
+<li><code>packages/client/tests/functional/_utils/types.ts</code> (0.28)</li>
+<li><code>packages/client/tests/functional/_utils/idForProvider.ts</code> (0.20)</li>
+<li><code>packages/client/tests/e2e/_utils/executeSteps.ts</code> (0.17)</li>
+<li><code>packages/client/tests/functional/_utils/setupTestSuiteEnv.ts</code> (0.17)</li>
+<li><code>packages/client/tests/functional/_utils/setupTestSuiteMatrix.ts</code> (0.14)</li>
+<li><code>packages/client/src/utils/getTestClient.ts</code> (0.12)</li>
+<li><code>packages/ts-builders/src/Writer.ts</code> (0.11)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Orphans (potential dead code)</h2>
+      <div class="card-body"><p>Named classs with zero detected references. Could be dead code, public API exports, or referenced dynamically.</p>
+<ul>
+<li><strong>TypeBuilder</strong> — <code>packages/ts-builders/src/TypeBuilder.ts:5</code></li>
+<li><strong>parseDefaultExport</strong> — <code>packages/config/src/PrismaConfig.ts:355</code></li>
+<li><strong>Migrate</strong> — <code>packages/migrate/src/Migrate.ts:30</code></li>
+<li><strong>asDecimal</strong> — <code>packages/client-engine-runtime/src/utils.ts:79</code></li>
+<li><strong>asBuffer</strong> — <code>packages/client-engine-runtime/src/utils.ts:89</code></li>
+<li><strong>asDate</strong> — <code>packages/client-engine-runtime/src/utils.ts:101</code></li>
+<li><strong>asBigInt</strong> — <code>packages/client-engine-runtime/src/utils.ts:111</code></li>
+<li><strong>noop</strong> — <code>packages/client/src/runtime/core/errorRendering/base.ts:14</code></li>
+<li><strong>DbDrop</strong> — <code>packages/migrate/src/commands/DbDrop.ts:25</code></li>
+<li><strong>DbExecute</strong> — <code>packages/migrate/src/commands/DbExecute.ts:41</code></li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Coupling (high-PageRank files)</h2>
+      <div class="card-body"><ul>
+<li><code>packages/client/tests/functional/_utils/providers.ts</code> (1.00)</li>
+<li><code>packages/client/tests/functional/_utils/defineMatrix.ts</code> (0.65)</li>
+<li><code>packages/client/tests/functional/_utils/getTestSuiteInfo.ts</code> (0.30)</li>
+<li><code>packages/client/tests/functional/_utils/types.ts</code> (0.28)</li>
+<li><code>packages/client/tests/functional/_utils/idForProvider.ts</code> (0.20)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Circular Dependencies (46 cycles)</h2>
+      <div class="card-body"><ol>
+<li>packages/client/src/runtime/core/errorRendering/ArgumentsRenderingTree.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/errorRendering/prettyPrintArguments.ts -&gt; packages/client/src/runtime/core/errorRendering/ArgumentsRenderingTree.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/ArrayField.ts -&gt; packages/client/src/runtime/core/errorRendering/Field.ts -&gt; packages/client/src/runtime/core/errorRendering/Value.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectValue.ts -&gt; packages/client/src/runtime/core/errorRendering/ArrayValue.ts -&gt; packages/client/src/runtime/core/errorRendering/ArrayField.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/Field.ts -&gt; packages/client/src/runtime/core/errorRendering/Value.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectValue.ts -&gt; packages/client/src/runtime/core/errorRendering/Field.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/Field.ts -&gt; packages/client/src/runtime/core/errorRendering/Value.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectValue.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectField.ts -&gt; packages/client/src/runtime/core/errorRendering/Field.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/ObjectField.ts -&gt; packages/client/src/runtime/core/errorRendering/Value.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectValue.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectField.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/ObjectValue.ts -&gt; packages/client/src/runtime/core/errorRendering/Value.ts -&gt; packages/client/src/runtime/core/errorRendering/ObjectValue.ts</li>
+<li>packages/client/src/runtime/core/extensions/$extends.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/extensions/$extends.ts</li>
+<li>packages/client/src/runtime/core/extensions/$extends.ts -&gt; packages/client/src/runtime/core/model/applyModelsAndClientExtensions.ts -&gt; packages/client/src/runtime/core/model/applyModel.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/extensions/$extends.ts</li>
+<li>packages/client/src/runtime/core/extensions/$extends.ts -&gt; packages/client/src/runtime/core/model/applyModelsAndClientExtensions.ts -&gt; packages/client/src/runtime/core/model/applyModel.ts -&gt; packages/client/src/runtime/utils/CallSite.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/extensions/$extends.ts</li>
+<li>packages/client/src/runtime/core/extensions/applyAllResultExtensions.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/extensions/applyAllResultExtensions.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/throwValidationException.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/extensions/applyAllResultExtensions.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/core/errorRendering/throwValidationException.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/throwValidationException.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/core/errorRendering/throwValidationException.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/applyValidationError.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/core/errorRendering/throwValidationException.ts -&gt; packages/client/src/runtime/core/errorRendering/applyValidationError.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/applyUnionError.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/core/errorRendering/throwValidationException.ts -&gt; packages/client/src/runtime/core/errorRendering/applyValidationError.ts -&gt; packages/client/src/runtime/core/errorRendering/applyUnionError.ts</li>
+<li>packages/client/src/runtime/core/errorRendering/applyUnionError.ts -&gt; packages/client/src/runtime/core/errorRendering/applyValidationError.ts -&gt; packages/client/src/runtime/core/errorRendering/applyUnionError.ts</li>
+<li>packages/client/src/runtime/core/types/exported/Public.ts -&gt; packages/client/src/runtime/core/types/exported/Result.ts -&gt; packages/client/src/runtime/core/types/exported/Utils.ts -&gt; packages/client/src/runtime/core/types/exported/Public.ts</li>
+<li>packages/client/src/runtime/core/types/exported/Public.ts -&gt; packages/client/src/runtime/core/types/exported/Utils.ts -&gt; packages/client/src/runtime/core/types/exported/Public.ts</li>
+<li>packages/client/src/runtime/RequestHandler.ts -&gt; packages/client/src/runtime/core/extensions/applyQueryExtensions.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/extensions/applyAllResultExtensions.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/core/extensions/MergedExtensionsList.ts -&gt; packages/client/src/runtime/core/types/internal/ExtensionsInternalArgs.ts -&gt; packages/client/src/runtime/RequestHandler.ts</li>
+<li>packages/client/src/runtime/RequestHandler.ts -&gt; packages/client/src/runtime/core/extensions/applyQueryExtensions.ts -&gt; packages/client/src/runtime/RequestHandler.ts</li>
+<li>packages/client/src/runtime/RequestHandler.ts -&gt; packages/client/src/runtime/core/extensions/applyQueryExtensions.ts -&gt; packages/client/src/runtime/core/types/internal/ExtensionsInternalArgs.ts -&gt; packages/client/src/runtime/RequestHandler.ts</li>
+<li>packages/client/src/runtime/RequestHandler.ts -&gt; packages/client/src/runtime/core/extensions/MergedExtensionsList.ts -&gt; packages/client/src/runtime/core/types/internal/ExtensionsInternalArgs.ts -&gt; packages/client/src/runtime/RequestHandler.ts</li>
+<li>packages/client/src/runtime/RequestHandler.ts -&gt; packages/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts -&gt; packages/client/src/runtime/core/extensions/MergedExtensionsList.ts -&gt; packages/client/src/runtime/core/types/internal/ExtensionsInternalArgs.ts -&gt; packages/client/src/runtime/RequestHandler.ts</li>
+<li>packages/client/src/runtime/core/raw-query/rawQueryArgsMapper.ts -&gt; packages/client/src/runtime/getPrismaClient.ts -&gt; packages/client/src/runtime/core/raw-query/rawQueryArgsMapper.ts</li>
+<li>packages/ts-builders/src/KeyType.ts -&gt; packages/ts-builders/src/TypeBuilder.ts -&gt; packages/ts-builders/src/KeyType.ts</li>
+<li>packages/config/src/PrismaConfig.ts -&gt; packages/config/src/defineConfig.ts -&gt; packages/config/src/defaultConfig.ts -&gt; packages/config/src/PrismaConfig.ts</li>
+<li>packages/adapter-libsql/src/conversion.ts -&gt; packages/adapter-libsql/src/libsql.ts -&gt; packages/adapter-libsql/src/conversion.ts</li>
+<li>packages/driver-adapter-utils/src/result.ts -&gt; packages/driver-adapter-utils/src/types.ts -&gt; packages/driver-adapter-utils/src/result.ts</li>
+<li>packages/client-generator-js/src/TSClient/TSClient.ts -&gt; packages/client-generator-js/src/generateClient.ts -&gt; packages/client-generator-js/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-js/src/generateClient.ts -&gt; packages/client-generator-js/src/typedSql/typedSql.ts -&gt; packages/client-generator-js/src/generateClient.ts</li>
+<li>packages/client-generator-js/src/generateClient.ts -&gt; packages/client-generator-js/src/utils/addPreamble.ts -&gt; packages/client-generator-js/src/generateClient.ts</li>
+<li>packages/client-generator-js/src/TSClient/TSClient.ts -&gt; packages/client-generator-js/src/utils/buildDMMF.ts -&gt; packages/client-generator-js/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-js/src/TSClient/TSClient.ts -&gt; packages/client-generator-js/src/utils/buildGetQueryCompilerWasmModule.ts -&gt; packages/client-generator-js/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-js/src/TSClient/PrismaClient.ts -&gt; packages/client-generator-js/src/TSClient/TSClient.ts -&gt; packages/client-generator-js/src/TSClient/PrismaClient.ts</li>
+<li>packages/adapter-planetscale/src/errors.ts -&gt; packages/adapter-planetscale/src/planetscale.ts -&gt; packages/adapter-planetscale/src/errors.ts</li>
+<li>packages/adapter-better-sqlite3/src/better-sqlite3.ts -&gt; packages/adapter-better-sqlite3/src/conversion.ts -&gt; packages/adapter-better-sqlite3/src/better-sqlite3.ts</li>
+<li>packages/client-runtime-utils/src/errors/PrismaClientRustError.ts -&gt; packages/client-runtime-utils/src/errors/log.ts -&gt; packages/client-runtime-utils/src/errors/PrismaClientRustError.ts</li>
+<li>packages/client-generator-ts/src/TSClient/TSClient.ts -&gt; packages/client-generator-ts/src/generateClient.ts -&gt; packages/client-generator-ts/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-ts/src/TSClient/TSClient.ts -&gt; packages/client-generator-ts/src/TSClient/file-generators/BrowserFile.ts -&gt; packages/client-generator-ts/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-ts/src/TSClient/TSClient.ts -&gt; packages/client-generator-ts/src/TSClient/file-generators/ClassFile.ts -&gt; packages/client-generator-ts/src/utils/buildDMMF.ts -&gt; packages/client-generator-ts/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-ts/src/TSClient/PrismaClient.ts -&gt; packages/client-generator-ts/src/TSClient/TSClient.ts -&gt; packages/client-generator-ts/src/TSClient/file-generators/ClassFile.ts -&gt; packages/client-generator-ts/src/TSClient/PrismaClient.ts</li>
+<li>packages/client-generator-ts/src/TSClient/TSClient.ts -&gt; packages/client-generator-ts/src/TSClient/file-generators/ClassFile.ts -&gt; packages/client-generator-ts/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-ts/src/TSClient/TSClient.ts -&gt; packages/client-generator-ts/src/TSClient/file-generators/ClientFile.ts -&gt; packages/client-generator-ts/src/TSClient/TSClient.ts</li>
+<li>packages/client-generator-ts/src/generateClient.ts -&gt; packages/client-generator-ts/src/typedSql/typedSql.ts -&gt; packages/client-generator-ts/src/generateClient.ts</li>
+<li>packages/client-generator-ts/src/generateClient.ts -&gt; packages/client-generator-ts/src/utils/addPreamble.ts -&gt; packages/client-generator-ts/src/generateClient.ts</li>
+<li>packages/ts-builders/src/AnyDeclarationBuilder.ts -&gt; packages/ts-builders/src/NamespaceDeclaration.ts -&gt; packages/ts-builders/src/AnyDeclarationBuilder.ts</li>
+<li>packages/ts-builders/src/AnyDeclarationBuilder.ts -&gt; packages/ts-builders/src/NamespaceDeclaration.ts -&gt; packages/ts-builders/src/Export.ts -&gt; packages/ts-builders/src/AnyDeclarationBuilder.ts</li>
+</ol></div>
+    </div>
+
+    <div class="card">
+      <h2>Security Issues (52 found)</h2>
+      <div class="card-body"><h3>Critical (4)</h3>
+<ul>
+<li><strong>Hardcoded secret</strong> — <code>packages/adapter-mariadb/src/credentials.test.ts:7</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>const secretPassword = 'super<em>secret</em>password_12345'</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/client/src/runtime/core/compositeProxy/removeProperties.test.ts:5</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>const target = { someProp: 1, secret: 'Do not tell anybody' }</code></li>
+<li><strong>API token</strong> — <code>scripts/only-allow-pnpm.js:6</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>if (!process.env.npm<em>config</em>user_agent) {</code></li>
+<li><strong>API token</strong> — <code>scripts/only-allow-pnpm.js:9</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>return pmFromUserAgent(process.env.npm<em>config</em>user_agent)</code></li>
+</ul>
+<h3>High (5)</h3>
+<ul>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/adapter-planetscale/src/planetscale.ts:222</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await conn.execute(</code>SET TRANSACTION ISOLATION LEVEL ${isolationLevel}<code>).catch((error) =&gt; onError(error))</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/migrate/src/utils/setupPostgres.ts:22</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await dbDefault.query(</code>DROP DATABASE IF EXISTS "${credentials.database}-shadowdb";<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/migrate/src/utils/setupPostgres.ts:23</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await dbDefault.query(</code>CREATE DATABASE "${credentials.database}-shadowdb";<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/migrate/src/utils/setupPostgres.ts:24</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await dbDefault.query(</code>DROP DATABASE IF EXISTS "${credentials.database}";<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/migrate/src/utils/setupPostgres.ts:25</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await dbDefault.query(</code>CREATE DATABASE "${credentials.database}";<code>)</code></li>
+</ul>
+<h3>Low (43)</h3>
+<ul>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:13</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] connecting...')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:15</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] connected')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:28</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] disconnecting...')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:30</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] disconnected')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] re-connecting...')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:34</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] re-connecting')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:38</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] re-disconnecting...')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:40</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] re-disconnected')</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:61</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] created', superjson.serialize(created).json)</code></li>
+<li><strong>Excessive console.log</strong> — <code>sandbox/driver-adapters/src/test.ts:64</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log('[nodejs] resultSet', superjson.serialize(resultSet).json)</code></li>
+<li><em>...and 33 more</em></li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Suggested Next Steps</h2>
+      <div class="card-body"><ul>
+<li>Before refactoring <strong>create</strong>, run <code>sverklo_impact</code> to see the 547 call sites</li>
+<li><code>packages/client/tests/functional/_utils/providers.ts</code> is your most-imported file — changes here cascade widely</li>
+<li>15+ potential orphans detected — audit for dead code</li>
+</ul></div>
+    </div>
+
+  
+
+  <div class="footer">
+    Powered by <a href="https://sverklo.com">Sverklo</a> — local-first code intelligence<br>
+    <div class="install">npm install -g sverklo</div>
+  </div>
+
+</div>
+</main>
+</body>
+</html>

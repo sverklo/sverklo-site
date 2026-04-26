@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo Audit — payloadcms/payload</title>
+<meta name="description" content="Sverklo code-intelligence audit of payloadcms/payload. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<link rel="canonical" href="https://sverklo.com/report/payloadcms/payload/">
+<meta property="og:title" content="Sverklo Audit — payloadcms/payload — Grade D">
+<meta property="og:description" content="Sverklo code-intelligence audit of payloadcms/payload. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/report/payloadcms/payload/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sverklo Audit — payloadcms/payload — Grade D">
+<meta name="twitter:description" content="Sverklo code-intelligence audit of payloadcms/payload. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<meta name="twitter:image" content="https://sverklo.com/og.png"><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0D0B;
+    --surface: #16140F;
+    --border: #2A2620;
+    --text: #EDE7D9;
+    --muted: #A39886;
+    --accent: #E85A2A;
+    --grade-a: #4c1;
+    --grade-b: #97ca00;
+    --grade-c: #dfb317;
+    --grade-d: #fe7d37;
+    --grade-f: #e05d44;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(237,231,217,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(237,231,217,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+
+  /* ── Top bar (site-standard header) ── */
+  header.top {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(14, 13, 11, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+  header.top .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+    border: none;
+  }
+  .brand::before {
+    content: "\25CC ";
+    color: var(--accent);
+  }
+  .top-nav {
+    display: flex;
+    gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .top-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    border: none;
+  }
+  .top-nav a:hover { color: var(--text); }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .header .meta {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+  .header .meta .project-name {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── Overall grade circle ── */
+  .grade-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    position: relative;
+  }
+  .grade-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: inherit;
+    opacity: 0.3;
+  }
+  .grade-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: inherit;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+  }
+  .grade-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 72px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .grade-label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Dimension cards ── */
+  .dimensions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 40px 0 48px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .dim-grade {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 600;
+    width: 52px;
+    height: 52px;
+    line-height: 48px;
+    border: 2px solid;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+  }
+  .dim-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: capitalize;
+  }
+  .dim-detail {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── Section cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-body p {
+    margin: 6px 0;
+    color: var(--text);
+  }
+  .card-body ul {
+    list-style: none;
+    margin: 8px 0;
+    padding: 0;
+  }
+  .card-body ul li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(42,38,32,0.5);
+    font-size: 14px;
+  }
+  .card-body ul li:last-child {
+    border-bottom: none;
+  }
+  .card-body ul li::before {
+    content: "\203A";
+    color: var(--accent);
+    margin-right: 8px;
+    font-weight: 600;
+  }
+  .card-body ol {
+    margin: 8px 0 8px 20px;
+    color: var(--text);
+  }
+  .card-body ol li {
+    padding: 4px 0;
+    font-size: 14px;
+  }
+  .card-body h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 16px 0 8px;
+  }
+
+  /* Inline formatting */
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--muted); font-style: italic; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(232,90,42,0.08);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(42,38,32,0.4);
+    color: var(--text);
+  }
+  tr:hover td { background: rgba(42,38,32,0.3); }
+
+  /* ── Badge section ── */
+  .badge-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .badge-section p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .badge-section code {
+    display: block;
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    word-break: break-all;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer a:hover { text-decoration: underline; }
+  .footer .install {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .wrapper { padding: 32px 16px 48px; }
+    .dimensions { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .grade-ring { width: 110px; height: 110px; }
+    .grade-letter { font-size: 56px; }
+    .card { padding: 20px 18px 18px; }
+    .card h2 { font-size: 15px; }
+  }
+  @media (max-width: 400px) {
+    .dimensions { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dim-card { padding: 14px 10px; }
+    .dim-grade { font-size: 24px; width: 42px; height: 42px; line-height: 38px; }
+  }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo">sverklo audit</div>
+    <div class="grade-ring" style="color:#fe7d37;border-color:#fe7d37">
+      <span class="grade-letter" style="color:#fe7d37">D</span>
+    </div>
+    <div class="grade-label">Overall Health</div>
+    <div class="meta">
+      <h1 class="project-name">payloadcms/payload</h1><br>
+      <a href="https://github.com/payloadcms/payload">https://github.com/payloadcms/payload</a><br>
+      2026-04-19 00:10:20
+    </div>
+  </div>
+
+  <div class="dimensions">
+    
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#fe7d37;border-color:#fe7d37">D</div>
+        <div class="dim-name">Dead code</div>
+        <div class="dim-detail">35% orphan symbols (1025/2952)</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#e05d44;border-color:#e05d44">F</div>
+        <div class="dim-name">Circular deps</div>
+        <div class="dim-detail">72 cycles detected</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#fe7d37;border-color:#fe7d37">D</div>
+        <div class="dim-name">Coupling</div>
+        <div class="dim-detail">max fan-in: 41 (packages/payload/src/errors/APIError.ts)</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#e05d44;border-color:#e05d44">F</div>
+        <div class="dim-name">Security</div>
+        <div class="dim-detail">580 concerns found</div>
+      </div>
+  </div>
+
+  
+    <div class="card">
+      <h2>Overview</h2>
+      <div class="card-body"><ul>
+<li><strong>6319</strong> files indexed</li>
+<li><strong>17274</strong> code symbols extracted</li>
+<li><strong>56555</strong> symbol references tracked</li>
+<li><strong>0</strong> active memories (0 core, 0 stale)</li>
+<li>Languages: typescript (6147), javascript (172)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>God Nodes (most-referenced symbols)</h2>
+      <div class="card-body"><p>These are the symbols your codebase depends on most. Changes here have the largest blast radius.</p>
+<ul>
+<li><strong>create</strong> — 901 references</li>
+<li><strong>update</strong> — 257 references</li>
+<li><strong>req</strong> — 256 references</li>
+<li><strong>formatAdminURL</strong> — 171 references</li>
+<li><strong>set</strong> — 139 references</li>
+<li><strong>lexicalEditor</strong> — 133 references</li>
+<li><strong>parse</strong> — 125 references</li>
+<li><strong>findByID</strong> — 123 references</li>
+<li><strong>Props</strong> — 118 references</li>
+<li><strong>saveDocAndAssert</strong> — 116 references</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Hub Files (highest PageRank)</h2>
+      <div class="card-body"><p>Core architectural files — imported by many others.</p>
+<ul>
+<li><code>packages/ui/src/providers/Translation/index.tsx</code> (1.00)</li>
+<li><code>test/credentials.ts</code> (0.96)</li>
+<li><code>packages/payload/src/errors/APIError.ts</code> (0.86)</li>
+<li><code>test/playwright.config.ts</code> (0.75)</li>
+<li><code>test/admin/slugs.ts</code> (0.65)</li>
+<li><code>test/buildConfigWithDefaults.ts</code> (0.65)</li>
+<li><code>test/__helpers/shared/initPayloadInt.ts</code> (0.60)</li>
+<li><code>test/__helpers/e2e/helpers.ts</code> (0.56)</li>
+<li><code>test/fields/slugs.ts</code> (0.56)</li>
+<li><code>test/versions/slugs.ts</code> (0.51)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Orphans (potential dead code)</h2>
+      <div class="card-body"><p>Named functions with zero detected references. Could be dead code, public API exports, or referenced dynamically.</p>
+<ul>
+<li><strong>createNestedClientFieldPath</strong> — <code>packages/plugin-import-export/src/components/FieldsToExport/reduceFields.tsx:6</code></li>
+<li><strong>fieldToSchemaMap</strong> — <code>packages/graphql/src/schema/fieldToWhereInputSchemaMap.ts:37</code></li>
+<li><strong>LexicalTypeaheadMenuPlugin</strong> — <code>packages/richtext-lexical/src/lexical/plugins/SlashMenu/LexicalTypeaheadMenuPlugin/index.tsx:116</code></li>
+<li><strong>updateListener</strong> — <code>packages/richtext-lexical/src/lexical/plugins/SlashMenu/LexicalTypeaheadMenuPlugin/index.tsx:189</code></li>
+<li><strong>isPlainObject</strong> — <code>packages/payload/src/utilities/isPlainObject.ts:3</code></li>
+<li><strong>macos</strong> — <code>packages/payload/src/utilities/telemetry/conf/envPaths.ts:24</code></li>
+<li><strong>windows</strong> — <code>packages/payload/src/utilities/telemetry/conf/envPaths.ts:36</code></li>
+<li><strong>linux</strong> — <code>packages/payload/src/utilities/telemetry/conf/envPaths.ts:51</code></li>
+<li><strong>HorizontalRuleNode</strong> — <code>packages/richtext-lexical/src/features/horizontalRule/client/nodes/HorizontalRuleNode.tsx:11</code></li>
+<li><strong>createKey</strong> — <code>packages/payload-cloud/src/utilities/createKey.ts:7</code></li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Coupling (high-PageRank files)</h2>
+      <div class="card-body"><ul>
+<li><code>packages/ui/src/providers/Translation/index.tsx</code> (1.00)</li>
+<li><code>test/credentials.ts</code> (0.96)</li>
+<li><code>packages/payload/src/errors/APIError.ts</code> (0.86)</li>
+<li><code>test/playwright.config.ts</code> (0.75)</li>
+<li><code>test/admin/slugs.ts</code> (0.65)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Circular Dependencies (72 cycles)</h2>
+      <div class="card-body"><ol>
+<li>packages/payload/src/auth/operations/forgotPassword.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/auth/operations/local/forgotPassword.ts -&gt; packages/payload/src/auth/operations/forgotPassword.ts</li>
+<li>packages/payload/src/fields/hooks/afterRead/promise.ts -&gt; packages/payload/src/fields/hooks/afterRead/traverseFields.ts -&gt; packages/payload/src/fields/hooks/afterRead/promise.ts</li>
+<li>packages/payload/src/auth/operations/local/login.ts -&gt; packages/payload/src/auth/operations/login.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/auth/operations/local/login.ts</li>
+<li>packages/payload/src/auth/operations/local/login.ts -&gt; packages/payload/src/auth/operations/login.ts -&gt; packages/payload/src/auth/strategies/local/incrementLoginAttempts.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/auth/operations/local/login.ts</li>
+<li>packages/payload/src/auth/operations/local/unlock.ts -&gt; packages/payload/src/auth/operations/unlock.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/auth/operations/local/unlock.ts</li>
+<li>packages/payload/src/collections/operations/count.ts -&gt; packages/payload/src/database/queryValidation/validateQueryPaths.ts -&gt; packages/payload/src/database/queryValidation/validateSearchParams.ts -&gt; packages/payload/src/utilities/getEntityPermissions/getEntityPermissions.ts -&gt; packages/payload/src/utilities/getEntityPermissions/entityDocExists.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/count.ts -&gt; packages/payload/src/collections/operations/count.ts</li>
+<li>packages/payload/src/collections/operations/count.ts -&gt; packages/payload/src/database/queryValidation/validateQueryPaths.ts -&gt; packages/payload/src/database/queryValidation/validateSearchParams.ts -&gt; packages/payload/src/database/getLocalizedPaths.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/count.ts -&gt; packages/payload/src/collections/operations/count.ts</li>
+<li>packages/payload/src/database/queryValidation/validateQueryPaths.ts -&gt; packages/payload/src/database/queryValidation/validateSearchParams.ts -&gt; packages/payload/src/database/queryValidation/validateQueryPaths.ts</li>
+<li>packages/payload/src/collections/operations/local/create.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/create.ts</li>
+<li>packages/payload/src/fields/hooks/beforeDuplicate/promise.ts -&gt; packages/payload/src/fields/hooks/beforeDuplicate/traverseFields.ts -&gt; packages/payload/src/fields/hooks/beforeDuplicate/promise.ts</li>
+<li>packages/payload/src/fields/hooks/afterChange/promise.ts -&gt; packages/payload/src/fields/hooks/afterChange/traverseFields.ts -&gt; packages/payload/src/fields/hooks/afterChange/promise.ts</li>
+<li>packages/payload/src/collections/operations/create.ts -&gt; packages/payload/src/fields/hooks/beforeChange/index.ts -&gt; packages/payload/src/fields/hooks/beforeChange/traverseFields.ts -&gt; packages/payload/src/fields/hooks/beforeChange/promise.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/create.ts -&gt; packages/payload/src/collections/operations/create.ts</li>
+<li>packages/payload/src/fields/hooks/beforeChange/promise.ts -&gt; packages/payload/src/fields/hooks/beforeChange/traverseFields.ts -&gt; packages/payload/src/fields/hooks/beforeChange/promise.ts</li>
+<li>packages/payload/src/collections/operations/create.ts -&gt; packages/payload/src/fields/hooks/beforeValidate/index.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/create.ts -&gt; packages/payload/src/collections/operations/create.ts</li>
+<li>packages/payload/src/fields/hooks/beforeValidate/promise.ts -&gt; packages/payload/src/fields/hooks/beforeValidate/traverseFields.ts -&gt; packages/payload/src/fields/hooks/beforeValidate/promise.ts</li>
+<li>packages/payload/src/collections/operations/create.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/create.ts -&gt; packages/payload/src/collections/operations/create.ts</li>
+<li>packages/payload/src/preferences/config.ts -&gt; packages/payload/src/preferences/requestHandlers/delete.ts -&gt; packages/payload/src/preferences/operations/delete.ts -&gt; packages/payload/src/preferences/config.ts</li>
+<li>packages/payload/src/preferences/config.ts -&gt; packages/payload/src/preferences/requestHandlers/findOne.ts -&gt; packages/payload/src/preferences/operations/findOne.ts -&gt; packages/payload/src/preferences/config.ts</li>
+<li>packages/payload/src/preferences/config.ts -&gt; packages/payload/src/preferences/requestHandlers/update.ts -&gt; packages/payload/src/preferences/operations/update.ts -&gt; packages/payload/src/preferences/config.ts</li>
+<li>packages/payload/src/collections/operations/delete.ts -&gt; packages/payload/src/versions/deleteCollectionVersions.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/delete.ts -&gt; packages/payload/src/collections/operations/delete.ts</li>
+<li>packages/payload/src/collections/operations/delete.ts -&gt; packages/payload/src/versions/deleteScheduledPublishJobs.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/delete.ts -&gt; packages/payload/src/collections/operations/delete.ts</li>
+<li>packages/payload/src/queues/config/collection.ts -&gt; packages/payload/src/queues/endpoints/handleSchedules.ts -&gt; packages/payload/src/queues/operations/handleSchedules/index.ts -&gt; packages/payload/src/queues/operations/handleSchedules/defaultBeforeSchedule.ts -&gt; packages/payload/src/queues/operations/handleSchedules/countRunnableOrActiveJobsForQueue.ts -&gt; packages/payload/src/queues/config/collection.ts</li>
+<li>packages/payload/src/queues/config/collection.ts -&gt; packages/payload/src/queues/endpoints/handleSchedules.ts -&gt; packages/payload/src/queues/endpoints/run.ts -&gt; packages/payload/src/queues/operations/runJobs/index.ts -&gt; packages/payload/src/queues/config/collection.ts</li>
+<li>packages/payload/src/queues/config/collection.ts -&gt; packages/payload/src/queues/endpoints/handleSchedules.ts -&gt; packages/payload/src/queues/endpoints/run.ts -&gt; packages/payload/src/queues/operations/runJobs/index.ts -&gt; packages/payload/src/queues/utilities/updateJob.ts -&gt; packages/payload/src/queues/config/collection.ts</li>
+<li>packages/payload/src/collections/operations/findByID.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/findByID.ts -&gt; packages/payload/src/collections/operations/findByID.ts</li>
+<li>packages/payload/src/collections/operations/local/findDistinct.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/findDistinct.ts</li>
+<li>packages/payload/src/collections/operations/local/restoreVersion.ts -&gt; packages/payload/src/collections/operations/restoreVersion.ts -&gt; packages/payload/src/versions/saveVersion.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/restoreVersion.ts</li>
+<li>packages/payload/src/collections/operations/local/restoreVersion.ts -&gt; packages/payload/src/collections/operations/restoreVersion.ts -&gt; packages/payload/src/versions/saveVersion.ts -&gt; packages/payload/src/versions/saveSnapshot.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/restoreVersion.ts</li>
+<li>packages/payload/src/collections/operations/local/update.ts -&gt; packages/payload/src/collections/operations/update.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/update.ts</li>
+<li>packages/payload/src/collections/operations/local/update.ts -&gt; packages/payload/src/collections/operations/update.ts -&gt; packages/payload/src/collections/operations/utilities/update.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/update.ts</li>
+<li>packages/payload/src/collections/operations/local/update.ts -&gt; packages/payload/src/collections/operations/updateByID.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/update.ts</li>
+<li>packages/payload/src/globals/operations/countGlobalVersions.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/globals/operations/local/countVersions.ts -&gt; packages/payload/src/globals/operations/countGlobalVersions.ts</li>
+<li>packages/payload/src/globals/operations/local/update.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/globals/operations/local/update.ts</li>
+<li>packages/payload/src/globals/operations/local/update.ts -&gt; packages/payload/src/globals/operations/update.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/globals/operations/local/update.ts</li>
+<li>packages/payload/src/checkPayloadDependencies.ts -&gt; packages/payload/src/utilities/dependencies/dependencyChecker.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/checkPayloadDependencies.ts</li>
+<li>packages/payload/src/collections/operations/countVersions.ts -&gt; packages/payload/src/index.ts -&gt; packages/payload/src/collections/operations/local/countVersions.ts -&gt; packages/payload/src/collections/operations/countVersions.ts</li>
+<li>packages/payload/src/index.ts -&gt; packages/payload/src/queues/localAPI.ts -&gt; packages/payload/src/index.ts</li>
+<li>packages/db-mongodb/src/queries/buildAndOrConditions.ts -&gt; packages/db-mongodb/src/queries/parseParams.ts -&gt; packages/db-mongodb/src/queries/buildAndOrConditions.ts</li>
+<li>packages/ui/src/forms/fieldSchemasToFormState/calculateDefaultValues/iterateFields.ts -&gt; packages/ui/src/forms/fieldSchemasToFormState/calculateDefaultValues/promise.ts -&gt; packages/ui/src/forms/fieldSchemasToFormState/calculateDefaultValues/iterateFields.ts</li>
+<li>packages/plugin-form-builder/src/utilities/lexical/converters/heading.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/serializeLexical.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/defaultConverters.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/converters/heading.ts</li>
+<li>packages/plugin-form-builder/src/utilities/lexical/converters/link.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/serializeLexical.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/defaultConverters.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/converters/link.ts</li>
+<li>packages/plugin-form-builder/src/utilities/lexical/converters/list.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/serializeLexical.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/defaultConverters.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/converters/list.ts</li>
+<li>packages/plugin-form-builder/src/utilities/lexical/converters/paragraph.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/serializeLexical.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/defaultConverters.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/converters/paragraph.ts</li>
+<li>packages/plugin-form-builder/src/utilities/lexical/converters/quote.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/serializeLexical.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/defaultConverters.ts -&gt; packages/plugin-form-builder/src/utilities/lexical/converters/quote.ts</li>
+<li>packages/ui/src/elements/StayLoggedIn/index.tsx -&gt; packages/ui/src/providers/Auth/index.tsx -&gt; packages/ui/src/elements/StayLoggedIn/index.tsx</li>
+<li>packages/drizzle/src/queries/buildAndOrConditions.ts -&gt; packages/drizzle/src/queries/parseParams.ts -&gt; packages/drizzle/src/queries/buildAndOrConditions.ts</li>
+<li>packages/richtext-lexical/src/packages/@lexical/markdown/MarkdownShortcuts.ts -&gt; packages/richtext-lexical/src/packages/@lexical/markdown/index.ts -&gt; packages/richtext-lexical/src/packages/@lexical/markdown/MarkdownShortcuts.ts</li>
+<li>packages/ui/src/providers/DocumentInfo/index.tsx -&gt; packages/ui/src/providers/DocumentTitle/index.tsx -&gt; packages/ui/src/providers/DocumentInfo/index.tsx</li>
+<li>packages/drizzle/src/transform/write/array.ts -&gt; packages/drizzle/src/transform/write/traverseFields.ts -&gt; packages/drizzle/src/transform/write/array.ts</li>
+<li>packages/drizzle/src/transform/write/blocks.ts -&gt; packages/drizzle/src/transform/write/traverseFields.ts -&gt; packages/drizzle/src/transform/write/blocks.ts</li>
+<li>packages/ui/src/forms/fieldSchemasToFormState/addFieldStatePromise.ts -&gt; packages/ui/src/forms/fieldSchemasToFormState/iterateFields.ts -&gt; packages/ui/src/forms/fieldSchemasToFormState/addFieldStatePromise.ts</li>
+<li>packages/graphql/src/schema/buildObjectType.ts -&gt; packages/graphql/src/schema/fieldToSchemaMap.ts -&gt; packages/graphql/src/schema/buildObjectType.ts</li>
+<li>packages/graphql/src/schema/fieldToWhereInputSchemaMap.ts -&gt; packages/graphql/src/schema/recursivelyBuildNestedPaths.ts -&gt; packages/graphql/src/schema/fieldToWhereInputSchemaMap.ts</li>
+<li>packages/ui/src/elements/Loading/index.tsx -&gt; packages/ui/src/elements/LoadingOverlay/index.tsx -&gt; packages/ui/src/elements/Loading/index.tsx</li>
+<li>packages/payload/src/queues/config/generateJobsJSONSchemas.ts -&gt; packages/payload/src/utilities/configToJSONSchema.ts -&gt; packages/payload/src/queues/config/generateJobsJSONSchemas.ts</li>
+<li>packages/payload/src/query-presets/config.ts -&gt; packages/payload/src/query-presets/constraints.ts -&gt; packages/payload/src/query-presets/preventLockout.ts -&gt; packages/payload/src/query-presets/config.ts</li>
+<li>packages/richtext-lexical/src/index.ts -&gt; packages/richtext-lexical/src/utilities/editorConfigFactory.ts -&gt; packages/richtext-lexical/src/utilities/getDefaultSanitizedEditorConfig.ts -&gt; packages/richtext-lexical/src/index.ts</li>
+<li>packages/ui/src/fields/Array/ArrayRow.tsx -&gt; packages/ui/src/forms/RenderFields/index.tsx -&gt; packages/ui/src/forms/RenderFields/RenderField.tsx -&gt; packages/ui/src/fields/Array/index.tsx -&gt; packages/ui/src/fields/Array/ArrayRow.tsx</li>
+<li>packages/ui/src/fields/Join/index.tsx -&gt; packages/ui/src/fields/index.tsx -&gt; packages/ui/src/fields/Join/index.tsx</li>
+<li>packages/ui/src/elements/BulkUpload/ActionsBar/index.tsx -&gt; packages/ui/src/elements/BulkUpload/EditMany/index.tsx -&gt; packages/ui/src/elements/BulkUpload/FormsManager/index.tsx -&gt; packages/ui/src/elements/BulkUpload/index.tsx -&gt; packages/ui/src/elements/BulkUpload/AddingFilesView/index.tsx -&gt; packages/ui/src/elements/BulkUpload/ActionsBar/index.tsx</li>
+<li>packages/ui/src/elements/BulkUpload/ActionsBar/index.tsx -&gt; packages/ui/src/elements/BulkUpload/EditMany/index.tsx -&gt; packages/ui/src/elements/BulkUpload/EditMany/DrawerContent.tsx -&gt; packages/ui/src/forms/RenderFields/RenderField.tsx -&gt; packages/ui/src/fields/Join/index.tsx -&gt; packages/ui/src/fields/index.tsx -&gt; packages/ui/src/fields/Upload/index.tsx -&gt; packages/ui/src/elements/BulkUpload/index.tsx -&gt; packages/ui/src/elements/BulkUpload/AddingFilesView/index.tsx -&gt; packages/ui/src/elements/BulkUpload/ActionsBar/index.tsx</li>
+<li>packages/ui/src/elements/BulkUpload/EditMany/DrawerContent.tsx -&gt; packages/ui/src/elements/BulkUpload/EditMany/index.tsx -&gt; packages/ui/src/elements/BulkUpload/EditMany/DrawerContent.tsx</li>
+<li>packages/ui/src/elements/BulkUpload/AddingFilesView/index.tsx -&gt; packages/ui/src/elements/BulkUpload/DiscardWithoutSaving/index.tsx -&gt; packages/ui/src/elements/BulkUpload/index.tsx -&gt; packages/ui/src/elements/BulkUpload/AddingFilesView/index.tsx</li>
+<li>packages/ui/src/elements/EditUpload/index.tsx -&gt; packages/ui/src/elements/Upload/index.tsx -&gt; packages/ui/src/elements/EditUpload/index.tsx</li>
+<li>packages/ui/src/elements/FileDetails/StaticFileDetails/index.tsx -&gt; packages/ui/src/elements/Upload/index.tsx -&gt; packages/ui/src/elements/FileDetails/index.tsx -&gt; packages/ui/src/elements/FileDetails/StaticFileDetails/index.tsx</li>
+<li>packages/ui/src/elements/BulkUpload/AddingFilesView/index.tsx -&gt; packages/ui/src/elements/BulkUpload/FileSidebar/index.tsx -&gt; packages/ui/src/elements/BulkUpload/index.tsx -&gt; packages/ui/src/elements/BulkUpload/AddingFilesView/index.tsx</li>
+<li>packages/ui/src/elements/EditMany/DrawerContent.tsx -&gt; packages/ui/src/elements/EditMany/index.tsx -&gt; packages/ui/src/elements/EditMany/DrawerContent.tsx</li>
+<li>packages/richtext-slate/src/data/recurseNestedFields.ts -&gt; packages/richtext-slate/src/data/richTextRelationshipPromise.ts -&gt; packages/richtext-slate/src/data/recurseNestedFields.ts</li>
+<li>packages/richtext-lexical/src/features/blocks/client/component/index.tsx -&gt; packages/richtext-lexical/src/features/blocks/client/nodes/BlocksNode.tsx -&gt; packages/richtext-lexical/src/features/blocks/client/component/index.tsx</li>
+<li>packages/drizzle/src/schema/build.ts -&gt; packages/drizzle/src/schema/traverseFields.ts -&gt; packages/drizzle/src/schema/build.ts</li>
+<li>packages/richtext-lexical/src/features/relationship/client/drawer/index.tsx -&gt; packages/richtext-lexical/src/features/relationship/client/plugins/index.tsx -&gt; packages/richtext-lexical/src/features/relationship/client/drawer/index.tsx</li>
+<li>packages/richtext-lexical/src/features/upload/client/drawer/index.tsx -&gt; packages/richtext-lexical/src/features/upload/client/plugin/index.tsx -&gt; packages/richtext-lexical/src/features/upload/client/drawer/index.tsx</li>
+</ol></div>
+    </div>
+
+    <div class="card">
+      <h2>Security Issues (580 found)</h2>
+      <div class="card-body"><h3>Critical (524)</h3>
+<ul>
+<li><strong>API token</strong> — <code>packages/create-payload-app/src/lib/get-package-manager.ts:38</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>const userAgent = process.env.npm<em>config</em>user_agent || ''</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/ar.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'رمز سلة التسوق السري',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/az.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Səbət sirri',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/bg.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Таен код на количката',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/ca.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Secret de la cistella',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/cs.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Tajný kód košíku',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/da.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Kurv-hemmelighed',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/de.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Warenkorb-Geheimnis',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/en.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Cart Secret',</code></li>
+<li><strong>Hardcoded secret</strong> — <code>packages/plugin-ecommerce/src/translations/languages/es.ts:32</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>cartSecret: 'Secreto del carrito',</code></li>
+<li><em>...and 514 more</em></li>
+</ul>
+<h3>High (15)</h3>
+<ul>
+<li><strong>eval() usage</strong> — <code>packages/payload/src/utilities/dynamicImport.ts:27</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>return await eval(</code>import('${importPath}')<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/drizzle/src/find/traverseFields.ts:91</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>return operatorMap[payloadOperator](sql.raw(</code>"${alias}"."${sanitizedColumnName}"<code>), value)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/drizzle/src/queries/getTableColumnFromPath.ts:765</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>rawColumn: sql.raw(</code>"${aliasRelationshipTableName}"."${relationTableName}_id"<code>),</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/drizzle/src/queries/getTableColumnFromPath.ts:803</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>rawColumn: sql.raw(</code>"${aliasRelationshipTableName}"."${relationTableName}_id"<code>),</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/drizzle/src/queries/getTableColumnFromPath.ts:814</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>obj[relationTo] = sql.raw(</code>"${aliasRelationshipTableName}"."${relationTableName}_id"<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/db-sqlite/src/connect.ts:23</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await this.client.execute(</code>PRAGMA busy_timeout = ${this.busyTimeout};<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/db-sqlite/src/connect.ts:34</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await this.client.execute(</code>PRAGMA journal<em>size</em>limit = ${this.wal.journalSizeLimit};<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/db-sqlite/src/connect.ts:37</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await this.client.execute(</code>PRAGMA synchronous = ${this.wal.synchronous};<code>)</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/drizzle/src/utilities/json.ts:37</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>chunks.push(sql.raw(</code>'${key}',<code>))</code></li>
+<li><strong>new Function() usage</strong> — <code>packages/plugin-mcp/src/utils/schemaConversion/convertCollectionSchemaToZod.ts:39</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>return new Function('z', </code>return ${transpileResult.outputText}<code>)(z)</code></li>
+<li><em>...and 5 more</em></li>
+</ul>
+<h3>Low (41)</h3>
+<ul>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:62</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(buildResult.stderr)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:76</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>\n\nResults:\n<code>)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:78</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:97</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>\n\nResults:\n<code>)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:99</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:119</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>\n  Version: ${version}\n<code>)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:120</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>  Changes (${packages.length} packages):\n<code>)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:121</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>${packages.map((p) =&gt; <code>  - ${p.name.padEnd(32)} ${p.version}</code>).join('\n')}\n<code>)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:163</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>Latest canary version: ${latestCanaryVersion}<code>)</code></li>
+<li><strong>Excessive console.log</strong> — <code>tools/releaser/src/lib/getWorkspace.ts:171</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>console.log(</code>Latest canary version is not a valid canary version, starting from 0<code>)</code></li>
+<li><em>...and 31 more</em></li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Suggested Next Steps</h2>
+      <div class="card-body"><ul>
+<li>Before refactoring <strong>create</strong>, run <code>sverklo_impact</code> to see the 901 call sites</li>
+<li><code>packages/ui/src/providers/Translation/index.tsx</code> is your most-imported file — changes here cascade widely</li>
+<li>15+ potential orphans detected — audit for dead code</li>
+</ul></div>
+    </div>
+
+  
+
+  <div class="footer">
+    Powered by <a href="https://sverklo.com">Sverklo</a> — local-first code intelligence<br>
+    <div class="install">npm install -g sverklo</div>
+  </div>
+
+</div>
+</main>
+</body>
+</html>

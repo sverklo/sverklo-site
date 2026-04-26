@@ -14,6 +14,9 @@
 <meta property="og:url" content="https://sverklo.com/blog/rrf-is-doing-80-percent-of-the-work/">
 <meta property="og:site_name" content="Sverklo">
 <meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="article:published_time" content="2026-04-08">
 <meta property="article:author" content="Nikita Groshin">
 <meta property="article:section" content="Engineering">
@@ -26,6 +29,7 @@
 <meta name="twitter:title" content="Reciprocal Rank Fusion is doing 80% of the work in our hybrid search">
 <meta name="twitter:description" content="The combination function is more important than any individual signal in hybrid code search. Here's what we tried and why RRF won.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
+<meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
 
 <script type="application/ld+json">
 {
@@ -48,7 +52,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230E0D0B'/><text x='50' y='68' text-anchor='middle' font-family='JetBrains Mono,monospace' font-weight='700' font-size='60' fill='%23E85A2A'>s</text></svg>">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,7 +66,7 @@
   --rule-2: #403A30;
   --text: #EDE7D9;
   --text-2: #A39886;
-  --text-3: #6B6354;
+  --text-3: #8A8270;
   --accent: #E85A2A;
   --accent-dim: #B8441C;
 }
@@ -78,12 +83,12 @@ body {
 }
 
 a {
-  color: var(--accent);
+  color: inherit;
   text-decoration: none;
-  border-bottom: 1px solid var(--accent-dim);
+  border-bottom: 1px solid var(--rule-2);
   transition: border-color 0.15s, color 0.15s;
 }
-a:hover { color: var(--text); border-color: var(--text); }
+a:hover { color: var(--accent); border-color: var(--accent); }
 
 .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
@@ -115,6 +120,7 @@ header.top .container {
   letter-spacing: -0.02em;
   color: var(--text);
 }
+.brand::before { content: "\25CC "; color: var(--accent); }
 .brand .accent { color: var(--accent); }
 .brand:hover { border: none; color: var(--text); }
 nav.top-nav { display: flex; gap: 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
@@ -292,19 +298,163 @@ footer a { border: none; color: var(--text-2); }
   article h2 { font-size: 24px; }
   body { font-size: 16px; }
 }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<header class="top">
-  <div class="container">
-    <a class="brand" href="/">sverklo<span class="accent">.</span></a>
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
-      <a href="/#tools">tools</a>
-      <a href="/#install">install</a>
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
-      <a href="https://github.com/sverklo/sverklo">github</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
   </div>
 </header>
 
@@ -344,7 +494,7 @@ footer a { border: none; color: var(--text-2); }
 
     <p>This fails for one specific, structural reason: <strong>the three signals are on incompatible scales</strong>.</p>
 
-    <table>
+    <div class="table-scroll" style="overflow-x:auto;margin:0.6rem 0;"><table>
       <thead>
         <tr><th>Signal</th><th>Range</th><th>Distribution</th></tr>
       </thead>
@@ -353,7 +503,7 @@ footer a { border: none; color: var(--text-2); }
         <tr><td>Cosine similarity</td><td class="num">[-1, 1]</td><td>Bunched near 0.6–0.9 for any plausible match</td></tr>
         <tr><td>PageRank</td><td class="num">[0, 1]</td><td>Tiny probabilities; top file in a 4k-file repo might score 0.003</td></tr>
       </tbody>
-    </table>
+    </table></div>
 
     <p>You can't add these. Adding a BM25 score of 12.4 and a cosine similarity of 0.85 gives you 13.25, which is dominated by the BM25 term entirely. The cosine similarity might as well not exist.</p>
 
@@ -434,7 +584,7 @@ candidates.sort((a, b) =&gt; b.score - a.score);</code></pre>
 
     <p>Take the query <code>"hybrid search ranking function"</code> against sverklo's own codebase. Here's what each retriever returns, top 5 only:</p>
 
-    <table>
+    <div class="table-scroll" style="overflow-x:auto;margin:0.6rem 0;"><table>
       <thead>
         <tr><th>Rank</th><th>BM25</th><th>Vector</th></tr>
       </thead>
@@ -445,11 +595,11 @@ candidates.sort((a, b) =&gt; b.score - a.score);</code></pre>
         <tr><td class="num">4</td><td>benchmark/src/types.ts</td><td>src/search/hybrid-fusion.ts</td></tr>
         <tr><td class="num">5</td><td>src/server/tools/search.ts</td><td>src/search/bm25.ts</td></tr>
       </tbody>
-    </table>
+    </table></div>
 
     <p>Computing RRF (k=60) and adding the PageRank tiebreaker, the fused result is:</p>
 
-    <table>
+    <div class="table-scroll" style="overflow-x:auto;margin:0.6rem 0;"><table>
       <thead>
         <tr><th>Rank</th><th>File</th><th>RRF score</th><th>Why it ranks here</th></tr>
       </thead>
@@ -460,7 +610,7 @@ candidates.sort((a, b) =&gt; b.score - a.score);</code></pre>
         <tr><td class="num">4</td><td>src/server/tools/recall.ts</td><td class="num">0.0161</td><td>2nd in vector only — concept match, no literal hit</td></tr>
         <tr><td class="num">5</td><td>src/search/hybrid-fusion.ts</td><td class="num">0.0156</td><td>4th in vector only — same pattern</td></tr>
       </tbody>
-    </table>
+    </table></div>
 
     <p>Notice the failure mode RRF avoids: BM25 had <code>benchmark/src/types.ts</code> at rank 4 (because the file contains the strings "hybrid", "search", "ranking", and "function" in type definitions) but it's not in the vector top-5 because semantically it's a type-definitions file, not a ranking implementation. RRF correctly demotes it out of the top results because it has no consensus support. A naive weighted-sum would have included it.</p>
 

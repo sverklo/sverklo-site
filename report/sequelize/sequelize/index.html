@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo Audit — sequelize/sequelize</title>
+<meta name="description" content="Sverklo code-intelligence audit of sequelize/sequelize. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<link rel="canonical" href="https://sverklo.com/report/sequelize/sequelize/">
+<meta property="og:title" content="Sverklo Audit — sequelize/sequelize — Grade D">
+<meta property="og:description" content="Sverklo code-intelligence audit of sequelize/sequelize. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/report/sequelize/sequelize/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sverklo Audit — sequelize/sequelize — Grade D">
+<meta name="twitter:description" content="Sverklo code-intelligence audit of sequelize/sequelize. Overall grade D. Dead code, circular dependencies, coupling, and security analysis with reproducer.">
+<meta name="twitter:image" content="https://sverklo.com/og.png"><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0D0B;
+    --surface: #16140F;
+    --border: #2A2620;
+    --text: #EDE7D9;
+    --muted: #A39886;
+    --accent: #E85A2A;
+    --grade-a: #4c1;
+    --grade-b: #97ca00;
+    --grade-c: #dfb317;
+    --grade-d: #fe7d37;
+    --grade-f: #e05d44;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(237,231,217,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(237,231,217,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+
+  /* ── Top bar (site-standard header) ── */
+  header.top {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(14, 13, 11, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+  header.top .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+    border: none;
+  }
+  .brand::before {
+    content: "\25CC ";
+    color: var(--accent);
+  }
+  .top-nav {
+    display: flex;
+    gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .top-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    border: none;
+  }
+  .top-nav a:hover { color: var(--text); }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .header .meta {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+  .header .meta .project-name {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── Overall grade circle ── */
+  .grade-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    position: relative;
+  }
+  .grade-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: inherit;
+    opacity: 0.3;
+  }
+  .grade-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: inherit;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+  }
+  .grade-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 72px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .grade-label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Dimension cards ── */
+  .dimensions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 40px 0 48px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .dim-grade {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 600;
+    width: 52px;
+    height: 52px;
+    line-height: 48px;
+    border: 2px solid;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+  }
+  .dim-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: capitalize;
+  }
+  .dim-detail {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── Section cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-body p {
+    margin: 6px 0;
+    color: var(--text);
+  }
+  .card-body ul {
+    list-style: none;
+    margin: 8px 0;
+    padding: 0;
+  }
+  .card-body ul li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(42,38,32,0.5);
+    font-size: 14px;
+  }
+  .card-body ul li:last-child {
+    border-bottom: none;
+  }
+  .card-body ul li::before {
+    content: "\203A";
+    color: var(--accent);
+    margin-right: 8px;
+    font-weight: 600;
+  }
+  .card-body ol {
+    margin: 8px 0 8px 20px;
+    color: var(--text);
+  }
+  .card-body ol li {
+    padding: 4px 0;
+    font-size: 14px;
+  }
+  .card-body h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 16px 0 8px;
+  }
+
+  /* Inline formatting */
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--muted); font-style: italic; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(232,90,42,0.08);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(42,38,32,0.4);
+    color: var(--text);
+  }
+  tr:hover td { background: rgba(42,38,32,0.3); }
+
+  /* ── Badge section ── */
+  .badge-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .badge-section p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .badge-section code {
+    display: block;
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    word-break: break-all;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer a:hover { text-decoration: underline; }
+  .footer .install {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .wrapper { padding: 32px 16px 48px; }
+    .dimensions { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .grade-ring { width: 110px; height: 110px; }
+    .grade-letter { font-size: 56px; }
+    .card { padding: 20px 18px 18px; }
+    .card h2 { font-size: 15px; }
+  }
+  @media (max-width: 400px) {
+    .dimensions { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dim-card { padding: 14px 10px; }
+    .dim-grade { font-size: 24px; width: 42px; height: 42px; line-height: 38px; }
+  }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo">sverklo audit</div>
+    <div class="grade-ring" style="color:#fe7d37;border-color:#fe7d37">
+      <span class="grade-letter" style="color:#fe7d37">D</span>
+    </div>
+    <div class="grade-label">Overall Health</div>
+    <div class="meta">
+      <h1 class="project-name">sequelize/sequelize</h1><br>
+      <a href="https://github.com/sequelize/sequelize">https://github.com/sequelize/sequelize</a><br>
+      2026-04-19 00:15:18
+    </div>
+  </div>
+
+  <div class="dimensions">
+    
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#dfb317;border-color:#dfb317">C</div>
+        <div class="dim-name">Dead code</div>
+        <div class="dim-detail">20% orphan symbols (145/714)</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#e05d44;border-color:#e05d44">F</div>
+        <div class="dim-name">Circular deps</div>
+        <div class="dim-detail">29 cycles detected</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#dfb317;border-color:#dfb317">C</div>
+        <div class="dim-name">Coupling</div>
+        <div class="dim-detail">max fan-in: 22 (packages/core/src/expression-builders/base-sql-expression.ts)</div>
+      </div>
+
+      <div class="dim-card">
+        <div class="dim-grade" style="color:#e05d44;border-color:#e05d44">F</div>
+        <div class="dim-name">Security</div>
+        <div class="dim-detail">7 concerns found</div>
+      </div>
+  </div>
+
+  
+    <div class="card">
+      <h2>Overview</h2>
+      <div class="card-body"><ul>
+<li><strong>784</strong> files indexed</li>
+<li><strong>3241</strong> code symbols extracted</li>
+<li><strong>28861</strong> symbol references tracked</li>
+<li><strong>0</strong> active memories (0 core, 0 stale)</li>
+<li>Languages: typescript (546), javascript (238)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>God Nodes (most-referenced symbols)</h2>
+      <div class="card-body"><p>These are the symbols your codebase depends on most. Changes here have the largest blast radius.</p>
+<ul>
+<li><strong>expectsql</strong> — 482 references</li>
+<li><strong>validate</strong> — 173 references</li>
+<li><strong>sql</strong> — 166 references</li>
+<li><strong>build</strong> — 165 references</li>
+<li><strong>quoteIdentifier</strong> — 164 references</li>
+<li><strong>Attribute</strong> — 159 references</li>
+<li><strong>count</strong> — 113 references</li>
+<li><strong>update</strong> — 106 references</li>
+<li><strong>getTestDialectTeaser</strong> — 91 references</li>
+<li><strong>getTestDialect</strong> — 91 references</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Hub Files (highest PageRank)</h2>
+      <div class="card-body"><p>Core architectural files — imported by many others.</p>
+<ul>
+<li><code>packages/core/test/support.ts</code> (1.00)</li>
+<li><code>packages/core/test/config/config.ts</code> (0.86)</li>
+<li><code>packages/core/test/integration/support.ts</code> (0.51)</li>
+<li><code>packages/core/test/types/models/user.ts</code> (0.16)</li>
+<li><code>packages/core/test/types/connection.ts</code> (0.12)</li>
+<li><code>packages/core/src/utils/deprecations.ts</code> (0.09)</li>
+<li><code>packages/core/src/expression-builders/base-sql-expression.ts</code> (0.08)</li>
+<li><code>packages/core/src/errors/base-error.ts</code> (0.08)</li>
+<li><code>packages/utils/src/common/_internal/build-predicate-function.ts</code> (0.06)</li>
+<li><code>packages/core/test/types/models/user-group.ts</code> (0.05)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Orphans (potential dead code)</h2>
+      <div class="card-body"><p>Named functions with zero detected references. Could be dead code, public API exports, or referenced dynamically.</p>
+<ul>
+<li><strong>getComplexSize</strong> — <code>packages/core/src/utils/where.ts:21</code></li>
+<li><strong>resolveDialectClass</strong> — <code>packages/cli/src/_internal/config.ts:23</code></li>
+<li><strong>Unquote</strong> — <code>packages/core/src/expression-builders/dialect-aware-fn.ts:87</code></li>
+<li><strong>addAllIncludes</strong> — <code>packages/core/src/model.js:529</code></li>
+<li><strong>recursiveBulkCreate</strong> — <code>packages/core/src/model.js:2298</code></li>
+<li><strong>setKeys</strong> — <code>packages/core/src/model.js:3606</code></li>
+<li><strong>combineWheresWithAnd</strong> — <code>packages/core/src/model.js:4675</code></li>
+<li><strong>mergeDefaults</strong> — <code>packages/core/src/utils/object.ts:27</code></li>
+<li><strong>flattenObject</strong> — <code>packages/core/src/utils/object.ts:136</code></li>
+<li><strong>removeNullish</strong> — <code>packages/core/src/utils/object.ts:223</code></li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Coupling (high-PageRank files)</h2>
+      <div class="card-body"><ul>
+<li><code>packages/core/test/support.ts</code> (1.00)</li>
+<li><code>packages/core/test/config/config.ts</code> (0.86)</li>
+<li><code>packages/core/test/integration/support.ts</code> (0.51)</li>
+<li><code>packages/core/test/types/models/user.ts</code> (0.16)</li>
+<li><code>packages/core/test/types/connection.ts</code> (0.12)</li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Circular Dependencies (29 cycles)</h2>
+      <div class="card-body"><ol>
+<li>packages/core/src/abstract-dialect/data-types-utils.ts -&gt; packages/core/src/abstract-dialect/data-types.ts -&gt; packages/core/src/abstract-dialect/data-types-utils.ts</li>
+<li>packages/core/src/model-definition.ts -&gt; packages/core/src/model-internals.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model-definition.ts</li>
+<li>packages/core/src/model-definition.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model-definition.ts</li>
+<li>packages/core/src/associations/helpers.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/associations/helpers.ts</li>
+<li>packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/instance-validator.js -&gt; packages/core/src/associations/belongs-to.ts</li>
+<li>packages/core/src/expression-builders/attribute.ts -&gt; packages/core/src/utils/attribute-syntax.ts -&gt; packages/core/src/expression-builders/attribute.ts</li>
+<li>packages/core/src/abstract-dialect/where-sql-builder.ts -&gt; packages/core/src/expression-builders/attribute.ts -&gt; packages/core/src/utils/attribute-syntax.ts -&gt; packages/core/src/expression-builders/cast.ts -&gt; packages/core/src/expression-builders/where.ts -&gt; packages/core/src/abstract-dialect/where-sql-builder.ts</li>
+<li>packages/core/src/abstract-dialect/where-sql-builder.ts -&gt; packages/core/src/expression-builders/where.ts -&gt; packages/core/src/abstract-dialect/where-sql-builder.ts</li>
+<li>packages/core/src/abstract-dialect/where-sql-builder.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/instance-validator.js -&gt; packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/associations/has-many.ts -&gt; packages/core/src/expression-builders/fn.ts -&gt; packages/core/src/expression-builders/where.ts -&gt; packages/core/src/abstract-dialect/where-sql-builder.ts</li>
+<li>packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/associations/has-many.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/instance-validator.js -&gt; packages/core/src/associations/belongs-to.ts</li>
+<li>packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/associations/has-many.ts -&gt; packages/core/src/associations/belongs-to.ts</li>
+<li>packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/associations/has-one.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/instance-validator.js -&gt; packages/core/src/associations/belongs-to.ts</li>
+<li>packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/associations/has-one.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/instance-validator.js -&gt; packages/core/src/associations/belongs-to.ts</li>
+<li>packages/core/src/associations/belongs-to.ts -&gt; packages/core/src/associations/has-one.ts -&gt; packages/core/src/associations/belongs-to.ts</li>
+<li>packages/core/src/decorators/shared/model.ts -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/decorators/shared/model.ts</li>
+<li>packages/core/src/decorators/shared/model.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/decorators/shared/model.ts</li>
+<li>packages/core/src/model-typescript.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts</li>
+<li>packages/core/src/abstract-dialect/query-generator.js -&gt; packages/core/src/associations/belongs-to-many.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/abstract-dialect/query-generator.js</li>
+<li>packages/core/src/abstract-dialect/query-generator.js -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/abstract-dialect/query-generator.js</li>
+<li>packages/core/src/abstract-dialect/query-generator.js -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/abstract-dialect/query-generator.js</li>
+<li>packages/core/src/abstract-dialect/query-generator-internal.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/abstract-dialect/query-generator.js -&gt; packages/core/src/abstract-dialect/query-generator-internal.ts</li>
+<li>packages/core/src/abstract-dialect/query-generator-typescript.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/abstract-dialect/query-generator.js -&gt; packages/core/src/abstract-dialect/query-generator-typescript.ts</li>
+<li>packages/core/src/import-models.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/import-models.ts</li>
+<li>packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts</li>
+<li>packages/core/src/decorators/legacy/associations.ts -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/sequelize-typescript.ts -&gt; packages/core/src/decorators/legacy/associations.ts</li>
+<li>packages/core/src/sequelize-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/sequelize-typescript.ts</li>
+<li>packages/core/src/model-typescript.ts -&gt; packages/core/src/sequelize.js -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js -&gt; packages/core/src/model-typescript.ts</li>
+<li>packages/core/src/model.js -&gt; packages/core/src/utils/model-utils.ts -&gt; packages/core/src/model.js</li>
+<li>packages/postgres/src/<em>internal/data-types-overrides.ts -&gt; packages/postgres/src/query-generator.js -&gt; packages/postgres/src/</em>internal/data-types-overrides.ts</li>
+</ol></div>
+    </div>
+
+    <div class="card">
+      <h2>Security Issues (7 found)</h2>
+      <div class="card-body"><h3>High (7)</h3>
+<ul>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/core/src/sequelize.js:611</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await this.query(</code>SELECT 1+1 AS result${fromClause}<code>, options);</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/postgres/src/query-generator.js:146</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>attrSql += query(</code>${this.quoteIdentifier(attributeName)} SET NOT NULL<code>);</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/postgres/src/query-generator.js:150</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>attrSql += query(</code>${this.quoteIdentifier(attributeName)} DROP NOT NULL<code>);</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/postgres/src/query-generator.js:160</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>attrSql += query(</code>${this.quoteIdentifier(attributeName)} DROP DEFAULT<code>);</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/postgres/src/query-generator.js:174</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>attrSql += query(</code>ADD UNIQUE (${this.quoteIdentifier(attributeName)})<code>).replace(</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/postgres/src/query-generator.js:186</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>attrSql += query(</code>${this.quoteIdentifier(attributeName)} TYPE ${definition}<code>);</code></li>
+<li><strong>SQL injection (template literal)</strong> — <code>packages/mysql/src/connection-manager.ts:131</code></li>
+<li style="border-bottom:none;padding:0 0 0 16px;color:var(--muted);font-size:13px"><code>await promisify(cb =&gt; connection.query(</code>SET time_zone = '${tzOffset}'<code>, cb))();</code></li>
+</ul></div>
+    </div>
+
+    <div class="card">
+      <h2>Suggested Next Steps</h2>
+      <div class="card-body"><ul>
+<li>Before refactoring <strong>expectsql</strong>, run <code>sverklo_impact</code> to see the 482 call sites</li>
+<li><code>packages/core/test/support.ts</code> is your most-imported file — changes here cascade widely</li>
+<li>15+ potential orphans detected — audit for dead code</li>
+</ul></div>
+    </div>
+
+  
+
+  <div class="footer">
+    Powered by <a href="https://sverklo.com">Sverklo</a> — local-first code intelligence<br>
+    <div class="install">npm install -g sverklo</div>
+  </div>
+
+</div>
+</main>
+</body>
+</html>

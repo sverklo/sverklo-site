@@ -13,16 +13,21 @@
 <meta property="og:url" content="https://sverklo.com/blog/">
 <meta property="og:site_name" content="Sverklo">
 <meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sverklo Blog">
 <meta name="twitter:description" content="Technical writing from the Sverklo team.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
+<meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230E0D0B'/><text x='50' y='68' text-anchor='middle' font-family='JetBrains Mono,monospace' font-weight='700' font-size='60' fill='%23E85A2A'>s</text></svg>">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +40,7 @@
   --rule-2: #403A30;
   --text: #EDE7D9;
   --text-2: #A39886;
-  --text-3: #6B6354;
+  --text-3: #8A8270;
   --accent: #E85A2A;
   --accent-dim: #B8441C;
 }
@@ -91,8 +96,9 @@ header.top .container {
   border: none;
   letter-spacing: -0.02em;
 }
+.brand::before { content: "\25CC "; color: var(--accent); }
 .brand .accent { color: var(--accent); }
-nav.top-nav { display: flex; gap: 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+nav.top-nav { display: flex; flex-wrap: wrap; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
 nav.top-nav a { border: none; color: var(--text-2); }
 nav.top-nav a:hover { color: var(--accent); }
 
@@ -185,28 +191,182 @@ footer .container {
   justify-content: space-between;
 }
 footer a { border: none; }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<header class="top">
-  <div class="container">
-    <a class="brand" href="/">sverklo<span class="accent">.</span></a>
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
-      <a href="/#tools">tools</a>
-      <a href="/#install">install</a>
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
-      <a href="https://github.com/sverklo/sverklo">github</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
   </div>
 </header>
 
-<main>
+<main id="main">
   <div class="container">
     <h1 class="page-title">Blog</h1>
     <p class="page-tagline">Technical writing from the Sverklo team. Deep dives on hybrid code search, PageRank for source code, bi-temporal memory, and the engineering decisions behind the local-first MCP server.</p>
 
     <div class="posts">
+
+      <a class="post" href="/blog/claude-code-context-loss/">
+        <div class="post-meta">
+          <span class="date">2026-04-09</span>
+          <span class="tag">claude code</span>
+          <span class="tag">context window</span>
+        </div>
+        <h2 class="post-title">Claude Code keeps losing context after compaction &mdash; here's how to fix it</h2>
+        <p class="post-excerpt">Every long Claude Code session hits compaction. When it does, the file contents and search results go first &mdash; your agent forgets which files matter, what was decided, and what's risky to change. Persistent, git-aware code intelligence survives the context reset. Here's how.</p>
+      </a>
 
       <a class="post" href="/blog/rrf-is-doing-80-percent-of-the-work/">
         <div class="post-meta">
@@ -218,7 +378,7 @@ footer a { border: none; }
         <p class="post-excerpt">I tried half a dozen scoring schemes for combining BM25, vector similarity, and PageRank. Most of them required tuning weights, calibrating scores, and explaining the result to skeptical reviewers. RRF is three lines of math, has no tunable parameters, and beats every alternative I tested. Here's what it does, why it works, and why it should be your default.</p>
       </a>
 
-      <a class="post post-soon" href="#">
+      <div class="post post-soon">
         <div class="post-meta">
           <span class="date">2026-04-27</span>
           <span class="tag">indexing</span>
@@ -226,17 +386,17 @@ footer a { border: none; }
         </div>
         <h2 class="post-title">PageRank for source code: a 2026 revival</h2>
         <p class="post-excerpt">Embeddings tell you what code is similar; PageRank tells you what code is load-bearing. Neither alone is enough; together they're the difference between an LLM reading the test fixture and an LLM reading the production file. A short tour of an old idea applied to a new problem.</p>
-      </a>
+      </div>
 
-      <a class="post post-soon" href="#">
+      <div class="post post-soon">
         <div class="post-meta">
-          <span class="date">TBD</span>
+          <span class="date">coming soon</span>
           <span class="tag">memory</span>
           <span class="tag">deep dive</span>
         </div>
         <h2 class="post-title">Bi-temporal memory for AI coding agents</h2>
         <p class="post-excerpt">When Claude Code compacts context, the decision you made about retry semantics last Tuesday is gone. Sverklo stores it against the git SHA it was made under and tells you whether the code it referred to still exists. This is why your agent should be git-aware.</p>
-      </a>
+      </div>
 
     </div>
   </div>

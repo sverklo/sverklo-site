@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compare Sverklo to Other Code Intelligence MCPs</title>
+<meta name="description" content="Compare Sverklo against Serena, GitNexus, codebase-memory-mcp, Cursor @codebase, and Sourcegraph Cody. Honest, side-by-side comparisons for code intelligence MCP servers.">
+<meta name="keywords" content="sverklo vs, code intelligence mcp comparison, serena alternative, gitnexus alternative, cursor codebase alternative, sourcegraph cody alternative">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/vs/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Compare Sverklo to Other Code Intelligence MCPs">
+<meta property="og:description" content="Side-by-side comparisons of Sverklo against Serena, GitNexus, codebase-memory-mcp, Cursor @codebase, and Sourcegraph Cody.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sverklo.com/vs/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+<meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+  --bg-3: #1C1A14;
+  --rule: #2A2620;
+  --rule-2: #403A30;
+  --text: #EDE7D9;
+  --text-2: #A39886;
+  --text-3: #8A8270;
+  --accent: #E85A2A;
+  --accent-dim: #B8441C;
+  --accent-glow: rgba(232, 90, 42, 0.12);
+  --ok: #8FB339;
+  --warn: #D4A535;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+  transition: border-color 0.15s, color 0.15s;
+}
+a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ───────── TOP BAR ───────── */
+header.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(14, 13, 11, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: none;
+}
+.brand::before {
+  content: "\25CC ";
+  color: var(--accent);
+}
+.top-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.top-nav a { border: none; color: var(--text-2); }
+.top-nav a:hover { color: var(--text); }
+
+/* ───────── HERO ───────── */
+.hero {
+  padding: 80px 0 48px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero .kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.hero .kicker::before { content: "// "; color: var(--accent); }
+
+.hero h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.hero h1 .accent { color: var(--accent); }
+
+.hero .lede {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-2);
+  max-width: 68ch;
+}
+.hero .lede strong { color: var(--text); font-weight: 500; }
+
+/* ───────── LIST ───────── */
+.cmp-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.cmp-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.cmp-section h2::before { content: "# "; color: var(--accent); }
+
+.vs-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.vs-item {
+  display: block;
+  padding: 28px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: none;
+  transition: background 0.15s;
+}
+.vs-item:last-child { border-bottom: 1px solid var(--rule); }
+.vs-item:hover { background: var(--bg-2); }
+
+.vs-item h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.vs-item h3 .accent { color: var(--accent); }
+.vs-item h3 .arrow {
+  color: var(--text-3);
+  font-weight: 400;
+  margin-left: 6px;
+  transition: color 0.15s;
+}
+.vs-item:hover h3 .arrow { color: var(--accent); }
+
+.vs-item p {
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 78ch;
+}
+
+/* ───────── CTA ───────── */
+.cta-section {
+  padding: 80px 0;
+  text-align: center;
+}
+.cta-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.cta-section p {
+  color: var(--text-2);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+.cta-cmd {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule-2);
+  padding: 14px 28px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cta-cmd:hover { border-color: var(--accent); }
+.cta-cmd .prompt { color: var(--accent); }
+
+/* ───────── FOOTER ───────── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+footer .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer a { color: var(--text-3); border: none; }
+footer a:hover { color: var(--text-2); }
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">/* comparisons */</div>
+    <h1>Sverklo <span class="accent">vs</span></h1>
+    <p class="lede">
+      Honest, side-by-side comparisons with the other code intelligence MCP servers and tools.
+      <strong>Every comparison spells out where each tool is better, so you can pick the right one for your project.</strong>
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>All comparisons</h2>
+
+    <div class="vs-list">
+
+      <a class="vs-item" href="/vs/serena/">
+        <h3>Sverklo vs <span class="accent">Serena</span><span class="arrow">&rarr;</span></h3>
+        <p>Zero-config hybrid search (BM25 + embeddings + PageRank) vs LSP-backed semantic retrieval. Trade-offs between language-server precision and tree-sitter breadth, and when each approach wins.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/gitnexus/">
+        <h3>Sverklo vs <span class="accent">GitNexus</span><span class="arrow">&rarr;</span></h3>
+        <p>MIT vs PolyForm Noncommercial licensing, SQLite + PageRank vs KuzuDB + Cypher, and pure-JS install vs native bindings. What each architecture unlocks, and which fits your workflow.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/codebase-memory-mcp/">
+        <h3>Sverklo vs <span class="accent">codebase-memory-mcp</span><span class="arrow">&rarr;</span></h3>
+        <p>Hybrid search with git-aware bi-temporal memory and PR review vs a single-binary knowledge graph. Feature coverage, install story, and when to pick each.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/cursor-codebase/">
+        <h3>Sverklo vs <span class="accent">Cursor @codebase</span><span class="arrow">&rarr;</span></h3>
+        <p>Symbol-level dependency graphs, blast-radius analysis, and diff-aware review vs Cursor's seamless IDE integration. Spoiler: they complement each other &mdash; use both.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/sourcegraph-cody/">
+        <h3>Sverklo vs <span class="accent">Sourcegraph Cody</span><span class="arrow">&rarr;</span></h3>
+        <p>After Cody's July 2025 free tier shutdown: local-first, MIT licensed code intelligence for individual developers vs enterprise-only code search. Who should use each today.</p>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <h2>Try Sverklo</h2>
+    <p>MIT licensed. One command. Works with every MCP client.</p>
+    <button type="button" class="cta-cmd" aria-label="Copy: npm install -g sverklo &amp;&amp; sverklo init" onclick="navigator.clipboard.writeText('npm install -g sverklo &amp;&amp; sverklo init').catch(()=>{})"><span class="prompt">$</span> npm install -g sverklo &amp;&amp; sverklo init</button>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-3);">click to copy</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>sverklo &mdash; MIT Licensed</span>
+    <span>
+      <a href="https://github.com/sverklo/sverklo">GitHub</a> &middot;
+      <a href="https://www.npmjs.com/package/sverklo">npm</a> &middot;
+      <a href="/">Home</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

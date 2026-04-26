@@ -14,32 +14,27 @@
   <!-- top label -->
   <text x="80" y="105" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600" fill="#E85A2A" letter-spacing="2">/* LOCAL-FIRST CODE INTELLIGENCE MCP */</text>
 
-  <!-- big wordmark -->
-  <text x="80" y="245" font-family="JetBrains Mono, monospace" font-size="148" font-weight="700" fill="#EDE7D9" letter-spacing="-4">sverklo</text>
-  <rect x="868" y="155" width="22" height="100" fill="#E85A2A"/>
+  <!-- top-right brand mark -->
+  <rect x="1086" y="76" width="8" height="36" fill="#E85A2A"/>
+  <text x="1100" y="105" font-family="JetBrains Mono, monospace" font-size="20" font-weight="700" fill="#EDE7D9">sverklo.com</text>
 
-  <!-- tagline line 1 -->
-  <text x="80" y="340" font-family="Public Sans, sans-serif" font-size="40" font-weight="600" fill="#EDE7D9">Other tools remember your conversations.</text>
-  <!-- tagline line 2 -->
-  <text x="80" y="395" font-family="Public Sans, sans-serif" font-size="40" font-weight="600" fill="#E85A2A">Sverklo understands your code.</text>
+  <!-- hero: stop your AI from making things up -->
+  <text x="80" y="240" font-family="JetBrains Mono, monospace" font-size="68" font-weight="700" fill="#EDE7D9" letter-spacing="-2">Stop your AI from</text>
+  <text x="80" y="320" font-family="JetBrains Mono, monospace" font-size="68" font-weight="700" fill="#EDE7D9" letter-spacing="-2">making things up</text>
+  <text x="80" y="400" font-family="JetBrains Mono, monospace" font-size="68" font-weight="700" fill="#E85A2A" letter-spacing="-2">about your codebase.</text>
 
   <!-- feature row -->
   <g font-family="JetBrains Mono, monospace" font-size="20" font-weight="500" fill="#A39886">
-    <text x="80" y="478">▸ hybrid search</text>
-    <text x="320" y="478">▸ impact analysis</text>
-    <text x="600" y="478">▸ diff-aware review</text>
-    <text x="900" y="478">▸ git-aware memory</text>
+    <text x="80" y="478">▸ symbol graph</text>
+    <text x="320" y="478">▸ blast radius</text>
+    <text x="560" y="478">▸ git-pinned memory</text>
+    <text x="860" y="478">▸ MIT, local-first</text>
   </g>
 
-  <!-- bottom row: install + clients -->
-  <g>
-    <rect x="80" y="520" width="540" height="60" fill="none" stroke="#E85A2A" stroke-width="2"/>
-    <text x="100" y="558" font-family="JetBrains Mono, monospace" font-size="22" font-weight="600" fill="#EDE7D9">npm install -g sverklo</text>
-    <text x="380" y="558" font-family="JetBrains Mono, monospace" font-size="20" font-weight="500" fill="#E85A2A"> · sverklo init</text>
-  </g>
+  <!-- bottom row: install -->
+  <rect x="80" y="520" width="540" height="60" fill="none" stroke="#E85A2A" stroke-width="2"/>
+  <text x="100" y="558" font-family="JetBrains Mono, monospace" font-size="22" font-weight="600" fill="#EDE7D9">npm install -g sverklo</text>
+  <text x="380" y="558" font-family="JetBrains Mono, monospace" font-size="20" font-weight="500" fill="#E85A2A"> · sverklo init</text>
 
-  <text x="1120" y="558" font-family="JetBrains Mono, monospace" font-size="18" font-weight="500" fill="#A39886" text-anchor="end">Claude Code · Cursor · Antigravity · 6 IDEs</text>
-
-  <!-- bottom-right brand mark -->
-  <text x="1120" y="100" font-family="JetBrains Mono, monospace" font-size="18" font-weight="600" fill="#A39886" text-anchor="end">sverklo.com</text>
+  <text x="1120" y="558" font-family="JetBrains Mono, monospace" font-size="18" font-weight="500" fill="#A39886" text-anchor="end">Claude Code · Cursor · Windsurf · Zed · Antigravity</text>
 </svg>
