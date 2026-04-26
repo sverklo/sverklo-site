@@ -1754,6 +1754,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   </div>
   <div class="proof-foot">
     <a href="/benchmarks/" class="cta-secondary">methodology + reproducer →</a>
+    <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
+    <a href="https://github.com/sverklo/sverklo/tree/main/benchmark/src/swe" class="cta-secondary" target="_blank" rel="noopener"><code style="background: var(--bg-3); padding: 1px 6px; border: 1px solid var(--rule); margin-right: 4px;">npm run bench:swe</code>cross-repo recall, v0.17</a>
   </div>
 </section>
 
@@ -1872,6 +1874,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         </div>
         <div class="risk-foot">
           score = importance × untested-ness × churn × dangling-refs
+          <br><br>
+          <span style="color: var(--accent);">v0.17 →</span> the GitHub Action posts <strong style="color: var(--text);">inline review comments</strong> on every PR alongside the sticky summary, anchored to the heuristic-flagged lines.
         </div>
       </div>
     </div>
@@ -2090,12 +2094,15 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
           <div class="mem-card-body">"We chose Prisma over Drizzle for better TypeScript types."</div>
           <dl class="mem-card-meta">
             <div><dt>kind</dt><dd>semantic</dd></div>
+            <div><dt>scope</dt><dd>workspace <span style="color: var(--accent); font-size: 10px;">[ws]</span></dd></div>
             <div><dt>tags</dt><dd>database · orm</dd></div>
             <div><dt>git</dt><dd>main@a3f29e1</dd></div>
             <div><dt>valid_from</dt><dd>a3f29e1</dd></div>
-            <div><dt>valid_until</dt><dd>—</dd></div>
             <div><dt>confidence</dt><dd>1.0</dd></div>
           </dl>
+          <div class="mem-card-foot" style="margin-top: 12px;">
+            <span style="color: var(--accent);">v0.17 →</span> <code style="background: var(--bg-3); padding: 1px 4px; border: 1px solid var(--rule);">sverklo_remember scope:"workspace"</code> writes once, surfaces across every repo in the workspace.
+          </div>
         </div>
         <div class="mem-card mem-card-imported">
           <div class="mem-card-head">
@@ -2112,7 +2119,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
             <li><code>docs/adr/002-auth.md</code></li>
             <li><code>CONTRIBUTING.md</code> <span class="dim">(1)</span></li>
           </ul>
-          <div class="mem-card-foot">18 memories · categorized, tagged, embedded</div>
+          <div class="mem-card-foot">
+            18 memories · categorized, tagged, embedded
+            <br><br>
+            <span style="color: var(--accent);">v0.17 →</span> <code style="background: var(--bg-3); padding: 1px 4px; border: 1px solid var(--rule);">sverklo memory export</code> pushes them to markdown / Notion / JSON.
+          </div>
         </div>
       </div>
     </div>
