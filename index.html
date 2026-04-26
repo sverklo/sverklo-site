@@ -260,6 +260,25 @@ nav.top-nav a:hover { color: var(--text); }
 }
 .top-cta a { border: none; color: var(--text-2); }
 .top-cta a:hover { color: var(--accent); }
+.gh-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 9px;
+  border: 1px solid var(--rule) !important;
+  color: var(--text-2) !important;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.gh-stars:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+.gh-stars svg { vertical-align: middle; }
+.gh-stars-num { letter-spacing: 0.04em; }
 
 /* ───────── HERO ───────── */
 .hero {
@@ -317,6 +336,665 @@ nav.top-nav a:hover { color: var(--text); }
   line-height: 1.65;
   color: var(--text-2);
   max-width: 64ch;
+}
+.hero .lede p { margin: 0 0 14px; }
+.hero .lede p:last-child { margin-bottom: 0; }
+
+/* Hero CTA — primary install dominates, playground is a quiet secondary */
+.hero-cta {
+  grid-column: 1 / 13;
+  margin: 32px 0 0;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cta-primary {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--bg-2);
+  color: var(--text);
+  border: 2px solid var(--accent);
+  padding: 16px 24px;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  position: relative;
+  transition: background 0.15s, transform 0.05s;
+}
+.cta-primary:hover { background: var(--bg-3); }
+.cta-primary:active { transform: translateY(1px); }
+.cta-primary .prompt-mark { color: var(--accent); margin-right: 12px; }
+.cta-primary .copy {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+  margin-left: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cta-secondary {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--text-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+  padding: 4px 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+.cta-secondary:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Horizontal meta strip — 5 cells, each "NUMBER · label" */
+.hero-meta {
+  grid-column: 1 / 13;
+  margin: 28px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--rule);
+  list-style: none;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.hero-meta li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.hero-meta .hm-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.hero-meta .hm-lbl {
+  font-size: 12px;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ───────── PROOF STRIP — 4 big benchmark numbers ───────── */
+.proof-strip {
+  border-bottom: 1px solid var(--rule);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  padding: 64px 0 48px;
+  position: relative;
+}
+.proof-strip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 0%, rgba(232, 90, 42, 0.08), transparent 60%);
+  pointer-events: none;
+}
+.proof-grid {
+  position: relative;
+  gap: 0;
+}
+.proof-cell {
+  grid-column: span 3;
+  padding: 8px 24px 8px 0;
+  border-right: 1px solid var(--rule);
+}
+.proof-cell:last-child { border-right: none; }
+.proof-cell:first-child { padding-left: 0; }
+.proof-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(40px, 5.4vw, 64px);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 8px;
+}
+.proof-num .proof-unit {
+  font-size: 0.5em;
+  color: var(--accent);
+  margin-left: 4px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.proof-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+}
+.proof-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+}
+.proof-foot {
+  position: relative;
+  text-align: center;
+  margin-top: 32px;
+}
+@media (max-width: 900px) {
+  .proof-cell {
+    grid-column: span 6;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 24px 0 24px;
+  }
+  .proof-cell:nth-last-child(-n+2) { border-bottom: none; }
+}
+
+/* ───────── VERSUS BLOCK — sverklo wins / grep wins ───────── */
+.versus {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.versus .label { grid-column: 1 / 13; margin-bottom: 8px; }
+.versus-h {
+  grid-column: 1 / 13;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+  max-width: 24ch;
+}
+.versus-block {
+  grid-column: 1 / 13;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+.versus-col {
+  padding: 32px 36px;
+  border: 1px solid var(--rule);
+}
+.versus-win {
+  background:
+    linear-gradient(180deg, rgba(232, 90, 42, 0.08), rgba(232, 90, 42, 0.02));
+  border-color: var(--accent);
+}
+.versus-lose {
+  background: var(--bg-2);
+}
+.versus-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+.versus-win .versus-head { color: var(--accent); }
+.versus-lose .versus-head { color: var(--text-3); }
+.versus-col ul { list-style: none; padding: 0; margin: 0; }
+.versus-col li {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  padding: 8px 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.versus-col li code {
+  background: var(--bg-3);
+  padding: 1px 6px;
+  font-size: 12px;
+  border: 1px solid var(--rule);
+  color: var(--accent);
+}
+.vs-mark {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 16px;
+  display: inline-block;
+}
+.vs-yes { color: var(--accent); }
+.vs-no { color: var(--text-3); }
+.versus-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  padding: 0 16px;
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+}
+.versus-pattern {
+  grid-column: 1 / 13;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-2);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.01em;
+}
+.versus-pattern strong { color: var(--accent); font-weight: 600; }
+@media (max-width: 760px) {
+  .versus-block { grid-template-columns: 1fr; }
+  .versus-divider { padding: 12px 0; }
+}
+
+/* ───────── PIPELINE DIAGRAM ───────── */
+.pipeline {
+  grid-column: 1 / 13;
+  margin: 8px 0 32px;
+  padding: 24px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+.pipe-stage { display: flex; }
+.pipe-box {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+}
+.pipe-out { border-color: var(--accent); background: rgba(232, 90, 42, 0.05); }
+.pipe-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pipe-out .pipe-label { color: var(--accent); }
+.pipe-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+}
+.pipe-dim { color: var(--text-3); font-size: 11px; }
+.pipe-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+}
+@media (max-width: 900px) {
+  .pipeline {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .pipe-arrow {
+    transform: rotate(90deg);
+    padding: 0;
+    justify-content: center;
+  }
+}
+
+/* ───────── REVIEW SPLIT — terminal + risk-score visualization ───────── */
+.review-split {
+  grid-column: 1 / 13;
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 24px;
+  align-items: start;
+}
+.review-term { margin: 0; }
+.risk-panel {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  padding: 20px 22px 16px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.risk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 18px;
+}
+.risk-title { color: var(--accent); font-weight: 600; }
+.risk-legend { display: flex; gap: 14px; align-items: center; }
+.rl-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: 0;
+}
+.rl-low { background: #5DA677; }
+.rl-med { background: #D9A14A; }
+.rl-high { background: #E85A2A; }
+.risk-row {
+  margin-bottom: 18px;
+}
+.risk-row:last-of-type { margin-bottom: 12px; }
+.risk-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.risk-file { font-size: 13px; color: var(--text); background: none; padding: 0; }
+.risk-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.risk-critical .risk-score { color: #E85A2A; }
+.risk-high .risk-score { color: #E85A2A; }
+.risk-medium .risk-score { color: #D9A14A; }
+.risk-low .risk-score { color: #5DA677; }
+.risk-bar {
+  height: 4px;
+  background: var(--bg-3);
+  position: relative;
+  margin-bottom: 6px;
+}
+.risk-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5DA677 0%, #D9A14A 50%, #E85A2A 100%);
+}
+.risk-critical .risk-fill { background: #E85A2A; }
+.risk-high .risk-fill { background: linear-gradient(90deg, #D9A14A, #E85A2A); }
+.risk-medium .risk-fill { background: #D9A14A; }
+.risk-low .risk-fill { background: #5DA677; }
+.risk-meta { font-size: 11px; color: var(--text-3); }
+.risk-foot {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 11px;
+  color: var(--text-3);
+}
+@media (max-width: 1000px) {
+  .review-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ───────── COMPARISON TABLE — polish ───────── */
+.cmp-wrap {
+  grid-column: 1 / 13;
+  margin-top: 48px;
+  overflow-x: auto;
+}
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px !important;
+  min-width: 820px;
+}
+.cmp-table thead th {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+.cmp-table tbody tr td {
+  padding: 18px 12px !important;
+  font-size: 13px !important;
+}
+.cmp-table tbody tr td:first-child {
+  font-weight: 500;
+}
+.cmp-table tr.cmp-sverklo {
+  background: linear-gradient(90deg, rgba(232, 90, 42, 0.18) 0%, rgba(232, 90, 42, 0.04) 70%, transparent 100%) !important;
+  border-bottom: 1px solid var(--accent) !important;
+}
+.cmp-table tr.cmp-sverklo .cmp-name {
+  padding: 18px 12px;
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: -0.01em;
+}
+.cmp-marker {
+  display: inline-block;
+  width: 18px;
+  margin-right: 4px;
+  color: var(--accent);
+  font-weight: 700;
+}
+/* Soften the ● dots into consistent rendered circles. The colour is
+   already inline, but width-clamp the glyph so cross-platform fallback
+   stays uniform. */
+.cmp-table td[style*="color: var(--ok)"],
+.cmp-table td[style*="color:var(--ok)"] {
+  font-size: 14px !important;
+}
+
+/* ───────── FINAL CTA — closer before the footer ───────── */
+.final-cta {
+  position: relative;
+  padding: 96px 0 96px;
+  border-top: 1px solid var(--rule);
+  background: var(--bg);
+  overflow: hidden;
+}
+.final-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(232, 90, 42, 0.18), transparent 60%);
+  pointer-events: none;
+}
+.final-cta-inner {
+  grid-column: 1 / 13;
+  position: relative;
+  text-align: left;
+  max-width: 720px;
+}
+.final-cta-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  margin-bottom: 16px;
+}
+.final-cta-h {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(36px, 5.5vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  margin: 0 0 18px;
+  color: var(--text);
+}
+.final-cta-sub {
+  font-size: 16px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 0 0 32px;
+  max-width: 56ch;
+}
+.final-cta-row {
+  margin-top: 0 !important;
+  grid-column: auto !important;
+}
+
+/* ───────── MEMORY SPLIT — terminal + record cards ───────── */
+.memory-split {
+  grid-column: 1 / 13;
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 24px;
+  align-items: start;
+}
+.memory-term { margin: 0; }
+.memory-cards { display: flex; flex-direction: column; gap: 16px; }
+.mem-card {
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  padding: 18px 22px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.mem-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.mem-card-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+.mem-card-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid var(--rule);
+  color: var(--text-3);
+}
+.mem-tag-decision { color: var(--accent); border-color: var(--accent); }
+.mem-tag-import { color: var(--text-2); }
+.mem-card-body {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.mem-card-body code {
+  background: var(--bg-3);
+  padding: 1px 6px;
+  font-size: 12px;
+  border: 1px solid var(--rule);
+  color: var(--accent);
+}
+.mem-card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 12px;
+}
+.mem-card-meta div { display: contents; }
+.mem-card-meta dt {
+  color: var(--text-3);
+  font-size: 11px;
+}
+.mem-card-meta dd {
+  margin: 0;
+  color: var(--text-2);
+}
+.mem-card-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+.mem-card-list code {
+  background: none;
+  padding: 0;
+  border: none;
+  color: var(--text);
+}
+.mem-card-list .dim { color: var(--text-3); }
+.mem-card-foot {
+  font-size: 11px;
+  color: var(--text-3);
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+}
+@media (max-width: 1000px) {
+  .memory-split { grid-template-columns: 1fr; }
+}
+
+/* ───────── FAQ — tightened ───────── */
+.faq-section {
+  border-top: 1px solid var(--rule);
+  padding: 96px 0;
+}
+.faq-kicker {
+  grid-column: 1 / 13;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.faq-h {
+  grid-column: 1 / 6;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(36px, 4.5vw, 56px);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.faq-list {
+  grid-column: 7 / 13;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.faq-list details {
+  border-top: 1px solid var(--rule);
+  padding: 20px 56px 20px 0;
+  cursor: pointer;
+  position: relative;
+}
+.faq-list details:last-of-type { border-bottom: 1px solid var(--rule); }
+.faq-list summary {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text);
+  list-style: none;
+  letter-spacing: -0.01em;
+}
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list details::after {
+  content: "+";
+  position: absolute;
+  top: 18px;
+  right: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--accent);
+  line-height: 1;
+  transition: transform 0.15s;
+  pointer-events: none;
+}
+.faq-list details[open]::after {
+  content: "−";
+}
+.faq-list p {
+  margin-top: 14px !important;
+  color: var(--text-2);
+  line-height: 1.65;
+  font-size: 14px;
+}
+.faq-list p code {
+  font-size: 12px !important;
+  background: var(--bg-3);
+  padding: 1px 6px;
+  border: 1px solid var(--rule);
+}
+@media (max-width: 900px) {
+  .faq-h { grid-column: 1 / 13; margin-bottom: 32px; }
+  .faq-list { grid-column: 1 / 13; }
 }
 .hero .lede strong { color: var(--text); font-weight: 500; }
 
@@ -917,7 +1595,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <a href="https://github.com/sverklo/sverklo">github</a>
     </nav>
     <div class="top-cta">
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block;">v0.12.5</a>
+      <a class="gh-stars" href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener" aria-label="GitHub stars">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.22.48-2.69-1.07-2.69-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.81.06 1.24.83 1.24.83.72 1.23 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 4.16c.68 0 1.36.09 2 .26 1.53-1.03 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.55.74.55 1.49v2.21c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>
+        <span class="gh-stars-num" id="gh-stars-num">★</span>
+      </a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block; margin-left: 12px;">v0.16.0</a>
     </div>
   </div>
 </header>
@@ -930,20 +1612,26 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="label">/* stop your AI from making things up about your codebase */</div>
 
     <h1>Stop your AI from making things up about your codebase.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
-    <p class="hero-tagline" style="font-family: 'JetBrains Mono', monospace; font-size: clamp(16px, 2.5vw, 22px); font-weight: 500; color: var(--accent); letter-spacing: 0.02em; margin-top: 12px; line-height: 1.3; grid-column: 1 / 13;">sverklo — local-first MCP for Claude Code, Cursor, Windsurf, Zed</p>
 
     <div class="lede">
-      Cursor, Claude Code, and Windsurf hallucinate because they're guessing from grep. <strong>Sverklo drills your repo into a real symbol graph</strong> — call sites, blast radius, dead code, and a git-pinned memory of every decision you've made — so the agent reasons about <em>your</em> code instead of pattern-matching from training data.
-      <br><br>
-      Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong>
-      <br><br>
-      <span style="display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--ok); border: 1px solid var(--ok); padding: 4px 12px; border-radius: 4px;">MIT Licensed — free for commercial use.</span>
+      <p>Cursor, Claude Code, and Windsurf hallucinate because they're guessing from grep. <strong>Sverklo drills your repo into a real symbol graph</strong> — call sites, blast radius, dead code, and a git-pinned memory of every decision you've made — so the agent reasons about <em>your</em> code instead of pattern-matching from training data.</p>
+      <p>Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong> MIT licensed.</p>
     </div>
 
-    <div style="grid-column: 1 / 13; margin: 24px 0 0; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-      <button type="button" class="qs-cmd" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo" style="max-width: 420px; font-size: 15px; padding: 14px 18px; background: var(--bg-2); border: 1px solid var(--rule-2);">npm install -g sverklo<span class="copy">copy</span></button>
-      <a href="/playground/" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding: 13px 18px; border: 1px solid var(--rule-2); border-radius: 0; background: transparent;">try it without installing →</a>
+    <div class="hero-cta">
+      <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">
+        <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
+      </button>
+      <a class="cta-secondary" href="/playground/">try playground →</a>
     </div>
+
+    <ul class="hero-meta" aria-label="At a glance">
+      <li><span class="hm-num">37</span><span class="hm-lbl">MCP tools</span></li>
+      <li><span class="hm-num">10</span><span class="hm-lbl">languages</span></li>
+      <li><span class="hm-num">7</span><span class="hm-lbl">AI agents</span></li>
+      <li><span class="hm-num">0</span><span class="hm-lbl">API keys</span></li>
+      <li><span class="hm-num">MIT</span><span class="hm-lbl">licensed</span></li>
+    </ul>
 
     <div class="terminal-block" id="hero-term">
       <div class="terminal-head">
@@ -1040,36 +1728,66 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   </div>
 </section>
 
+<!-- ───────── PROOF STRIP ───────── -->
+<section class="proof-strip" aria-label="Benchmark numbers">
+  <div class="grid proof-grid">
+    <div class="proof-cell">
+      <div class="proof-num">26<span class="proof-unit">ms</span></div>
+      <div class="proof-lbl">search p95</div>
+      <div class="proof-sub">react · 4 368 files indexed</div>
+    </div>
+    <div class="proof-cell">
+      <div class="proof-num">&lt;1.2<span class="proof-unit">ms</span></div>
+      <div class="proof-lbl">impact analysis</div>
+      <div class="proof-sub">indexed graph join, no scan</div>
+    </div>
+    <div class="proof-cell">
+      <div class="proof-num">+29<span class="proof-unit">%</span></div>
+      <div class="proof-lbl">F1 vs Claude alone</div>
+      <div class="proof-sub">on real merge requests</div>
+    </div>
+    <div class="proof-cell">
+      <div class="proof-num">2-4<span class="proof-unit">×</span></div>
+      <div class="proof-lbl">fewer tokens</div>
+      <div class="proof-sub">per agent review pass</div>
+    </div>
+  </div>
+  <div class="proof-foot">
+    <a href="/benchmarks/" class="cta-secondary">methodology + reproducer →</a>
+  </div>
+</section>
+
 <!-- ───────── WHEN IT HELPS ───────── -->
-<section class="stats" id="why">
+<section class="versus" id="why">
   <div class="grid">
     <div class="label">/* honest about when this helps */</div>
-    <div class="stat">
-      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">SVERKLO WINS</div>
-      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
-        Exploratory questions ("how does X flow work?")<br>
-        Refactor blast radius (`sverklo_impact`)<br>
-        Large interconnected codebases<br>
-        Memory across sessions, tied to git SHAs<br>
-        Project audits — god nodes, dead code
+    <h2 class="versus-h">Sverklo doesn't replace grep. It complements it.</h2>
+    <div class="versus-block">
+      <div class="versus-col versus-win">
+        <div class="versus-head">SVERKLO WINS</div>
+        <ul>
+          <li><span class="vs-mark vs-yes">✓</span> Exploratory questions ("how does the auth flow work?")</li>
+          <li><span class="vs-mark vs-yes">✓</span> Refactor blast radius (<code>sverklo_impact</code>)</li>
+          <li><span class="vs-mark vs-yes">✓</span> Large interconnected codebases</li>
+          <li><span class="vs-mark vs-yes">✓</span> Memory across sessions, tied to git SHAs</li>
+          <li><span class="vs-mark vs-yes">✓</span> Project audits — god nodes, dead code</li>
+        </ul>
+      </div>
+      <div class="versus-divider" aria-hidden="true">VS</div>
+      <div class="versus-col versus-lose">
+        <div class="versus-head">GREP WINS</div>
+        <ul>
+          <li><span class="vs-mark vs-no">—</span> Focused diff review</li>
+          <li><span class="vs-mark vs-no">—</span> Exact string matching</li>
+          <li><span class="vs-mark vs-no">—</span> Reading file contents</li>
+          <li><span class="vs-mark vs-no">—</span> Build &amp; test verification</li>
+          <li><span class="vs-mark vs-no">—</span> Anything where you already know the symbol</li>
+        </ul>
       </div>
     </div>
-    <div class="stat">
-      <div class="stat-label" style="font-size:14px;color:var(--text-2);margin-bottom:8px;">GREP WINS</div>
-      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
-        Focused diff review<br>
-        Exact string matching<br>
-        Reading file contents<br>
-        Build & test verification<br>
-        Anything where you already know the symbol
-      </div>
-    </div>
-    <div class="stat">
-      <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">THE PATTERN</div>
-      <div class="stat-desc" style="font-size:14px;line-height:1.7;color:var(--text);">
-        Sverklo is the right tool when you <strong>don't know exactly what to search for</strong>. When you do know, grep is fine. We benchmarked both on real MRs — sverklo doesn't replace grep, it complements it.
-      </div>
-    </div>
+    <p class="versus-pattern">
+      Sverklo is the right tool when you <strong>don't know exactly what to search for</strong>. When you do know, grep is fine.
+    </p>
   </div>
 </section>
 
@@ -1086,12 +1804,13 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       Five reviewer workflows ship as MCP prompts. Visible in every IDE picker.
     </div>
 
-    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 48px;">
-      <div class="terminal-head">
-        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>~/your-project</span>
-        <span>review main..HEAD</span>
-      </div>
-      <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge</span>
+    <div class="review-split">
+      <div class="terminal-block review-term">
+        <div class="terminal-head">
+          <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>~/your-project</span>
+          <span>review main..HEAD</span>
+        </div>
+        <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge</span>
 
   <span class="tool">⚡ sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 7 files changed (12 added, 3 removed, 4 modified)</span>
@@ -1111,6 +1830,50 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
   <span class="ok">verdict: BLOCKED — 1 critical, 4 dangling refs</span>
 </div>
+      </div>
+
+      <!-- Risk visualization — every changed file scored, with bar -->
+      <div class="risk-panel" aria-label="Per-file risk score visualization">
+        <div class="risk-head">
+          <span class="risk-title">per-file risk · main..HEAD</span>
+          <span class="risk-legend"><span class="rl-dot rl-low"></span>low <span class="rl-dot rl-med"></span>med <span class="rl-dot rl-high"></span>high</span>
+        </div>
+        <div class="risk-row risk-critical">
+          <div class="risk-row-top">
+            <code class="risk-file">src/auth/session.ts</code>
+            <span class="risk-score">78</span>
+          </div>
+          <div class="risk-bar"><div class="risk-fill" style="width:78%"></div></div>
+          <div class="risk-meta">no tests · 14 importers · sec-sensitive</div>
+        </div>
+        <div class="risk-row risk-high">
+          <div class="risk-row-top">
+            <code class="risk-file">src/api/billing.ts</code>
+            <span class="risk-score">52</span>
+          </div>
+          <div class="risk-bar"><div class="risk-fill" style="width:52%"></div></div>
+          <div class="risk-meta">2 dangling refs · 8 importers</div>
+        </div>
+        <div class="risk-row risk-medium">
+          <div class="risk-row-top">
+            <code class="risk-file">src/lib/jwt.ts</code>
+            <span class="risk-score">34</span>
+          </div>
+          <div class="risk-bar"><div class="risk-fill" style="width:34%"></div></div>
+          <div class="risk-meta">covered · 6 importers</div>
+        </div>
+        <div class="risk-row risk-low">
+          <div class="risk-row-top">
+            <code class="risk-file">src/utils/clock.ts</code>
+            <span class="risk-score">12</span>
+          </div>
+          <div class="risk-bar"><div class="risk-fill" style="width:12%"></div></div>
+          <div class="risk-meta">covered · 1 importer</div>
+        </div>
+        <div class="risk-foot">
+          score = importance × untested-ness × churn × dangling-refs
+        </div>
+      </div>
     </div>
 
     <div class="feature">
@@ -1207,6 +1970,37 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       Everything runs locally. No API keys. No cloud.
     </div>
 
+    <!-- Pipeline diagram: query → retrieve → rank → output -->
+    <div class="pipeline" aria-label="Sverklo retrieval pipeline">
+      <div class="pipe-stage">
+        <div class="pipe-box">
+          <div class="pipe-label">01 · query</div>
+          <div class="pipe-text">"how does the auth middleware work?"</div>
+        </div>
+      </div>
+      <div class="pipe-arrow" aria-hidden="true">→</div>
+      <div class="pipe-stage">
+        <div class="pipe-box">
+          <div class="pipe-label">02 · retrieve</div>
+          <div class="pipe-text">BM25 + ONNX vectors<br><span class="pipe-dim">+ filename / path channels</span></div>
+        </div>
+      </div>
+      <div class="pipe-arrow" aria-hidden="true">→</div>
+      <div class="pipe-stage">
+        <div class="pipe-box">
+          <div class="pipe-label">03 · rank</div>
+          <div class="pipe-text">PageRank + RRF fusion<br><span class="pipe-dim">channel weights, path × 1.5</span></div>
+        </div>
+      </div>
+      <div class="pipe-arrow" aria-hidden="true">→</div>
+      <div class="pipe-stage">
+        <div class="pipe-box pipe-out">
+          <div class="pipe-label">04 · output</div>
+          <div class="pipe-text">3 chunks · 23&nbsp;ms · 2.4k tokens</div>
+        </div>
+      </div>
+    </div>
+
     <div class="feature">
       <div class="feature-num">01</div>
       <h3>hybrid search</h3>
@@ -1263,56 +2057,64 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       Tell your agent to remember new things as they come up. Ask later. It's already there.
     </div>
 
-    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 48px;">
-      <div class="terminal-head">
-        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 0 · day one</span>
-        <span>import</span>
-      </div>
-      <div class="terminal-body"><span class="comment"># bring your existing docs — sverklo ingests them automatically</span>
-<span class="prompt">$</span> <span class="cmd">sverklo init</span>
-
-  <span class="ok">✓</span> <span class="dim">.claude/mcp.json · .claude/settings.local.json · CLAUDE.md</span>
-
-<span class="dim">Scanning for existing project knowledge...</span>
-  <span class="ok">✓</span> <span class="dim">imported 18 memories from:</span>
-    <span class="dim">· CLAUDE.md (12)           — conventions, tech stack</span>
-    <span class="dim">· .cursorrules (3)         — style preferences</span>
-    <span class="dim">· docs/adr/001-prisma.md   — decision, tagged adr</span>
-    <span class="dim">· docs/adr/002-auth.md     — decision, tagged adr</span>
-    <span class="dim">· CONTRIBUTING.md (1)      — review process</span>
-</div>
-    </div>
-
-    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 24px;">
-      <div class="terminal-head">
-        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 1 · tuesday</span>
-        <span>remember</span>
-      </div>
-      <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">we decided to use Prisma for the ORM because it gives better TypeScript types than Drizzle</span>
+    <div class="memory-split">
+      <div class="terminal-block memory-term">
+        <div class="terminal-head">
+          <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>tuesday → thursday · two conversations, one memory</span>
+          <span>remember + recall</span>
+        </div>
+        <div class="terminal-body"><span class="comment"># tuesday — agent saves the decision</span>
+<span class="prompt">&gt;</span> <span class="cmd">we picked Prisma for the ORM because of better TypeScript types</span>
 
   <span class="tool">⚡ sverklo_remember</span>   <span class="dim">category="decision"</span>
-  <span class="dim">content: "We chose Prisma over Drizzle for better TypeScript types"</span>
-  <span class="dim">tags: ["database", "orm"]</span>
-  <span class="dim">git: main@a3f29e1</span>
-  <span class="dim">confidence: 1.0</span>
-  <span class="ok">✓ memory #42 saved</span>
-</div>
-    </div>
+  <span class="ok">✓ memory #42 saved · main@a3f29e1</span>
 
-    <div class="terminal-block" style="grid-column: 1 / 13; margin-top: 24px;">
-      <div class="terminal-head">
-        <span><span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>session 2 · thursday (new conversation)</span>
-        <span>recall</span>
-      </div>
-      <div class="terminal-body"><span class="comment"># session start — sverklo://context auto-injected</span>
+<span class="comment"># thursday — new conversation, fresh context window</span>
+<span class="dim">─────────────────────────────────────────────────────</span>
 <span class="dim">Loaded 3 memories: ORM choice, auth pattern, API conventions</span>
 
 <span class="prompt">&gt;</span> <span class="cmd">add a new API endpoint for user profiles</span>
 
-<span class="comment"># Claude knows: Prisma for DB (from memory #42)</span>
-<span class="comment"># Claude knows: JWT validation before DB calls (from memory #43)</span>
-<span class="tool">⚡ writes endpoint with Prisma + JWT validation — no rediscovery</span>
+<span class="comment"># Claude already knows: Prisma + JWT (from memories #42, #43)</span>
+<span class="tool">⚡ writes endpoint with Prisma + JWT — no rediscovery</span>
 </div>
+      </div>
+
+      <!-- Memory record cards: show the data model + lifecycle -->
+      <div class="memory-cards">
+        <div class="mem-card">
+          <div class="mem-card-head">
+            <span class="mem-card-num">#42</span>
+            <span class="mem-card-tag mem-tag-decision">decision</span>
+          </div>
+          <div class="mem-card-body">"We chose Prisma over Drizzle for better TypeScript types."</div>
+          <dl class="mem-card-meta">
+            <div><dt>kind</dt><dd>semantic</dd></div>
+            <div><dt>tags</dt><dd>database · orm</dd></div>
+            <div><dt>git</dt><dd>main@a3f29e1</dd></div>
+            <div><dt>valid_from</dt><dd>a3f29e1</dd></div>
+            <div><dt>valid_until</dt><dd>—</dd></div>
+            <div><dt>confidence</dt><dd>1.0</dd></div>
+          </dl>
+        </div>
+        <div class="mem-card mem-card-imported">
+          <div class="mem-card-head">
+            <span class="mem-card-num">init</span>
+            <span class="mem-card-tag mem-tag-import">on import</span>
+          </div>
+          <div class="mem-card-body">
+            <code>sverklo init</code> imports your existing project knowledge:
+          </div>
+          <ul class="mem-card-list">
+            <li><code>CLAUDE.md</code> <span class="dim">(12)</span></li>
+            <li><code>.cursorrules</code> <span class="dim">(3)</span></li>
+            <li><code>docs/adr/001-prisma.md</code></li>
+            <li><code>docs/adr/002-auth.md</code></li>
+            <li><code>CONTRIBUTING.md</code> <span class="dim">(1)</span></li>
+          </ul>
+          <div class="mem-card-foot">18 memories · categorized, tagged, embedded</div>
+        </div>
+      </div>
     </div>
 
     <div class="feature" style="grid-column: span 6; padding-top: 48px;">
@@ -1361,8 +2163,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       The code intelligence and memory space is fragmented. Each competitor gives up at least two of these dimensions. Sverklo is the only tool with all of them.
     </div>
 
-    <div style="grid-column: 1 / 13; margin-top: 48px; overflow-x: auto;">
-      <table style="width:100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; min-width: 780px;">
+    <div class="cmp-wrap">
+      <table class="cmp-table">
         <thead>
           <tr style="border-bottom: 1px solid var(--rule);">
             <th style="text-align: left; padding: 14px 12px; color: var(--text-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;">Tool</th>
@@ -1376,8 +2178,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
           </tr>
         </thead>
         <tbody>
-          <tr style="border-bottom: 1px solid var(--rule); background: var(--accent-glow);">
-            <td style="padding: 16px 12px; color: var(--accent); font-weight: 700;">sverklo</td>
+          <tr class="cmp-sverklo">
+            <td class="cmp-name"><span class="cmp-marker">▸</span>sverklo</td>
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
             <td style="text-align:center; color: var(--ok); font-size: 16px;">●</td>
@@ -1533,43 +2335,60 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
 
 <!-- ───────── FAQ ───────── -->
-<section class="two-col" id="faq" style="border-top:1px solid var(--rule);padding:96px 0;">
+<section class="faq-section" id="faq">
   <div class="grid">
-    <div class="kicker" style="grid-column:1/13;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;margin-bottom:16px;">/* questions we get asked */</div>
-    <h2 style="grid-column:1/6;font-size:48px;line-height:1.05;font-weight:700;letter-spacing:-0.02em;">questions,<br>honestly<br>answered.</h2>
-    <div style="grid-column:7/13;display:flex;flex-direction:column;gap:0;">
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Why would I install another MCP server?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory — all running on your laptop with no API keys. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 24 new tools alongside whatever else you run.</p>
+    <div class="kicker faq-kicker">/* questions we get asked */</div>
+    <h2 class="faq-h">questions,<br>honestly<br>answered.</h2>
+    <div class="faq-list">
+      <details>
+        <summary>Why would I install another MCP server?</summary>
+        <p>Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory — all running on your laptop with no API keys. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 24 new tools alongside whatever else you run.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">How is Sverklo different from Cursor's @codebase or Claude Context?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo runs entirely on your laptop with SQLite and ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers.</p>
+      <details>
+        <summary>How is Sverklo different from Cursor's @codebase or Claude Context?</summary>
+        <p>Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo runs entirely on your laptop with SQLite and ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Does Sverklo work offline?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Yes. The only network call Sverklo ever makes is downloading the ONNX embedding model on first run (~90MB, cached locally). After that you can disconnect from the internet and everything continues to work — indexing, search, embeddings, memory, dashboard. No telemetry. No cloud calls. Your code never leaves your laptop.</p>
+      <details>
+        <summary>Does Sverklo work offline?</summary>
+        <p>Yes. The only network call Sverklo ever makes is downloading the ONNX embedding model on first run (~90MB, cached locally). After that you can disconnect from the internet and everything continues to work — indexing, search, embeddings, memory, dashboard. No telemetry. No cloud calls. Your code never leaves your laptop.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Which AI coding agents does Sverklo support?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity. The <code style="color:var(--accent);">sverklo init</code> command auto-detects which clients you have installed and writes the right config files.</p>
+      <details>
+        <summary>Which AI coding agents does Sverklo support?</summary>
+        <p>Sverklo works with any AI coding agent that speaks the Model Context Protocol (MCP): Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity. The <code style="color:var(--accent);">sverklo init</code> command auto-detects which clients you have installed and writes the right config files.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">Is Sverklo free and open source?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Yes. MIT licensed and free forever. All 24 tools have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
+      <details>
+        <summary>Is Sverklo free and open source?</summary>
+        <p>Yes. MIT licensed and free forever. All 24 tools have no limits and no telemetry. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">How do I install Sverklo in Claude Code?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 24 sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+      <details>
+        <summary>How do I install Sverklo in Claude Code?</summary>
+        <p>Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 24 sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">What programming languages does Sverklo support?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them.</p>
+      <details>
+        <summary>What programming languages does Sverklo support?</summary>
+        <p>10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them.</p>
       </details>
-      <details style="border-top:1px solid var(--rule);padding:20px 0;border-bottom:1px solid var(--rule);cursor:pointer;">
-        <summary style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--text);list-style:none;">When is Sverklo the wrong tool?</summary>
-        <p style="margin-top:12px;color:var(--text-2);line-height:1.65;">Sverklo is the right tool when you don't know exactly what string to search for. When you do know the literal string, plain grep is faster and more reliable. On a 30-file repo, you don't need Sverklo. It earns its place on large interconnected codebases where AI coding agents waste thousands of tokens reading the wrong files.</p>
+      <details>
+        <summary>When is Sverklo the wrong tool?</summary>
+        <p>Sverklo is the right tool when you don't know exactly what string to search for. When you do know the literal string, plain grep is faster and more reliable. On a 30-file repo, you don't need Sverklo. It earns its place on large interconnected codebases where AI coding agents waste thousands of tokens reading the wrong files.</p>
       </details>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── FINAL CTA ───────── -->
+<section class="final-cta" aria-label="Get started with sverklo">
+  <div class="grid">
+    <div class="final-cta-inner">
+      <div class="final-cta-kicker">/* one command, MIT-licensed, stays on your laptop */</div>
+      <h2 class="final-cta-h">your agent is still guessing.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
+      <p class="final-cta-sub">Give it a structural understanding of your codebase. Local-first, MIT, no API keys, no cloud.</p>
+      <div class="hero-cta final-cta-row">
+        <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">
+          <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
+        </button>
+        <a class="cta-secondary" href="/playground/">try playground →</a>
+      </div>
     </div>
   </div>
 </section>
@@ -1705,6 +2524,30 @@ function cp(text, el) {
     const data = await r.json();
     if (data && data.version) el.textContent = 'v' + data.version;
   } catch { /* keep static value */ }
+})();
+
+// GitHub stars badge — formats large counts (1.2k, 3.4k) and falls back
+// to the static ★ when the API is rate-limited or offline. Cached for 6
+// hours via sessionStorage so we don't hammer the GitHub API on every
+// page view.
+(async () => {
+  const el = document.getElementById('gh-stars-num');
+  if (!el) return;
+  const CACHE_KEY = 'sverklo:gh-stars';
+  const TTL_MS = 6 * 60 * 60 * 1000;
+  const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+    if (cached && Date.now() - cached.t < TTL_MS) { el.textContent = '★ ' + fmt(cached.n); return; }
+    const r = await fetch('https://api.github.com/repos/sverklo/sverklo');
+    if (!r.ok) return;
+    const data = await r.json();
+    const n = data.stargazers_count;
+    if (typeof n === 'number') {
+      el.textContent = '★ ' + fmt(n);
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ n, t: Date.now() })); } catch {}
+    }
+  } catch { /* keep static ★ */ }
 })();
 </script>
 
