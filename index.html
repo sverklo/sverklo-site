@@ -41,6 +41,7 @@
   "softwareVersion": "0.12.5",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
+  "citation": "https://doi.org/10.5281/zenodo.19802051",
   "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
   "featureList": [
     "Hybrid semantic code search (BM25 + ONNX embeddings + PageRank)",
@@ -1590,6 +1591,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <a href="/report/">reports</a>
       <a href="/vs/">compare</a>
       <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
       <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo">github</a>
@@ -1609,13 +1611,13 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <!-- ───────── HERO ───────── -->
 <section class="hero">
   <div class="grid">
-    <div class="label">/* stop your AI from making things up about your codebase */</div>
+    <div class="label">/* the only code-intel MCP with a published benchmark and reproducible eval harness */</div>
 
     <h1>Stop your AI from making things up about your codebase.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
 
     <div class="lede">
       <p>Cursor, Claude Code, and Windsurf hallucinate because they're guessing from grep. <strong>Sverklo drills your repo into a real symbol graph</strong> — call sites, blast radius, dead code, and a git-pinned memory of every decision you've made — so the agent reasons about <em>your</em> code instead of pattern-matching from training data.</p>
-      <p>Local-first MCP server — <strong>no API keys, no cloud, no data leaves your laptop.</strong> MIT licensed.</p>
+      <p>Local-first MCP server, MIT licensed, no cloud. <strong>And the only one that publishes its benchmark.</strong> <a href="/research/">Read the paper</a> · 65 % fewer tokens than grep across 60 retrieval tasks · runs we lose published alongside the wins.</p>
     </div>
 
     <div class="hero-cta">
@@ -1756,6 +1758,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <a href="/benchmarks/" class="cta-secondary">methodology + reproducer →</a>
     <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
     <a href="https://github.com/sverklo/sverklo/tree/main/benchmark/src/swe" class="cta-secondary" target="_blank" rel="noopener"><code style="background: var(--bg-3); padding: 1px 6px; border: 1px solid var(--rule); margin-right: 4px;">npm run bench:swe</code>cross-repo recall, v0.17</a>
+    <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
+    <a href="/research/" class="cta-secondary">preprint · Zenodo · CC BY 4.0 →</a>
   </div>
 </section>
 
@@ -2440,6 +2444,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <ul class="col-items">
         <li><a href="https://github.com/sverklo/sverklo#readme" target="_blank" rel="noopener noreferrer">README</a></li>
         <li><a href="https://github.com/sverklo/sverklo/blob/main/CLAUDE.md" target="_blank" rel="noopener noreferrer">CLAUDE.md</a></li>
+        <li><a href="https://doi.org/10.5281/zenodo.19802051" target="_blank" rel="noopener noreferrer">Research paper (PDF)</a></li>
       </ul>
     </div>
     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; padding-top: 16px; border-top: 1px solid var(--rule);">

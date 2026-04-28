@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research — Sverklo</title>
+<meta name="description" content="Sverklo on the record: an 8-page preprint and two reproducible benchmarks (bench:primitives and bench:swe). CC BY 4.0 on Zenodo with a permanent DOI. Includes the runs we lose.">
+<link rel="canonical" href="https://sverklo.com/research/">
+<meta property="og:title" content="Research — Sverklo">
+<meta property="og:description" content="An 8-page preprint and two reproducible benchmarks. CC BY 4.0 on Zenodo. Includes the runs we lose.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/research/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:alt" content="Sverklo — local-first code intelligence MCP">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+<meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
+
+<!-- JSON-LD: ScholarlyArticle -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": "Sverklo: A Local-First Code Intelligence MCP Server and a Cross-Repository Software Engineering Benchmark",
+  "author": {"@type":"Person","name":"Nikita Groshin","affiliation":"Independent Researcher"},
+  "datePublished": "2026-04-26",
+  "publisher": {"@type":"Organization","name":"Zenodo"},
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "url": "https://doi.org/10.5281/zenodo.19802051",
+  "identifier": "10.5281/zenodo.19802051",
+  "isAccessibleForFree": true,
+  "about": ["code intelligence","retrieval-augmented generation","model context protocol","software engineering benchmark","hybrid retrieval"]
+}
+</script>
+
+<style>
+  :root { --bg:#0E0D0B; --bg2:#1a1916; --text:#EDE7D9; --text2:#A39886; --accent:#E85A2A; --green:#4ade80; --yellow:#facc15; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.65;padding:48px 20px;max-width:960px;margin:0 auto}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:36px;margin-bottom:8px;font-weight:700;letter-spacing:-0.02em}
+  h1 span{color:var(--accent)}
+  .kicker{color:var(--text2);font-size:12px;margin-bottom:16px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0.04em}
+  .lede{color:var(--text2);font-size:16px;margin-bottom:8px;font-family:'Public Sans',sans-serif}
+  .lede p{margin:14px 0;color:var(--text2)}
+  .lede p strong{color:var(--text)}
+  .meta{color:var(--text2);font-size:12px;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em}
+  h2{color:var(--accent);font-size:20px;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid #333;letter-spacing:-0.01em}
+  h3{color:var(--text);font-size:16px;margin:24px 0 8px;font-weight:700}
+  p{margin:10px 0;color:var(--text2);font-family:'Public Sans',sans-serif;font-size:15px}
+  p strong{color:var(--text)}
+  ul{margin:8px 0 8px 20px} li{margin:6px 0;color:var(--text2);font-family:'Public Sans',sans-serif;font-size:15px}
+  code{background:var(--bg2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg2);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--text)}
+  pre code{background:transparent;padding:0;font-size:13px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0 8px}
+  .cta-row a{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:10px 16px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;display:inline-flex;align-items:center;gap:6px}
+  .cta-row a.primary{background:var(--accent);color:var(--bg)}
+  .cta-row a:hover{text-decoration:none;background:var(--accent);color:var(--bg)}
+  .cta-row a.primary:hover{background:#ff6e3c}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0}
+  .card{background:var(--bg2);padding:20px;border-radius:6px;border:1px solid #2a2620}
+  .card .card-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;color:var(--accent);letter-spacing:0.06em;margin-bottom:8px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  .card p{font-size:13px;line-height:1.55;margin:0;color:var(--text2)}
+  .honest{background:var(--bg2);padding:24px;border-radius:6px;border-left:3px solid var(--accent);margin:16px 0}
+  .honest p{font-size:15px;color:var(--text);margin:10px 0;font-family:'Public Sans',sans-serif}
+  .honest p:first-child{margin-top:0} .honest p:last-child{margin-bottom:0}
+  .honest strong{color:var(--accent)}
+  .copy-hint{display:block;color:var(--text2);font-size:11px;font-family:'JetBrains Mono',ui-monospace,monospace;margin-top:6px;letter-spacing:0.04em}
+  .footer{margin-top:64px;padding-top:24px;border-top:1px solid #333;text-align:center;color:var(--text2);font-size:12px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .footer a{color:var(--text2)} .footer a:hover{color:var(--accent)}
+  header.top{padding-bottom:24px;margin-bottom:32px;border-bottom:1px solid #222}
+  header.top .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px}
+  header.top .brand{font-weight:700;color:var(--text);margin-right:auto;text-decoration:none}
+  .top-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px}
+  .top-nav a{color:var(--text2)}
+  .top-nav a:hover{color:var(--accent);text-decoration:none}
+  .top-nav a.current{color:var(--accent)}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}body{padding:24px 12px}h1{font-size:26px}.cta-row{flex-direction:column;align-items:stretch}.cta-row a{justify-content:center}}
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-nav a.current { color: #E85A2A !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* @end-nav */
+
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/" class="current">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.17.1</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<div class="kicker">/* the paper, the data, the runs we lose */</div>
+<h1>Sverklo, <span>on the record.</span></h1>
+
+<div class="lede">
+  <p>A local-first MCP code-intelligence server, two reproducible benchmarks, and an 8-page preprint that publishes both. Independent research, CC BY 4.0, on Zenodo with a permanent DOI.</p>
+  <p>The benchmarks are the point. We ship the harness, the inputs, the scoring, and the runs &mdash; including the categories where a tuned grep baseline beats us on aggregate <code>F1</code>. If you&rsquo;re going to trust a code-intelligence layer with your repo, you should be able to reproduce its numbers in an afternoon. So you can.</p>
+</div>
+
+<div class="meta">
+  Preprint &middot; April 2026 &middot; CC BY 4.0 &middot; <a href="https://doi.org/10.5281/zenodo.19802051" target="_blank" rel="noopener">DOI: 10.5281/zenodo.19802051</a>
+</div>
+
+<div class="cta-row">
+  <a class="primary" href="https://doi.org/10.5281/zenodo.19802051" target="_blank" rel="noopener">Read the paper (PDF) &rarr;</a>
+  <a href="#cite">Cite (BibTeX)</a>
+  <a href="#reproduce">Reproduce: <code style="background:transparent;color:inherit;padding:0">npm run bench:primitives</code></a>
+</div>
+
+<h2>What&rsquo;s in it</h2>
+<div class="cards">
+  <div class="card">
+    <div class="card-label">&sect; III &middot; SYSTEM</div>
+    <h3>The system</h3>
+    <p>Sverklo&rsquo;s architecture, the indexing pipeline, hybrid retrieval via channelized RRF over BM25 + embeddings + symbol &amp; path channels, bi-temporal memory pinned to git SHAs, and the 37-tool MCP surface.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">&sect; IV.A &middot; BENCHMARK 1</div>
+    <h3>bench:primitives</h3>
+    <p>A deterministic 60-task suite measuring definition lookup, reference finding, file dependencies, and dead-code detection on two repos. Sverklo vs naive grep vs a tuned smart-grep, scored on F1, precision, recall, and <strong>input tokens</strong>.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">&sect; IV.B &middot; BENCHMARK 2</div>
+    <h3>bench:swe</h3>
+    <p>The harder one. 65 hand-curated research questions across five popular open-source projects (Express, NestJS, Vite, Prisma, FastAPI) in two ecosystems. Required-evidence-file scoring. Pull requests welcome.</p>
+  </div>
+</div>
+
+<h2>The honest result</h2>
+<div class="honest">
+  <p><strong>What the paper actually says.</strong> On structural questions &mdash; &ldquo;where is this defined?&rdquo;, &ldquo;what depends on this file?&rdquo; &mdash; sverklo wins decisively (<code>F1 0.75</code> and <code>0.86</code> vs smart-grep&rsquo;s <code>0.60</code> and <code>0.63</code>) while using <strong>65% fewer input tokens</strong> (255 vs 731). On reference-finding and dead-code detection, a tuned grep baseline beats us. Aggregate F1 across all four categories: <code>0.58</code> (sverklo) vs <code>0.67</code> (smart-grep).</p>
+  <p>We published that number on purpose. A benchmark you only release when you win is marketing; a benchmark you release when you lose is a benchmark. The contribution is the harness, not the leaderboard &mdash; and the harness is what you&rsquo;ll use to evaluate the <em>next</em> code-intelligence MCP, including ours when we ship the next version.</p>
+</div>
+
+<h2 id="reproduce">Reproduce in 90 seconds</h2>
+<p>Numbers in the paper come from sverklo v0.17.1 and result file <code>benchmark/results/2026-04-07T23-07-14-211Z</code>. To reproduce locally:</p>
+<pre><code>$ npm install -g sverklo
+$ git clone https://github.com/sverklo/sverklo
+$ cd sverklo &amp;&amp; npm run bench:primitives</code></pre>
+<p>Output is written to <code>benchmark/results/</code>. The <code>bench:swe</code> harness clones each pinned repo into <code>benchmark/.cache/</code>, indexes it, and writes per-question results to a timestamped output directory. Apple M-series, 16&nbsp;GB&nbsp;RAM, macOS&nbsp;14, Node.js&nbsp;20.11.</p>
+
+<h2 id="cite">Cite this</h2>
+<p>The canonical citation:</p>
+<blockquote style="margin:14px 0 18px;color:var(--text2);font-style:italic;border-left:2px solid #333;padding-left:14px">
+  Groshin, N. (2026). <em>Sverklo: A Local-First Code Intelligence MCP Server and a Cross-Repository Software Engineering Benchmark.</em> Zenodo. <a href="https://doi.org/10.5281/zenodo.19802051">https://doi.org/10.5281/zenodo.19802051</a>
+</blockquote>
+<p>BibTeX:</p>
+<pre><code>@misc{groshin2026sverklo,
+  author    = {Groshin, Nikita},
+  title     = {{Sverklo}: A Local-First Code Intelligence {MCP} Server
+               and a Cross-Repository Software Engineering Benchmark},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.19802051},
+  url       = {https://doi.org/10.5281/zenodo.19802051}
+}</code></pre>
+
+<h2>Try sverklo</h2>
+<p>If you reached this page from the paper, the install is one line:</p>
+<pre><code>$ npm install -g sverklo
+$ cd your-project &amp;&amp; sverklo init</code></pre>
+<p>That writes <code>.mcp.json</code>, appends sverklo instructions to your <code>CLAUDE.md</code>, and runs <code>sverklo doctor</code> to verify the MCP handshake. No API keys, no cloud, no telemetry by default. <a href="/">Back to the homepage &rarr;</a></p>
+
+</main>
+
+<div class="footer">
+  <p>&copy; 2026 &middot; sverklo (&#1089;&#1074;&#1077;&#1088;&#1082;&#1083;&#1086;) &middot; <a href="/">home</a> &middot; <a href="https://github.com/sverklo/sverklo">github</a> &middot; <a href="https://doi.org/10.5281/zenodo.19802051" target="_blank" rel="noopener">paper (DOI)</a></p>
+</div>
+</body>
+</html>
