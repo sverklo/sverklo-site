@@ -38,7 +38,7 @@
   "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.12.5",
+  "softwareVersion": "0.18.0",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
@@ -50,7 +50,7 @@
     "Diff-aware PR review with risk scoring",
     "Bi-temporal memory tied to git SHA",
     "24 MCP tools",
-    "10 languages via tree-sitter (TS, JS, Python, Go, Rust, Java, C, C++, Ruby, PHP)",
+    "11 languages via tree-sitter (TS, JS, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue SFC)",
     "Configurable PageRank weights via .sverklo.yaml",
     "Pluggable embedding models (ONNX default, Ollama for local models)",
     "GitHub Action for automated PR review with risk scoring",
@@ -128,7 +128,7 @@
       "name": "What programming languages does Sverklo support?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo parses 10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them."
+        "text": "Sverklo parses 11 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, and Vue (single-file components). Hybrid search and symbol-level impact analysis work across all of them."
       }
     },
     {
@@ -1629,7 +1629,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
     <ul class="hero-meta" aria-label="At a glance">
       <li><span class="hm-num">37</span><span class="hm-lbl">MCP tools</span></li>
-      <li><span class="hm-num">10</span><span class="hm-lbl">languages</span></li>
+      <li><span class="hm-num">11</span><span class="hm-lbl">languages</span></li>
       <li><span class="hm-num">7</span><span class="hm-lbl">AI agents</span></li>
       <li><span class="hm-num">0</span><span class="hm-lbl">API keys</span></li>
       <li><span class="hm-num">MIT</span><span class="hm-lbl">licensed</span></li>
@@ -1654,7 +1654,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
   <span class="ok">✓</span> <span class="dim">.mcp.json                   ← project-scoped MCP server</span>
   <span class="ok">✓</span> <span class="dim">.claude/settings.local.json ← auto-allow sverklo tools</span>
-  <span class="ok">✓</span> <span class="dim">CLAUDE.md                   ← prefer-sverklo instructions</span>
+  <span class="ok">✓</span> <span class="dim">AGENTS.md / CLAUDE.md       ← prefer-sverklo instructions (auto-detected)</span>
 
 <span class="comment"># ask Claude anything — sverklo is preferred automatically</span>
 <span class="prompt">&gt;</span> <span class="cmd">how does the auth middleware work?</span>
@@ -2046,8 +2046,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
     <div class="feature">
       <div class="feature-num">08</div>
-      <h3>ten languages</h3>
-      <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP.</p>
+      <h3>eleven languages</h3>
+      <p>TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue.</p>
     </div>
   </div>
 </section>
@@ -2298,7 +2298,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div style="grid-column: 1 / 13; margin-top: 32px; padding: 24px; background: var(--bg-2); border-left: 2px solid var(--accent); font-size: 14px; color: var(--text-2); line-height: 1.7;">
-      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 10 languages with tree-sitter-style parsers, build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
+      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 11 languages with tree-sitter-style parsers, build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
       <br><br>
       <strong style="color: var(--accent);">The wedge:</strong> Sverklo is the only tool that knows what the code looked like when you made that decision — and warns you when the code has drifted since. If you want conversation memory, use mempalace. If you want your agent to actually understand a codebase, use sverklo.
       <br><br>
@@ -2336,7 +2336,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <div class="qs-num">02 — setup</div>
       <div class="qs-title">Initialize in your project</div>
       <button type="button" class="qs-cmd" onclick="cp('sverklo init', this)" aria-label="Copy: sverklo init">sverklo init<span class="copy">copy</span></button>
-      <div class="qs-note">Creates .mcp.json, .claude/settings.local.json, CLAUDE.md. Auto-detects Antigravity. Idempotent.</div>
+      <div class="qs-note">Creates .mcp.json, .claude/settings.local.json, and AGENTS.md (or CLAUDE.md if that's what your project uses). Auto-detects Antigravity. Idempotent.</div>
     </div>
 
     <div class="qs-step">
@@ -2381,7 +2381,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>What programming languages does Sverklo support?</summary>
-        <p>10 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, and PHP. Hybrid search and symbol-level impact analysis work across all of them.</p>
+        <p>11 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, and Vue (single-file components). Hybrid search and symbol-level impact analysis work across all of them.</p>
       </details>
       <details>
         <summary>When is Sverklo the wrong tool?</summary>
