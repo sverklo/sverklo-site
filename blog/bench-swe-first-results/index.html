@@ -56,6 +56,9 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -299,6 +302,58 @@ footer a { border: none; color: var(--text-2); }
   article h2 { font-size: 24px; }
   body { font-size: 16px; }
 }
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+
 /* @nav-injected — do not edit; run patch-nav.mjs */
 header.top.nav-canonical {
   border-bottom: 1px solid #2A2620 !important;
@@ -387,58 +442,6 @@ header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
   header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
 }
 /* @end-nav */
-
-/* @a11y-injected — do not edit; run patch-a11y.mjs */
-a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
-  outline: 2px solid var(--accent, #E85A2A) !important;
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-.top-nav a, nav.top-nav a {
-  padding: 10px 0;
-  min-height: 36px;
-  display: inline-flex;
-  align-items: center;
-}
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: auto;
-  width: 1px; height: 1px;
-  overflow: hidden;
-}
-.skip-link:focus {
-  position: fixed;
-  left: 16px; top: 16px;
-  width: auto; height: auto;
-  padding: 8px 14px;
-  background: #16140F;
-  color: #EDE7D9;
-  border: 2px solid #E85A2A;
-  border-radius: 4px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 13px;
-  z-index: 10000;
-  text-decoration: none;
-}
-.visually-hidden {
-  position: absolute !important;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-/* @end-a11y */
 </style>
 </head>
 <body>
@@ -451,11 +454,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <a href="/report/">reports</a>
       <a href="/vs/">compare</a>
       <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
       <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.18.2</a></div>
   </div>
 </header>
 
@@ -614,6 +618,21 @@ npm run bench:swe</pre>
     <span><a href="/">sverklo.com</a></span>
   </div>
 </footer>
-
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
 </body>
 </html>

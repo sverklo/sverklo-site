@@ -1,0 +1,46 @@
+/* Canonical design tokens for sverklo.com.
+   Single source of truth — every page links this. Per-page `:root`
+   blocks still exist as fallbacks during the transition; they should
+   be deleted once we're confident the central file has full coverage.
+
+   Naming policy:
+     --bg, --bg-2     surface colors (page, panel)
+     --fg, --muted    type colors
+     --accent         brand orange
+     --border         hairline rules
+     --rule-2         secondary/hover rule color
+     --code-bg        inline+block code background
+   Pages that use legacy names (--bg2, --text2, --rule, --green/--yellow)
+   get aliased here so we don't break them while migrating. */
+
+:root {
+  /* Surfaces */
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+
+  /* Type */
+  --fg: #EDE7D9;
+  --muted: #A39886;
+
+  /* Brand */
+  --accent: #E85A2A;
+
+  /* Rules */
+  --border: #2A2620;
+  --rule-2: #403A30;
+
+  /* Code */
+  --code-bg: #16140F;
+
+  /* Status colors used on benchmarks/research dashboards */
+  --green: #4FAE6F;
+  --yellow: #C8A95A;
+  --red: #C87A5A;
+
+  /* ── Aliases for legacy names — keep in sync with the canonicals ── */
+  --bg2: var(--bg-2);
+  --text: var(--fg);
+  --text-2: var(--muted);
+  --text2: var(--muted);
+  --rule: var(--border);
+}

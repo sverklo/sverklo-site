@@ -15,10 +15,60 @@ const CANONICAL_NAV = `<nav class="top-nav">
       <a href="/report/">reports</a>
       <a href="/vs/">compare</a>
       <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
       <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>`;
+
+// Latest known sverklo version. Used as the synchronous fallback in the
+// version badge — the runtime fetcher (VERSION_SCRIPT) refreshes it from
+// npm if the network cooperates. Bump this whenever you publish a new
+// release so subpages don't drift back to a stale fallback when npm
+// is offline. The canonical truth is on npm; this is just a placeholder
+// that gets shown for ~50ms before the fetch resolves.
+const VERSION_FALLBACK = "v0.18.2";
+
+// Canonical design tokens. Loaded before page-local styles so the
+// per-page `:root { ... }` blocks override only when they want to.
+const TOKENS_MARKER_START = "<!-- @tokens-injected — do not edit; run patch-nav.mjs -->";
+const TOKENS_MARKER_END = "<!-- @end-tokens -->";
+const TOKENS_BLOCK = `${TOKENS_MARKER_START}
+<link rel="stylesheet" href="/tokens.css">
+${TOKENS_MARKER_END}`;
+
+// Google Fonts: same family list as the homepage. Subpages without
+// these links render the wordmark in system fonts, which is the most
+// visible brand inconsistency on the site.
+const FONTS_MARKER_START = "<!-- @fonts-injected — do not edit; run patch-nav.mjs -->";
+const FONTS_MARKER_END = "<!-- @end-fonts -->";
+const FONTS_BLOCK = `${FONTS_MARKER_START}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+${FONTS_MARKER_END}`;
+
+// Runtime version refresh. Renders the static fallback synchronously
+// (so there's no layout shift), then tries to overwrite it from npm
+// with a 2s timeout. If npm is slow/offline we keep the fallback.
+const VERSION_SCRIPT_START = "<!-- @version-script-injected — do not edit; run patch-nav.mjs -->";
+const VERSION_SCRIPT_END = "<!-- @end-version-script -->";
+const VERSION_SCRIPT = `${VERSION_SCRIPT_START}
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+${VERSION_SCRIPT_END}`;
 
 // Self-contained CSS so subpage themes can't override the header. Mirrors
 // the homepage's 12-column grid so nav items sit in the same horizontal slot
@@ -143,6 +193,7 @@ const TARGETS = [
   new URL("../blog/index.html", import.meta.url).pathname,
   new URL("../playground/index.html", import.meta.url).pathname,
   new URL("../report/index.html", import.meta.url).pathname,
+  new URL("../research/index.html", import.meta.url).pathname,
   new URL("../vs/index.html", import.meta.url).pathname,
   // nested templates
   ...discover("../report/", 2),
@@ -160,7 +211,7 @@ function normalizeNavLinks(html) {
   return { html: html.replace(m[0], CANONICAL_NAV), touched: true, reason: "nav-rewritten" };
 }
 
-const CTA_BLOCK = `<div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.12.5</a></div>`;
+const CTA_BLOCK = `<div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">${VERSION_FALLBACK}</a></div>`;
 
 // Collapse everything from the first <header class="top..."> to the LAST
 // </header> that appears before the main content boundary (<main>, <section>,
@@ -202,6 +253,99 @@ function normalizeHeader(html, filePath) {
   return { html: next, touched: next !== html };
 }
 
+// Inject the canonical tokens.css link into <head> (idempotent).
+function injectTokens(html) {
+  let out = html;
+  const s = out.indexOf(TOKENS_MARKER_START);
+  if (s >= 0) {
+    const e = out.indexOf(TOKENS_MARKER_END, s);
+    if (e >= 0) {
+      const blockEnd = e + TOKENS_MARKER_END.length;
+      let lo = s;
+      while (lo > 0 && /\s/.test(out[lo - 1])) lo--;
+      let hi = blockEnd;
+      while (hi < out.length && out[hi] === "\n") hi++;
+      out = out.slice(0, lo) + "\n" + out.slice(hi);
+    }
+  }
+  // Inject just before the first <style> tag so per-page styles still
+  // win on every shared property they declare.
+  const idx = out.indexOf("<style>");
+  if (idx < 0) {
+    // No <style> — fall back to before </head>.
+    const headIdx = out.indexOf("</head>");
+    if (headIdx < 0) return { html: out, touched: false };
+    return {
+      html: out.slice(0, headIdx) + TOKENS_BLOCK + "\n" + out.slice(headIdx),
+      touched: true,
+    };
+  }
+  return {
+    html: out.slice(0, idx) + TOKENS_BLOCK + "\n" + out.slice(idx),
+    touched: true,
+  };
+}
+
+// Inject the Google Fonts links into <head> (idempotent — strip first).
+function injectFonts(html) {
+  let out = html;
+  const s = out.indexOf(FONTS_MARKER_START);
+  if (s >= 0) {
+    const e = out.indexOf(FONTS_MARKER_END, s);
+    if (e >= 0) {
+      const blockEnd = e + FONTS_MARKER_END.length;
+      let lo = s;
+      while (lo > 0 && /\s/.test(out[lo - 1])) lo--;
+      let hi = blockEnd;
+      while (hi < out.length && out[hi] === "\n") hi++;
+      out = out.slice(0, lo) + "\n" + out.slice(hi);
+    }
+  }
+  // Skip if fonts already loaded by hand (e.g., index.html). Detection
+  // is by the Google Fonts URL fragment, not our marker.
+  if (out.includes("fonts.googleapis.com/css2?family=JetBrains+Mono")) {
+    return { html: out, touched: out !== html };
+  }
+  // Insert before </head>.
+  const idx = out.indexOf("</head>");
+  if (idx < 0) return { html: out, touched: false };
+  return {
+    html: out.slice(0, idx) + FONTS_BLOCK + "\n" + out.slice(idx),
+    touched: true,
+  };
+}
+
+// Inject the version-refresh script just before </body> (idempotent).
+function injectVersionScript(html) {
+  let out = html;
+  const s = out.indexOf(VERSION_SCRIPT_START);
+  if (s >= 0) {
+    const e = out.indexOf(VERSION_SCRIPT_END, s);
+    if (e >= 0) {
+      const blockEnd = e + VERSION_SCRIPT_END.length;
+      let lo = s;
+      while (lo > 0 && /\s/.test(out[lo - 1])) lo--;
+      let hi = blockEnd;
+      while (hi < out.length && out[hi] === "\n") hi++;
+      out = out.slice(0, lo) + "\n" + out.slice(hi);
+    }
+  }
+  // Skip if a version-badge fetcher is already wired up (home page has
+  // its own copy with extra logic).
+  if (
+    out.includes("registry.npmjs.org/sverklo/latest") &&
+    !out.includes(VERSION_SCRIPT_START)
+  ) {
+    return { html: out, touched: out !== html };
+  }
+  const idx = out.lastIndexOf("</body>");
+  if (idx < 0) return { html: out, touched: false };
+  return {
+    html: out.slice(0, idx) + VERSION_SCRIPT + "\n" + out.slice(idx),
+    touched: true,
+  };
+}
+
 // Inject the shared CSS block just before </style> (idempotent — strip first).
 function injectCss(html) {
   // Strip any existing block
@@ -230,10 +374,21 @@ for (const p of TARGETS) {
   const r1 = normalizeNavLinks(html);
   const r2 = normalizeHeader(r1.html, p);
   const r3 = injectCss(r2.html);
-  if (r1.touched || r2.touched || r3.touched) {
-    writeFileSync(p, r3.html);
+  const r4 = injectFonts(r3.html);
+  const r5 = injectVersionScript(r4.html);
+  const r6 = injectTokens(r5.html);
+  if (r1.touched || r2.touched || r3.touched || r4.touched || r5.touched || r6.touched) {
+    writeFileSync(p, r6.html);
     ok++;
-    console.log(`[patched] ${p.replace(/.*sverklo-site\//, "")} (${[r1.touched && "nav", r2.touched && "header", r3.touched && "css"].filter(Boolean).join("+")})`);
+    const tags = [
+      r1.touched && "nav",
+      r2.touched && "header",
+      r3.touched && "css",
+      r4.touched && "fonts",
+      r5.touched && "version-script",
+      r6.touched && "tokens",
+    ].filter(Boolean).join("+");
+    console.log(`[patched] ${p.replace(/.*sverklo-site\//, "")} (${tags})`);
   }
 }
 console.log(`Done. ${ok} page(s) updated, ${TARGETS.length - ok - skip} already canonical, ${skip} skipped.`);

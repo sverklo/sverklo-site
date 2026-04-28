@@ -1,5 +1,8 @@
 [build]
   publish = "."
+  # Pre-deploy guards. If a stale version slips into a hardcoded place
+  # the build fails before publishing — see scripts/lint-versions.mjs.
+  command = "node scripts/lint-versions.mjs"
 
 [[headers]]
   for = "/*"
