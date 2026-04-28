@@ -20,7 +20,7 @@
     <meta name="twitter:image:alt" content="Sverklo Playground — see real queries on real repos" />
     <link rel="canonical" href="https://sverklo.com/playground/" />
     <link rel="icon" type="image/svg+xml" href="/og.svg" />
-    <!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
 <link rel="stylesheet" href="/tokens.css">
 <!-- @end-tokens -->
 <style>
@@ -191,6 +191,87 @@
         padding: 0.3rem 0.8rem;
         margin: 0.6rem 0;
         color: var(--muted);
+      }
+      /* Overview table: renders sverklo_overview output as scannable
+         rows instead of a wall of monospace text. Sticky thead so the
+         column labels stay visible when the table is long. */
+      .ov-table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg-2);
+      }
+      .ov-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.83rem;
+      }
+      .ov-table th, .ov-table td {
+        text-align: left;
+        padding: 0.5rem 0.7rem;
+        vertical-align: top;
+        border-bottom: 1px solid var(--border);
+      }
+      .ov-table th {
+        position: sticky;
+        top: 0;
+        background: var(--bg-2);
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .ov-table tr:last-child td { border-bottom: none; }
+      .ov-table td code {
+        background: transparent;
+        padding: 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.82rem;
+      }
+      .ov-table .ov-rank, .ov-table .ov-rank-h {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        color: var(--muted);
+        width: 5.5rem;
+        white-space: nowrap;
+      }
+      .ov-table .ov-symbols code {
+        background: var(--bg);
+        padding: 0.1rem 0.35rem;
+        border-radius: 3px;
+        margin-right: 0.25rem;
+        display: inline-block;
+        margin-bottom: 0.15rem;
+        color: var(--fg);
+      }
+      .ov-table .ov-more {
+        color: var(--muted);
+        font-size: 0.78rem;
+        margin-left: 0.25rem;
+      }
+      .ov-table .ov-empty {
+        color: var(--muted);
+        font-style: italic;
+        font-size: 0.78rem;
+      }
+      .ov-table tr.ov-dir td {
+        background: var(--bg);
+        color: var(--accent);
+        font-weight: 600;
+        padding-top: 0.65rem;
+        padding-bottom: 0.4rem;
+        font-size: 0.78rem;
+      }
+      .ov-table tr.ov-dir code {
+        color: var(--accent);
+        background: transparent;
+      }
+      .ov-foot {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin: 0.6rem 0.2rem 0;
       }
       /* Gloss: 1-line "what an agent does with this" framing above
          the tool output. Pulled from snapshots.json. */
@@ -434,6 +515,19 @@ header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
   header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
   header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
 }
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
 /* @end-nav */
 </style>
     <!-- Prism.js for syntax highlighting in code blocks. Core + autoloader
@@ -637,7 +731,15 @@ header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
             "</p>" +
             "</div></details>";
         }
-        body.innerHTML = prefix + renderMarkdown(entry.output || "");
+        // sverklo_overview output is a single text-fenced wall of
+        // file/PageRank/symbols lines. Render as a real table — reading
+        // 90 rows of monospace text is what made the page look like a
+        // debug log in the first place.
+        const rendered =
+          entry.tool === "sverklo_overview"
+            ? renderOverviewTable(entry.output || "")
+            : renderMarkdown(entry.output || "");
+        body.innerHTML = prefix + rendered;
         // Kick Prism to re-highlight any new code blocks. The autoloader
         // lazy-loads language grammars on first use and caches them.
         if (window.Prism && typeof window.Prism.highlightAllUnder === "function") {
@@ -650,6 +752,108 @@ header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
           .replaceAll("&", "&amp;")
           .replaceAll("<", "&lt;")
           .replaceAll(">", "&gt;");
+      }
+
+      // Parse a sverklo_overview text dump into a structured table.
+      // Input shape (per directory group):
+      //   ./
+      //     auth.go [1.00] — authPair(), searchCredential(), …
+      //   binding/
+      //     binding.go [1.00] — Binding(), BindingBody(), …
+      // The fenced ```text wrapper is stripped first; lines that don't
+      // match a file row are treated as directory headings.
+      function renderOverviewTable(src) {
+        // Strip the leading ```text and trailing ``` if present.
+        const stripped = src
+          .replace(/^[\s\S]*?```text\n/, "")
+          .replace(/\n```\s*$/, "")
+          .replace(/^```text\n/, "")
+          .replace(/\n?```\s*$/, "");
+
+        const FILE_RE = /^\s*([^\s\[].*?)\s+\[(\d+(?:\.\d+)?)\]\s*[—-]\s*(.*?)\s*$/;
+        const DIR_RE = /^\s*([^\s\[].*?\/)\s*$/;
+
+        let currentDir = "";
+        const groups = new Map();
+        let total = 0;
+        for (const raw of stripped.split("\n")) {
+          if (!raw.trim()) continue;
+          const fileM = raw.match(FILE_RE);
+          if (fileM) {
+            const [, name, rank, syms] = fileM;
+            const symbolsList = syms
+              .split(/,\s*/)
+              .map((s) => s.replace(/\(\)$/, "").trim())
+              .filter(Boolean);
+            const arr = groups.get(currentDir) || [];
+            arr.push({ name, rank: parseFloat(rank), symbols: symbolsList });
+            groups.set(currentDir, arr);
+            total++;
+            continue;
+          }
+          const dirM = raw.match(DIR_RE);
+          if (dirM) {
+            currentDir = dirM[1] === "./" ? "" : dirM[1];
+            if (!groups.has(currentDir)) groups.set(currentDir, []);
+          }
+        }
+
+        // If the parser didn't recognise anything (format drifted), fall
+        // back to the markdown renderer so we don't blank the result.
+        if (total === 0) return renderMarkdown(src);
+
+        const SYMBOL_PREVIEW = 4;
+        const rows = [];
+        for (const [dir, files] of groups) {
+          if (files.length === 0) continue;
+          if (dir) {
+            rows.push(
+              '<tr class="ov-dir"><td colspan="3"><code>' +
+                escapeHtml(dir) +
+                "</code></td></tr>"
+            );
+          }
+          for (const f of files) {
+            const preview = f.symbols
+              .slice(0, SYMBOL_PREVIEW)
+              .map((s) => "<code>" + escapeHtml(s) + "</code>")
+              .join(" ");
+            const more =
+              f.symbols.length > SYMBOL_PREVIEW
+                ? ' <span class="ov-more">+' +
+                  (f.symbols.length - SYMBOL_PREVIEW) +
+                  " more</span>"
+                : "";
+            const sym = preview + more || '<span class="ov-empty">(no named exports)</span>';
+            rows.push(
+              "<tr><td><code>" +
+                escapeHtml(f.name) +
+                "</code></td>" +
+                '<td class="ov-rank">' +
+                f.rank.toFixed(2) +
+                "</td>" +
+                '<td class="ov-symbols">' +
+                sym +
+                "</td></tr>"
+            );
+          }
+        }
+
+        return (
+          '<div class="ov-table-wrap"><table class="ov-table">' +
+          "<thead><tr>" +
+          "<th>File</th>" +
+          '<th class="ov-rank-h">PageRank</th>' +
+          "<th>Top symbols</th>" +
+          "</tr></thead><tbody>" +
+          rows.join("") +
+          "</tbody></table></div>" +
+          '<p class="ov-foot">Showing ' +
+          total +
+          " files ranked by import-graph PageRank. Symbols beyond the first " +
+          SYMBOL_PREVIEW +
+          " are elided to keep the row scannable.</p>"
+        );
       }
 
       // Minimal line-based markdown renderer for sverklo tool output.

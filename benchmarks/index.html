@@ -194,6 +194,19 @@ header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
   header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
   header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
 }
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
 /* @end-nav */
 </style>
 <!-- @fonts-injected — do not edit; run patch-nav.mjs -->

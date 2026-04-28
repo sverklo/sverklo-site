@@ -38,16 +38,16 @@ if (!m) {
 }
 const CURRENT = m[1];
 
-// Body-copy historical references. Each entry: { file, line, version,
-// note }. We match by file + line + the literal version string. Adding
-// a new historical fact = one line here.
+// Body-copy historical references. Match by file + version + a unique
+// substring of the line so patch-nav.mjs injecting new <head>/<style>
+// blocks doesn't shift line numbers and break the allowlist.
 const ALLOWED_HISTORICAL = [
   // Research paper citations: which sverklo version produced the
   // numbers in the paper. NOT a UI fallback — a factual claim.
   {
     file: "research/index.html",
-    line: 289,
     version: "v0.17.1",
+    snippet: "Numbers in the paper come from sverklo",
     note: "research paper provenance — which sverklo version produced the numbers",
   },
 ];
@@ -79,7 +79,7 @@ for (const file of walk(REPO_ROOT)) {
       const ver = m[0];
       if (ver === CURRENT) continue;
       const allowed = ALLOWED_HISTORICAL.some(
-        (a) => a.file === rel && a.line === i + 1 && a.version === ver
+        (a) => a.file === rel && a.version === ver && lines[i].includes(a.snippet)
       );
       if (allowed) continue;
       findings.push({ file: rel, line: i + 1, version: ver, snippet: lines[i].trim().slice(0, 140) });
