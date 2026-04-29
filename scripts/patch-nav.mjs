@@ -27,7 +27,7 @@ const CANONICAL_NAV = `<nav class="top-nav">
 // release so subpages don't drift back to a stale fallback when npm
 // is offline. The canonical truth is on npm; this is just a placeholder
 // that gets shown for ~50ms before the fetch resolves.
-const VERSION_FALLBACK = "v0.18.2";
+const VERSION_FALLBACK = "v0.19.0";
 
 // Canonical design tokens. Loaded before page-local styles so the
 // per-page `:root { ... }` blocks override only when they want to.
