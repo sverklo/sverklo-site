@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP code intelligence comparison matrix — Sverklo vs Cody, Greptile, Cursor, Aider, Continue, Codex CLI, Claude Code, Serena, Claude Context, GitNexus, codebase-memory-mcp</title>
+<meta name="description" content="Single-grid comparison of 11 AI coding assistants and code-intelligence MCP servers across license, deployment, retrieval surface, symbol graph, memory, diff review, language coverage, and price.">
+<link rel="canonical" href="https://sverklo.com/vs/matrix/">
+
+<meta property="og:title" content="MCP code intelligence comparison matrix — 11 tools, 9 features">
+<meta property="og:description" content="License, deployment, retrieval surface, symbol graph, memory, diff review, language coverage, price — 11 AI coding assistants compared in one grid.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/matrix/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MCP code intelligence comparison matrix">
+<meta name="twitter:description" content="11 tools across 9 features in one grid.">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "MCP code intelligence comparison matrix — Sverklo, Cody, Greptile, Cursor, Aider, Continue, Codex CLI, Claude Code, Serena, Claude Context, GitNexus, codebase-memory-mcp",
+  "datePublished": "2026-04-29",
+  "dateModified": "2026-04-29",
+  "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/vs/matrix/"},
+  "about": [
+    {"@type":"SoftwareApplication","name":"Sverklo","url":"https://sverklo.com","applicationCategory":"DeveloperApplication"},
+    {"@type":"SoftwareApplication","name":"Sourcegraph Cody","url":"https://sourcegraph.com/cody"},
+    {"@type":"SoftwareApplication","name":"Greptile","url":"https://greptile.com"},
+    {"@type":"SoftwareApplication","name":"Cursor","url":"https://cursor.com"},
+    {"@type":"SoftwareApplication","name":"Aider","url":"https://aider.chat"},
+    {"@type":"SoftwareApplication","name":"Continue","url":"https://continue.dev"},
+    {"@type":"SoftwareApplication","name":"Claude Code","url":"https://claude.ai/code"},
+    {"@type":"SoftwareApplication","name":"OpenAI Codex CLI","url":"https://github.com/openai/codex"},
+    {"@type":"SoftwareApplication","name":"Serena","url":"https://github.com/oraios/serena"},
+    {"@type":"SoftwareApplication","name":"Claude Context","url":"https://github.com/zilliztech/claude-context"},
+    {"@type":"SoftwareApplication","name":"GitNexus"},
+    {"@type":"SoftwareApplication","name":"codebase-memory-mcp"}
+  ]
+}
+</script>
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:15px;line-height:1.65;
+    padding:48px 20px;max-width:1200px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:30px;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em}
+  .subtitle{color:var(--muted);font-size:16px;margin-bottom:32px;max-width:75ch}
+  .meta{color:var(--muted);font-size:12px;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace}
+  h2{color:var(--accent);font-size:18px;margin:36px 0 14px;padding-bottom:6px;border-bottom:1px solid #333}
+  p{margin:10px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .table-scroll{overflow-x:auto;margin:18px 0;-webkit-overflow-scrolling:touch}
+  table.matrix{
+    width:100%;border-collapse:collapse;font-size:12.5px;
+    min-width:1100px;
+  }
+  table.matrix th, table.matrix td{
+    padding:8px 10px;
+    border-bottom:1px solid var(--border);
+    border-right:1px solid var(--border);
+    vertical-align:top;
+    text-align:left;
+  }
+  table.matrix th{
+    background:var(--bg-2);
+    color:var(--accent);
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+    font-size:10.5px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    border-bottom:2px solid var(--accent);
+    position:sticky;top:0;z-index:1;
+    white-space:nowrap;
+  }
+  table.matrix td:first-child, table.matrix th:first-child{
+    position:sticky;left:0;background:var(--bg);z-index:2;
+    border-right:2px solid var(--accent);
+    min-width:170px;
+  }
+  table.matrix th:first-child{
+    z-index:3;background:var(--bg-2);
+  }
+  table.matrix tr.us td{background:rgba(232, 90, 42, 0.06)}
+  table.matrix tr.us td:first-child{background:rgba(232, 90, 42, 0.10);font-weight:700}
+  .y{color:#4ade80;font-weight:600}
+  .n{color:#888}
+  .p{color:#facc15}
+  .tool-link{font-weight:600;color:var(--fg)}
+  .tool-link:hover{color:var(--accent)}
+  .legend{
+    display:flex;gap:18px;margin:14px 0 22px;
+    font-size:12px;color:var(--muted);
+    flex-wrap:wrap;
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+  }
+  .legend span{white-space:nowrap}
+  .footnote{
+    font-size:12px;color:var(--muted);
+    border-left:3px solid var(--border);
+    padding:6px 14px;margin:18px 0;
+  }
+  .axis{
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    padding:14px 18px;border-radius:0 4px 4px 0;
+    margin:14px 0;
+  }
+  .axis strong{color:var(--fg)}
+  ul{margin:10px 0 10px 22px}
+  li{margin:6px 0;color:var(--muted)}
+  @media(max-width:900px){
+    body{padding:24px 14px;font-size:13px}
+    h1{font-size:24px}
+  }
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.18.2</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1>MCP code intelligence comparison matrix</h1>
+<p class="subtitle">Single grid: 12 AI coding assistants and MCP code-intelligence servers across 9 dimensions. Use this as the high-level scan, then drill into any cell via the per-tool comparison pages.</p>
+<div class="meta">
+  Last verified: 2026-04-29 · 12 tools · 9 dimensions · 108 cells · published with the per-tool comparisons at <a href="/vs/">/vs/</a>
+</div>
+
+<div class="legend">
+  <span><span class="y">●</span> yes / supported natively</span>
+  <span><span class="p">◐</span> partial / via integration / not the primary use case</span>
+  <span><span class="n">○</span> no / explicitly unsupported</span>
+</div>
+
+<div class="table-scroll">
+<table class="matrix">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Category</th>
+      <th>License</th>
+      <th>Local-first</th>
+      <th>MCP-native</th>
+      <th>Symbol graph</th>
+      <th>Bi-temporal memory</th>
+      <th>Diff review</th>
+      <th>Languages</th>
+      <th>Cost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="us">
+      <td><a class="tool-link" href="/">Sverklo</a></td>
+      <td>MCP retrieval layer</td>
+      <td><strong>MIT</strong></td>
+      <td><span class="y">●</span> SQLite + ONNX</td>
+      <td><span class="y">●</span> 37 tools</td>
+      <td><span class="y">●</span> tree-sitter + PageRank</td>
+      <td><span class="y">●</span> git-SHA pinned</td>
+      <td><span class="y">●</span> risk-scored</td>
+      <td>12</td>
+      <td><strong>$0</strong></td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/sourcegraph-cody/">Sourcegraph Cody</a></td>
+      <td>Hosted code AI</td>
+      <td>Source-available</td>
+      <td><span class="n">○</span> cloud or self-host enterprise</td>
+      <td><span class="n">○</span></td>
+      <td><span class="y">●</span></td>
+      <td><span class="n">○</span></td>
+      <td><span class="p">◐</span></td>
+      <td>many</td>
+      <td>$9-19/dev/mo</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/greptile/">Greptile</a></td>
+      <td>Hosted PR review</td>
+      <td>Proprietary</td>
+      <td><span class="n">○</span> cloud only</td>
+      <td><span class="n">○</span></td>
+      <td><span class="y">●</span></td>
+      <td><span class="n">○</span></td>
+      <td><span class="y">●</span> inline comments</td>
+      <td>many</td>
+      <td>$30/dev/mo</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/cursor-codebase/">Cursor @codebase</a></td>
+      <td>Editor + retrieval</td>
+      <td>Proprietary</td>
+      <td><span class="n">○</span> cloud-indexed</td>
+      <td><span class="p">◐</span> Cursor 0.42+</td>
+      <td><span class="p">◐</span></td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>Cursor sub</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/claude-context/">Claude Context (Zilliz)</a></td>
+      <td>RAG over Milvus</td>
+      <td>MIT</td>
+      <td><span class="p">◐</span> needs Milvus</td>
+      <td><span class="y">●</span></td>
+      <td><span class="n">○</span> vector only</td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>$0 + Milvus</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/serena/">Serena</a></td>
+      <td>LSP-backed retrieval</td>
+      <td><strong>MIT</strong></td>
+      <td><span class="y">●</span></td>
+      <td><span class="y">●</span></td>
+      <td><span class="y">●</span> via LSP</td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>LSP-defined</td>
+      <td><strong>$0</strong></td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/gitnexus/">GitNexus</a></td>
+      <td>Graph DB retrieval</td>
+      <td>Polyform NC</td>
+      <td><span class="y">●</span> KuzuDB</td>
+      <td><span class="y">●</span></td>
+      <td><span class="y">●</span> Cypher graph</td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>noncommercial only</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/codebase-memory-mcp/">codebase-memory-mcp</a></td>
+      <td>Memory-only MCP</td>
+      <td>MIT</td>
+      <td><span class="y">●</span></td>
+      <td><span class="y">●</span></td>
+      <td><span class="n">○</span></td>
+      <td><span class="p">◐</span></td>
+      <td><span class="n">○</span></td>
+      <td>n/a</td>
+      <td>$0</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/aider/">Aider repo-map</a></td>
+      <td>Agent + static map</td>
+      <td>Apache 2.0</td>
+      <td><span class="y">●</span></td>
+      <td><span class="p">◐</span> via MCP plugin</td>
+      <td><span class="p">◐</span> static</td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>$0</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/continue/">Continue.dev</a></td>
+      <td>Editor assistant</td>
+      <td>Apache 2.0</td>
+      <td><span class="p">◐</span></td>
+      <td><span class="y">●</span></td>
+      <td><span class="p">◐</span></td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>$0 (BYO LLM)</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/claude-code/">Claude Code</a></td>
+      <td>CLI agent</td>
+      <td>Proprietary CLI</td>
+      <td><span class="p">◐</span> agent local, model cloud</td>
+      <td><span class="y">●</span></td>
+      <td><span class="n">○</span> via MCP only</td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>Claude API</td>
+    </tr>
+    <tr>
+      <td><a class="tool-link" href="/vs/codex-cli/">OpenAI Codex CLI</a></td>
+      <td>CLI agent</td>
+      <td>Apache 2.0 (CLI)</td>
+      <td><span class="p">◐</span></td>
+      <td><span class="y">●</span></td>
+      <td><span class="n">○</span> via MCP only</td>
+      <td><span class="n">○</span></td>
+      <td><span class="n">○</span></td>
+      <td>many</td>
+      <td>OpenAI API</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p class="footnote">
+  <strong>How to read this:</strong> sverklo and the other MCP retrieval servers (Serena, Claude Context, codebase-memory-mcp, GitNexus) sit in the same <em>category</em> as us. Cody and Greptile are hosted services in adjacent categories. Cursor is an editor with built-in retrieval. Aider, Continue, Claude Code, and Codex CLI are <em>agents</em> — sverklo is the retrieval layer they call via MCP, not a competitor. The "diff review" column captures whether the tool itself produces risk-scored PR review output.
+</p>
+
+<h2>The two axes that actually decide</h2>
+
+<div class="axis">
+  <strong>Axis 1: deployment.</strong> Local-first (laptop + embedded SQLite + local model) vs cloud-hosted (your code uploaded to the vendor's infrastructure). For finance, healthcare, defence, or any project under data-residency constraints, this axis settles the choice in 5 minutes. Sverklo, Serena, Aider repo-map, codebase-memory-mcp, and GitNexus are local-first; Cody, Greptile, and Cursor's @codebase are cloud-hosted.
+</div>
+
+<div class="axis">
+  <strong>Axis 2: license.</strong> MIT (Sverklo, Serena, Claude Context, codebase-memory-mcp), Apache 2.0 (Aider, Continue, Codex CLI), source-available (Cody), Polyform Noncommercial (GitNexus), proprietary (Greptile, Cursor). For commercial use, MIT and Apache are equivalent; Polyform NC blocks commercial use entirely; source-available means "fine for evaluation, restricted for production."
+</div>
+
+<h2>The category-confusion to avoid</h2>
+
+<p>Aider, Continue, Claude Code, and Codex CLI are <strong>agents</strong>, not retrieval engines. They do the editing. Sverklo is the retrieval layer the agent calls before editing. Asking "Aider vs sverklo" is like asking "your IDE vs your file system" — they live at different layers and you usually want both. The only honest comparison is between sverklo and the other MCP retrieval servers (Serena, Claude Context, codebase-memory-mcp, GitNexus) — and that's what the matrix above shows.</p>
+
+<h2>What about specific use cases?</h2>
+
+<ul>
+  <li><strong>Hosted PR-review-as-a-service for an enterprise team that doesn't run anything locally:</strong> Greptile.</li>
+  <li><strong>Symbol-graph precision via real language servers, willing to configure per-agent:</strong> Serena.</li>
+  <li><strong>Drop-in retrieval that auto-detects every agent on the laptop, MIT, no external services:</strong> Sverklo.</li>
+  <li><strong>The agent itself, not retrieval:</strong> Aider, Continue, Claude Code, Codex CLI.</li>
+  <li><strong>Pure agent memory layer, no code retrieval:</strong> codebase-memory-mcp.</li>
+  <li><strong>Cypher graph queries on a code-graph DB, willing to accept noncommercial license:</strong> GitNexus.</li>
+</ul>
+
+<h2>How we built this matrix</h2>
+
+<p>Each cell was verified against the tool's official docs or repo on 2026-04-29. We don't claim any cell is permanent — tools evolve. If you find a stale cell, <a href="https://github.com/sverklo/sverklo-site/issues">file an issue</a> with the corrected information and a citation.</p>
+
+<p>The choice of dimensions reflects the questions sverklo's users actually ask. We chose <em>not</em> to include "speed" or "F1" as columns because they're meaningful only with a specific benchmark — and we've published one of those at <a href="/bench/">/bench/</a>, with sverklo's losses on the same page as its wins.</p>
+
+<h2>See also</h2>
+
+<ul>
+  <li><a href="/bench/">bench:primitives</a> — 60-task retrieval evaluation, sverklo vs naive grep vs tuned grep</li>
+  <li><a href="/vs/">All comparison pages</a> — per-tool detail rather than the high-level grid</li>
+  <li><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a></li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

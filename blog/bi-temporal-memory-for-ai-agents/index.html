@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bi-temporal memory for AI coding agents — git-pinned context that survives context compaction — Sverklo</title>
+<meta name="description" content="How sverklo gives AI coding agents persistent memory across sessions using bi-temporal database patterns from 1990s research, pinned to git SHAs. The valid_until_sha + superseded_by lineage pattern explained, with the SQLite schema.">
+<link rel="canonical" href="https://sverklo.com/blog/bi-temporal-memory-for-ai-agents/">
+
+<meta property="og:title" content="Bi-temporal memory for AI coding agents — git-pinned context that survives context compaction">
+<meta property="og:description" content="Git-SHA pinned bi-temporal memory: how sverklo answers 'what did this team believe about auth at commit abc123?' using a 1990s database pattern applied to LLM agent memory.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/bi-temporal-memory-for-ai-agents/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-04-29">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="bi-temporal">
+<meta property="article:tag" content="memory">
+<meta property="article:tag" content="ai-agents">
+<meta property="article:tag" content="claude code">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="git">
+<meta property="article:tag" content="sqlite">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bi-temporal memory for AI coding agents — git-pinned context that survives context compaction">
+<meta name="twitter:description" content="The 1990s database pattern that fixes 'my agent forgot the architectural decision I made yesterday'.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bi-temporal memory for AI coding agents — git-pinned context that survives context compaction",
+  "description": "How sverklo gives AI coding agents persistent memory across sessions using bi-temporal database patterns from 1990s research, pinned to git SHAs. The valid_until_sha + superseded_by lineage pattern explained, with the SQLite schema.",
+  "datePublished": "2026-04-29",
+  "dateModified": "2026-04-29",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/bi-temporal-memory-for-ai-agents/"},
+  "articleSection": "Engineering",
+  "keywords": "bi-temporal memory, AI coding agents, persistent memory, claude code, cursor, MCP, git-pinned context, sverklo, valid_until_sha, superseded_by, Snodgrass, temporal database",
+  "citation": "https://doi.org/10.5281/zenodo.19802051"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{
+    color:var(--muted);font-size:13px;margin-bottom:24px;
+    display:flex;gap:16px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+  }
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{
+    font-size:18px;line-height:1.55;color:var(--fg);
+    margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border);
+  }
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{
+    background:var(--bg-2);padding:18px 20px;border-radius:6px;
+    overflow-x:auto;margin:18px 0;
+    border-left:3px solid var(--accent);
+    font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;
+    line-height:1.55;
+  }
+  blockquote{
+    border-left:3px solid var(--accent);
+    padding:8px 18px;margin:18px 0;
+    color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0;
+  }
+  .table-scroll{overflow-x:auto;margin:18px 0}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+  th{background:var(--bg-2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;text-transform:uppercase;letter-spacing:0.04em}
+  td{padding:8px 12px;border-bottom:1px solid var(--border)}
+  td.num{font-variant-numeric:tabular-nums;text-align:right;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .cta-box{
+    background:var(--bg-2);border:1px solid var(--border);
+    padding:22px 24px;border-radius:6px;margin:32px 0;
+  }
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){
+    body{padding:24px 14px;font-size:15px}
+    h1{font-size:24px}
+    .lede{font-size:15px}
+  }
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Engineering · Sverklo · 2026-04-29</div>
+<h1>Bi-temporal memory for AI coding agents — the 1990s database pattern that fixes "my agent forgot what we decided yesterday"</h1>
+
+<div class="meta-bar">
+  <span>2026-04-29</span>
+  <span>~9 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">Most "memory" features for AI coding agents are flat key-value stores: when you update a memory, the old value is gone. That's the wrong abstraction for a codebase, where the team's beliefs change and the question "what did we think about auth at commit <code>abc123</code>?" is a real one. Sverklo borrows a 30-year-old database pattern — bi-temporal memory — and pins it to git SHAs. Here's how it works, why it matters, and the SQLite schema.</p>
+
+<h2>The failure mode</h2>
+
+<p>Last month I was debugging an auth flow with Claude Code. We made a deliberate decision: <em>JWT verification happens in the middleware, not the route handler</em>. The reason was specific — we wanted token validation to short-circuit before the route's body parser ran, which mattered for a CSRF protection we'd added two weeks earlier.</p>
+
+<p>Three days later, in a fresh session, Claude proposed moving JWT verification into the route handler. It hadn't seen the previous decision. Context was compacted. The agent had no way to retrieve "we decided X for reason Y."</p>
+
+<p>The conventional fix is a <code>CLAUDE.md</code> file with project invariants. Works for stable rules ("never use <code>any</code> in TypeScript") but not for evolving design decisions. The <code>CLAUDE.md</code> would either:</p>
+
+<ul>
+  <li>Become a wall of every decision the team ever made (unreadable)</li>
+  <li>Get manually pruned when decisions changed (loses history)</li>
+  <li>Get auto-pruned by some rule (which wins on conflict?)</li>
+</ul>
+
+<p>None of these answer "what did we believe at <em>this specific commit</em>?" — and that's the question that comes up when you're triaging a bug introduced in some past version.</p>
+
+<h2>Bi-temporal databases — the 1990s pattern</h2>
+
+<p>This problem isn't new. Database researchers solved a closely-related version of it 30 years ago for transactional systems where you needed both <em>"what is true now"</em> and <em>"what did we think was true on Date X."</em> The textbook is Richard Snodgrass's <em>Developing Time-Oriented Database Applications in SQL</em> (1999) — bi-temporal modelling, still readable, still applicable.</p>
+
+<p>The core idea: every row in a memory table has two time dimensions:</p>
+
+<ul>
+  <li><strong>Valid time</strong> — when the fact was true in the world</li>
+  <li><strong>Transaction time</strong> — when we recorded it</li>
+</ul>
+
+<p>Updating a fact doesn't overwrite — it inserts a new row with new valid-time bounds, and sets <code>valid_until</code> on the previous row. Queries can ask "current truth" (where <code>valid_until IS NULL</code>) or "what we believed at time T" (where <code>valid_from &lt;= T &lt; COALESCE(valid_until, infinity)</code>).</p>
+
+<h2>The git-SHA substitution</h2>
+
+<p>Wall-clock time is the wrong axis for a codebase. Code changes don't happen continuously — they happen at <em>commits</em>. The right "valid time" axis for an AI coding agent's memory is the git commit graph, not the wall clock.</p>
+
+<p>So sverklo's memory schema substitutes <code>valid_from</code> and <code>valid_until</code> with <code>valid_from_sha</code> and <code>valid_until_sha</code>:</p>
+
+<pre><code>CREATE TABLE memories (
+  id              INTEGER PRIMARY KEY,
+  category        TEXT NOT NULL,    -- decision, preference, pattern, ...
+  content         TEXT NOT NULL,
+  tier            TEXT NOT NULL,    -- core, project, archive
+  kind            TEXT,             -- episodic, semantic, procedural
+
+  -- Bi-temporal columns
+  valid_from_sha  TEXT NOT NULL,    -- commit at which this memory was created
+  valid_until_sha TEXT,             -- commit at which this memory was superseded; NULL = current
+  superseded_by   INTEGER REFERENCES memories(id),  -- pointer to the new memory
+
+  -- Provenance
+  created_at      INTEGER NOT NULL,
+  last_accessed   INTEGER NOT NULL,
+  access_count    INTEGER NOT NULL DEFAULT 0,
+  confidence      REAL NOT NULL DEFAULT 1.0,
+
+  -- Retrieval
+  embedding_id    INTEGER REFERENCES memory_embeddings(rowid),
+  pins            TEXT,             -- JSON array of file paths / symbols
+  tags            TEXT              -- JSON array
+);
+
+CREATE INDEX idx_memories_current ON memories(valid_until_sha)
+  WHERE valid_until_sha IS NULL;
+</code></pre>
+
+<p>The partial index on <code>valid_until_sha IS NULL</code> makes "current truth" queries fast — most queries only want active memories.</p>
+
+<h2>How updates work</h2>
+
+<p>When the agent calls <code>sverklo_remember</code> and the memory already exists (matched by category + similar embedding), sverklo doesn't update the row. It:</p>
+
+<ol>
+  <li>Inserts a new row with the new content, <code>valid_from_sha = HEAD</code></li>
+  <li>Sets <code>valid_until_sha = HEAD</code> on the old row</li>
+  <li>Sets <code>superseded_by</code> on the old row to point at the new row's id</li>
+</ol>
+
+<p>This preserves the lineage. <code>sverklo_recall</code> queries naturally filter to <code>valid_until_sha IS NULL</code> by default — but the <code>--timeline</code> flag opens the supersession history.</p>
+
+<h2>The query that justifies the design</h2>
+
+<p>The reason this matters is the query "what did we believe at commit <code>abc123</code>?" Conventional flat-overwrite memory can't answer this. Bi-temporal memory can:</p>
+
+<pre><code>-- Memories that were active at commit abc123:
+-- (created at or before abc123, AND not superseded before abc123)
+WITH commit_ancestry AS (
+  -- precomputed via `git rev-list --ancestry-path`
+  SELECT sha, depth FROM commit_graph WHERE 'abc123' IN (sha)
+)
+SELECT m.*
+FROM memories m
+WHERE m.valid_from_sha IN (SELECT sha FROM commit_ancestry WHERE depth &lt;= 0)
+  AND (m.valid_until_sha IS NULL
+       OR m.valid_until_sha NOT IN (SELECT sha FROM commit_ancestry WHERE depth &lt; 0));
+</code></pre>
+
+<p>It's messier in SQL than in pseudocode because git's commit graph is a DAG, not a line. The trick: precompute commit ancestry once as a closure table, store as <code>commit_graph</code>, then the query is straightforward set-membership.</p>
+
+<p>For the auth-flow example earlier: at commit <code>abc123</code> (when the JWT-in-middleware decision was made), the relevant memory says "JWT verification in middleware, reason: CSRF protection ordering." At commit <code>def456</code> (after we revisited and changed our minds), the relevant memory says something different. <code>sverklo_recall --at abc123</code> returns the first; <code>sverklo_recall</code> alone returns the second.</p>
+
+<h2>Why not just use git's own log?</h2>
+
+<p>Two reasons.</p>
+
+<p>First, git's log is a record of <em>code changes</em>, not a record of <em>beliefs about code</em>. Many decisions are made without code changes ("we decided to migrate to Postgres next quarter, but we haven't started"). Git doesn't capture those. Bi-temporal memory does.</p>
+
+<p>Second, git commit messages are unstructured prose. Searching them for "what did we decide about X?" is a needle-in-haystack problem that grep handles badly (which is what got us into this mess in the first place — see <a href="/bench/">/bench/</a>). Sverklo's memory layer is structured: each memory has a category, a confidence, a tier, embeddings for semantic search, and the lineage. Retrieval is hybrid (FTS5 + cosine over an ONNX embedding) and pinned to the git SHA where the question is being asked.</p>
+
+<h2>Lineage matters more than current truth</h2>
+
+<p>The pattern that's underrated in conventional memory systems: <strong>knowing why a previous decision was overturned is often more useful than knowing the current decision.</strong></p>
+
+<p>Concrete example: an engineer joins the team six months from now. They look at the auth middleware and see JWT verification in the route handler. Why? They run <code>sverklo_recall --timeline auth</code> and see:</p>
+
+<pre><code>2026-03-15  abc123  "JWT in middleware — CSRF ordering"
+2026-04-22  def456  "JWT in route handler — middleware ran for SSE endpoints unnecessarily,
+                     causing 12% latency overhead. CSRF ordering moved to a separate guard."
+</code></pre>
+
+<p>The current decision (JWT in route handler) makes sense only when paired with the previous decision and the reason for the change. Flat-overwrite memory deletes the why.</p>
+
+<h2>Constraints and tradeoffs</h2>
+
+<h3>The DAG problem</h3>
+
+<p>Git is a DAG, not a chain. Branches diverge, merges create commits with multiple parents, cherry-picks copy commits across branches. "What did we believe at commit <code>X</code>?" requires walking the ancestry of <code>X</code>, which is multiple ancestor paths if there were merges.</p>
+
+<p>Sverklo handles this by precomputing the ancestry closure for any commit you query — typically a small operation (<10ms even on repos with 100k commits) because git itself stores the ancestry compactly. The query plan is O(1) lookup against the precomputed table, not O(commits) per query.</p>
+
+<h3>Storage cost</h3>
+
+<p>Bi-temporal storage is more expensive than flat storage by a factor of ~2-5×, depending on how often memories supersede. In practice, sverklo's per-project memory database is a few megabytes for active projects — the storage cost is irrelevant compared to the query power.</p>
+
+<h3>Confidence decay</h3>
+
+<p>Memories don't get equally trustworthy as they age. A 6-month-old "we decided X" memory should be flagged for review when retrieved. Sverklo applies a decay function based on access patterns and commit-distance from HEAD; staleness shows up in the recall output as <code>[STALE]</code> for memories that haven't been accessed in 90+ days.</p>
+
+<h2>What this enables that you couldn't do before</h2>
+
+<ul>
+  <li><strong>"Why did we change this?"</strong> Walk the supersession chain from current memory to its origin.</li>
+  <li><strong>"What did the team believe at commit X?"</strong> Single recall query parameterized by SHA.</li>
+  <li><strong>"Show me the team's evolving understanding of authentication."</strong> Filter by tag, return the timeline view.</li>
+  <li><strong>"What memories are stale and should be reviewed?"</strong> Filter by access pattern + commit distance.</li>
+  <li><strong>"This memory contradicts current code. Which is wrong?"</strong> Sverklo's stale-memory detector flags drift between memory content and the file's current state.</li>
+</ul>
+
+<h2>Borrowed from databases, applied to LLMs</h2>
+
+<p>Bi-temporal modelling isn't novel. The novelty is the application surface: AI coding agents have an ephemeral context window that compacts every few hours, and they need a memory layer that survives compaction <em>and</em> tracks belief change.</p>
+
+<p>Most existing memory MCPs (the ones I've benchmarked, see <a href="/vs/codebase-memory-mcp/">comparison</a>) are wrappers around an external vector DB. They treat memory as a flat searchable bag. The bi-temporal pattern adds a second axis (time), and pinning that axis to git SHAs (rather than wall-clock time) aligns with how engineering teams actually think about decisions.</p>
+
+<p>It's an old idea applied to a new problem. The implementation lives in <a href="https://github.com/sverklo/sverklo/blob/main/src/storage/memory-store.ts"><code>src/storage/memory-store.ts</code></a> and <a href="https://github.com/sverklo/sverklo/blob/main/src/memory/prune.ts"><code>src/memory/prune.ts</code></a> — about 800 lines of TypeScript over SQLite.</p>
+
+<div class="cta-box">
+  <h3>Try it</h3>
+  <p>Sverklo is MIT-licensed and runs on your laptop. Memory is local — no cloud, no external services, no API keys.</p>
+  <pre>npm install -g sverklo
+cd your-project
+sverklo init</pre>
+  <p>Memory tools available immediately: <code>sverklo_remember</code>, <code>sverklo_recall</code>, <code>sverklo_memories</code>, <code>sverklo_pin</code>, <code>sverklo_promote</code>, <code>sverklo_demote</code>. The agent calls them; you don't have to.</p>
+  <p><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a> · <a href="/bench/">60-task retrieval benchmark</a> · <a href="/vs/">Comparisons</a></p>
+</div>
+
+<h2>Cite this</h2>
+
+<pre><code>@misc{sverklo_bench_primitives_2026,
+  title  = {Sverklo bench:primitives — a 60-task retrieval evaluation for AI coding agents},
+  author = {Groshin, Nikita},
+  year   = {2026},
+  doi    = {10.5281/zenodo.19802051},
+  url    = {https://sverklo.com/bench/}
+}</code></pre>
+
+<h2>References</h2>
+
+<ul>
+  <li>Snodgrass, R. T. (1999). <em>Developing Time-Oriented Database Applications in SQL</em>. Morgan Kaufmann.</li>
+  <li>Sverklo memory implementation: <a href="https://github.com/sverklo/sverklo/blob/main/src/storage/memory-store.ts"><code>src/storage/memory-store.ts</code></a></li>
+  <li>Sverklo memory pruning: <a href="https://github.com/sverklo/sverklo/blob/main/src/memory/prune.ts"><code>src/memory/prune.ts</code></a></li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/blog/i-benchmarked-code-retrieval-for-ai-agents/">I benchmarked code retrieval for AI coding agents on 60 tasks</a></li>
+  <li><a href="/blog/claude-code-context-loss/">Why Claude Code hallucinates function names that don't exist in your codebase</a></li>
+  <li><a href="/blog/rrf-is-doing-80-percent-of-the-work/">RRF is doing 80% of the work</a></li>
+  <li><a href="/vs/matrix/">Comparison matrix — 12 tools, 9 dimensions</a></li>
+</ul>
+
+</main>
+
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
