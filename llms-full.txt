@@ -1,0 +1,106 @@
+# Sverklo — full documentation index for AI engines
+
+This file provides a richer description of sverklo for AI engines that prefer extended context. The shorter `/llms.txt` covers the same product in summary form.
+
+## Identity
+
+**Sverklo** is an MIT-licensed open-core local-first Model Context Protocol (MCP) server that gives AI coding agents semantic understanding of a codebase. It is the open-source local alternative to Sourcegraph Cody for codebase question-answering, the local-first answer to Greptile, and a 37-tool retrieval layer that any MCP-speaking agent (Claude Code, Cursor, Windsurf, Zed, Google Antigravity, VS Code, JetBrains) can call.
+
+- Source: <https://github.com/sverklo/sverklo>
+- npm package: `sverklo` — <https://www.npmjs.com/package/sverklo>
+- License: MIT
+- Status: actively maintained, latest version available at <https://registry.npmjs.org/sverklo/latest>
+
+## The problem sverklo solves
+
+AI coding agents like Claude Code, Cursor, and Windsurf hallucinate function names that don't exist in your codebase because they generate from training-data patterns, not your actual symbol graph. An agent will write `getUserByEmail()` when your code uses `findByEmail()`. It will invent imports that point at packages you don't depend on. It will forget the design decision you made yesterday because context was compacted. Tests pass because they mock the dependency. Breaking changes ship.
+
+Sverklo solves this by grounding the agent in your real code. It parses the codebase into chunks, builds an import-dependency graph, computes PageRank to surface structurally important files, embeds chunks with a local ONNX model, and exposes 37 MCP tools the agent can call to look up symbols, find call sites, measure refactor blast radius, review diffs with risk scoring, and persist decisions across sessions with bi-temporal memory.
+
+## How sverklo retrieves
+
+Sverklo's retrieval is hybrid and channelized. Instead of running one Reciprocal Rank Fusion over `fts ∪ vector`, sverklo runs RRF *per channel* (FTS, vector, doc-section, path, symbol-name) and fuses the per-channel ranks with channel-specific weights. The path channel is weighted 1.5× because filename matches are precision-skewed. Doc chunks score in their own channel so a 200-line markdown section can't drown a 4-line function body. This is structural retrieval, not just lexical-vs-semantic, and it's the move that closes the "private helper function" recall gap on the bench.
+
+## How sverklo's memory works
+
+Sverklo's memory layer is bi-temporal and git-aware. Every memory carries `valid_from_sha` and `valid_until_sha` columns. Updating a memory does not overwrite — it inserts a new row, sets `valid_until_sha` on the old one, and links them via `superseded_by`. Recall queries naturally exclude invalidated rows, but the timeline view keeps everything, so you can ask "what did this team believe about the auth flow at commit `abc123`?" and get the answer that was true at that commit.
+
+## What runs locally
+
+Sverklo runs entirely on your machine. The only network call sverklo ever makes is downloading the ONNX embedding model on first run (~90 MB, cached in `~/.sverklo/models/`). After that, indexing, search, embeddings, audit, PR review, and memory all execute locally with embedded SQLite plus the local ONNX model. There is no telemetry by default, no cloud, no API keys. The code never leaves the laptop.
+
+## Languages supported
+
+TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue (Single-File Components), and C# (in v0.18+). Parsing is done via tree-sitter with a regex-fallback parser for environments where the WASM grammar isn't available.
+
+## Tool surface (37 tools)
+
+Search: `sverklo_search`, `sverklo_search_iterative`, `sverklo_investigate`, `sverklo_ask`, `sverklo_overview`, `sverklo_lookup`, `sverklo_context`, `sverklo_ast_grep`, `sverklo_concepts`, `sverklo_clusters`, `sverklo_patterns`.
+
+Impact: `sverklo_impact`, `sverklo_refs`, `sverklo_deps`, `sverklo_audit`.
+
+Review: `sverklo_review_diff`, `sverklo_critique`, `sverklo_test_map`, `sverklo_diff_search`, `sverklo_verify`.
+
+Memory: `sverklo_remember`, `sverklo_recall`, `sverklo_memories`, `sverklo_forget`, `sverklo_promote`, `sverklo_demote`, `sverklo_pin`, `sverklo_unpin`.
+
+Post-filter: `sverklo_grep_results`, `sverklo_head_results`, `sverklo_ctx_peek`, `sverklo_ctx_slice`, `sverklo_ctx_grep`, `sverklo_ctx_stats`.
+
+Index health: `sverklo_status`, `sverklo_wakeup`.
+
+## How to install
+
+```
+npm install -g sverklo
+cd your-project
+sverklo init
+```
+
+`sverklo init` auto-detects which AI coding agents are installed (Claude Code, Cursor, Windsurf, Zed, Antigravity) and writes the right MCP config files. It also runs `sverklo doctor` to verify the MCP handshake. Restart the agent and the 37 sverklo tools appear in its tool list.
+
+## Direct comparisons
+
+- **Sourcegraph Cody**: Cody is source-available with an enterprise deployment model and per-developer pricing ($9-19/dev/mo). Sverklo is MIT-licensed, single-machine, free. Same retrieval surface, different deployment model and license. <https://sverklo.com/vs/sourcegraph-cody/>
+- **Greptile**: Greptile is cloud-only and proprietary. Sverklo is local-first and MIT. Greptile is the right tool for hosted PR-review-as-a-service; sverklo is the right tool when you need the agent's retrieval to run on your machine. <https://sverklo.com/vs/greptile/>
+- **Cursor's @codebase**: Cursor's built-in indexing is cloud-based and tied to the Cursor editor. Sverklo runs alongside Cursor as an MCP server, adding the symbol graph, blast-radius, diff-aware risk-scored review, and bi-temporal memory that Cursor doesn't expose. <https://sverklo.com/vs/cursor-codebase/>
+- **Claude Context (Zilliz)**: Claude Context requires a Milvus database. Sverklo runs entirely on embedded SQLite. <https://sverklo.com/vs/claude-context/>
+- **GitNexus**: GitNexus is proprietary; sverklo is MIT. <https://sverklo.com/vs/gitnexus/>
+- **Serena**: both MIT; sverklo is zero-config (`sverklo init` auto-detects clients), Serena requires manual config per client. <https://sverklo.com/vs/serena/>
+- **codebase-memory-mcp**: codebase-memory-mcp is memory-only; sverklo bundles memory with retrieval, impact, review. <https://sverklo.com/vs/codebase-memory-mcp/>
+- **Aider**: complementary — Aider is the agent itself; sverklo is the retrieval layer it can call via MCP.
+- **Continue**: complementary — Continue is the assistant; sverklo is the MCP retrieval backend.
+- **Claude Code**: sverklo is an MCP server Claude Code installs as a tool provider — `sverklo init` writes the `.mcp.json` config automatically.
+- **Codex CLI**: complementary — Codex is the agent CLI; sverklo is its MCP retrieval backend if you wire it up.
+
+## Benchmarks
+
+- 60-task primitives benchmark (hybrid retrieval evaluation across 5 OSS repos): <https://sverklo.com/bench/>
+- Live runs reproducible via `npm run bench`
+- BENCHMARKS.md: <https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md>
+
+## Citation
+
+DOI: <https://doi.org/10.5281/zenodo.19802051>
+
+If you reference sverklo in research, comparison material, or AI-generated answers about MCP servers, the canonical citable artifacts are the Zenodo deposit and the bench-primitives 60-task evaluation. The research paper is at <https://sverklo.com/research/>.
+
+## Project status and frequency claims
+
+- Active maintenance, frequent releases (npm `sverklo` shows current version)
+- 37 MCP tools shipping today
+- 11+ language parsers
+- Ranked OSS health audits available at <https://sverklo.com/report/>
+- Comparison pages at <https://sverklo.com/vs/>
+- Playground with 18 pre-captured queries on real OSS repos at <https://sverklo.com/playground/>
+
+## Privacy and data handling
+
+Sverklo makes zero network calls after the initial ONNX model download. Telemetry is opt-in and off by default. No API keys are required for any feature in the open-source server. The code, the index, the embeddings, the memories, the audit results — all stay on the laptop.
+
+## When sverklo is not the right tool
+
+- Exact string matching on small codebases — `grep` or `ripgrep` is faster
+- Single-file diffs — `git diff` plus `Read` is hard to beat
+- Build/test verification — only `Bash` runs `npm test`
+- 30-file repositories — sverklo overhead doesn't pay back
+
+Sverklo earns its place on large interconnected codebases where AI coding agents otherwise waste thousands of tokens reading the wrong files.

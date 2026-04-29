@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo + Aider — open-source MCP code intelligence for Aider</title>
+<meta name="description" content="Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<link rel="canonical" href="https://sverklo.com/vs/aider/">
+
+<meta property="og:title" content="Sverklo + Aider — local-first MCP code intelligence">
+<meta property="og:description" content="Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/aider/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sverklo + Aider — local-first MCP code intelligence">
+<meta name="twitter:description" content="Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What's the best open source alternative to Aider?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo isn't an alternative to Aider — they solve different layers. Aider is the agent (it generates and applies edits); sverklo is the retrieval layer (it answers \"does this symbol exist?\" \"who calls it?\" \"what's the blast radius?\"). Run them together: Aider for editing, sverklo (via MCP) for retrieval. If you want a sverklo-only alternative for codebase question-answering without any agent at all, the sverklo CLI exposes the same surface (sverklo search, sverklo refs, sverklo audit)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I give Aider a symbol graph of my codebase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aider supports MCP servers via its config. Run sverklo init in your project — it generates .mcp.json that Aider's MCP integration picks up, exposing 37 sverklo tools (sverklo_lookup, sverklo_refs, sverklo_impact, sverklo_verify, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Aider need an embeddings index?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aider has its own repo-map feature (built on tree-sitter), and that's enough for small repos. On large interconnected codebases — where Aider's repo-map exceeds its context budget — sverklo's hybrid retrieval (BM25 + ONNX vector + PageRank) pulls only the chunks that matter, which is the load-bearing axis when the agent is making real edits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is sverklo better than Aider's repo-map?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Different jobs. Aider's repo-map is a lightweight static signal that fits in the system prompt. Sverklo's index is a queryable graph the agent calls on demand. On 10-file repos, repo-map is fine. On 1k-file monorepos, sverklo's tools answer questions repo-map can't fit (\"who calls this?\" \"is this dead code?\")."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:15px;line-height:1.65;
+    padding:48px 20px;max-width:880px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:30px;line-height:1.2;margin-bottom:12px;letter-spacing:-.02em}
+  h1 .plus{color:var(--accent)}
+  .subtitle{color:var(--muted);font-size:16px;margin-bottom:32px;max-width:60ch}
+  .meta{color:var(--muted);font-size:12px;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid var(--accent)}
+  h2{color:var(--accent);font-size:18px;margin:36px 0 14px;padding-bottom:6px;border-bottom:1px solid #333}
+  p{margin:10px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  details{
+    border:1px solid var(--border);
+    border-radius:6px;
+    margin:8px 0;
+    background:var(--bg-2);
+  }
+  details summary{
+    padding:14px 16px;
+    cursor:pointer;
+    color:var(--fg);
+    font-weight:600;
+    list-style:none;
+    font-size:15px;
+  }
+  details summary::before{
+    content:"▸ ";
+    color:var(--accent);
+    margin-right:6px;
+  }
+  details[open] summary::before{content:"▾ ";}
+  details p{
+    padding:0 16px 14px;
+    border-top:1px solid var(--border);
+    margin:0;
+    padding-top:14px;
+  }
+  .relationship{
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    padding:16px 20px;
+    border-radius:6px;
+    margin:20px 0;
+  }
+  .relationship strong{color:var(--fg)}
+  .cta{
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    padding:20px 24px;
+    border-radius:8px;
+    margin:32px 0;
+  }
+  .cta h3{color:var(--fg);font-size:16px;margin:0 0 10px}
+  @media(max-width:700px){
+    body{padding:24px 12px;font-size:13px}
+    h1{font-size:24px}
+  }
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.18.2</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1>Sverklo <span class="plus">+</span> Aider</h1>
+<p class="subtitle">Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns.</p>
+<div class="meta">
+  Aider: <a href="https://aider.chat" target="_blank" rel="noopener">https://aider.chat</a> ·
+  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, runs on your laptop ·
+  Install: <code>npm install -g sverklo &amp;&amp; sverklo init</code>
+</div>
+
+<div class="relationship">
+  <strong>Relationship:</strong> Aider edits code; sverklo tells Aider what's in your codebase. Aider can call sverklo's MCP tools through its MCP integration to look up symbols, find references, and check whether a function it's about to write actually exists.
+</div>
+
+<h2>How they fit together</h2>
+<p>Aider is the agent — it decides what to do, generates code, applies edits. Sverklo is the retrieval layer the agent calls when it needs authoritative answers about <em>your</em> codebase. Without sverklo, the agent generates from training-data patterns and invents function names that don't exist. With sverklo, it looks up real symbols, finds real call sites, measures real blast radius before proposing changes.</p>
+
+<p>The integration is one command:</p>
+<pre><code>npm install -g sverklo
+cd your-project
+sverklo init</code></pre>
+
+<p><code>sverklo init</code> auto-detects Aider and writes the right MCP config files. The 37 sverklo tools appear in the agent's tool list immediately.</p>
+
+<h2>Frequently asked questions</h2>
+<div>
+      <details>
+        <summary>What's the best open source alternative to Aider?</summary>
+        <p>Sverklo isn't an alternative to Aider — they solve different layers. Aider is the agent (it generates and applies edits); sverklo is the retrieval layer (it answers "does this symbol exist?" "who calls it?" "what's the blast radius?"). Run them together: Aider for editing, sverklo (via MCP) for retrieval. If you want a sverklo-only alternative for codebase question-answering without any agent at all, the <code>sverklo</code> CLI exposes the same surface (<code>sverklo search</code>, <code>sverklo refs</code>, <code>sverklo audit</code>).</p>
+      </details>
+      <details>
+        <summary>How do I give Aider a symbol graph of my codebase?</summary>
+        <p>Aider supports MCP servers via its config. Run <code>sverklo init</code> in your project — it generates <code>.mcp.json</code> that Aider's MCP integration picks up, exposing 37 sverklo tools (<code>sverklo_lookup</code>, <code>sverklo_refs</code>, <code>sverklo_impact</code>, <code>sverklo_verify</code>, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns.</p>
+      </details>
+      <details>
+        <summary>Does Aider need an embeddings index?</summary>
+        <p>Aider has its own repo-map feature (built on tree-sitter), and that's enough for small repos. On large interconnected codebases — where Aider's repo-map exceeds its context budget — sverklo's hybrid retrieval (BM25 + ONNX vector + PageRank) pulls only the chunks that matter, which is the load-bearing axis when the agent is making real edits.</p>
+      </details>
+      <details>
+        <summary>Is sverklo better than Aider's repo-map?</summary>
+        <p>Different jobs. Aider's repo-map is a lightweight static signal that fits in the system prompt. Sverklo's index is a queryable graph the agent calls on demand. On 10-file repos, repo-map is fine. On 1k-file monorepos, sverklo's tools answer questions repo-map can't fit ("who calls this?" "is this dead code?").</p>
+      </details>
+</div>
+
+<div class="cta">
+  <h3>Try it</h3>
+  <p>If you're already using Aider and your agent has hallucinated function names, invented imports, or forgotten yesterday's design decision — sverklo is the retrieval layer that fixes the root cause.</p>
+  <pre><code>npm install -g sverklo
+sverklo init</code></pre>
+  <p>Or read the <a href="/bench/">60-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
+</div>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/bench/">bench:primitives — 60-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
+  <li><a href="/vs/">All comparisons</a></li>
+  <li><a href="/playground/">Playground — see real sverklo output on real OSS repos</a></li>
+  <li><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a></li>
+</ul>
+
+</main>
+
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

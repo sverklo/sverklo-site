@@ -38,7 +38,7 @@
   "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.18.0",
+  "softwareVersion": "0.18.2",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
@@ -49,7 +49,7 @@
     "Cross-repo impact analysis (trace changes across dependent repositories)",
     "Diff-aware PR review with risk scoring",
     "Bi-temporal memory tied to git SHA",
-    "24 MCP tools",
+    "37 MCP tools",
     "11 languages via tree-sitter (TS, JS, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue SFC)",
     "Configurable PageRank weights via .sverklo.yaml",
     "Pluggable embedding models (ONNX default, Ollama for local models)",
@@ -77,10 +77,50 @@
   "mainEntity": [
     {
       "@type": "Question",
+      "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: sverklo_lookup resolves a name to its definition with file:line, sverklo_refs proves whether a symbol exists with caller context, sverklo_verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo and run sverklo init in your project — it auto-writes the .mcp.json so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I stop Cursor from hallucinating my codebase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Same root cause as Claude Code: Cursor generates from training data when it doesn't have authoritative retrieval. Sverklo runs alongside Cursor as an MCP server (Cursor 0.42+ supports MCP) and adds the symbol graph, blast radius, and diff-aware risk-scored review that Cursor's @codebase indexing doesn't expose. sverklo init auto-detects Cursor and writes the right config files."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "What is the best MCP server for code search?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It runs entirely on your laptop with no API keys and works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
+        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It ships 37 MCP tools, runs entirely on your laptop with no API keys, and works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the best open source alternative to Sourcegraph Cody?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is the open-source local-first alternative to Sourcegraph Cody for codebase question-answering. Cody is source-available with an enterprise deployment model and per-developer pricing; Sverklo is MIT-licensed, single-machine, and free. Same retrieval surface (hybrid BM25 + vector + PageRank), different deployment model. Sverklo doesn't try to be a hosted IDE plugin — it's a 37-tool MCP retrieval layer that any AI coding agent can call."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I give an AI coding agent persistent memory across sessions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo's sverklo_remember and sverklo_recall ship a bi-temporal memory layer pinned to git SHAs. Every memory carries valid_from_sha and valid_until_sha; updating a memory inserts a new row and links the old one via superseded_by, so the timeline view can answer 'what did this team believe about the auth flow at commit abc123?' Recall is hybrid (FTS5 + cosine over an ONNX embedding) and runs entirely in embedded SQLite — no Zilliz, Milvus, or managed Postgres+pgvector required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the best local-first MCP server for code intelligence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo. It's the only MIT-licensed MCP code intelligence server that ships hybrid retrieval, symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory in one zero-config install. Runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup."
       }
     },
     {
@@ -2359,9 +2399,13 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="kicker faq-kicker">/* questions we get asked */</div>
     <h2 class="faq-h">questions,<br>honestly<br>answered.</h2>
     <div class="faq-list">
+      <details open>
+        <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
+        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>sverklo_lookup</code> resolves a name to its definition with file:line, <code>sverklo_refs</code> proves whether a symbol exists with caller context, <code>sverklo_verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code> and run <code>sverklo init</code> — it auto-writes the <code>.mcp.json</code> so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys.</p>
+      </details>
       <details>
         <summary>Why would I install another MCP server?</summary>
-        <p>Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory — all running on your laptop with no API keys. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 24 new tools alongside whatever else you run.</p>
+        <p>Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory — all running on your laptop with no API keys. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 37 new tools alongside whatever else you run.</p>
       </details>
       <details>
         <summary>How is Sverklo different from Cursor's @codebase or Claude Context?</summary>

@@ -207,6 +207,7 @@ const TARGETS = [
   new URL("../playground/index.html", import.meta.url).pathname,
   new URL("../report/index.html", import.meta.url).pathname,
   new URL("../research/index.html", import.meta.url).pathname,
+  new URL("../bench/index.html", import.meta.url).pathname,
   new URL("../vs/index.html", import.meta.url).pathname,
   // nested templates
   ...discover("../report/", 2),

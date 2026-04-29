@@ -473,6 +473,36 @@ body:has(header.top.nav-canonical) > #main {
         <p>After Cody's July 2025 free tier shutdown: local-first, MIT licensed code intelligence for individual developers vs enterprise-only code search. Who should use each today.</p>
       </a>
 
+      <a class="vs-item" href="/vs/greptile/">
+        <h3>Sverklo vs <span class="accent">Greptile</span><span class="arrow">&rarr;</span></h3>
+        <p>Greptile is a hosted PR review bot ($30/dev/mo). Sverklo is a local-first MCP server (MIT, free). Same risk-scoring goal, different deployment model and privacy posture.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/claude-context/">
+        <h3>Sverklo vs <span class="accent">Claude Context</span><span class="arrow">&rarr;</span></h3>
+        <p>Claude Context (Zilliz) requires Milvus. Sverklo runs entirely on embedded SQLite + ONNX. When the operational simplicity of one process matters.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/claude-code/">
+        <h3>Sverklo <span class="accent">+</span> Claude Code<span class="arrow">&rarr;</span></h3>
+        <p>Claude Code is the agent; sverklo is the MCP retrieval layer it calls. Stops the agent from hallucinating function names that don't exist in your codebase.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/aider/">
+        <h3>Sverklo <span class="accent">+</span> Aider<span class="arrow">&rarr;</span></h3>
+        <p>Aider edits; sverklo retrieves. Wire sverklo as Aider's MCP retrieval backend for symbol-graph lookups, refs, and blast radius before the agent proposes changes.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/continue/">
+        <h3>Sverklo <span class="accent">+</span> Continue<span class="arrow">&rarr;</span></h3>
+        <p>Continue is the assistant UI in VS Code/JetBrains. Sverklo is the local MCP retrieval engine it can route through, replacing or augmenting Continue's @codebase indexing.</p>
+      </a>
+
+      <a class="vs-item" href="/vs/codex-cli/">
+        <h3>Sverklo <span class="accent">+</span> Codex CLI<span class="arrow">&rarr;</span></h3>
+        <p>OpenAI's Codex CLI supports MCP. Wire sverklo as a tool provider and the agent gains symbol-graph blast-radius, diff-aware review, and bi-temporal memory.</p>
+      </a>
+
     </div>
   </div>
 </section>

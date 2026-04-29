@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude Code Keeps Losing Context After Compaction — Here's How to Fix It — Sverklo</title>
-<meta name="description" content="Every long Claude Code session hits compaction. When it does, your agent forgets the architecture, the conventions, and the decisions you made 30 minutes ago. Persistent code intelligence fixes this without fighting the context window.">
+<title>Why Claude Code Hallucinates Function Names That Don't Exist In Your Codebase — Sverklo</title>
+<meta name="description" content="Claude Code writes getUserByEmail() when your code uses findByEmail(). It invents imports that point at packages you don't depend on. It forgets yesterday's design decision because context was compacted. The root cause and the structural fix.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/blog/claude-code-context-loss/">
 
-<meta property="og:title" content="Claude Code Keeps Losing Context After Compaction — Here's How to Fix It">
-<meta property="og:description" content="Compaction drops file contents and search results first. Your agent forgets which files matter, what was decided, and what's risky to change. Here's how persistent code intelligence survives the context window reset.">
+<meta property="og:title" content="Why Claude Code Hallucinates Function Names That Don't Exist In Your Codebase">
+<meta property="og:description" content="Claude Code writes getUserByEmail() when your code has findByEmail(). It invents imports. It forgets yesterday's decision. Here's the root cause and the structural fix.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/blog/claude-code-context-loss/">
 <meta property="og:site_name" content="Sverklo">
@@ -26,8 +26,8 @@
 <meta property="article:tag" content="code intelligence">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Claude Code Keeps Losing Context After Compaction — Here's How to Fix It">
-<meta name="twitter:description" content="Compaction drops file contents first. Your agent forgets the architecture. Persistent code intelligence fixes this.">
+<meta name="twitter:title" content="Why Claude Code Hallucinates Function Names That Don't Exist In Your Codebase">
+<meta name="twitter:description" content="Claude Code writes getUserByEmail() when your code has findByEmail(). It invents imports. Here's the structural fix.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 <meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
 
@@ -35,8 +35,8 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "Claude Code Keeps Losing Context After Compaction — Here's How to Fix It",
-  "description": "Compaction drops file contents and search results first. Your agent forgets which files matter, what was decided, and what's risky to change. Here's how persistent code intelligence survives the context window reset.",
+  "headline": "Why Claude Code Hallucinates Function Names That Don't Exist In Your Codebase",
+  "description": "Claude Code writes getUserByEmail() when your code has findByEmail(). It invents imports that point at packages you don't depend on. It forgets yesterday's design decision. The root cause and the structural fix using a 37-tool MCP retrieval layer that grounds the agent in your real symbol graph.",
   "datePublished": "2026-04-09",
   "dateModified": "2026-04-09",
   "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
@@ -484,9 +484,9 @@ body:has(header.top.nav-canonical) > #main {
     </div>
 
     <div class="kicker">Engineering &middot; Sverklo</div>
-    <h1>Claude Code keeps losing context after compaction &mdash; here's how to fix it</h1>
+    <h1>Why Claude Code hallucinates function names that don't exist in your codebase &mdash; and how to fix it</h1>
 
-    <p class="lede">Every Claude Code session starts fresh. After context compaction, your agent forgets the architecture, the conventions, the decisions you made 30 minutes ago. You re-explain the same things every session. The problem isn't Claude &mdash; it's that code knowledge lives in the context window, and the context window is temporary by design.</p>
+    <p class="lede">Claude Code writes <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>. It invents imports that point at packages you don't depend on. It forgets the architectural decision you made 30 minutes ago because context was compacted. Tests pass because they mock the dependency. Breaking changes ship. The problem isn't Claude &mdash; it's that the agent generates from training-data patterns when it doesn't have authoritative retrieval against <em>your</em> codebase. Two failure modes, one root cause: the symbol graph lives outside the context window.</p>
 
     <h2>What actually happens during compaction</h2>
 

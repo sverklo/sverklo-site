@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sverklo Benchmark — 60-task code retrieval evaluation, peer-reviewable</title>
+<meta name="description" content="60 verified tasks across 2 OSS codebases, 3 baselines (naive grep, tuned grep, sverklo). Reproducible. Honest about where each baseline wins and loses.">
+<link rel="canonical" href="https://sverklo.com/bench/">
+
+<meta property="og:title" content="Sverklo Benchmark — 60-task code retrieval evaluation">
+<meta property="og:description" content="60 verified tasks, 3 baselines, F1 + token-economy reported with the honesty section. Reproduce with one npm script.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/bench/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sverklo Benchmark — 60-task code retrieval evaluation">
+<meta name="twitter:description" content="60 verified tasks, 3 baselines, reproducible. Honest about wins and losses.">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:15px;line-height:1.65;
+    padding:48px 20px;max-width:960px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:34px;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em}
+  h1 span{color:var(--accent)}
+  .subtitle{color:var(--muted);font-size:16px;margin-bottom:32px}
+  .meta{color:var(--muted);font-size:12px;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid var(--accent)}
+  h2{color:var(--accent);font-size:20px;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid #333}
+  h3{color:var(--fg);font-size:16px;margin:24px 0 12px}
+  p{margin:10px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  .table-scroll{overflow-x:auto;margin:16px 0;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;margin:0;font-size:13px;min-width:680px}
+  th{background:var(--bg-2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap}
+  td{padding:8px 12px;border-bottom:1px solid #222}
+  tr:hover td{background:var(--bg-2)}
+  .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .best{color:#4ade80;font-weight:700}
+  .loss{color:#facc15}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  ul{margin:8px 0 8px 20px} li{margin:6px 0;color:var(--muted)}
+  blockquote{
+    border-left:3px solid var(--accent);
+    padding:12px 18px;margin:16px 0;
+    background:var(--bg-2);border-radius:0 6px 6px 0;
+    color:var(--fg);font-style:normal;
+  }
+  .headline{
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    padding:18px 22px;border-radius:6px;
+    margin:24px 0;font-size:16px;line-height:1.6;
+    color:var(--fg);
+  }
+  .callouts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}
+  .callout{background:var(--bg-2);border:1px solid var(--border);padding:14px 16px;border-radius:6px}
+  .callout .n{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:22px;color:var(--accent);font-weight:700}
+  .callout .l{font-size:12px;color:var(--muted);margin-top:4px}
+  @media(max-width:700px){
+    body{padding:24px 12px;font-size:13px}
+    h1{font-size:26px}
+    table{font-size:11px}
+    th,td{padding:6px 8px}
+    .callouts{grid-template-columns:1fr}
+  }
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.18.2</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1><span>bench:primitives</span> — 60-task code retrieval evaluation</h1>
+<p class="subtitle">Three retrieval baselines, two real OSS codebases, 60 hand-verified tasks. Reproducible.</p>
+<div class="meta">
+  Run: <code>2026-04-07T23:07:14Z</code> · <span id="bench-version">sverklo v0.2.11 at run-time</span> · 60 tasks × 3 baselines = 180 runs · <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/README.md">harness on GitHub</a>
+</div>
+
+<div class="headline">
+  <strong>Headline.</strong> On 60 verified tasks across <code>expressjs/express</code> and <code>sverklo/sverklo</code>:
+  sverklo achieves <strong>F1 0.58</strong> with <strong>255 average input tokens</strong> and <strong>1.0 tool calls</strong>;
+  smart-grep (a tuned grep with language filters and definition-shaped patterns) achieves <strong>F1 0.67</strong> with <strong>731 tokens</strong> and <strong>11.8 tool calls</strong>;
+  naive grep (the floor — <code>grep -rn &lt;sym&gt; .</code> then read top 10 files) achieves <strong>F1 0.35</strong> with <strong>15,814 tokens</strong> and <strong>7.6 tool calls</strong>.
+</div>
+
+<div class="callouts">
+  <div class="callout">
+    <div class="n">62×</div>
+    <div class="l">fewer tokens than naive grep<br>(255 vs 15,814)</div>
+  </div>
+  <div class="callout">
+    <div class="n">2.9×</div>
+    <div class="l">fewer tokens than tuned grep<br>(255 vs 731)</div>
+  </div>
+  <div class="callout">
+    <div class="n">1.0</div>
+    <div class="l">tool call per task<br>(grep needs 7.6 to 11.8)</div>
+  </div>
+</div>
+
+<h2>All baselines</h2>
+
+<div class="table-scroll"><table>
+  <thead>
+    <tr><th>baseline</th><th class="num">n</th><th class="num">F1</th><th class="num">recall</th><th class="num">prec</th><th class="num">tokens</th><th class="num">tools</th><th class="num">wall (ms)</th><th class="num">cold (ms)</th><th class="num">gated tok/correct</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>naive-grep</strong></td><td class="num">60</td><td class="num">0.35</td><td class="num">0.56</td><td class="num">0.29</td><td class="num">15814</td><td class="num">7.6</td><td class="num">1302</td><td class="num">0</td><td class="num">3557 <em>(n=10)</em></td></tr>
+    <tr><td><strong>smart-grep</strong></td><td class="num">60</td><td class="num"><span class="best">0.67</span></td><td class="num">0.81</td><td class="num">0.62</td><td class="num">731</td><td class="num">11.8</td><td class="num">215</td><td class="num">0</td><td class="num">165 <em>(n=28)</em></td></tr>
+    <tr><td><strong>sverklo</strong></td><td class="num">60</td><td class="num">0.58</td><td class="num">0.73</td><td class="num">0.57</td><td class="num"><span class="best">255</span></td><td class="num"><span class="best">1.0</span></td><td class="num"><span class="best">1</span></td><td class="num">3690</td><td class="num">203 <em>(n=25)</em></td></tr>
+  </tbody>
+</table></div>
+
+<p><em>Read this carefully:</em> smart-grep is a strong baseline. A tuned grep with language filters and definition-shaped patterns has higher F1 (0.67 vs 0.58) on this 60-task slice. Sverklo wins on token economy and tool-call count by a large margin (62× fewer tokens than naive grep, 2.9× fewer than smart-grep, single tool call vs 7-12). For an AI agent with a 200K token context window, that's the load-bearing axis. For a human standing at a terminal with `rg`, smart-grep is fine.</p>
+
+<h2>Per-category breakdown</h2>
+
+<h3>P1 — Definition lookup (n=20)</h3>
+<div class="table-scroll"><table>
+  <thead><tr><th>baseline</th><th class="num">F1</th><th class="num">tokens</th><th class="num">wall (ms)</th><th class="num">tools</th></tr></thead>
+  <tbody>
+    <tr><td>naive-grep</td><td class="num">0.15</td><td class="num">23337</td><td class="num">339</td><td class="num">8.1</td></tr>
+    <tr><td>smart-grep</td><td class="num">0.60</td><td class="num">196</td><td class="num">51</td><td class="num">2.0</td></tr>
+    <tr><td><strong>sverklo</strong></td><td class="num"><span class="best">0.75</span></td><td class="num">283</td><td class="num"><span class="best">0</span></td><td class="num"><span class="best">1.0</span></td></tr>
+  </tbody>
+</table></div>
+<p>Sverklo wins. Single tool call (<code>sverklo_lookup</code>) vs 8 grep iterations.</p>
+
+<h3>P2 — Reference finding (n=20)</h3>
+<div class="table-scroll"><table>
+  <thead><tr><th>baseline</th><th class="num">F1</th><th class="num">tokens</th><th class="num">wall (ms)</th><th class="num">tools</th></tr></thead>
+  <tbody>
+    <tr><td>naive-grep</td><td class="num">0.39</td><td class="num">21925</td><td class="num">345</td><td class="num">7.0</td></tr>
+    <tr><td><strong>smart-grep</strong></td><td class="num"><span class="best">0.81</span></td><td class="num">224</td><td class="num">17</td><td class="num">1.0</td></tr>
+    <tr><td>sverklo</td><td class="num">0.56</td><td class="num"><span class="best">157</span></td><td class="num"><span class="best">0</span></td><td class="num">1.0</td></tr>
+  </tbody>
+</table></div>
+<p>Smart-grep wins. Reference finding on Express/sverklo turns out to be a regex problem grep handles well; sverklo's symbol-graph helps less than we'd hoped on this slice. Token economy still favours sverklo.</p>
+
+<h3>P4 — File dependencies (n=10)</h3>
+<div class="table-scroll"><table>
+  <thead><tr><th>baseline</th><th class="num">F1</th><th class="num">tokens</th><th class="num">wall (ms)</th><th class="num">tools</th></tr></thead>
+  <tbody>
+    <tr><td>naive-grep</td><td class="num">0.51</td><td class="num">2918</td><td class="num">280</td><td class="num">2.0</td></tr>
+    <tr><td>smart-grep</td><td class="num">0.63</td><td class="num">1058</td><td class="num">16</td><td class="num">2.0</td></tr>
+    <tr><td><strong>sverklo</strong></td><td class="num"><span class="best">0.86</span></td><td class="num"><span class="best">74</span></td><td class="num"><span class="best">0</span></td><td class="num"><span class="best">1.0</span></td></tr>
+  </tbody>
+</table></div>
+<p>Sverklo wins decisively. <code>sverklo_deps</code> against the indexed import graph is what graph-based retrieval is supposed to do.</p>
+
+<h3>P5 — Dead code (n=10)</h3>
+<div class="table-scroll"><table>
+  <thead><tr><th>baseline</th><th class="num">F1</th><th class="num">tokens</th><th class="num">wall (ms)</th><th class="num">tools</th></tr></thead>
+  <tbody>
+    <tr><td>naive-grep</td><td class="num">0.50</td><td class="num">1442</td><td class="num">6164</td><td class="num">13.5</td></tr>
+    <tr><td><strong>smart-grep</strong></td><td class="num"><span class="best">0.55</span></td><td class="num">2488</td><td class="num">1138</td><td class="num">63.0</td></tr>
+    <tr><td>sverklo</td><td class="num">0.02</td><td class="num">579</td><td class="num"><span class="best">3</span></td><td class="num">1.0</td></tr>
+  </tbody>
+</table></div>
+<p><span class="loss">Sverklo loses badly here.</span> The current <code>sverklo_refs</code> doesn't catch dynamic invocations and deserialization-driven calls that smart-grep finds via aggressive whole-file reads. P5 is the next slice we plan to fix.</p>
+
+<h2>Where sverklo wins (full list)</h2>
+<div class="table-scroll"><table>
+  <thead><tr><th>Task</th><th>Category</th><th class="num">sverklo F1</th><th class="num">best grep F1</th><th class="num">sverklo tok</th><th class="num">best grep tok</th></tr></thead>
+  <tbody>
+    <tr><td><code>express/ex-p1-02</code></td><td>P1</td><td class="num"><span class="best">1.00</span></td><td class="num">0.00</td><td class="num">769</td><td class="num">10615</td></tr>
+    <tr><td><code>express/ex-p1-03</code></td><td>P1</td><td class="num"><span class="best">1.00</span></td><td class="num">0.00</td><td class="num">692</td><td class="num">6844</td></tr>
+    <tr><td><code>express/ex-p1-09</code></td><td>P1</td><td class="num"><span class="best">1.00</span></td><td class="num">0.00</td><td class="num">128</td><td class="num">5920</td></tr>
+    <tr><td><code>sverklo/sv-p4-05</code></td><td>P4</td><td class="num"><span class="best">1.00</span></td><td class="num">0.50</td><td class="num">50</td><td class="num">874</td></tr>
+    <tr><td><code>express/ex-p4-04</code></td><td>P4</td><td class="num"><span class="best">1.00</span></td><td class="num">0.50</td><td class="num">36</td><td class="num">3781</td></tr>
+    <tr><td><code>sverklo/sv-p4-04</code></td><td>P4</td><td class="num"><span class="best">1.00</span></td><td class="num">0.67</td><td class="num">42</td><td class="num">928</td></tr>
+    <tr><td><code>express/ex-p4-05</code></td><td>P4</td><td class="num"><span class="best">1.00</span></td><td class="num">0.68</td><td class="num">41</td><td class="num">1316</td></tr>
+    <tr><td><code>express/ex-p4-02</code></td><td>P4</td><td class="num">0.90</td><td class="num">0.68</td><td class="num">79</td><td class="num">1345</td></tr>
+    <tr><td><code>sverklo/sv-p4-02</code></td><td>P4</td><td class="num">0.86</td><td class="num">0.71</td><td class="num">40</td><td class="num">334</td></tr>
+    <tr><td><code>sverklo/sv-p4-03</code></td><td>P4</td><td class="num">0.86</td><td class="num">0.75</td><td class="num">59</td><td class="num">754</td></tr>
+    <tr><td><code>sverklo/sv-p4-01</code></td><td>P4</td><td class="num">0.80</td><td class="num">0.69</td><td class="num">232</td><td class="num">1373</td></tr>
+  </tbody>
+</table></div>
+
+<h2>Where sverklo loses (the honesty section)</h2>
+<p>If you skip this section, you're doing benchmark cherry-picking. We're not.</p>
+<div class="table-scroll"><table>
+  <thead><tr><th>Task</th><th>Category</th><th class="num">sverklo F1</th><th class="num">best grep F1</th><th class="num">sverklo tok</th><th class="num">best grep tok</th><th>note</th></tr></thead>
+  <tbody>
+    <tr><td><code>express/ex-p5-01</code></td><td>P5</td><td class="num">0.00</td><td class="num"><span class="best">1.00</span></td><td class="num">535</td><td class="num">0</td><td>missed</td></tr>
+    <tr><td><code>express/ex-p5-02</code></td><td>P5</td><td class="num">0.00</td><td class="num"><span class="best">1.00</span></td><td class="num">535</td><td class="num">0</td><td>missed</td></tr>
+    <tr><td><code>express/ex-p5-03</code></td><td>P5</td><td class="num">0.00</td><td class="num"><span class="best">1.00</span></td><td class="num">535</td><td class="num">0</td><td>missed</td></tr>
+    <tr><td><code>express/ex-p2-04</code></td><td>P2</td><td class="num">0.00</td><td class="num"><span class="best">1.00</span></td><td class="num">30</td><td class="num">49</td><td>missed</td></tr>
+    <tr><td><code>sverklo/sv-p2-04</code></td><td>P2</td><td class="num">0.50</td><td class="num"><span class="best">1.00</span></td><td class="num">58</td><td class="num">67</td><td>vs smart-grep</td></tr>
+    <tr><td><code>sverklo/sv-p2-06</code></td><td>P2</td><td class="num">0.40</td><td class="num"><span class="best">0.83</span></td><td class="num">137</td><td class="num">205</td><td>vs smart-grep</td></tr>
+    <tr><td><code>express/ex-p2-01</code></td><td>P2</td><td class="num">0.27</td><td class="num"><span class="best">0.63</span></td><td class="num">442</td><td class="num">701</td><td>vs smart-grep</td></tr>
+  </tbody>
+</table></div>
+<p>The dead-code (P5) miss is structural — sverklo's reference graph doesn't catch dynamic invocations and deserialization-driven calls. The reference-finding (P2) gap is closer; smart-grep's regex variants happen to match a few cases sverklo's symbol resolution doesn't.</p>
+
+<h2>What this benchmark does NOT measure</h2>
+<ul>
+  <li><strong>Real coding-task latency.</strong> 60 retrieval primitives, not 60 end-to-end agent runs. The token economy translates to real-world savings, but a follow-up bench:swe (65 SWE-bench-style questions × 5 OSS repos) measures that and is on the public roadmap.</li>
+  <li><strong>Anything beyond Express + sverklo.</strong> The current slice is two TS/JS codebases. Coverage on Go, Python, Rust is the next dataset extension.</li>
+  <li><strong>Cross-repo retrieval.</strong> The bench is single-repo; sverklo's workspace and cross-repo features aren't exercised.</li>
+  <li><strong>Cost of indexing.</strong> The 3690ms cold-start figure is the index build for sverklo. We list it as a separate column rather than amortizing it into wall time, so you can decide whether your usage pattern justifies it.</li>
+</ul>
+
+<h2>Methodology</h2>
+<ul>
+  <li><strong>Tasks:</strong> 60 hand-verified retrieval primitives across <code>expressjs/express</code> and <code>sverklo/sverklo</code>, distributed across P1 (definition lookup, n=20), P2 (reference finding, n=20), P4 (file dependencies, n=10), P5 (dead-code detection, n=10).</li>
+  <li><strong>Metrics:</strong> F1, recall, precision, total input tokens, tool-call count, wall time. <em>tokens_per_correct_answer</em> = input_tokens / max(recall, 0.01) — lower is better. The <em>gated</em> column averages only over runs where F1 ≥ 0.8 — refusing to reward "found nothing cheaply".</li>
+  <li><strong>Tolerances:</strong> P1 uses ±3-line tolerance, P2 uses ±2 lines, P4/P5 use set membership.</li>
+  <li><strong>naive-grep</strong> floor: <code>grep -rn &lt;sym&gt; .</code> then read top 10 files in full.</li>
+  <li><strong>smart-grep</strong>: language filters, ±10-line context reads, definition-shaped patterns. The strong baseline.</li>
+  <li><strong>sverklo</strong>: spawns the MCP stdio server once per dataset; cold-start is the index build.</li>
+  <li><strong>Run environment:</strong> Apple Silicon laptop, Node 25, sverklo running with <code>--expose-gc</code>, ONNX all-MiniLM-L6-v2 (~90 MB on disk).</li>
+</ul>
+
+<h2>Reproducing this</h2>
+<pre><code>git clone https://github.com/sverklo/sverklo &amp;&amp; cd sverklo
+npm install
+npm run build
+npm run bench:primitives</code></pre>
+<p>Raw outputs (<code>raw.jsonl</code>, <code>summary.json</code>, <code>report.md</code>) land in <code>benchmark/results/&lt;timestamp&gt;/</code>. The report.md mirrors this page's tables. Disagreements with our numbers are useful — file an issue with your machine spec and the run timestamp.</p>
+
+<h2>Performance benchmarks (separate)</h2>
+<p>This page is the <strong>retrieval</strong> benchmark. We also publish <strong>performance</strong> numbers (cold index time, search latency, impact-analysis time) on five real OSS codebases at <a href="/benchmarks/">/benchmarks/</a>. Both are reproducible from <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md">BENCHMARKS.md</a>.</p>
+
+<h2>Cite this</h2>
+<p>If you reference this benchmark in academic work or comparison material:</p>
+<pre><code>@misc{sverklo_bench_primitives_2026,
+  title  = {Sverklo bench:primitives — a 60-task retrieval evaluation for AI coding agents},
+  author = {Groshin, Nikita},
+  year   = {2026},
+  doi    = {10.5281/zenodo.19802051},
+  url    = {https://sverklo.com/bench/}
+}</code></pre>
+
+<h2>Get started</h2>
+<p>If the token-economy numbers look interesting:</p>
+<pre><code>npm install -g sverklo
+cd your-project
+sverklo init</code></pre>
+<p><code>sverklo init</code> auto-detects which AI coding agents you have installed (Claude Code, Cursor, Windsurf, Zed, Antigravity) and writes the right MCP config files. <a href="/">Back to the homepage →</a></p>
+
+</main>
+
+<!-- @nav-injected — do not edit; run patch-nav.mjs -->
+<style>
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

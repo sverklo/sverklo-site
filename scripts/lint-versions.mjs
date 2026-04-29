@@ -50,6 +50,12 @@ const ALLOWED_HISTORICAL = [
     snippet: "Numbers in the paper come from sverklo",
     note: "research paper provenance — which sverklo version produced the numbers",
   },
+  {
+    file: "bench/index.html",
+    version: "v0.2.11",
+    snippet: "sverklo v0.2.11 at run-time",
+    note: "bench:primitives provenance — sverklo version that produced the 60-task results in this report",
+  },
 ];
 
 const VERSION_RE = /v0\.\d+\.\d+/g;

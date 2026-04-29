@@ -2,3 +2,9 @@ User-agent: *
 Allow: /
 
 Sitemap: https://sverklo.com/sitemap.xml
+
+# AEO/GEO — context files for AI engines
+# Short summary for engines that prefer concise context:
+#   https://sverklo.com/llms.txt
+# Full description with comparisons + tool list + citation info:
+#   https://sverklo.com/llms-full.txt

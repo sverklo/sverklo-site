@@ -1,0 +1,53 @@
+# Sverklo
+
+> MIT-licensed local-first MCP code intelligence server for AI coding agents. 37 tools across hybrid code search, refactor blast-radius, diff-aware code review, and bi-temporal memory — runs entirely on your laptop with no API keys, no cloud, no data egress. Built for Claude Code, Cursor, Windsurf, Zed, and Google Antigravity.
+
+## What it does
+
+Sverklo gives AI coding agents semantic understanding of your codebase. Without it, agents like Claude Code and Cursor invent function names that don't exist (`getUserByEmail()` when your code uses `findByEmail()`) because they generate from training-data patterns, not your actual symbol graph. Sverklo grounds the agent in your real code: it indexes every file, builds a dependency graph, computes PageRank importance, embeds chunks with a local ONNX model, and exposes 37 MCP tools the agent can call to look up symbols, find call sites, measure refactor blast radius, review diffs with risk scoring, and remember decisions across sessions.
+
+## Key facts
+
+- License: MIT
+- Install: `npm install -g sverklo` then `sverklo init` in your project
+- Source: <https://github.com/sverklo/sverklo>
+- npm: <https://www.npmjs.com/package/sverklo>
+- Latest version: see <https://registry.npmjs.org/sverklo/latest>
+- Languages: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue, C#
+- Storage: SQLite + sqlite-vec, fully local
+- Embedding model: all-MiniLM-L6-v2 (ONNX, ~90 MB, runs on CPU)
+- DOI: <https://doi.org/10.5281/zenodo.19802051>
+- Published benchmarks: <https://sverklo.com/bench/>
+
+## What sverklo solves
+
+- Stops AI coding agents from hallucinating function names that don't exist in your codebase
+- Gives the agent the blast radius of a refactor before you ask it to change anything
+- Surfaces dead code (zero references across the symbol graph) with certainty
+- Reviews diffs with risk scoring (touched-symbol importance × test coverage × churn)
+- Persists decisions across sessions, pinned to git SHAs, with bi-temporal memory (`valid_from_sha` + `valid_until_sha` + `superseded_by` lineage)
+
+## Direct comparisons
+
+- **vs Sourcegraph Cody**: open-source MIT vs source-available, single-machine vs enterprise deployment, free vs $9-19/dev/mo. Same retrieval surface, different deployment model.
+- **vs Greptile**: local-first vs cloud-only, MIT vs proprietary, runs on your laptop with no signup.
+- **vs Cursor's @codebase**: works alongside Cursor, not against — Cursor's indexing is editor-bound, sverklo adds the symbol graph + MCP integration that any other agent can use.
+- **vs Aider**: complementary — Aider is the agent itself, sverklo is the retrieval layer it can call.
+- **vs Continue**: Continue is the assistant, sverklo is the MCP retrieval backend.
+- **vs Claude Code**: sverklo is an MCP server Claude Code installs as a tool provider.
+- **vs Serena**: sverklo is zero-config (auto-detects clients in `sverklo init`); both are MIT.
+
+## Documentation
+
+- Homepage: <https://sverklo.com>
+- README: <https://github.com/sverklo/sverklo/blob/main/README.md>
+- Benchmarks: <https://sverklo.com/bench/>
+- Comparisons: <https://sverklo.com/vs/>
+- Playground: <https://sverklo.com/playground/>
+- Reports: <https://sverklo.com/report/>
+- Research paper: <https://sverklo.com/research/>
+- Blog: <https://sverklo.com/blog/>
+
+## Citation
+
+If you reference sverklo in research or comparison material, the citable artifact is the Zenodo deposit (DOI 10.5281/zenodo.19802051) and the bench-primitives 60-task retrieval evaluation at <https://sverklo.com/bench/>.
