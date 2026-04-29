@@ -429,6 +429,36 @@ nav.top-nav a:hover { color: var(--text); }
 }
 .cta-secondary:hover { color: var(--accent); border-color: var(--accent); }
 
+/* One-click editor install badges — borrowed from SocratiCode's pattern.
+   Cursor and VS Code expose deep-link install URLs (cursor://, insiders.vscode.dev/redirect/);
+   clicking the badge opens the host with sverklo's MCP config pre-filled. */
+.install-badges {
+  grid-column: 1 / 13;
+  margin: 18px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+.install-badges-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--text-2, var(--muted));
+  letter-spacing: 0.02em;
+  margin-right: 4px;
+}
+.install-badges img {
+  display: block;
+  height: 28px;
+  border-radius: 3px;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.install-badges a:hover img { opacity: 0.88; transform: translateY(-1px); }
+@media (max-width: 720px) {
+  .install-badges-label { width: 100%; margin-bottom: 4px; }
+  .install-badges img { height: 26px; }
+}
+
 /* Horizontal meta strip — 5 cells, each "NUMBER · label" */
 .hero-meta {
   grid-column: 1 / 13;
@@ -1670,6 +1700,14 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </button>
       <a class="cta-secondary" href="/bench/">view the bench →</a>
       <a class="cta-secondary" href="/playground/">try playground →</a>
+    </div>
+
+    <div class="install-badges" aria-label="One-click install in your editor">
+      <span class="install-badges-label">Already using one of these? One-click install:</span>
+      <a href="cursor://anysphere.cursor-deeplink/mcp/install?name=sverklo&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsInN2ZXJrbG8iXX0=" rel="noopener"><img src="https://img.shields.io/badge/Cursor-Install_MCP-F14C28?style=for-the-badge&amp;logo=cursor&amp;logoColor=white" alt="Install in Cursor"></a>
+      <a href="https://insiders.vscode.dev/redirect/mcp/install?name=sverklo&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22sverklo%22%5D%7D" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/VS_Code-Install_MCP-0098FF?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white" alt="Install in VS Code"></a>
+      <a href="https://insiders.vscode.dev/redirect/mcp/install?name=sverklo&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22sverklo%22%5D%7D&quality=insiders" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/VS_Code_Insiders-Install_MCP-24bfa5?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white" alt="Install in VS Code Insiders"></a>
+      <a href="https://github.com/sverklo/sverklo#claude-code" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Claude_Code-Setup_Guide-CC785C?style=for-the-badge" alt="Claude Code setup"></a>
     </div>
 
     <ul class="hero-meta" aria-label="At a glance">
