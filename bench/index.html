@@ -120,16 +120,16 @@
 
 <div class="callouts">
   <div class="callout">
-    <div class="n">62×</div>
-    <div class="l">fewer tokens than naive grep<br>(255 vs 15,814)</div>
+    <div class="n"><span style="color:var(--muted);font-size:14px">15,814</span> → 255</div>
+    <div class="l">tokens per task<br><strong style="color:var(--accent)">−98%</strong> vs naive grep</div>
   </div>
   <div class="callout">
-    <div class="n">2.9×</div>
-    <div class="l">fewer tokens than tuned grep<br>(255 vs 731)</div>
+    <div class="n"><span style="color:var(--muted);font-size:14px">731</span> → 255</div>
+    <div class="l">tokens per task<br><strong style="color:var(--accent)">−65%</strong> vs tuned grep</div>
   </div>
   <div class="callout">
-    <div class="n">1.0</div>
-    <div class="l">tool call per task<br>(grep needs 7.6 to 11.8)</div>
+    <div class="n"><span style="color:var(--muted);font-size:14px">7-12</span> → 1</div>
+    <div class="l">tool calls per task<br><strong style="color:var(--accent)">−87%</strong> on average</div>
   </div>
 </div>
 
@@ -266,6 +266,22 @@ npm run bench:primitives</code></pre>
   doi    = {10.5281/zenodo.19802051},
   url    = {https://sverklo.com/bench/}
 }</code></pre>
+
+<h2>A few details we sweated</h2>
+
+<p><strong>Hand-verified ground truth.</strong> Every one of the 60 task answers was inspected by hand at the fixed commit. Auto-generated ground truth from existing tooling correlates with whatever generated it; we wanted the harness to be cleanly testable against any retrieval system, including future ones we haven't built.</p>
+
+<p><strong>The losing slice gets the same prominence as the winning slice.</strong> The dead-code (P5) F1 = 0.02 number lives in the same table as the wins, two scrolls apart. A bench that only releases when the maintainer wins is marketing; a bench that releases when the maintainer loses is a bench. The contribution is the harness, not the leaderboard.</p>
+
+<p><strong>Tokens-per-correct-answer is the primary axis, F1 is secondary.</strong> Most retrieval evaluations report F1 first because they were designed for human-facing search. AI agents inside bounded context windows pay for every token returned; that opportunity cost compounds across an editing session. We report both axes and explain the tradeoff in plain terms; the agent-relevant axis is the one that earned the headline callouts above.</p>
+
+<p><strong>Naive grep is the floor, not the strawman.</strong> The naive baseline runs <code>grep -rn &lt;sym&gt; .</code> then reads the top 10 matching files in full — the same thing a Claude Code agent does on its first 5 minutes against a fresh codebase. If your bench's naive baseline scores 5% F1, you're probably measuring against a strawman; ours scores 0.35, which matches what real agents actually achieve on real tasks.</p>
+
+<p><strong>Cold-start is a separate column, not amortized.</strong> Sverklo's index build is 3,690 ms on this corpus. We list it as its own column rather than averaging it into wall time so you can decide whether your usage pattern justifies the upfront cost. For a 10-task session it dominates; for a multi-hour session it disappears.</p>
+
+<p><strong>Raw JSONL output, not just aggregates.</strong> <code>benchmark/results/&lt;timestamp&gt;/raw.jsonl</code> has every task's input, the system's output, and the per-task scoring breakdown. Disagreements with our aggregates are useful — file an issue with your machine spec and run timestamp and we'll triage.</p>
+
+<p><strong>Two codebases is small. We say so.</strong> The "What this benchmark does NOT measure" section above isn't decorative. The next dataset extension is Go / Python / Rust on 5+ codebases. The current 60-task slice is what we have today, with the limitations explicitly listed.</p>
 
 <h2>Get started</h2>
 <p>If the token-economy numbers look interesting:</p>
