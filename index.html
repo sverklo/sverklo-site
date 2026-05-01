@@ -504,6 +504,89 @@ nav.top-nav a:hover { color: var(--text); }
   text-transform: uppercase;
 }
 
+/* ───────── DEMO VIDEO ───────── */
+.demo-section {
+  border-bottom: 1px solid var(--rule);
+  padding: 56px 0;
+  background: var(--bg);
+}
+.demo-section .demo-frame {
+  grid-column: 2 / 12;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+.demo-section .demo-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+  margin: 0 0 16px;
+  text-align: center;
+}
+.demo-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid var(--rule);
+  background: var(--bg-2);
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  margin: 0;
+}
+.demo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.88;
+  transition: opacity 0.2s, transform 0.4s;
+}
+.demo-thumb:hover img {
+  opacity: 1;
+  transform: scale(1.02);
+}
+.demo-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: rgba(232, 90, 42, 0.95);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  padding-left: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s, background 0.2s;
+}
+.demo-thumb:hover .demo-play {
+  transform: translate(-50%, -50%) scale(1.08);
+  background: rgba(232, 90, 42, 1);
+}
+.demo-meta {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: white;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.demo-iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid var(--rule);
+  display: block;
+}
+
 /* ───────── PROOF STRIP — 4 big benchmark numbers ───────── */
 .proof-strip {
   border-bottom: 1px solid var(--rule);
@@ -1713,6 +1796,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">
         <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
       </button>
+      <a class="cta-secondary" href="#demo">▶ watch 90s demo</a>
       <a class="cta-secondary" href="/bench/">view the bench →</a>
       <a class="cta-secondary" href="/playground/">try playground →</a>
     </div>
@@ -1824,6 +1908,26 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   <span class="ok">frontend  ~/frontend   24 tools  fresh</span>
 </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── DEMO VIDEO ───────── -->
+<section class="demo-section" id="demo" aria-label="90-second demo">
+  <div class="grid">
+    <div class="demo-frame">
+      <p class="demo-eyebrow">/* 90-second walkthrough — terminal then live Claude Code MCP integration */</p>
+      <button type="button"
+              class="demo-thumb"
+              aria-label="Play sverklo demo video"
+              onclick="this.outerHTML='&lt;iframe class=\&quot;demo-iframe\&quot; src=\&quot;https://www.youtube-nocookie.com/embed/OX7aEgdlqhQ?autoplay=1&amp;rel=0\&quot; title=\&quot;Sverklo MCP demo\&quot; frameborder=\&quot;0\&quot; allow=\&quot;autoplay; encrypted-media; picture-in-picture\&quot; allowfullscreen&gt;&lt;/iframe&gt;'">
+        <img src="https://i.ytimg.com/vi/OX7aEgdlqhQ/maxresdefault.jpg"
+             alt="Sverklo demo: terminal walkthrough then Claude Code MCP integration"
+             loading="lazy"
+             width="1280" height="720">
+        <span class="demo-play" aria-hidden="true">▶</span>
+        <span class="demo-meta">1:36 · sverklo init → audit → 37 MCP tools → Claude Code</span>
+      </button>
     </div>
   </div>
 </section>
