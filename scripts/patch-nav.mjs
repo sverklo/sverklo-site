@@ -215,6 +215,7 @@ const TARGETS = [
   ...discover("../report/", 2),
   ...discover("../vs/", 1),
   ...discover("../blog/", 1),
+  ...discover("../recipes/", 1),
 ];
 
 // Find <nav class="top-nav">…</nav> and replace its inner link list with the

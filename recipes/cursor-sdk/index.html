@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursor SDK + sverklo: drop-in code intelligence for programmatic agents (recipe) — Sverklo</title>
+<meta name="description" content="A 30-line recipe: configure sverklo as an MCP server in your Cursor SDK agent (TypeScript). The agent gets 37 sverklo tools — semantic search, blast-radius, symbol graph, bi-temporal memory — alongside Cursor's built-in semSearch. Works with composer-2 and the auto model.">
+<link rel="canonical" href="https://sverklo.com/recipes/cursor-sdk/">
+
+<meta property="og:title" content="Cursor SDK + sverklo recipe: drop-in code intelligence for programmatic agents">
+<meta property="og:description" content="30 lines of TypeScript: wire sverklo as an MCP server in your Cursor SDK agent. The agent gets 37 sverklo tools alongside Cursor's built-in semSearch.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/recipes/cursor-sdk/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-02">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Recipes">
+<meta property="article:tag" content="cursor">
+<meta property="article:tag" content="cursor-sdk">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="sverklo">
+<meta property="article:tag" content="typescript">
+<meta property="article:tag" content="agents">
+<meta property="article:tag" content="recipe">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cursor SDK + sverklo: drop-in code intelligence for programmatic agents">
+<meta name="twitter:description" content="30 lines of TypeScript. The agent gets 37 sverklo tools alongside Cursor's built-in semSearch.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Cursor SDK + sverklo: drop-in code intelligence for programmatic agents",
+  "description": "A 30-line TypeScript recipe wiring sverklo as an MCP server in a Cursor SDK agent. The agent gets 37 sverklo tools alongside Cursor's built-in semSearch.",
+  "datePublished": "2026-05-02",
+  "dateModified": "2026-05-02",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/recipes/cursor-sdk/"},
+  "articleSection": "Recipes",
+  "keywords": "cursor sdk, cursor mcp, sverklo cursor, cursor typescript sdk, programmatic agent, mcp server, cursor cookbook, semantic search cursor, blast radius cursor"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:22px;line-height:1.4;color:var(--fg);margin:28px 0;padding:24px 28px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0;font-weight:500;letter-spacing:-0.01em}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}.pull{font-size:17px;padding:18px 20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Recipe · Sverklo · 2026-05-02</div>
+<h1>Cursor SDK + sverklo: drop-in code intelligence for programmatic agents</h1>
+
+<div class="meta-bar">
+  <span>2026-05-02</span>
+  <span>~5 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">Cursor's TypeScript SDK launched into public beta on April 29, 2026. The intended path for adding custom retrieval to a programmatic Cursor agent is MCP — and sverklo is an MCP server. Here's the 30-line recipe to wire them together so your Cursor agent gets sverklo's symbol graph, blast-radius analysis, and bi-temporal memory <em>alongside</em> Cursor's built-in <code>semSearch</code>.</p>
+
+<div class="pull">No custom-tool API needed. The Cursor SDK speaks MCP directly via the <code>mcpServers</code> parameter on <code>Agent.create()</code>. One config block, 37 tools.</div>
+
+<h2>The recipe</h2>
+
+<p>One file. <a href="https://github.com/cursor/cookbook">Cursor's cookbook</a> uses TypeScript with <code>@cursor/sdk</code>. Add sverklo as an MCP server when you create the agent:</p>
+
+<pre><code>// agent.ts
+import { Agent } from "@cursor/sdk";
+
+const agent = await Agent.create({
+  apiKey: process.env.CURSOR_API_KEY!,
+  model: { id: "auto" },              // or "composer-2"
+  local: { cwd: process.cwd() },
+  mcpServers: {
+    sverklo: {
+      type: "stdio",
+      command: "npx",
+      args: ["-y", "sverklo", process.cwd()],
+      cwd: process.cwd(),
+    },
+  },
+});
+
+// The agent now has 37 sverklo tools available alongside
+// Cursor's built-in semSearch, glob, grep, edit, etc.
+const run = await agent.send(
+  "Find every caller of UserService.validate, then explain the blast radius if I rename it."
+);
+
+for await (const event of run.stream()) {
+  if (event.type === "tool_call") {
+    console.log("→", event.tool, event.args);
+  }
+  if (event.type === "text") {
+    process.stdout.write(event.text);
+  }
+}</code></pre>
+
+<p>That is the entire recipe. Run it with a Cursor API key and a project to operate on:</p>
+
+<pre><code>npm install -g sverklo            # one-time, pulls the indexer + ONNX model
+npm install @cursor/sdk           # in your SDK project
+export CURSOR_API_KEY=your_key
+npx tsx agent.ts</code></pre>
+
+<p>On first call, sverklo downloads its ONNX embedding model (~90 MB, ~30 sec). Every subsequent call is offline. The agent picks <code>sverklo_search</code>, <code>sverklo_impact</code>, <code>sverklo_refs</code>, etc. when they fit the task — and falls back to Cursor's <code>semSearch</code> or <code>grep</code> when those are sharper.</p>
+
+<h2>What the agent now knows how to do</h2>
+
+<p>Adding sverklo via MCP makes 37 tools available. The high-leverage ones for programmatic agents:</p>
+
+<ul>
+  <li><code>sverklo_search</code> — hybrid (BM25 + ONNX embedding + PageRank) semantic search. Better than <code>semSearch</code> on big repos because the PageRank prior surfaces structurally important hits, not just text-similar ones.</li>
+  <li><code>sverklo_impact</code> — recursive blast-radius. "What breaks if I rename X?" returns every transitive caller across the codebase, ranked by depth.</li>
+  <li><code>sverklo_refs</code> — exact references to a symbol. Faster than re-grep, and respects the symbol graph (catches wrappers and aliases).</li>
+  <li><code>sverklo_overview</code> — PageRank-ranked codebase map. The 5-minute mental model the agent needs before it edits anything.</li>
+  <li><code>sverklo_review_diff</code> — risk-scored diff review. Tells the agent which files in the working diff to read first.</li>
+  <li><code>sverklo_remember</code> / <code>sverklo_recall</code> — bi-temporal memory pinned to git SHAs. Decisions persist across runs and across branches.</li>
+  <li><code>sverklo_audit</code> — god classes, dead code, command-injection patterns. Agent can run a code-quality pass before merging.</li>
+</ul>
+
+<p>All 37 tools are available; the agent picks based on the task. The full list is in <a href="https://github.com/sverklo/sverklo">the sverklo repo</a>.</p>
+
+<h2>Why this is the right wedge</h2>
+
+<p>The Cursor SDK's TypeScript launch blog explicitly names MCP as <em>"the most common path"</em> for adding capabilities a built-in tool doesn't cover. There's <strong>no custom-tool registration API</strong>, no programmatic hook surface, no context-provider plug point. The SDK is intentionally minimal in those areas — extension goes through MCP, period.</p>
+
+<p>That means every retrieval / code-intel / memory feature you'd want under a programmatic Cursor agent has to be an MCP server. Sverklo is built for exactly that — local-first, MIT-licensed, runs on the host machine where your Cursor SDK code runs, no cloud round-trip, no API keys, no rate limits, no per-call cost.</p>
+
+<p>For cloud-mode agents (where Cursor's runtime spawns a sandbox), the same recipe works — the SDK's cloud runtime auto-loads MCP servers configured for the user/team. Local-mode agents need <code>local.settingSources: ["project"]</code> to pick up <code>.cursor/mcp.json</code>, or you can declare <code>mcpServers</code> inline as shown above.</p>
+
+<h2>File-based variant (for projects with `.cursor/mcp.json`)</h2>
+
+<p>If your project already has a <code>.cursor/mcp.json</code> (because you also use the Cursor IDE), the SDK can read from it directly:</p>
+
+<pre><code>// .cursor/mcp.json
+{
+  "mcpServers": {
+    "sverklo": {
+      "command": "npx",
+      "args": ["-y", "sverklo", "."]
+    }
+  }
+}</code></pre>
+
+<pre><code>// agent.ts
+import { Agent } from "@cursor/sdk";
+
+const agent = await Agent.create({
+  apiKey: process.env.CURSOR_API_KEY!,
+  model: { id: "auto" },
+  local: {
+    cwd: process.cwd(),
+    settingSources: ["project"],     // load .cursor/mcp.json
+  },
+});
+
+const run = await agent.send("Audit this codebase for hub files and dead code.");
+for await (const event of run.stream()) console.log(event);</code></pre>
+
+<p>This is the right choice if the same project is opened in the Cursor IDE — the IDE and the SDK agent share one MCP config, no drift.</p>
+
+<h2>Stability notes</h2>
+
+<p>The Cursor SDK is in public beta. Two things to know:</p>
+
+<ul>
+  <li><strong>Tool-call event payload schemas are not stable.</strong> Don't write code that parses <code>event.args</code> or <code>event.result</code> internals — those reflect each tool's shape and may change. Treating tool calls as opaque is the safe pattern.</li>
+  <li><strong>The SDK API surface is documented stable.</strong> <code>Agent.create()</code>, <code>agent.send()</code>, <code>run.stream()</code>, <code>mcpServers</code> — these are intended to remain. The recipe above only uses documented APIs.</li>
+</ul>
+
+<p>Sverklo's MCP interface is stable across the v0.x line. Tool names, JSON schemas, and stdio transport are unchanged since v0.5. Pin sverklo to a known minor (e.g. <code>npx -y sverklo@0.20</code>) if you want hermetic builds.</p>
+
+<h2>What's next</h2>
+
+<p>This recipe is the minimal wiring. Three follow-up patterns worth knowing:</p>
+
+<ol>
+  <li><strong>Subagent fan-out:</strong> the Cursor SDK supports subagents via <code>agent.task()</code>. Each subagent gets the same MCP servers — so you can fan out to "audit this repo," "summarize this PR," "find the blast radius of the rename" in parallel.</li>
+  <li><strong>Cloud-mode pinning:</strong> for cloud agents, sverklo runs locally on the developer's machine and the cloud agent calls back over MCP. The auth surface is your Cursor API key; sverklo never touches the cloud.</li>
+  <li><strong>Memory across runs:</strong> <code>sverklo_remember</code> persists to a SQLite database on disk. Two runs of the same agent on the same project share memory — decisions made in run 1 are recallable in run 2 without you wiring anything.</li>
+</ol>
+
+<div class="cta-box">
+  <h3>Try it</h3>
+  <p>Sverklo is MIT-licensed and runs on your laptop. The Cursor SDK recipe above is the entire integration — no API keys for sverklo, no cloud round-trips, no per-call cost.</p>
+  <pre>npm install -g sverklo
+npm install @cursor/sdk
+# wire mcpServers as shown above
+npx tsx agent.ts</pre>
+  <p>Got a working agent and want to share? Open a PR to <a href="https://github.com/cursor/cookbook">cursor/cookbook</a> with this recipe as a new example, or to <a href="https://github.com/sverklo/sverklo">sverklo/sverklo</a> if you build something interesting on top.</p>
+  <p><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a> · <a href="https://cursor.com/docs/sdk/typescript">Cursor SDK docs</a> · <a href="/bench/">60-task retrieval benchmark</a></p>
+</div>
+
+<h2>References</h2>
+
+<ul>
+  <li>Cursor TypeScript SDK docs: <a href="https://cursor.com/docs/sdk/typescript">cursor.com/docs/sdk/typescript</a></li>
+  <li>Cursor SDK launch blog (Apr 29, 2026): <a href="https://cursor.com/blog/typescript-sdk">cursor.com/blog/typescript-sdk</a></li>
+  <li>Cursor cookbook (PR-able examples repo): <a href="https://github.com/cursor/cookbook">github.com/cursor/cookbook</a></li>
+  <li>Sverklo on GitHub: <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a></li>
+  <li>Sverklo's 60-task retrieval benchmark: <a href="/bench/">sverklo.com/bench</a></li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/blog/i-benchmarked-code-retrieval-for-ai-agents/">I benchmarked code retrieval for AI coding agents on 60 tasks</a> — why hybrid search beats pure embeddings on code</li>
+  <li><a href="/blog/git-for-ai-agent-memory/">Git for AI agent memory</a> — how <code>sverklo_remember</code> survives context compaction</li>
+  <li><a href="/blog/mcp-stdio-command-injection-audit/">The 30-second audit for any MCP server you're about to install</a> — including ones you wire into your Cursor SDK agent</li>
+  <li><a href="/vs/matrix/">Comparison matrix — 12 code-intel tools across 9 dimensions</a></li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
