@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I added two competitors to my own benchmark. One of them beat me at P1. — Sverklo</title>
+<meta name="description" content="A user opened an issue asking for sverklo to benchmark against jcodemunch-mcp and GitNexus. Two surprises: smart-grep ties sverklo on overall F1, and jcodemunch wins P1 (definition lookup) outright. Honest 5-baseline writeup with reproducible numbers.">
+<link rel="canonical" href="https://sverklo.com/blog/i-added-two-competitors-to-my-own-benchmark/">
+
+<meta property="og:title" content="I added two competitors to my own benchmark. One of them beat me at P1.">
+<meta property="og:description" content="Sverklo just shipped a 5-baseline benchmark. Two surprises: smart-grep ties on overall F1, and jcodemunch wins P1. Honest writeup, reproducible numbers.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/i-added-two-competitors-to-my-own-benchmark/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-02">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="benchmark">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="code intelligence">
+<meta property="article:tag" content="jcodemunch">
+<meta property="article:tag" content="GitNexus">
+<meta property="article:tag" content="retrieval">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="I added two competitors to my own benchmark. One of them beat me at P1.">
+<meta name="twitter:description" content="5 baselines, 60 tasks. Smart-grep ties sverklo on overall F1; jcodemunch wins P1. Honest writeup, reproducible numbers.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "I added two competitors to my own benchmark. One of them beat me at P1.",
+  "description": "5-baseline retrieval benchmark expansion. Smart-grep ties sverklo on overall F1; jcodemunch wins P1 (definition lookup). Honest writeup with reproducible numbers.",
+  "datePublished": "2026-05-02",
+  "dateModified": "2026-05-02",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/i-added-two-competitors-to-my-own-benchmark/"},
+  "articleSection": "Engineering",
+  "keywords": "code retrieval benchmark, sverklo bench, jcodemunch, GitNexus, smart-grep, MCP benchmark, AI coding agents, retrieval evaluation"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:22px;line-height:1.4;color:var(--fg);margin:28px 0;padding:24px 28px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0;font-weight:500;letter-spacing:-0.01em}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}.pull{font-size:17px;padding:18px 20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Engineering · Sverklo · 2026-05-02</div>
+<h1>I added two competitors to my own benchmark. One of them beat me at P1.</h1>
+
+<div class="meta-bar">
+  <span>2026-05-02</span>
+  <span>~7 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">A user named Tom Hale opened <a href="https://github.com/sverklo/sverklo/issues/25">issue #25</a> on the sverklo repo last week, asking if I'd benchmark sverklo against two named competitors: jcodemunch-mcp and GitNexus. I committed to running them in 48 hours, then went and did. Three things I didn't expect:</p>
+
+<div class="pull">smart-grep ties sverklo on overall F1. jcodemunch wins P1 outright. And both of the new competitors return ~0 on P2 because they only track import sites, not call sites.</div>
+
+<h2>The setup</h2>
+
+<p>Sverklo's <a href="/bench/"><code>bench:primitives</code></a> is a 60-task hand-verified retrieval evaluation. Four task categories: P1 (definition lookup), P2 (reference finding), P4 (file dependencies), P5 (dead code). Two real OSS codebases (Express and sverklo itself). Three baselines: naive-grep (the floor), smart-grep (a tuned grep with language filters and definition-shaped patterns), and sverklo.</p>
+
+<p>When Tom asked me to add <a href="https://github.com/jgravelle/jcodemunch-mcp">jcodemunch-mcp</a> and <a href="https://github.com/abhigyanpatwari/GitNexus">GitNexus</a> — both direct competitors in the local-first MCP code-intel space — the right answer was obvious. The whole point of publishing a bench is to invite the comparison. Refusing to bench against named competitors looks like exactly what it is.</p>
+
+<p>I shipped the two new baselines over a Saturday afternoon. The harness's <code>Baseline</code> interface is small (<code>setupForDataset()</code> + <code>run(task)</code> returning structured prediction + raw payload + tool-call count + timing), and both competitors expose enough surface to map cleanly to the four task categories:</p>
+
+<pre><code>P1 (definitions)  → search_symbols / context
+P2 (references)   → find_references / impact
+P4 (file deps)    → find_importers / cypher graph queries
+P5 (dead code)    → get_dead_code_v2 / cypher</code></pre>
+
+<p>Both competitors run as subprocesses — jcodemunch as a persistent stdio MCP server (one process per dataset, query via JSON-RPC), GitNexus as one-CLI-spawn-per-query. Cold-start indexing happens once per dataset; warm queries amortize the cost.</p>
+
+<h2>The 5-baseline matrix</h2>
+
+<p>Run on Express's <code>4.21.1</code> tag, 30 tasks (the Express slice of the 60-task bench):</p>
+
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin:18px 0">
+  <thead>
+    <tr><th style="text-align:left;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase">Baseline</th>
+        <th style="text-align:right;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase">F1</th>
+        <th style="text-align:right;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase">P1</th>
+        <th style="text-align:right;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase">P2</th>
+        <th style="text-align:right;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase">P4</th>
+        <th style="text-align:right;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase">Tokens</th></tr>
+  </thead>
+  <tbody>
+    <tr><td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--fg)">naive-grep</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.290</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.15</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.26</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.43</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">17,169</td></tr>
+    <tr><td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--fg)"><strong>smart-grep</strong></td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--accent);font-weight:600">0.450</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.40</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--accent);font-weight:600">0.46</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.49</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">1,216</td></tr>
+    <tr><td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--fg)"><strong>sverklo</strong></td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.449</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.45</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.27</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--accent);font-weight:600">0.75</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--accent);font-weight:600">386</td></tr>
+    <tr><td style="padding:8px 10px;border-bottom:1px solid var(--border);color:var(--fg)"><strong>jcodemunch</strong></td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.281</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--accent);font-weight:600">0.65</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.00</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">0.38</td><td style="text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)">5,351</td></tr>
+    <tr><td style="padding:8px 10px;color:var(--fg)"><strong>gitnexus</strong></td><td style="text-align:right;padding:8px 10px;color:var(--muted)">0.260</td><td style="text-align:right;padding:8px 10px;color:var(--muted)">0.40</td><td style="text-align:right;padding:8px 10px;color:var(--muted)">0.01</td><td style="text-align:right;padding:8px 10px;color:var(--muted)">0.25</td><td style="text-align:right;padding:8px 10px;color:var(--muted)">543</td></tr>
+  </tbody>
+</table>
+
+<p>The headline narrative many people would expect — "the open-source MCP code-intel server beats grep by N×" — is not what these numbers say. What they say:</p>
+
+<h2>Surprise 1: smart-grep ties sverklo on overall F1</h2>
+
+<p>0.450 vs 0.449. That's not within margin of error; it's literally tied. A clever grep wrapper (language filters + definition-shaped patterns + ±10-line context reads) gets the same average accuracy across these 60 tasks as a full local-first MCP code-intel server with a tree-sitter index, an ONNX embedding model, a PageRank-ranked import graph, and four years of papers behind the design.</p>
+
+<p>This was the first instinct-violating result. I knew smart-grep was a strong baseline — that's why it's in the bench instead of just naive-grep — but I expected sverklo's structured retrieval to pull ahead on aggregate. It didn't.</p>
+
+<p>What did pull ahead is <strong>token economy</strong>. Smart-grep averages 1,216 tokens per task; sverklo averages 386. That's a 3× difference, and it stacks across an agent's full context window. For a human standing at a terminal with <code>rg</code>, smart-grep is genuinely fine. For an AI coding agent with bounded context, the differential is the load-bearing axis.</p>
+
+<p>The honest version of "we beat grep" is: we beat naive grep cleanly (15× fewer tokens), we tie smart grep on accuracy and beat it on token cost (3× fewer), we lose smart-grep's simplicity advantage. Anyone publishing benchmarks against grep should be reporting smart-grep numbers, not just naive-grep.</p>
+
+<h2>Surprise 2: jcodemunch wins P1 (definition lookup)</h2>
+
+<p>0.65 F1 vs sverklo's 0.45 on the same 10 P1 tasks. That's a real gap, not noise.</p>
+
+<p>P1 is the most basic retrieval primitive: "where is this symbol defined?" Sverklo's answer goes through hybrid search (BM25 + vector + PageRank). jcodemunch's tree-sitter symbol table is direct and apparently sharper on this slice.</p>
+
+<p>What's interesting is that this is the slice where everyone "should" be tied — definition lookup is the easiest task type, and tree-sitter parsers across tools should all surface the same symbols. The gap suggests sverklo's ranking is over-weighting hits that aren't the canonical definition (e.g. a re-export or test fixture), and jcodemunch's lighter index is more decisive on the "first match wins" case.</p>
+
+<p>This is on the next-up list to investigate. Honest credit where it's due: jcodemunch's symbol indexing is doing real work that sverklo isn't.</p>
+
+<h2>Surprise 3: jcodemunch and gitnexus return ~0 on P2</h2>
+
+<p>P2 is reference finding: "who calls this symbol?" Sverklo gets 0.27 on Express's 10 P2 tasks. Smart-grep gets 0.46. <strong>jcodemunch gets 0.00. GitNexus gets 0.01.</strong></p>
+
+<p>This isn't a bug. Both tools' reference-tracking is import-graph-only by design. They tell you which files import a symbol; they don't tell you where the symbol is called. For most agent workflows that's a real gap — an agent asking "what would break if I rename UserService.validate?" cares about call sites, not just import declarations.</p>
+
+<p>The trace through Express makes this concrete: <code>find_references(identifier: "createApplication")</code> on jcodemunch returns 0 results. <code>createApplication</code> is the main export of the entire module — it's literally how anyone uses Express (<code>const app = express()</code>) — but no source file does <code>import { createApplication }</code>, because Express uses CommonJS <code>module.exports = createApplication</code>. jcodemunch's import-only tracking misses the entire usage surface.</p>
+
+<p>I filed this back upstream as something worth surfacing in their docs, not a bug per se — the tool does what it says — but the limitation is currently invisible until you run it on a CommonJS codebase and notice every "find references" returns empty.</p>
+
+<h2>What's not in this writeup</h2>
+
+<p>Three things this benchmark doesn't measure that are worth saying out loud:</p>
+
+<ul>
+  <li><strong>End-to-end agent task quality.</strong> 60 retrieval primitives, not 60 SWE-bench-style runs. Sverklo's <code>bench:swe</code> targets that and is on the public roadmap.</li>
+  <li><strong>Languages beyond JavaScript/TypeScript.</strong> Express is JS, sverklo is TS. Adding Python, Go, Rust datasets is the next dataset extension.</li>
+  <li><strong>Cross-repo retrieval.</strong> The bench is single-repo; sverklo's workspace and cross-repo features aren't exercised. Neither are jcodemunch's or GitNexus's.</li>
+</ul>
+
+<h2>The reproducible setup</h2>
+
+<p>Anyone can run this:</p>
+
+<pre><code># Prereqs:
+#   uvx     (https://github.com/astral-sh/uv) — for jcodemunch
+#   gitnexus — npm i -g gitnexus
+
+git clone https://github.com/sverklo/sverklo &amp;&amp; cd sverklo
+npm install &amp;&amp; npm run build
+
+# All 5 baselines
+npm run bench:quick
+
+# Single baseline
+BASELINES=jcodemunch npm run bench:quick
+BASELINES=gitnexus   npm run bench:quick</code></pre>
+
+<p>Output lands in <code>benchmark/results/&lt;timestamp&gt;/</code>. Disagreements with these numbers are useful — open an issue with your machine spec and run timestamp.</p>
+
+<h2>Why publish numbers that aren't a clean win</h2>
+
+<p>The competitive default in the AI-coding-tools space right now is to publish the slice where you win and stay quiet on the slice where you don't. Greptile tweets the prompt-injection benchmark they win; Cursor links the agent-mode demo where their RAG works; Anthropic publishes the Claude vs GPT chart their model leads. It's not lying — it's selection.</p>
+
+<p>The reason to do the opposite is that selection bias collapses on contact with users running their own tasks on their own codebases. Once an evaluator runs a third tool on the same fixtures, your selective publication becomes the thing that makes you look bad.</p>
+
+<p>Tom asking the question forced the comparison. Running it forced the surprises. Publishing it forces the next round of work — figure out why sverklo's P1 ranking under-performs vs jcodemunch's tree-sitter resolution, decide whether to extend P2 reference tracking to call-graph-aware (sverklo already has the data) or accept that smart-grep covers the slice well enough.</p>
+
+<p>The bench page (<a href="/bench/">sverklo.com/bench</a>) now shows all 5 baselines side-by-side with both the wins and losses. The losses are the section that makes the wins meaningful.</p>
+
+<div class="cta-box">
+  <h3>Try it</h3>
+  <p>Sverklo is MIT-licensed and runs on your laptop. The bench is open and reproducible.</p>
+  <pre>npm install -g sverklo
+cd your-project
+sverklo init</pre>
+  <p><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a> · <a href="/bench/">Full 5-baseline bench page</a> · <a href="https://github.com/sverklo/sverklo/issues/25">Issue #25 — original ask + raw numbers</a></p>
+</div>
+
+<h2>References</h2>
+<ul>
+  <li>Original issue: <a href="https://github.com/sverklo/sverklo/issues/25">github.com/sverklo/sverklo#25</a> (Tom Hale)</li>
+  <li>jcodemunch baseline: <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/src/baselines/jcodemunch.ts"><code>benchmark/src/baselines/jcodemunch.ts</code></a></li>
+  <li>GitNexus baseline: <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/src/baselines/gitnexus.ts"><code>benchmark/src/baselines/gitnexus.ts</code></a></li>
+  <li>jcodemunch-mcp: <a href="https://github.com/jgravelle/jcodemunch-mcp">github.com/jgravelle/jcodemunch-mcp</a></li>
+  <li>GitNexus: <a href="https://github.com/abhigyanpatwari/GitNexus">github.com/abhigyanpatwari/GitNexus</a></li>
+  <li>Bench page (5-baseline matrix): <a href="/bench/">sverklo.com/bench</a></li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/blog/i-benchmarked-code-retrieval-for-ai-agents/">I benchmarked code retrieval for AI coding agents on 60 tasks</a> — original April 2026 writeup, 3 baselines</li>
+  <li><a href="/blog/git-for-ai-agent-memory/">Git for AI agent memory</a> — bi-temporal context</li>
+  <li><a href="/blog/mcp-stdio-command-injection-audit/">MCP STDIO command injection audit</a> — security primer for any MCP server</li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
