@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wire sverklo into any MCP-compatible agent (custom client recipe) — Sverklo</title>
+<meta name="description" content="A 35-line TypeScript recipe wiring sverklo as an MCP server into any MCP-compatible agent. Spawn the stdio server, list its 37 tools, call them by name. Works with any agent that speaks Model Context Protocol — OpenAI Agents SDK, custom JSON-RPC clients, in-house frameworks.">
+<link rel="canonical" href="https://sverklo.com/recipes/custom-mcp-client/">
+
+<meta property="og:title" content="Custom MCP client + sverklo: drop-in code intelligence for any agent">
+<meta property="og:description" content="35 lines of TypeScript. Spawn the stdio server, list its 37 tools, call them by name. Works with any MCP-compatible agent stack.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/recipes/custom-mcp-client/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-06">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Recipes">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="model context protocol">
+<meta property="article:tag" content="sverklo">
+<meta property="article:tag" content="typescript">
+<meta property="article:tag" content="agents">
+<meta property="article:tag" content="recipe">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wire sverklo into any MCP-compatible agent (custom client recipe)">
+<meta name="twitter:description" content="35 lines of TypeScript. Spawn, list, call. Works with any MCP-compatible agent.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Wire sverklo into any MCP-compatible agent (custom client recipe)",
+  "description": "A 35-line TypeScript recipe wiring sverklo as an MCP server into any MCP-compatible agent. Spawn the stdio server, list its 37 tools, call them by name.",
+  "datePublished": "2026-05-06",
+  "dateModified": "2026-05-06",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/recipes/custom-mcp-client/"},
+  "articleSection": "Recipes",
+  "keywords": "MCP client, model context protocol, sverklo MCP, custom agent, openai agents sdk, anthropic agent sdk, mcp stdio, json-rpc agent, sverklo recipe"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Recipes",
+      "item": "https://sverklo.com/recipes/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Custom Mcp Client",
+      "item": "https://sverklo.com/recipes/custom-mcp-client/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<main id="main">
+
+<p class="kicker">/* recipe · custom MCP client */</p>
+<h1>Wire sverklo into any MCP-compatible agent</h1>
+
+<p class="meta-bar">
+  <span>2026-05-06</span>
+  <span>·</span>
+  <span>~35 lines TypeScript</span>
+  <span>·</span>
+  <span>any agent stack with stdio + JSON-RPC</span>
+</p>
+
+<p class="lede">
+  Sverklo runs as a Model Context Protocol stdio server. If your agent stack speaks MCP — OpenAI Agents SDK, an in-house JSON-RPC client, the official MCP TypeScript or Python SDK, or anything that can spawn a child process and exchange line-delimited JSON — you can hand it 37 sverklo tools without modifying sverklo itself. This recipe shows the exact wiring.
+</p>
+
+<h2>What you get after 35 lines</h2>
+
+<p>One <code>sverklo</code> child process per repo, indexed once on first call (~1.4s cold start, &lt;50ms warm). The agent gains:</p>
+
+<ul>
+  <li><code>sverklo_search</code>, <code>sverklo_lookup</code>, <code>sverklo_refs</code> — hybrid retrieval grounded in the actual symbol graph</li>
+  <li><code>sverklo_impact</code>, <code>sverklo_test_map</code>, <code>sverklo_review_diff</code> — refactor blast-radius and diff-aware risk scoring</li>
+  <li><code>sverklo_remember</code>, <code>sverklo_recall</code>, <code>sverklo_pin</code> — bi-temporal memory pinned to git SHAs (snapshot, branch, rollback, time-travel)</li>
+  <li>~30 more across audit, dependency graphs, evidence verification, and concept clustering</li>
+</ul>
+
+<p>Full tool list: <a href="https://github.com/sverklo/sverklo#tools">github.com/sverklo/sverklo#tools</a>.</p>
+
+<h2>The recipe (TypeScript)</h2>
+
+<p>Uses the official <code>@modelcontextprotocol/sdk</code> client. Same shape works with the Python SDK, custom JSON-RPC code, or any MCP-compatible runtime.</p>
+
+<pre><code>import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+// 1. Spawn sverklo as a stdio MCP server.
+//    `npx -y sverklo` resolves to the binary on PATH (or fetches if missing).
+//    Pass the repo root via SVERKLO_PROJECT — sverklo indexes it on first call.
+const transport = new StdioClientTransport({
+  command: "npx",
+  args: ["-y", "sverklo"],
+  env: { ...process.env, SVERKLO_PROJECT: process.cwd() },
+});
+
+const client = new Client({ name: "my-agent", version: "0.1.0" }, { capabilities: {} });
+await client.connect(transport);
+
+// 2. Discover tools. sverklo ships 37; your agent decides which to expose.
+const { tools } = await client.listTools();
+console.error(\`sverklo exposed \${tools.length} tools\`);
+
+// 3. Call any tool by name. Arguments shape is documented per-tool in the
+//    JSON schema sverklo returns from listTools().
+const result = await client.callTool({
+  name: "sverklo_lookup",
+  arguments: { name: "createApplication" },
+});
+
+// `result.content` is an MCP-shaped array of {type, text|image|...} items.
+// For sverklo, every content block is text-shaped; concat or stream as needed.
+for (const block of result.content) {
+  if (block.type === "text") console.log(block.text);
+}
+
+// 4. When done, close the transport. The sverklo child process exits with it.
+await client.close();</code></pre>
+
+<h2>What about the agent loop?</h2>
+
+<p>The recipe above is the MCP wiring. Your agent loop — model selection, tool-call routing, message history — stays whatever you already have. Three integration shapes the wiring tends to slot into:</p>
+
+<ul>
+  <li><strong>OpenAI Agents SDK</strong>: pass the discovered <code>tools</code> array into the agent's tool registry; your existing <code>tool_use</code> handlers route to <code>client.callTool</code>.</li>
+  <li><strong>Anthropic SDK / Claude direct</strong>: convert sverklo's <code>tools</code> JSON-Schema into Claude's <code>tools</code> param shape; pipe <code>tool_use</code> blocks back to <code>client.callTool</code>.</li>
+  <li><strong>Custom orchestration</strong>: discover tools once at session start, cache the schema, route by name. Sverklo's tool surface is stable across versions — re-discover only on version bumps.</li>
+</ul>
+
+<h2>Common gotchas</h2>
+
+<h3>Stdio framing — keep it clean</h3>
+<p>Sverklo speaks line-delimited JSON-RPC over stdio. <strong>Don't write to <code>stdout</code> from the parent process</strong> while the transport is connected; it corrupts the frame stream and the SDK reports cryptic deserialization errors. Use <code>stderr</code> for your own logging. (We've seen this bug end-to-end inside MCP-shaped servers; an audit and fuzzer write-up lives at <a href="/blog/mcp-stdio-command-injection-audit/">/blog/mcp-stdio-command-injection-audit/</a>.)</p>
+
+<h3>Cold start vs warm latency</h3>
+<p>The first <code>callTool</code> blocks ~1.4s on a fresh repo while sverklo builds the index. Subsequent calls are &lt;50ms. For a multi-turn agent session, eagerly call <code>sverklo_status</code> at startup to amortize cold start before the user is waiting on a real query.</p>
+
+<h3>Repo path resolution</h3>
+<p>Sverklo defaults to the working directory of the spawned process. Pass <code>SVERKLO_PROJECT=/path/to/repo</code> via the transport env if you want to be explicit. For multi-repo setups, run one transport per repo and route by path.</p>
+
+<h3>Memory persistence across sessions</h3>
+<p>Sverklo's memory layer (<code>sverklo_remember</code>, <code>sverklo_recall</code>) writes to <code>~/.sverklo/&lt;repo&gt;/</code> automatically. If your agent runs in an ephemeral container, mount that path or memories evaporate when the container does. Memories are git-SHA-pinned so even if the underlying file moves, the recall still resolves correctly.</p>
+
+<h2>Verifying the wiring</h2>
+
+<p>One-liner to confirm the agent and sverklo handshake completed:</p>
+
+<pre><code>npx sverklo --version       # should print 0.20.x or later
+npx sverklo doctor          # 8 health checks; expects 8/8 green</code></pre>
+
+<p>If <code>doctor</code> reports "MCP handshake: not detected," the spawned process exited before stdio framing completed — usually a path or PATH issue. Fix with an explicit binary path in <code>StdioClientTransport.command</code>.</p>
+
+<h2>The receipts</h2>
+
+<p>This wiring is what powers sverklo's appearance on the <a href="/bench/">bench:primitives 90-task benchmark</a>: the bench harness is itself a custom MCP client (one process, batched <code>callTool</code> against the same surface a Cursor or Claude Code session uses). Sverklo at F1 0.56, 469 average input tokens, 1.0 tool calls per task — the numbers are reproducible because the wiring is the same a custom agent would use.</p>
+
+<div class="cta-box">
+<h3>Install</h3>
+<pre><code>npm install -g sverklo
+cd your-project
+sverklo init</code></pre>
+<p><code>sverklo init</code> auto-detects which MCP-aware editors you have installed (Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains) and writes the right config files. For custom-client integrations, the recipe above is sufficient — you don't need to run <code>init</code> first.</p>
+<p><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a> · <a href="https://github.com/modelcontextprotocol/typescript-sdk">@modelcontextprotocol/sdk on GitHub</a> · <a href="/bench/">90-task retrieval benchmark</a> · <a href="/recipes/cursor-sdk/">Cursor SDK recipe</a></p>
+</div>
+
+<h2>Read next</h2>
+<ul>
+  <li>Recipe with code: <a href="/recipes/cursor-sdk/">Cursor SDK + sverklo</a> — 30 lines, programmatic agent</li>
+  <li>Sverklo's stdio audit + fuzzer: <a href="/blog/mcp-stdio-command-injection-audit/">MCP STDIO command injection audit</a></li>
+  <li>How sverklo loses honestly: <a href="/bench/">bench:primitives</a> — every task where smart-grep beats us is on the same page as the wins</li>
+  <li>The full integration list: <a href="/recipes/">/recipes/</a></li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
