@@ -15,7 +15,7 @@
     # Known limitation (P1-1): script-src uses 'unsafe-inline' because the page has many inline
     # event handlers that would need refactoring (to external listeners or nonces) before launch.
     # Revisit post-launch — migrate to nonce-based CSP or hash-based allowlist.
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; script-src 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' https://img.shields.io https://badgen.net https://api.producthunt.com https://t.sverklo.com https://devhunt.org data:; connect-src 'self' https://registry.npmjs.org https://t.sverklo.com https://devhunt.org"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' https://img.shields.io https://badgen.net https://api.producthunt.com https://t.sverklo.com https://devhunt.org https://i.ytimg.com data:; connect-src 'self' https://registry.npmjs.org https://t.sverklo.com https://devhunt.org https://api.github.com; frame-src https://www.youtube-nocookie.com"
 
 # Long-cache static assets (renames invalidate by URL change). Keep HTML at default short cache.
 [[headers]]
