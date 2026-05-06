@@ -338,8 +338,10 @@ BASELINES=sverklo    npm run bench:quick</code></pre>
 
 <hr style="margin:48px 0;border:0;border-top:1px solid var(--rule)">
 
-<h2>Original April 2026 run (3 baselines)</h2>
-<p style="color:var(--text-3);font-size:14px"><em>Original numbers from the first public bench run (2026-04-07). The April run used a slightly older harness version; the May run above is the canonical current data. Both are kept on this page so the reader can audit drift.</em></p>
+<details class="prior-run">
+<summary><strong>Original April 2026 run</strong> — 60 tasks, 3 baselines (naive-grep, smart-grep, sverklo). Click to expand.</summary>
+
+<p style="color:var(--text-3);font-size:14px;margin-top:14px"><em>Original numbers from the first public bench run (2026-04-07). The April run used a slightly older harness version; the May 4 PM run above is the canonical current data. Both are kept on this page so the reader can audit drift.</em></p>
 
 <div class="headline">
   <strong>Headline (April 2026).</strong> On 60 verified tasks across <code>expressjs/express</code> and <code>sverklo/sverklo</code>:
@@ -457,6 +459,8 @@ BASELINES=sverklo    npm run bench:quick</code></pre>
   </tbody>
 </table></div>
 <p>The dead-code (P5) miss is structural — sverklo's reference graph doesn't catch dynamic invocations and deserialization-driven calls. The reference-finding (P2) gap is closer; smart-grep's regex variants happen to match a few cases sverklo's symbol resolution doesn't.</p>
+
+</details>
 
 <h2>What this benchmark does NOT measure</h2>
 <ul>
@@ -720,6 +724,38 @@ body:has(header.top.nav-canonical) > #main {
   th[data-sort="asc"]::after { content: " ↑"; color: var(--accent); font-weight: 400; }
   th[data-sort="desc"]::after { content: " ↓"; color: var(--accent); font-weight: 400; }
   th[style*="cursor: pointer"]:hover { color: var(--accent); }
+
+  /* Prior-run disclosure: collapsed by default, gives the canonical
+     May 4 PM table above more visual prominence without removing the
+     April data (which is load-bearing for "publishes losses" trust). */
+  details.prior-run {
+    margin: 16px 0;
+    background: var(--bg-2);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rule-2);
+    border-radius: 4px;
+  }
+  details.prior-run > summary {
+    cursor: pointer;
+    padding: 14px 18px;
+    color: var(--muted);
+    font-size: 14px;
+    list-style: none;
+    user-select: none;
+  }
+  details.prior-run > summary::-webkit-details-marker { display: none; }
+  details.prior-run > summary::before {
+    content: "▸ ";
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-right: 4px;
+  }
+  details.prior-run[open] > summary::before { content: "▾ "; }
+  details.prior-run > summary > strong { color: var(--fg); }
+  details.prior-run > summary:hover { color: var(--fg); }
+  details.prior-run[open] {
+    padding: 0 18px 18px;
+  }
 </style>
 </body>
 </html>
