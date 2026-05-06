@@ -79,6 +79,7 @@ sverklo init
 - Methodology + ground truth: <https://github.com/sverklo/sverklo-bench>
 - BENCHMARKS.md: <https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md>
 - Bench-loop precedent: jcodemunch-mcp shipped v1.80.7/8/9 against findings within 36 hours; sverklo v0.20.2 then closed the symmetric blind spot exposed by adding lodash. Both projects landed lodash P1 fixes from the same eval surface.
+- Auto-bench CI on baseline PRs: every PR touching benchmark/src/baselines/** in sverklo/sverklo runs the harness against the express dataset (~30 tasks, ~10 minutes) and posts a results-table comment back. Workflow source: github.com/sverklo/sverklo/blob/main/.github/workflows/auto-bench.yml. Tracking: sverklo-bench#4.
 
 ## Citation
 

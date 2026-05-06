@@ -485,8 +485,13 @@ BASELINES=sverklo    npm run bench:quick</code></pre>
 <pre><code>git clone https://github.com/sverklo/sverklo &amp;&amp; cd sverklo
 npm install
 npm run build
-npm run bench:primitives</code></pre>
-<p>Raw outputs (<code>raw.jsonl</code>, <code>summary.json</code>, <code>report.md</code>) land in <code>benchmark/results/&lt;timestamp&gt;/</code>. The report.md mirrors this page's tables. Disagreements with our numbers are useful — file an issue with your machine spec and the run timestamp.</p>
+npm run bench:quick                           # all baselines, all datasets
+BASELINES=sverklo,jcodemunch npm run bench:quick   # single baseline filter
+DATASETS=express npm run bench:quick               # single dataset filter</code></pre>
+<p>Raw outputs (<code>raw.jsonl</code>, <code>summary.json</code>, <code>report.md</code>) land in <code>benchmark/results/&lt;timestamp&gt;/</code>. The <code>report.md</code> mirrors this page's tables. Disagreements with our numbers are useful — file an issue with your machine spec and the run timestamp.</p>
+
+<h3>Submitting a new baseline</h3>
+<p>If you maintain a code-search tool, code-intelligence MCP server, or retrieval system, you can have it benchmarked here on the same task suite. Open a PR to <a href="https://github.com/sverklo/sverklo">sverklo/sverklo</a> adding <code>benchmark/src/baselines/&lt;your-tool&gt;.ts</code> — auto-bench CI runs on the PR within ~10 minutes against the express dataset (~30 tasks) and posts a results-table comment back. You don't need to run the harness locally first; CI does it. Methodology repo: <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a>. Workflow source: <a href="https://github.com/sverklo/sverklo/blob/main/.github/workflows/auto-bench.yml">.github/workflows/auto-bench.yml</a>. Tracking: <a href="https://github.com/sverklo/sverklo-bench/issues/4">sverklo-bench#4</a>.</p>
 
 <h2>Performance benchmarks (separate)</h2>
 <p>This page is the <strong>retrieval</strong> benchmark. We also publish <strong>performance</strong> numbers (cold index time, search latency, impact-analysis time) on five real OSS codebases at <a href="/benchmarks/">/benchmarks/</a>. Both are reproducible from <a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md">BENCHMARKS.md</a>.</p>
