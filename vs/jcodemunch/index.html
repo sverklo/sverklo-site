@@ -276,6 +276,34 @@ body:has(header.top.nav-canonical) > #main {
 <!-- @fonts-injected — do not edit; run patch-nav.mjs -->
 <!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 <!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Compare",
+      "item": "https://sverklo.com/vs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "vs jcodemunch-mcp",
+      "item": "https://sverklo.com/vs/jcodemunch/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
 </head>
 <body>
 
@@ -474,7 +502,6 @@ body:has(header.top.nav-canonical) > #main {
     <a href="/vs/greptile/">vs greptile</a>
   </div>
 </footer>
-
 <!-- @version-script-injected — do not edit; run patch-nav.mjs -->
 <script>
 (async () => {

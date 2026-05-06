@@ -541,6 +541,40 @@ body:has(header.top.nav-canonical) > #main {
 <!-- @fonts-injected — do not edit; run patch-nav.mjs -->
 <!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 <!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Reports",
+      "item": "https://sverklo.com/report/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Lodash",
+      "item": "https://sverklo.com/report/lodash/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Lodash",
+      "item": "https://sverklo.com/report/lodash/lodash/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>

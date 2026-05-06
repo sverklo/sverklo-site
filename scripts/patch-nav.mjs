@@ -51,6 +51,119 @@ const FONTS_BLOCK = `${FONTS_MARKER_START}
 <!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 ${FONTS_MARKER_END}`;
 
+// BreadcrumbList JSON-LD — derived per-page from the file path. Helps
+// AI engines (Gemini, Perplexity) render breadcrumb snippets and
+// strengthens entity-context for citations. Idempotent via marker.
+const BREADCRUMB_MARKER_START = "<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->";
+const BREADCRUMB_MARKER_END = "<!-- @end-breadcrumb -->";
+
+// Map URL segments → human-readable display names. Falls back to
+// title-casing the slug. Hand-curated where the slug-to-name mapping
+// is non-obvious.
+const SEGMENT_NAMES = {
+  "vs": "Compare",
+  "blog": "Blog",
+  "bench": "Benchmark",
+  "benchmarks": "Performance",
+  "playground": "Playground",
+  "research": "Research",
+  "press": "Press",
+  "badge": "Badge",
+  "recipes": "Recipes",
+  "report": "Reports",
+  "launch-kit": "Launch kit",
+  "docs": "Docs",
+  "gitnexus": "vs GitNexus",
+  "greptile": "vs Greptile",
+  "jcodemunch": "vs jcodemunch-mcp",
+  "serena": "vs Serena",
+  "codebase-memory-mcp": "vs codebase-memory-mcp",
+  "cursor-codebase": "vs Cursor @codebase",
+  "sourcegraph-cody": "vs Sourcegraph Cody",
+  "claude-code": "vs Claude Code",
+  "claude-context": "vs Claude Context",
+  "aider": "vs Aider",
+  "continue": "vs Continue",
+  "codex-cli": "vs Codex CLI",
+  "matrix": "Comparison matrix",
+  "cursor-sdk": "Cursor SDK recipe",
+};
+
+function segmentName(slug) {
+  if (SEGMENT_NAMES[slug]) return SEGMENT_NAMES[slug];
+  // Title-case the slug, replacing dashes with spaces.
+  return slug
+    .split("-")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(" ");
+}
+
+/**
+ * Build BreadcrumbList JSON-LD from a file path relative to sverklo-site root.
+ * E.g. "vs/gitnexus/index.html" → Home > Compare > vs GitNexus.
+ * Returns the inline <script> block string.
+ */
+function breadcrumbBlock(relPath) {
+  // Strip trailing /index.html and leading slash.
+  const url = "/" + relPath.replace(/\/?index\.html$/, "").replace(/^\/+/, "");
+  // Root page — no breadcrumb (it's the home).
+  if (url === "/" || url === "") return null;
+  const segments = url.split("/").filter(Boolean);
+  const items = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://sverklo.com/",
+    },
+  ];
+  let acc = "";
+  segments.forEach((seg, i) => {
+    acc += "/" + seg;
+    items.push({
+      "@type": "ListItem",
+      position: i + 2,
+      name: segmentName(seg),
+      item: "https://sverklo.com" + acc + "/",
+    });
+  });
+  const json = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items,
+  };
+  return `${BREADCRUMB_MARKER_START}
+<script type="application/ld+json">
+${JSON.stringify(json, null, 2)}
+</script>
+${BREADCRUMB_MARKER_END}`;
+}
+
+function injectBreadcrumb(html, relPath) {
+  let out = html;
+  // Strip prior marker block (idempotent).
+  const s = out.indexOf(BREADCRUMB_MARKER_START);
+  if (s >= 0) {
+    const e = out.indexOf(BREADCRUMB_MARKER_END, s);
+    if (e >= 0) {
+      const blockEnd = e + BREADCRUMB_MARKER_END.length;
+      let lo = s;
+      while (lo > 0 && /\s/.test(out[lo - 1])) lo--;
+      let hi = blockEnd;
+      while (hi < out.length && out[hi] === "\n") hi++;
+      out = out.slice(0, lo) + "\n" + out.slice(hi);
+    }
+  }
+  const block = breadcrumbBlock(relPath);
+  if (!block) return { html: out, touched: out !== html };
+  const idx = out.indexOf("</head>");
+  if (idx < 0) return { html: out, touched: false };
+  return {
+    html: out.slice(0, idx) + block + "\n" + out.slice(idx),
+    touched: true,
+  };
+}
+
 // Runtime version refresh. Renders the static fallback synchronously
 // (so there's no layout shift), then tries to overwrite it from npm
 // with a 2s timeout. If npm is slow/offline we keep the fallback.
@@ -392,6 +505,12 @@ function injectCss(html) {
   return { html: out.slice(0, idx) + "\n" + NAV_CSS + "\n" + out.slice(idx), touched: true };
 }
 
+// Compute file path relative to sverklo-site root for breadcrumb derivation.
+const SITE_ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+function relFromRoot(p) {
+  return p.startsWith(SITE_ROOT) ? p.slice(SITE_ROOT.length).replace(/^\/+/, "") : p;
+}
+
 let ok = 0, skip = 0;
 for (const p of TARGETS) {
   let html;
@@ -402,8 +521,9 @@ for (const p of TARGETS) {
   const r4 = injectFonts(r3.html);
   const r5 = injectVersionScript(r4.html);
   const r6 = injectTokens(r5.html);
-  if (r1.touched || r2.touched || r3.touched || r4.touched || r5.touched || r6.touched) {
-    writeFileSync(p, r6.html);
+  const r7 = injectBreadcrumb(r6.html, relFromRoot(p));
+  if (r1.touched || r2.touched || r3.touched || r4.touched || r5.touched || r6.touched || r7.touched) {
+    writeFileSync(p, r7.html);
     ok++;
     const tags = [
       r1.touched && "nav",
@@ -412,6 +532,7 @@ for (const p of TARGETS) {
       r4.touched && "fonts",
       r5.touched && "version-script",
       r6.touched && "tokens",
+      r7.touched && "breadcrumb",
     ].filter(Boolean).join("+");
     console.log(`[patched] ${p.replace(/.*sverklo-site\//, "")} (${tags})`);
   }

@@ -236,6 +236,34 @@ body:has(header.top.nav-canonical) > #main {
 <!-- @fonts-injected — do not edit; run patch-nav.mjs -->
 <!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 <!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Compare",
+      "item": "https://sverklo.com/vs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Comparison matrix",
+      "item": "https://sverklo.com/vs/matrix/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
 </head>
 <body>
 
