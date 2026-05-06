@@ -183,9 +183,7 @@
 }
 </script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon — preserves the local-first thesis). -->
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -588,6 +586,86 @@ nav.top-nav a:hover { color: var(--text); }
 }
 
 /* ───────── PROOF STRIP — 4 big benchmark numbers ───────── */
+/* ───────── BENCH LOOP TIMELINE ───────── */
+.bench-loop {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 64px 0;
+  background: var(--bg);
+}
+.bench-loop .loop-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text-3);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+.bench-loop .loop-h {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(20px, 2.8vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--fg);
+  max-width: 60ch;
+  margin-bottom: 32px;
+}
+.bench-loop .loop-tl {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  border-left: 2px solid var(--accent);
+  padding-left: 22px;
+}
+.bench-loop .loop-tl li {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 18px;
+  align-items: baseline;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.bench-loop .loop-date {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.bench-loop .loop-evt strong { color: var(--fg); font-weight: 600; }
+.bench-loop .loop-evt a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--rule-2); }
+.bench-loop .loop-evt a:hover { border-color: var(--accent); color: var(--accent); }
+.bench-loop .loop-quote {
+  background: var(--bg-2);
+  border-left: 3px solid var(--rule-2);
+  padding: 16px 22px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.bench-loop .loop-quote p {
+  color: var(--fg);
+  font-style: italic;
+  margin-bottom: 8px;
+}
+.bench-loop .loop-quote cite {
+  font-style: normal;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+.bench-loop .loop-quote cite a { color: var(--text-3); text-decoration: none; }
+.bench-loop .loop-quote cite a:hover { color: var(--accent); }
+@media (max-width: 600px) {
+  .bench-loop .loop-tl li { grid-template-columns: 1fr; gap: 4px; }
+}
+
 .proof-strip {
   border-bottom: 1px solid var(--rule);
   background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
@@ -1930,6 +2008,32 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <span class="demo-meta">1:36 · sverklo init → audit → 37 MCP tools → Claude Code</span>
       </button>
     </div>
+  </div>
+</section>
+
+<!-- ───────── BENCH LOOP TIMELINE ───────── -->
+<section class="bench-loop" aria-label="Bench-as-feedback-loop timeline">
+  <div class="grid">
+    <p class="loop-eyebrow">/* what happened when we published the bench */</p>
+    <h2 class="loop-h">A public benchmark, two competitors, fixes shipped on both sides in 36 hours.</h2>
+    <ol class="loop-tl" aria-label="Timeline of events">
+      <li>
+        <span class="loop-date">Apr 28</span>
+        <span class="loop-evt">Published <a href="/bench/">90-task bench</a> with two competing local-first MCP code-intel servers (jcodemunch-mcp, GitNexus) and the slice where sverklo lost.</span>
+      </li>
+      <li>
+        <span class="loop-date">May 2 → 3</span>
+        <span class="loop-evt">jcodemunch maintainer <a href="https://github.com/jgravelle">@jgravelle</a> shipped <a href="https://github.com/jgravelle/jcodemunch-mcp/releases">v1.80.7 / 1.80.8 / 1.80.9</a> against specific bench findings. P5 recall <strong>0.00 → 1.00</strong>; lodash P1 <strong>0/10 → 9/10</strong>.</span>
+      </li>
+      <li>
+        <span class="loop-date">May 4</span>
+        <span class="loop-evt">Adding lodash to the bench exposed the symmetric blind spot in sverklo's parser. <a href="https://github.com/sverklo/sverklo/releases/tag/v0.20.2">sverklo v0.20.2</a> ships the fix. Sverklo P1 <strong>0.30 → 0.73</strong>; overall F1 <strong>0.45 → 0.56</strong> (now leader).</span>
+      </li>
+    </ol>
+    <blockquote class="loop-quote">
+      <p>"the bigger opportunity here is the potential genesis of an 'MCP Server Arena' on par with what the leading AI/LLM/Chatbot arenas provide…"</p>
+      <cite><a href="https://www.reddit.com/r/mcp/comments/1t4n9un/">— Jake Gravelle, jcodemunch-mcp maintainer, on r/mcp</a></cite>
+    </blockquote>
   </div>
 </section>
 

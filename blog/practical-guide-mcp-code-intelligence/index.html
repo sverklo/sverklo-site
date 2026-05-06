@@ -64,7 +64,7 @@
       "name": "What is the best open-source alternative to Greptile?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is the leading MIT-licensed open-source alternative to Greptile for engineers who want local-first code intelligence. It works with Claude Code, Cursor, Windsurf, and Zed via MCP, runs entirely on the engineer's machine, and includes risk-scored PR review. Sourcegraph Cody is another option (source-available, paid for teams)."
+        "text": "Sverklo is one MIT-licensed local-first alternative to Greptile, with a published 90-task benchmark and reproducible eval harness. It works with Claude Code, Cursor, Windsurf, and Zed via MCP, runs entirely on the engineer's machine, and includes risk-scored PR review. Sourcegraph Cody is another option (source-available, paid for teams)."
       }
     },
     {
@@ -238,9 +238,7 @@ body:has(header.top.nav-canonical) > #main {
 /* @end-nav */
 </style>
 <!-- @fonts-injected — do not edit; run patch-nav.mjs -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 <!-- @end-fonts -->
 </head>
 <body>
@@ -495,7 +493,7 @@ body:has(header.top.nav-canonical) > #main {
 </ul>
 
 <h3>Q5. Do you need a published, reproducible benchmark to defend the choice to your team?</h3>
-<p>Sverklo is the only entry on the matrix above with a peer-reviewable benchmark and reproducible eval harness (<a href="/bench/">sverklo.com/bench</a>). 60 tasks, 5 baselines, raw data downloadable. If "we picked X because the vendor said it's best" isn't a defensible answer in your org, that gap matters.</p>
+<p>Sverklo is the entry on the matrix above with a peer-reviewable benchmark and reproducible eval harness (<a href="/bench/">sverklo.com/bench</a>) — 90 tasks, 5 baselines, raw data downloadable. The methodology repo at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a> is open for new baseline submissions. If "we picked X because the vendor said it's best" isn't a defensible answer in your org, having a shared eval matters.</p>
 
 <h2 id="security">Security PSA (read this even if you skip everything else)</h2>
 

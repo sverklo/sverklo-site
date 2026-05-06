@@ -13,6 +13,45 @@
    Pages that use legacy names (--bg2, --text2, --rule, --green/--yellow)
    get aliased here so we don't break them while migrating. */
 
+/* Self-hosted fonts — sverklo.com is a local-first product and the
+   marketing site shouldn't beacon Google Fonts on every visit. Files
+   live in /fonts/ as woff2; if a visitor already has the family
+   installed locally (most JetBrains/Adobe-tooling users do), the
+   local() entries pick that up first and the network request never
+   happens. */
+@font-face {
+  font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400; font-display: swap;
+  src: local('JetBrains Mono'), local('JetBrainsMono-Regular'), url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono'; font-style: normal; font-weight: 500; font-display: swap;
+  src: local('JetBrains Mono Medium'), local('JetBrainsMono-Medium'), url('/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono'; font-style: normal; font-weight: 600; font-display: swap;
+  src: local('JetBrains Mono SemiBold'), local('JetBrainsMono-SemiBold'), url('/fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: swap;
+  src: local('JetBrains Mono Bold'), local('JetBrainsMono-Bold'), url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Public Sans'; font-style: normal; font-weight: 400; font-display: swap;
+  src: local('Public Sans Regular'), local('PublicSans-Regular'), url('/fonts/PublicSans-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Public Sans'; font-style: normal; font-weight: 500; font-display: swap;
+  src: local('Public Sans Medium'), local('PublicSans-Medium'), url('/fonts/PublicSans-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Public Sans'; font-style: normal; font-weight: 600; font-display: swap;
+  src: local('Public Sans SemiBold'), local('PublicSans-SemiBold'), url('/fonts/PublicSans-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Public Sans'; font-style: normal; font-weight: 700; font-display: swap;
+  src: local('Public Sans Bold'), local('PublicSans-Bold'), url('/fonts/PublicSans-Bold.woff2') format('woff2');
+}
+
 :root {
   /* Surfaces */
   --bg: #0E0D0B;

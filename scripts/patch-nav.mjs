@@ -40,12 +40,15 @@ ${TOKENS_MARKER_END}`;
 // Google Fonts: same family list as the homepage. Subpages without
 // these links render the wordmark in system fonts, which is the most
 // visible brand inconsistency on the site.
+// Fonts are now self-hosted via @font-face declarations in tokens.css
+// (added 2026-05-06). Sverklo's brand thesis is local-first; the
+// marketing site shouldn't beacon Google Fonts on every visit. The
+// marker block is kept (now empty-ish) so existing pages can be
+// re-patched to strip their old Google Fonts links cleanly.
 const FONTS_MARKER_START = "<!-- @fonts-injected — do not edit; run patch-nav.mjs -->";
 const FONTS_MARKER_END = "<!-- @end-fonts -->";
 const FONTS_BLOCK = `${FONTS_MARKER_START}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 ${FONTS_MARKER_END}`;
 
 // Runtime version refresh. Renders the static fallback synchronously
@@ -318,12 +321,17 @@ function injectFonts(html) {
       out = out.slice(0, lo) + "\n" + out.slice(hi);
     }
   }
-  // Skip if fonts already loaded by hand (e.g., index.html). Detection
-  // is by the Google Fonts URL fragment, not our marker.
-  if (out.includes("fonts.googleapis.com/css2?family=JetBrains+Mono")) {
-    return { html: out, touched: out !== html };
-  }
-  // Insert before </head>.
+  // Strip any pre-existing hand-rolled Google Fonts links. These existed
+  // on pages predating the central FONTS_BLOCK (e.g., index.html had its
+  // own preconnect+stylesheet). Now that fonts are self-hosted via
+  // tokens.css, every page should drop them.
+  out = out
+    .replace(/<link[^>]+rel="preconnect"[^>]+fonts\.googleapis\.com[^>]*>\s*\n?/g, "")
+    .replace(/<link[^>]+rel="preconnect"[^>]+fonts\.gstatic\.com[^>]*>\s*\n?/g, "")
+    .replace(/<link[^>]+fonts\.googleapis\.com\/css2[^>]*>\s*\n?/g, "");
+  // Insert the (mostly empty) marker block before </head> so the file
+  // remains idempotent under re-patching, and so the auditable comment
+  // about self-hosting lives somewhere visible to future readers.
   const idx = out.indexOf("</head>");
   if (idx < 0) return { html: out, touched: false };
   return {

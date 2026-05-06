@@ -22,10 +22,6 @@
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 <meta name="twitter:image:alt" content="Sverklo — local-first code intelligence MCP">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <!-- @tokens-injected — do not edit; run patch-nav.mjs -->
@@ -347,6 +343,9 @@ body:has(header.top.nav-canonical) > #main {
 }
 /* @end-nav */
 </style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -369,8 +368,8 @@ body:has(header.top.nav-canonical) > #main {
 
 <main id="main">
   <div class="container">
-    <h1 class="page-title">Blog</h1>
-    <p class="page-tagline">Technical writing from the Sverklo team. Deep dives on hybrid code search, PageRank for source code, bi-temporal memory, and the engineering decisions behind the local-first MCP server.</p>
+    <h1 class="page-title">Local-first code intelligence — engineering notes</h1>
+    <p class="page-tagline">Receipts, methodology, losses. We publish the benchmark, the competitors patch, we patch back. Hybrid code search, PageRank for source code, bi-temporal memory, and the parser bugs we found by running the bench on real codebases.</p>
 
     <div class="posts">
 
