@@ -44,3 +44,28 @@
   --text2: var(--muted);
   --rule: var(--border);
 }
+
+/* ── Accessibility: skip-to-content link ──
+   The `<a class="skip-link" href="#main">` in every page is for screen
+   reader / keyboard users to bypass the nav. Rendered but visually
+   offscreen until focused via Tab. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 8px;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 8px 14px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 4px 4px;
+  z-index: 1000;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}

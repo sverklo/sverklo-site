@@ -56,6 +56,30 @@ const ALLOWED_HISTORICAL = [
     snippet: "sverklo v0.2.11 at run-time",
     note: "bench:primitives provenance — sverklo version that produced the 60-task results in this report",
   },
+  {
+    file: "blog/14200-tokens-to-find-one-function/index.html",
+    version: "v0.20.1",
+    snippet: "latest npm release (v0.20.1)",
+    note: "launch post: v0.20.1 was the release shipping `sverklo receipt`. Factual provenance, not a UI fallback.",
+  },
+  {
+    file: "blog/index.html",
+    version: "v0.20.1",
+    snippet: "v0.20.1",
+    note: "blog index excerpt referencing the launch post (which shipped sverklo receipt in v0.20.1).",
+  },
+  {
+    file: "bench/index.html",
+    version: "v0.20.1",
+    snippet: "pre-fix table (sverklo v0.20.1",
+    note: "May 4 PM bench page: pre-vs-post diff label for the v0.20.2 fix landing.",
+  },
+  {
+    file: "bench/index.html",
+    version: "v0.20.1",
+    snippet: "sverklo v0.20.1</strong>",
+    note: "May 4 PM bench page: pre-fix table row label.",
+  },
 ];
 
 const VERSION_RE = /v0\.\d+\.\d+/g;

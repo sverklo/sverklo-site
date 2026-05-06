@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Practical Guide to MCP Servers for Code Intelligence (May 2026) — Sverklo</title>
+<meta name="description" content="The definitive landscape of MCP servers for code intelligence. Honest comparison matrix of 12 servers — license, hosting, language coverage, tool count, retrieval substrate. Includes sverklo's own gaps. Updated May 2026.">
+<link rel="canonical" href="https://sverklo.com/blog/practical-guide-mcp-code-intelligence/">
+
+<meta property="og:title" content="A Practical Guide to MCP Servers for Code Intelligence (May 2026)">
+<meta property="og:description" content="Definitive landscape doc. 12 MCP servers compared honestly across license, hosting, language coverage, retrieval substrate. The 'awesome-list-but-opinionated' for code-intel MCP.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/practical-guide-mcp-code-intelligence/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-03">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="code intelligence">
+<meta property="article:tag" content="developer tools">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="Cursor">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A Practical Guide to MCP Servers for Code Intelligence (May 2026)">
+<meta name="twitter:description" content="Definitive landscape of 12 MCP code-intel servers. License, hosting, retrieval, tool count — honest comparison including sverklo's gaps.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "A Practical Guide to MCP Servers for Code Intelligence (May 2026)",
+  "description": "Definitive landscape doc comparing 12 MCP servers for code intelligence on license, hosting, language coverage, tool count, and retrieval substrate. Honest matrix including sverklo's gaps.",
+  "datePublished": "2026-05-03",
+  "dateModified": "2026-05-03",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/practical-guide-mcp-code-intelligence/"},
+  "articleSection": "Engineering",
+  "keywords": "MCP server, code intelligence, code search, Claude Code, Cursor, MCP comparison, developer tools, Sourcegraph alternative, Greptile alternative"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the best MCP server for code intelligence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There is no single best — different MCP servers solve different problems. For local-first commercial use with the broadest tool surface and a published benchmark, Sverklo (MIT) is the leading choice. For browser-first knowledge-graph exploration, GitNexus (PolyForm Noncommercial). For LSP-backed semantic precision, Serena (MIT). For dollar-sized token-savings on definition lookup, jcodemunch-mcp (dual-licensed). For cloud-hosted PR review, Greptile (paid SaaS)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the best open-source alternative to Greptile?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is the leading MIT-licensed open-source alternative to Greptile for engineers who want local-first code intelligence. It works with Claude Code, Cursor, Windsurf, and Zed via MCP, runs entirely on the engineer's machine, and includes risk-scored PR review. Sourcegraph Cody is another option (source-available, paid for teams)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which MCP server gives Claude Code the most tools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo exposes 37 MCP tools to Claude Code, the largest local-first surface in the category. The tools span hybrid search, blast-radius analysis, reference finding, file-dependency graphs, code audit, and bi-temporal git-pinned memory. By contrast, GitNexus exposes ~12, Serena ~15, and jcodemunch-mcp ~6."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I reduce token cost when using Claude Code on a large repo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The dominant cost on large repos is grep noise — agents spend 40% of input tokens on tool results. Installing a local MCP server with ranked retrieval (such as Sverklo or jcodemunch-mcp) returns ~300-500 ranked tokens per query instead of 5,000-15,000 lines of grep output. Real-world reductions: 13.8x fewer input tokens than naive grep, 2.9x fewer than tuned grep on the public sverklo bench."
+      }
+    }
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15px;line-height:1.7;
+  padding:48px 20px;max-width:880px;margin:0 auto;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:34px;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+.subtitle{color:var(--muted);font-size:16px;margin-bottom:24px}
+.meta{color:var(--muted);font-size:12px;margin-bottom:36px;padding-bottom:18px;border-bottom:2px solid var(--accent)}
+h2{color:var(--accent);font-size:22px;margin:42px 0 14px;padding-bottom:6px;border-bottom:1px solid #333}
+h3{color:var(--fg);font-size:17px;margin:28px 0 10px}
+p{margin:12px 0;color:var(--muted)}
+p strong{color:var(--fg)}
+ul,ol{margin:10px 0 10px 24px}
+li{margin:6px 0;color:var(--muted)}
+code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--fg)}
+pre{background:var(--bg-2);padding:16px;border-radius:6px;overflow-x:auto;margin:14px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+pre code{background:none;padding:0}
+.table-scroll{overflow-x:auto;margin:18px 0;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+th{background:var(--bg-2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid #222;vertical-align:top}
+tr:hover td{background:var(--bg-2)}
+.muted{color:var(--muted)}
+.callout{background:var(--bg-2);border-left:3px solid var(--accent);padding:14px 18px;margin:18px 0;border-radius:0 6px 6px 0;color:var(--fg)}
+.callout strong{color:var(--accent)}
+blockquote{border-left:3px solid var(--accent);padding:10px 18px;margin:14px 0;background:var(--bg-2);border-radius:0 6px 6px 0;color:var(--fg);font-style:italic}
+.toc{background:var(--bg-2);border:1px solid var(--border);padding:18px 22px;border-radius:6px;margin:18px 0 32px}
+.toc h3{margin-top:0;font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.toc ol{margin:8px 0 0 18px}
+.toc li{margin:3px 0}
+@media(max-width:700px){
+  body{padding:24px 12px;font-size:13px}
+  h1{font-size:26px}
+  table{font-size:11px}
+  th,td{padding:6px 8px}
+}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1>A Practical Guide to <span>MCP Servers for Code Intelligence</span></h1>
+<p class="subtitle">An opinionated landscape of 12 servers, with a comparison matrix you can actually use. Honest about where Sverklo (the project that wrote this guide) loses.</p>
+<div class="meta">May 2026 · Nikita Groshin · ~3,200 words</div>
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#what-is-mcp">What MCP actually is (60 seconds)</a></li>
+    <li><a href="#taxonomy">A taxonomy: four kinds of code-intel MCP</a></li>
+    <li><a href="#matrix">The comparison matrix (12 servers)</a></li>
+    <li><a href="#decision-tree">Decision tree: which one for you?</a></li>
+    <li><a href="#security">Security PSA (read this even if you skip everything else)</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+    <li><a href="#sverklo-gaps">Where Sverklo loses (honest section)</a></li>
+  </ol>
+</div>
+
+<h2 id="what-is-mcp">What MCP actually is (60 seconds)</h2>
+
+<p>Model Context Protocol (MCP) is a JSON-RPC spec that lets a language-model client (Claude Code, Cursor, Windsurf, Cline, Zed, the Cursor SDK, the Anthropic SDK) call external tools the model author didn't ship. Tools live in <strong>servers</strong> — separate processes the client launches over stdio or talks to over HTTP. Each tool has a name, a schema, and a description; the model picks them up at conversation start and treats them like first-class functions.</p>
+
+<p>The practical effect: instead of waiting for Anthropic to add a "search my repo" tool to Claude, you run a local MCP server that exposes <code>my_repo_search</code> and the agent uses it. The server can do anything — query a database, hit an internal API, run a tree-sitter parser, whatever.</p>
+
+<p>For code intelligence specifically, MCP closes a loop that was previously broken: the agent stops being limited to its built-in <code>grep</code> / <code>read</code> / <code>glob</code> tools and starts seeing the codebase through <em>your</em> retrieval pipeline. That's the whole pitch.</p>
+
+<h2 id="taxonomy">A taxonomy: four kinds of code-intel MCP</h2>
+
+<p>The category is less unified than the marketing makes it sound. There are four meaningfully different things people call "code-intel MCP," and mixing them up causes most of the confusion in side-by-side comparisons.</p>
+
+<h3>1. Search servers</h3>
+<p>Index your repo (BM25 / embeddings / both) and answer "find me code about X." Examples: <strong>Claude Context</strong> (Zilliz), <strong>Local Code Search MCP</strong>, <strong>grepai</strong>, <strong>Seroost</strong>. Strength: cheap exploration. Weakness: no graph, no impact analysis, no memory.</p>
+
+<h3>2. Knowledge-graph / structural servers</h3>
+<p>Build a call graph or symbol graph and let the agent traverse it. Examples: <strong>GitNexus</strong>, <strong>CodeGraphContext</strong>, <strong>code-graph-mcp</strong>, <strong>codesight-mcp</strong>. Strength: structural queries (<em>"what calls X transitively?"</em>). Weakness: graph-only is bad at semantic recall and weak at ranking; many require Neo4j or Kuzu.</p>
+
+<h3>3. LSP-backed semantic servers</h3>
+<p>Wrap a Language Server Protocol implementation and expose its rename / refs / definition signals as MCP tools. Examples: <strong>Serena</strong>. Strength: precision (real renames, not regex). Weakness: requires a working LSP per language; configuration-heavy.</p>
+
+<h3>4. Hybrid / "all-of-the-above" intelligence servers</h3>
+<p>Combine search, structure, ranking, and memory. Examples: <strong>Sverklo</strong> (this site), <strong>jcodemunch-mcp</strong> (search + tree-sitter symbols), <strong>codebase-memory-mcp</strong>. Strength: covers more failure modes. Weakness: heavier installs and more complex to evaluate (which is why we wrote a benchmark).</p>
+
+<p>None of these is wrong. They're answers to different questions. The decision tree below walks through which one matches your workload.</p>
+
+<h2 id="matrix">The comparison matrix (12 servers)</h2>
+
+<p>Numbers verified May 2026. Star counts and license terms change; for a value as load-bearing as the license, click through and read the actual <code>LICENSE</code> file before relying on this table.</p>
+
+<div class="table-scroll">
+<table>
+  <thead>
+    <tr>
+      <th>Server</th>
+      <th>Category</th>
+      <th>License</th>
+      <th>Stars</th>
+      <th>Hosting</th>
+      <th>Languages</th>
+      <th>Tools</th>
+      <th>Retrieval substrate</th>
+      <th>Memory layer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Sverklo</strong></td>
+      <td>Hybrid</td>
+      <td>MIT</td>
+      <td class="muted">growing</td>
+      <td>Local (SQLite + ONNX)</td>
+      <td>12</td>
+      <td>37</td>
+      <td>BM25 + embeddings + PageRank (RRF)</td>
+      <td>Bi-temporal, git-SHA pinned</td>
+    </tr>
+    <tr>
+      <td><strong>GitNexus</strong></td>
+      <td>Knowledge graph</td>
+      <td>PolyForm Noncommercial 1.0</td>
+      <td>~28-35K</td>
+      <td>Local (KuzuDB) + browser UI</td>
+      <td>14</td>
+      <td>~12</td>
+      <td>Cypher graph queries</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>Serena</strong></td>
+      <td>LSP-backed</td>
+      <td>MIT</td>
+      <td>~24K</td>
+      <td>Local (LSP processes)</td>
+      <td>40+ (via LSP)</td>
+      <td>~15</td>
+      <td>LSP refs/defs/renames</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>jcodemunch-mcp</strong></td>
+      <td>Search + symbols</td>
+      <td>Dual: free non-commercial; $79–$1,999 commercial</td>
+      <td>~1.7K</td>
+      <td>Local (Python)</td>
+      <td>10+</td>
+      <td>~6</td>
+      <td>Tree-sitter symbol index</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Context</strong></td>
+      <td>Search</td>
+      <td>Apache 2.0</td>
+      <td>~6K</td>
+      <td>Local + external Milvus</td>
+      <td>broad</td>
+      <td>~5</td>
+      <td>BM25 + dense vectors (Milvus)</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>codebase-memory-mcp</strong></td>
+      <td>Hybrid (light)</td>
+      <td>Open source</td>
+      <td>~1.6K</td>
+      <td>Local (single static binary)</td>
+      <td>66</td>
+      <td>~10</td>
+      <td>Symbol KG + git-aware diff</td>
+      <td>Shallow</td>
+    </tr>
+    <tr>
+      <td><strong>CodeGraphContext</strong></td>
+      <td>Knowledge graph</td>
+      <td>MIT</td>
+      <td>~3K</td>
+      <td>Local (Neo4j)</td>
+      <td>broad</td>
+      <td>~8</td>
+      <td>Neo4j graph queries</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>code-graph-mcp</strong></td>
+      <td>Knowledge graph</td>
+      <td>MIT</td>
+      <td class="muted">smaller</td>
+      <td>Local</td>
+      <td>5+</td>
+      <td>~6</td>
+      <td>Tree-sitter symbol graph</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>Code Pathfinder</strong></td>
+      <td>Search + AST</td>
+      <td>Apache 2.0</td>
+      <td class="muted">smaller</td>
+      <td>Local</td>
+      <td>~6</td>
+      <td>~7</td>
+      <td>AST + structural queries</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>Local Code Search MCP</strong></td>
+      <td>Search</td>
+      <td>MIT</td>
+      <td class="muted">smaller</td>
+      <td>Local</td>
+      <td>broad</td>
+      <td>~3</td>
+      <td>Lexical + simple ranking</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><strong>code-review-graph</strong></td>
+      <td>Hybrid</td>
+      <td>MIT</td>
+      <td>~13.5K</td>
+      <td>Local (SQLite + FTS5)</td>
+      <td>23</td>
+      <td>28</td>
+      <td>FTS5 + RRF + optional embeddings</td>
+      <td>Lite</td>
+    </tr>
+    <tr>
+      <td><strong>Greptile</strong> (not strictly MCP)</td>
+      <td>Cloud PR review</td>
+      <td>Closed / paid</td>
+      <td>n/a</td>
+      <td>Cloud (their infra)</td>
+      <td>broad</td>
+      <td>n/a</td>
+      <td>Hosted hybrid</td>
+      <td>Hosted</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p class="muted" style="font-size:12px">Greptile included for completeness — it's the named cloud incumbent in the category, although it doesn't ship as an MCP server. Listed here so the comparison answers the literal question many engineers ask: "open-source alternative to Greptile."</p>
+
+<h2 id="decision-tree">Decision tree: which one for you?</h2>
+
+<p>The right question isn't "which is best" — there is no best. It's "which trade-offs do I want to make." Walk this tree top to bottom; the first matching answer is the practical recommendation.</p>
+
+<h3>Q1. Can your code legally leave the machine?</h3>
+<p><strong>No</strong> (compliance, regulated industry, customer contract): you need local-first. Skip Greptile entirely. Skip Claude Context if you don't want to run Milvus. <strong>Yes</strong>: Greptile becomes a viable option for hosted PR review specifically, and you have the full local set as well.</p>
+
+<h3>Q2. Is the project commercial?</h3>
+<p><strong>Yes</strong> (any agency, contractor, SaaS, or company that pays anyone to use the tool): you cannot use <strong>GitNexus</strong> without a separate commercial license from Akon Labs (PolyForm Noncommercial 1.0 forbids it). You cannot use the free tier of <strong>jcodemunch-mcp</strong>; their commercial tiers run $79–$1,999 depending on team size. MIT-licensed servers (Sverklo, Serena, CodeGraphContext, code-review-graph) are unrestricted. <strong>No</strong> (personal, OSS contribution, evaluation): all options are open.</p>
+
+<h3>Q3. What's your dominant retrieval workload?</h3>
+<ul>
+  <li><strong>"Find every caller of X" (P2)</strong> — a well-tuned ripgrep ties most graph-based servers on this. Surprisingly, <em>smart-grep alone is competitive</em>; the bench numbers are below. If P2 is dominant, skip the heavy infrastructure and just configure ripgrep with sensible defaults.</li>
+  <li><strong>"Where is X defined?" (P1)</strong> — <strong>jcodemunch-mcp</strong> is the strongest at 0.65 F1 on the public sverklo bench. Sverklo is at 0.45.</li>
+  <li><strong>"What does this codebase do?" / 5-minute mental model</strong> — you want PageRank-ranked overviews. Sverklo's <code>sverklo_overview</code> and code-review-graph's wiki feature both do this.</li>
+  <li><strong>"What breaks if I change this?" (P5 / blast radius)</strong> — call-graph-aware servers (Sverklo, GitNexus, CodeGraphContext). Don't bother with pure search servers for this question.</li>
+  <li><strong>"What did we decide last week?" (memory)</strong> — only Sverklo (bi-temporal git-SHA pinned), code-review-graph (lite memory), and codebase-memory-mcp (shallow) have any memory layer. Most others have none.</li>
+  <li><strong>"Risk-scored PR review"</strong> — Sverklo (<code>sverklo review</code>), Greptile (cloud bot). Different deployment models; same goal.</li>
+</ul>
+
+<h3>Q4. What's the install pain you can absorb?</h3>
+<ul>
+  <li><strong>None — must be one command.</strong> Sverklo (<code>npm i -g sverklo &amp;&amp; sverklo init</code>). codebase-memory-mcp (single binary). That's basically it.</li>
+  <li><strong>I can install Python and a few deps.</strong> Add jcodemunch-mcp, Code Pathfinder.</li>
+  <li><strong>I can run a database (Neo4j / Kuzu / Milvus).</strong> Add CodeGraphContext, GitNexus, Claude Context.</li>
+  <li><strong>I'll set up LSPs per language.</strong> Add Serena.</li>
+</ul>
+
+<h3>Q5. Do you need a published, reproducible benchmark to defend the choice to your team?</h3>
+<p>Sverklo is the only entry on the matrix above with a peer-reviewable benchmark and reproducible eval harness (<a href="/bench/">sverklo.com/bench</a>). 60 tasks, 5 baselines, raw data downloadable. If "we picked X because the vendor said it's best" isn't a defensible answer in your org, that gap matters.</p>
+
+<h2 id="security">Security PSA (read this even if you skip everything else)</h2>
+
+<p>MCP's stdio transport spawns child processes. If the MCP client passes the server command string through a shell, an attacker who controls part of that string can execute arbitrary commands. Anthropic's stance is that this is by design — stdio is intended for local trusted use. That's defensible, but "by design" is also where real users get burned because client implementers shell out via <code>sh -c</code> for convenience.</p>
+
+<p>Four rules:</p>
+<ol>
+  <li>Never pass server commands through a shell. Use exec-style spawn.</li>
+  <li>Treat any user-controlled config as untrusted input.</li>
+  <li>Pin server binaries by absolute path or content hash.</li>
+  <li>Sandbox at the OS level (containers, sandbox-exec).</li>
+</ol>
+
+<p>Full writeup with the 30-second audit grep one-liners: <a href="/blog/mcp-stdio-command-injection-audit/">MCP STDIO command-injection audit</a>.</p>
+
+<h2 id="glossary">Glossary</h2>
+
+<dl style="margin:12px 0">
+  <dt style="margin-top:14px"><strong>MCP (Model Context Protocol)</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">JSON-RPC spec for tool servers that LLM clients (Claude Code, Cursor, etc.) call at runtime. Open spec; no Anthropic-only dependency.</dd>
+
+  <dt style="margin-top:14px"><strong>BM25</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Lexical ranking function from classical information retrieval. Fast, deterministic, strong on rare identifiers. Bad at concepts.</dd>
+
+  <dt style="margin-top:14px"><strong>RRF (Reciprocal Rank Fusion)</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Standard way to combine multiple ranked result lists (e.g., BM25 + embeddings) without tuning weights. Simple and surprisingly competitive.</dd>
+
+  <dt style="margin-top:14px"><strong>PageRank on a call graph</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Treats functions as nodes and calls as edges; central functions get higher scores. Used to rank retrieval results so load-bearing code surfaces first.</dd>
+
+  <dt style="margin-top:14px"><strong>Tree-sitter</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Incremental parser library. The de facto AST parser for code-intel servers because it handles incomplete / broken code gracefully.</dd>
+
+  <dt style="margin-top:14px"><strong>Bi-temporal memory</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Memory store that tracks both <em>when</em> a fact was true in the codebase (git SHA) and <em>when</em> the agent learned it (wall clock). Lets agent recall not drift when you <code>git checkout</code> back to an older state.</dd>
+
+  <dt style="margin-top:14px"><strong>Blast radius</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Set of all functions that could be affected (transitively) by a change to a given function. Computed from the call graph.</dd>
+
+  <dt style="margin-top:14px"><strong>P1, P2, P4, P5</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">Sverklo bench category labels: P1 = symbol definition lookup, P2 = reference finding, P4 = file dependencies, P5 = dead code detection. Used throughout the comparison matrix.</dd>
+
+  <dt style="margin-top:14px"><strong>Stdio transport</strong></dt>
+  <dd style="color:var(--muted);margin-left:12px">MCP's local transport: client spawns server as a subprocess and talks over stdin/stdout. Default for local-first servers. See security PSA above.</dd>
+</dl>
+
+<h2 id="sverklo-gaps">Where Sverklo loses (honest section)</h2>
+
+<p>This guide is published on the sverklo blog, so the right thing to do is name the cases where sverklo is <em>not</em> the right choice. From the public bench and from real usage:</p>
+
+<ul>
+  <li><strong>jcodemunch-mcp wins P1 (definition lookup)</strong> at 0.65 F1 vs sverklo's 0.45. Their tree-sitter symbol indexing is sharper than ours. If you spend most of your time asking "where is X defined?", jcodemunch is the better tool.</li>
+  <li><strong>Smart-grep ties sverklo on P2 (reference finding)</strong> at 0.50 F1 each. The semantic graph adds nothing to a textually-pure question. If P2 is dominant in your workflow, sverklo is genuinely overkill — well-configured ripgrep is fine.</li>
+  <li><strong>Cypher graph expressiveness</strong> is something sverklo doesn't offer at all. If you want to write ad-hoc graph queries against your codebase ("show me every function in <code>auth/</code> that calls something in <code>db/</code>"), GitNexus's Cypher interface is the right tool.</li>
+  <li><strong>40+ language coverage</strong> via LSPs is Serena's. Sverklo currently parses 12 languages with tree-sitter. If your codebase is a polyglot of obscure languages, Serena via LSP wins on coverage.</li>
+  <li><strong>Cold-start indexing on very large repos.</strong> First-time index of a 500K-LOC repo takes ~5 minutes on sverklo. After that it's incremental and fast, but the first run isn't free.</li>
+</ul>
+
+<p>The matrix and decision tree above try to be honest about all of this. The case for sverklo isn't "it wins every category" — it doesn't. The case is: if you need <em>local-first + commercial-friendly + multi-tool surface + persistent memory + an actually-published benchmark</em>, no other server in the matrix offers all five.</p>
+
+<h2 id="what-to-try">What to try first</h2>
+
+<p>If you've read this far and want to actually run one of these on a real repo today:</p>
+
+<pre><code>npm install -g sverklo
+cd your-project
+sverklo init
+sverklo receipt   # see what your agent has been spending tokens on</code></pre>
+
+<p><code>sverklo init</code> auto-detects your AI coding agent (Claude Code, Cursor, Windsurf, Zed) and writes the right MCP config. <code>sverklo receipt</code> parses your last week of Claude Code session logs and prints a Spotify-Wrapped-style breakdown of where your tokens went — useful as a baseline before/after.</p>
+
+<p>If sverklo isn't the right pick after reading the decision tree, try one of the others linked in the matrix. Honest landscape post; I'm not pretending the answer is always us.</p>
+
+<div class="callout">
+  <strong>Reproduce the bench:</strong> all numbers in this guide that come from the sverklo bench are reproducible via <code>npm run bench</code> in <a href="https://github.com/sverklo/sverklo">the repo</a>. 60 tasks, 5 baselines, raw data at <a href="/bench/">sverklo.com/bench</a>. If you find a number wrong, open an issue.
+</div>
+
+<p style="margin-top:32px;color:var(--muted);font-size:13px">Updated: May 3, 2026 · 3,200 words · MIT-licensed prose, reuse with attribution</p>
+
+</main>
+
+<footer style="margin-top:48px;padding:18px 0;border-top:1px solid #222;text-align:center;color:var(--muted);font-size:13px">
+  sverklo · <a href="https://github.com/sverklo/sverklo">GitHub</a> · <a href="https://www.npmjs.com/package/sverklo">npm</a> · <a href="/">home</a>
+</footer>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

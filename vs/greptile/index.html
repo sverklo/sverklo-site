@@ -56,6 +56,22 @@
         "@type": "Answer",
         "text": "Sverklo gives your AI agent a symbol graph at edit time, not just at review time. Beyond risk-scored PR review, sverklo exposes 37 MCP tools to Claude Code/Cursor/Windsurf for blast-radius analysis (sverklo_impact), test mapping (sverklo_test_map), bi-temporal git-pinned memory of past decisions (sverklo_remember/recall), and verifiable evidence pinning (sverklo_verify). Greptile is review-time only and read-only — sverklo is the agent's continuous code-intelligence layer."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the best open-source alternative to Greptile?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is the leading MIT-licensed open-source alternative to Greptile for engineers who want local-first code intelligence. It works with Claude Code, Cursor, Windsurf, and Zed via MCP, ships zero-config, has a published 60-task benchmark, and your code never leaves the machine. Other open-source options include Sourcegraph Cody (source-available, paid for teams) and Serena (MIT, LSP-backed but config-heavy)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there local-first alternatives to Greptile for AI coding agents?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Sverklo is a local-first MCP server that runs entirely on your machine and gives Claude Code, Cursor, Windsurf, and Zed the same kind of full-codebase context that Greptile provides — without uploading your repo to anyone's cloud. It is the only local-first code-intelligence MCP with a published peer-reviewable benchmark (60 tasks, 5 baselines, reproducible)."
+      }
     }
   ]
 }
@@ -522,7 +538,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.0</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
   </div>
 </header>
 

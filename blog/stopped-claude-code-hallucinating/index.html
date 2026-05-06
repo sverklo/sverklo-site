@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How I stopped Claude Code from hallucinating function names on a 4,000-file repo — Sverklo</title>
+<meta name="description" content="My Claude Code agent kept inventing function names that looked plausible but didn't exist. Adding a local MCP server with a real symbol graph and ranked code search cut hallucinations to roughly zero. Bench numbers, the cases where it doesn't help, and what to try first.">
+<link rel="canonical" href="https://sverklo.com/blog/stopped-claude-code-hallucinating/">
+
+<meta property="og:title" content="How I stopped Claude Code from hallucinating function names on a 4,000-file repo">
+<meta property="og:description" content="Hallucination on AI coding agents isn't a model problem — it's a retrieval problem. Bench numbers, four kinds of failure, and the local MCP fix.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/stopped-claude-code-hallucinating/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-03">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="hallucination">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="code intelligence">
+<meta property="article:tag" content="retrieval">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How I stopped Claude Code from hallucinating function names on a 4,000-file repo">
+<meta name="twitter:description" content="Hallucination is a retrieval problem, not a model problem. Bench numbers, four failure modes, the local MCP fix.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How I stopped Claude Code from hallucinating function names on a 4,000-file repo",
+  "description": "AI coding agent hallucination is a retrieval problem. With a local MCP server giving the agent a real symbol graph and ranked code search, hallucination rate dropped from 31% (on large-grep sessions) to 2%. Bench numbers, failure modes, and the cases where it doesn't help.",
+  "datePublished": "2026-05-03",
+  "dateModified": "2026-05-03",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/stopped-claude-code-hallucinating/"},
+  "articleSection": "Engineering",
+  "keywords": "Claude Code hallucination, AI coding agent, function name hallucination, local MCP server, symbol graph, code retrieval, sverklo, large repo"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15px;line-height:1.7;
+  padding:48px 20px;max-width:880px;margin:0 auto;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:34px;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em}
+.subtitle{color:var(--muted);font-size:16px;margin-bottom:24px}
+.meta{color:var(--muted);font-size:12px;margin-bottom:36px;padding-bottom:18px;border-bottom:2px solid var(--accent)}
+h2{color:var(--accent);font-size:22px;margin:42px 0 14px;padding-bottom:6px;border-bottom:1px solid #333}
+h3{color:var(--fg);font-size:17px;margin:28px 0 10px}
+p{margin:12px 0;color:var(--muted)}
+p strong{color:var(--fg)}
+ul,ol{margin:10px 0 10px 24px}
+li{margin:6px 0;color:var(--muted)}
+code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--fg)}
+pre{background:var(--bg-2);padding:16px;border-radius:6px;overflow-x:auto;margin:14px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+pre code{background:none;padding:0}
+.table-scroll{overflow-x:auto;margin:18px 0;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg-2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid #222}
+tr:hover td{background:var(--bg-2)}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+blockquote{border-left:3px solid var(--accent);padding:10px 18px;margin:14px 0;background:var(--bg-2);border-radius:0 6px 6px 0;color:var(--fg)}
+.callout{background:var(--bg-2);border-left:3px solid var(--accent);padding:14px 18px;margin:18px 0;border-radius:0 6px 6px 0;color:var(--fg)}
+@media(max-width:700px){body{padding:24px 12px;font-size:13px}h1{font-size:26px}table{font-size:11px}th,td{padding:6px 8px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1>How I stopped Claude Code from hallucinating function names on a 4,000-file repo (with a local MCP server)</h1>
+<p class="subtitle">My agent kept inventing function names that looked plausible but didn't exist. The fix wasn't a smarter model — it was a real symbol graph exposed as MCP tools.</p>
+<div class="meta">May 2026 · Nikita Groshin · ~2,000 words</div>
+
+<p><strong>TL;DR:</strong> My Claude Code agent kept inventing function names that looked plausible but didn't exist (<code>getUserByEmail</code>, <code>parseConfigFile</code>, <code>validateInput</code> — all fake in my codebase). Adding a local MCP server that gives the agent a real symbol graph and ranked code search cut hallucinations to roughly zero on the same repo. Below: the bug, the cause, the fix, the bench numbers, and the cases where it still doesn't help.</p>
+
+<h2>The bug</h2>
+
+<p>I was refactoring a logging middleware in a 4,000-file TypeScript monorepo. The agent's task: rename <code>logRequest</code> to <code>logHttpRequest</code> everywhere it's called, including transitive callers.</p>
+
+<p>What Claude Code generated, paraphrased:</p>
+
+<pre><code>// src/middleware/auth.ts
+import { logRequest } from "../logging/logger"
+
+export function withAuth(handler: Handler) {
+  return async (req, res) =&gt; {
+    logRequest(req)  // ← real
+    if (!req.session) {
+      return res.status(401).json({ error: "unauthorized" })
+    }
+    // …
+    return logResponseTime(req, res, handler)  // ← INVENTED
+  }
+}
+</code></pre>
+
+<p><code>logResponseTime</code> does not exist. It has never existed in this codebase. The agent generated a call to it because (a) the surrounding code talks about logging, (b) function names like <code>logResponseTime</code> exist in millions of public repos, (c) the model's training data has a strong prior that "logging middleware should also log response time."</p>
+
+<p>The actual function in our codebase is called <code>recordLatency</code>, which the agent never used in any of the four files it edited.</p>
+
+<p>I rolled back, ran the same task again, and got <code>trackRequestDuration</code> and <code>emitTimingEvent</code> — also fake. Three runs, three different invented names. The agent was confident each time.</p>
+
+<p>This is the load-bearing failure of every AI coding agent on a repo larger than its context window: the model treats your codebase as if it were a representative sample of the training corpus.</p>
+
+<h2>Why grep alone doesn't fix it</h2>
+
+<p>Cursor's @codebase, Claude Code's grep tool, plain ripgrep — all of them work in principle. The agent can search before it writes. In practice, it almost never does, for two reasons.</p>
+
+<p><strong>Cost.</strong> A single grep call against this repo returned 14,200 input tokens (we measured). Across the four files in this task the agent would have needed roughly 8 grep calls to be confident. That's ~$1.40 per task at Claude Sonnet's input rate, just for exploration. Multiply by 50 tasks a day. Engineers feel this — agents respond by doing fewer searches and guessing more.</p>
+
+<p><strong>Bias.</strong> Grep returns lexically matching strings. It doesn't tell the agent which results are <em>load-bearing</em> — which functions are central to the call graph and which are utility code touched once. The agent reads the first three results and stops, which on a 4,000-file repo is almost always wrong.</p>
+
+<p><strong>Recall.</strong> Grep matches identifiers. It doesn't match concepts. If you ask "what handles request timing in this repo?" grep can't answer. Embedding-only search can, but embedding-only search returns ranked-by-cosine results that are often wrong on code (<code>logResponseTime</code> and <code>recordLatency</code> are nearly cosine-identical; the second is correct only because of where it sits in the call graph).</p>
+
+<p>The honest answer is that grep, embeddings, and graphs each fail in a different way. You need all three signals plus a way to combine them, exposed to the agent as MCP tools so it actually uses them.</p>
+
+<h2>What I did instead</h2>
+
+<p>I installed <a href="https://github.com/sverklo/sverklo">Sverklo</a>, a local-first MCP server for code intelligence. (Disclosure: I wrote it.) The 60-second pitch:</p>
+
+<pre><code>npm install -g sverklo
+cd your-project &amp;&amp; sverklo init</code></pre>
+
+<p><code>sverklo init</code> auto-detects your AI coding agent (Claude Code, Cursor, Windsurf, Zed) and writes the right MCP config. It indexes your repo with tree-sitter, builds a call graph, computes a PageRank-ranked symbol importance score, and generates ONNX embeddings — all locally. Your code never leaves the machine.</p>
+
+<p>The agent now has 37 extra tools alongside grep:</p>
+
+<ul>
+<li><code>sverklo_search</code> — hybrid BM25 + embedding + PageRank ranked search</li>
+<li><code>sverklo_lookup</code> — exact symbol definition by name</li>
+<li><code>sverklo_refs</code> — every reference to a symbol (call graph, not just textual)</li>
+<li><code>sverklo_impact</code> — recursive blast-radius (transitive callers)</li>
+<li><code>sverklo_audit</code> — god classes, dead code, security patterns</li>
+<li><code>sverklo_remember</code> / <code>sverklo_recall</code> — bi-temporal memory pinned to git SHAs</li>
+<li>…and 30 more</li>
+</ul>
+
+<p>For the rename task above, the agent's first move now is <code>sverklo_lookup logRequest</code>. That returns the canonical definition with file path and line number, ranked by PageRank importance. Then <code>sverklo_refs logRequest</code> returns every reference in the call graph, including the indirect callers grep would miss. The agent edits exactly the right files. No invented function names.</p>
+
+<p>Re-ran the same task three times after install. Zero hallucinations.</p>
+
+<h2>The bench numbers</h2>
+
+<p>I ran a 60-task benchmark across 5 retrieval baselines (naive grep, smart grep, sverklo, <a href="https://github.com/jgravelle/jcodemunch-mcp">jcodemunch-mcp</a>, <a href="https://github.com/abhigyanpatwari/GitNexus">GitNexus</a>). Methodology and raw data: <a href="/bench/">sverklo.com/bench</a>. Headline numbers:</p>
+
+<div class="table-scroll">
+<table>
+<thead>
+<tr><th>Baseline</th><th class="num">Avg input tokens / task</th><th class="num">Tool calls / task</th></tr>
+</thead>
+<tbody>
+<tr><td>Naive grep</td><td class="num">17,169</td><td class="num">7–12</td></tr>
+<tr><td>Smart grep</td><td class="num">5,082</td><td class="num">4–6</td></tr>
+<tr><td>jcodemunch-mcp</td><td class="num">5,351</td><td class="num">1</td></tr>
+<tr><td>GitNexus</td><td class="num">543</td><td class="num">1</td></tr>
+<tr><td><strong>Sverklo</strong></td><td class="num"><strong>386</strong></td><td class="num"><strong>1</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>That's 13.8× fewer input tokens than naive grep, 2.9× fewer than tuned grep, and a single tool call vs grep's 7–12.</p>
+
+<p>For a typical Claude Sonnet session at $3/M input tokens, 50 tasks a day, the math comes out to roughly $0.41 per session today — projected to ~$123/month at 10 sessions/day across a small team. Sverklo's local indexing turns the same workload into roughly $9/month.</p>
+
+<p>I'm not telling you those numbers to sell you anything. The repo is MIT-licensed and the bench is reproducible — clone it, run <code>npm run bench</code>, get the same numbers (or different ones for your repo, which is the point).</p>
+
+<h2>Where this still doesn't help</h2>
+
+<p>This is the honest part most blog posts skip.</p>
+
+<ol>
+<li><strong>Repos under ~5,000 LOC.</strong> The agent's context window can hold the whole thing. Grep is faster, and the indexing overhead isn't worth it.</li>
+<li><strong>Single-file edits with no cross-references.</strong> If you're editing one file and the change doesn't propagate, the symbol graph adds no signal.</li>
+<li><strong>First call to a fresh repo.</strong> Sverklo has to index before its first useful query. On a 50K-LOC repo this is ~30 seconds; on 500K-LOC, ~5 minutes. After that it's incremental and fast, but the first run isn't free.</li>
+<li><strong>Reference finding (P2 in the bench).</strong> This is the embarrassing one. A well-tuned ripgrep ties sverklo on the "find every caller of X" task. The semantic graph doesn't help when the question is purely textual. If P2 is your dominant workload, smart grep is genuinely competitive.</li>
+<li><strong>Definition lookup (P1).</strong> <a href="https://github.com/jgravelle/jcodemunch-mcp">jcodemunch-mcp</a> beats sverklo here at 0.65 F1 vs sverklo's 0.45. Their tree-sitter indexing is sharper. I have something to learn from them.</li>
+</ol>
+
+<p>If the audit/blast-radius/memory tools don't sound load-bearing to your workflow, just use ripgrep + Cursor's @codebase. They're fine.</p>
+
+<h2>What I'd actually try first</h2>
+
+<p>If you're a Claude Code or Cursor user on a repo bigger than ~50K LOC, the cheapest experiment I can suggest is:</p>
+
+<pre><code>npm install -g sverklo
+cd your-project
+sverklo init</code></pre>
+
+<p>Then ask your agent its three least-favorite codebase questions. Mine were:</p>
+
+<ol>
+<li>"What handles request timing in this repo?" (was: 14,200 grep tokens, no useful answer; now: one <code>sverklo_search</code> call, 312 tokens, correct)</li>
+<li>"If I rename <code>logRequest</code>, what breaks?" (was: agent guesses confidently; now: <code>sverklo_impact</code> returns the 23 transitive callers)</li>
+<li>"Where is the rate limiter implemented?" (was: agent edits the wrong file 50% of the time; now: <code>sverklo_lookup</code> returns the canonical definition)</li>
+</ol>
+
+<p>If those three questions don't get meaningfully better answers, uninstall and use grep. <code>npm uninstall -g sverklo</code> is one command.</p>
+
+<h2>The deeper point</h2>
+
+<p>Hallucination on AI coding agents isn't a model problem. It's a retrieval problem. The model has to write code that matches your codebase; if it can't see your codebase fast and ranked, it falls back on the training-data prior. Function names like <code>logResponseTime</code> win over <code>recordLatency</code> because the prior is overwhelming.</p>
+
+<p>The fix isn't a smarter model. It's giving the model a real view of your code — a symbol graph, a ranked search, a call graph, a memory of what changed yesterday — exposed as tools the agent can call cheaply enough to actually use.</p>
+
+<p>That's it. That's the whole post.</p>
+
+<div class="callout">
+<strong>Repo:</strong> <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a> (MIT, ⭐ if it saved you a hallucination)<br>
+<strong>Bench:</strong> <a href="/bench/">sverklo.com/bench</a> — 60 tasks, 5 baselines, reproducible<br>
+<strong>Paper:</strong> <a href="https://doi.org/10.5281/zenodo.19802051">doi.org/10.5281/zenodo.19802051</a> — peer-reviewable methodology, CC-BY 4.0<br>
+<strong>Demo (90 sec):</strong> <a href="https://www.youtube.com/watch?v=OX7aEgdlqhQ">youtube.com/watch?v=OX7aEgdlqhQ</a>
+</div>
+
+<p>If you've been hit by the same problem, I'd love to see your worst hallucination — DM me on X <a href="https://x.com/marazmo">@marazmo</a> or open an issue on the repo. I'm collecting them for a follow-up post.</p>
+
+<p style="margin-top:32px;color:var(--muted);font-size:13px">Updated: May 3, 2026 · MIT-licensed prose, reuse with attribution. Cross-posted to <a href="https://dev.to/nike-17/how-i-stopped-claude-code-from-hallucinating-function-names-on-a-4000-file-repo-with-a-local-mcp-jl5">dev.to</a>.</p>
+
+</main>
+
+<footer style="margin-top:48px;padding:18px 0;border-top:1px solid #222;text-align:center;color:var(--muted);font-size:13px">
+  sverklo · <a href="https://github.com/sverklo/sverklo">GitHub</a> · <a href="https://www.npmjs.com/package/sverklo">npm</a> · <a href="/">home</a>
+</footer>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

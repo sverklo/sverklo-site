@@ -99,7 +99,7 @@
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.0</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
   </div>
 </header>
 
@@ -109,7 +109,7 @@
 <p class="subtitle">Five retrieval baselines, two real OSS codebases, 60 hand-verified tasks. Reproducible.</p>
 <div class="meta">
   April 2026 run: <code>2026-04-07T23:07:14Z</code> · 3 baselines (naive-grep, smart-grep, sverklo)<br>
-  May 2026 update: <code>2026-05-02T23:35:52Z</code> · +2 baselines (jcodemunch-mcp, GitNexus) per <a href="https://github.com/sverklo/sverklo/issues/25">#25</a> · <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/README.md">harness on GitHub</a>
+  May 2026 update: <code>2026-05-02T23:35:52Z</code> · +2 baselines (jcodemunch-mcp, GitNexus) per <a href="https://github.com/sverklo/sverklo/issues/25">#25</a> · <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/README.md">harness on GitHub</a> · <a href="https://github.com/sverklo/sverklo-bench"><strong>methodology + ground truth: sverklo/sverklo-bench</strong></a>
 </div>
 
 <div class="headline" style="border-left:4px solid var(--accent);padding:18px 22px;background:rgba(232,90,42,0.05);margin:18px 0">
@@ -120,11 +120,88 @@
   <ul style="margin-top:8px">
     <li><strong>smart-grep ties sverklo on overall F1.</strong> A tuned grep with language filters is a stronger baseline than the literature in this space usually admits. The differentiation is on token economy and tool-call count, not raw F1.</li>
     <li><strong>jcodemunch wins P1 (definition lookup) at 0.65 vs sverklo's 0.45.</strong> Their tree-sitter symbol indexing is sharp; we should learn from it.</li>
-    <li><strong>Both jcodemunch and gitnexus return ~0 on P2.</strong> Both track import sites, not call sites — by design. For "find every caller of X," neither competes with grep.</li>
+    <li><strong>Both jcodemunch and gitnexus return ~0 on P2 — by design.</strong> Both expose import-graph references rather than call-site references. That's a legitimate design choice, not a bug — flagged in a public exchange with <a href="https://github.com/jgravelle">@jgravelle</a> on <a href="https://github.com/sverklo/sverklo/issues/25">issue #25</a>. Our P2 task as defined ("find every caller of X") assumes call-site semantics, which is the load-bearing axis for refactor blast-radius. If your workflow is "every file that imports module Y," import-graph-only is the right substrate and these tools win that subtask. Different retrieval models, different jobs.</li>
     <li><strong>Sverklo wins P4 (file dependencies) at 0.75 vs others 0.25–0.49.</strong> Symbol graph + PageRank pays off here.</li>
     <li><strong>Sverklo's token economy holds:</strong> 386 average input tokens vs jcodemunch's 5,351 and naive-grep's 17,169.</li>
   </ul>
 </div>
+
+<div class="headline" style="border-left:4px solid #4ade80;padding:18px 22px;background:rgba(74,222,128,0.05);margin:18px 0">
+  <strong style="color:#4ade80;font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">May 3, 2026 follow-on — bench-as-feedback-loop</strong><br><br>
+  Within hours of this update going live, <a href="https://github.com/jgravelle">@jgravelle</a> shipped <a href="https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.80.7">jcodemunch-mcp v1.80.7</a>, then <a href="https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.80.8">v1.80.8</a>, then <a href="https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.80.9">v1.80.9</a> — three releases addressing specific findings from this bench.
+  <br><br>
+  <strong>Confirmed on rerun (v1.80.8):</strong>
+  <ul style="margin-top:8px">
+    <li>Avg input tokens: 5,351 → <strong>1,388 (−74%)</strong>. The token-bloat fix landed cleanly.</li>
+    <li>Express P5 recall: 0.00 → <strong>1.00</strong>. The CommonJS <code>module.exports</code> re-export blind spot for <code>createApplication</code> is closed.</li>
+    <li>P1 unchanged at 0.65 (still leading on definition lookup). P2 unchanged (acknowledged design choice — see above).</li>
+  </ul>
+  <strong>Methodology gaps now resolved:</strong>
+  <ul style="margin-top:8px">
+    <li><a href="https://github.com/sverklo/sverklo/issues/27">#27</a> — sv-p5 expected set refined: 6 confirmed-dead exported functions, methodology documented (commit <a href="https://github.com/sverklo/sverklo/commit/407359a">407359a</a>).</li>
+    <li><a href="https://github.com/sverklo/sverklo/issues/26">#26</a> — Lodash 4.17.21 added as third dataset, 30 new tasks (10 P1 + 10 P2 + 5 P4 + 5 P5), commit <a href="https://github.com/sverklo/sverklo/commit/5fba805">5fba805</a>.</li>
+  </ul>
+  Updated 3-dataset numbers are below. The April-only table is preserved further down for historical reference.
+</div>
+
+<div class="headline" style="border-left:4px solid #4ade80;padding:18px 22px;background:rgba(74,222,128,0.05);margin:18px 0">
+  <strong style="color:#4ade80;font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">May 4, 2026 PM — sverklo v0.20.2: lodash P1 recovered</strong><br><br>
+  Adding lodash to the bench (#26) exposed a blind spot in sverklo's own parser: <code>findBraceEnd</code> was naive character counting, so a <code>{</code> inside a string literal at lodash.js:6301 made every subsequent function declaration get absorbed into one ~11K-line chunk. Public methods (<code>map</code>, <code>filter</code>, <code>reduce</code>, etc.) never got their own chunks.
+  <br><br>
+  <a href="https://github.com/sverklo/sverklo/releases/tag/v0.20.2"><strong>v0.20.2</strong></a> (<a href="https://github.com/sverklo/sverklo/commit/deedec2">deedec2</a>) ships two fixes: a string/regex/comment-aware brace counter, and exact-match priority in the lookup tool. Result on the same 90-task bench:
+  <ul style="margin-top:8px">
+    <li><strong>Sverklo lodash P1: 0/10 → 9/10</strong> (only miss is <code>merge</code>, which is <code>var merge = createAssigner(...)</code> — function-call assignment the regex parser still can't trace).</li>
+    <li><strong>Sverklo overall F1: 0.45 → 0.56</strong> — sverklo is now the F1 leader, edging out smart-grep at 0.49.</li>
+    <li><strong>Sverklo P1: 0.30 → 0.73</strong> — ties jcodemunch.</li>
+    <li>Small P2/P4 regressions tracked in <a href="https://github.com/sverklo/sverklo/issues/28">#28</a>.</li>
+  </ul>
+  Both jcodemunch and sverklo shipped lodash P1 fixes inside 36 hours of the original benchmark publication. That's what a public peer-reviewable benchmark is supposed to do.
+</div>
+
+<h2>May 4, 2026 PM — post-fix table (sverklo v0.20.2)</h2>
+
+<div class="table-scroll"><table>
+  <thead>
+    <tr><th>baseline</th><th class="num">n</th><th class="num">F1</th><th class="num">P1</th><th class="num">P2</th><th class="num">P4</th><th class="num">P5</th><th class="num">avg tokens</th><th class="num">tools/task</th><th class="num">tok/correct (gated)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>naive-grep</strong></td><td class="num">90</td><td class="num">0.29</td><td class="num">0.10</td><td class="num">0.18</td><td class="num">0.53</td><td class="num">0.67</td><td class="num">20,278</td><td class="num">6.5</td><td class="num">2,403</td></tr>
+    <tr><td><strong>smart-grep</strong></td><td class="num">90</td><td class="num">0.49</td><td class="num">0.43</td><td class="num"><span class="best">0.40</span></td><td class="num">0.59</td><td class="num">0.67</td><td class="num">1,220</td><td class="num">4.9</td><td class="num">219</td></tr>
+    <tr><td><strong>sverklo v0.20.2</strong></td><td class="num">90</td><td class="num"><span class="best">0.56</span></td><td class="num">0.73</td><td class="num">0.25</td><td class="num"><span class="best">0.71</span></td><td class="num">0.67</td><td class="num">469</td><td class="num"><span class="best">1.0</span></td><td class="num">449</td></tr>
+    <tr><td><strong>jcodemunch v1.80.9</strong></td><td class="num">90</td><td class="num">0.32</td><td class="num"><span class="best">0.73</span></td><td class="num">0.00</td><td class="num">0.46</td><td class="num">0.00</td><td class="num">1,267</td><td class="num">1.2</td><td class="num">625</td></tr>
+    <tr><td><strong>gitnexus</strong></td><td class="num">90</td><td class="num">0.25</td><td class="num">0.27</td><td class="num">0.00</td><td class="num">0.30</td><td class="num">0.67</td><td class="num"><span class="best">372</span></td><td class="num">1.2</td><td class="num"><span class="best">207</span></td></tr>
+  </tbody>
+</table></div>
+
+<p style="font-size:12px;color:var(--muted)">Note: sverklo numbers are from the post-v0.20.2 single-baseline rerun (<code>2026-05-04T19-38-11-592Z</code>); other baselines are from the morning 5-baseline run (<code>2026-05-04T14-13-23-716Z</code>) and didn't change between runs (no commits affecting them). Reproducible from a fresh clone with <code>npm run bench:quick</code>; full numbers should match within run-to-run variance.</p>
+
+<p><em>What changed:</em></p>
+<ul>
+  <li><strong>Sverklo wins overall F1 (0.56)</strong>, edging smart-grep (0.49). Pre-fix it was 0.45 (smart-grep led).</li>
+  <li><strong>P1 is now a tie at 0.73</strong> between sverklo and jcodemunch. Pre-fix sverklo was at 0.30 — both projects had to ship parser fixes (sverklo for IIFE brace-counting, jcodemunch for the 500KB file cap) to land here.</li>
+  <li><strong>Sverklo still wins P4 (0.71)</strong>, slightly down from 0.76 pre-fix. Tracked in <a href="https://github.com/sverklo/sverklo/issues/28">#28</a>.</li>
+  <li><strong>Token economy:</strong> sverklo at 469 avg input tokens, ~3× lower than smart-grep (1,220) and jcodemunch (1,267). Single tool call per task vs grep's 4–7.</li>
+  <li><strong>Smart-grep still wins P2 (0.40)</strong>: tuned ripgrep on call-site references is genuinely competitive — sverklo at 0.25 here regressed slightly (#28).</li>
+</ul>
+
+<p><em>How to reproduce:</em> <code>npm install -g sverklo@0.20.2 && cd /path/to/repo && npm run bench:quick</code>. Bench harness lives at <a href="https://github.com/sverklo/sverklo/tree/main/benchmark">github.com/sverklo/sverklo/tree/main/benchmark</a>. Issues <a href="https://github.com/sverklo/sverklo/issues/26">#26</a>, <a href="https://github.com/sverklo/sverklo/issues/27">#27</a>, <a href="https://github.com/sverklo/sverklo/issues/28">#28</a> document the methodology iterations that produced this run.</p>
+
+<h2>May 4, 2026 AM — pre-fix table (sverklo v0.20.1, kept for diff)</h2>
+
+<div class="table-scroll"><table>
+  <thead>
+    <tr><th>baseline</th><th class="num">n</th><th class="num">F1</th><th class="num">P1</th><th class="num">P2</th><th class="num">P4</th><th class="num">P5</th><th class="num">avg tokens</th><th class="num">tools/task</th><th class="num">tok/correct (gated)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>naive-grep</strong></td><td class="num">90</td><td class="num">0.29</td><td class="num">0.10</td><td class="num">0.18</td><td class="num">0.53</td><td class="num">0.67</td><td class="num">20,278</td><td class="num">6.5</td><td class="num">2,403</td></tr>
+    <tr><td><strong>smart-grep</strong></td><td class="num">90</td><td class="num"><span class="best">0.49</span></td><td class="num">0.43</td><td class="num"><span class="best">0.40</span></td><td class="num">0.59</td><td class="num">0.67</td><td class="num">1,220</td><td class="num">4.9</td><td class="num">219</td></tr>
+    <tr><td><strong>sverklo v0.20.1</strong></td><td class="num">90</td><td class="num">0.45</td><td class="num">0.30</td><td class="num">0.34</td><td class="num"><span class="best">0.76</span></td><td class="num">0.67</td><td class="num">449</td><td class="num"><span class="best">1.0</span></td><td class="num">337</td></tr>
+    <tr><td><strong>jcodemunch v1.80.9</strong></td><td class="num">90</td><td class="num">0.32</td><td class="num"><span class="best">0.73</span></td><td class="num">0.00</td><td class="num">0.46</td><td class="num">0.00</td><td class="num">1,267</td><td class="num">1.2</td><td class="num">625</td></tr>
+    <tr><td><strong>gitnexus</strong></td><td class="num">90</td><td class="num">0.25</td><td class="num">0.27</td><td class="num">0.00</td><td class="num">0.30</td><td class="num">0.67</td><td class="num"><span class="best">372</span></td><td class="num">1.2</td><td class="num"><span class="best">207</span></td></tr>
+  </tbody>
+</table></div>
+
+<p style="font-size:12px;color:var(--muted)">Pre-v0.20.2 numbers preserved here so the diff between the two runs is auditable. Raw data at <code>benchmark/results/2026-05-04T14-13-23-716Z/</code>.</p>
 
 <h2>May 2026 — All 5 baselines</h2>
 

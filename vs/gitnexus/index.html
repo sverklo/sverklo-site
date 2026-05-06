@@ -22,6 +22,64 @@
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- JSON-LD FAQ Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between Sverklo and GitNexus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is an MIT-licensed local-first MCP server for code intelligence with a published 60-task benchmark. GitNexus is a code-knowledge-graph MCP server licensed under PolyForm Noncommercial 1.0, which restricts commercial use without a separate enterprise agreement from Akon Labs. Sverklo runs on embedded SQLite with PageRank-ranked hybrid retrieval; GitNexus runs on KuzuDB and exposes a Cypher query interface."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there an MIT-licensed open-source alternative to GitNexus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Sverklo is MIT-licensed and free to use in commercial, agency, contractor, and SaaS projects with no enterprise agreement required. GitNexus's PolyForm Noncommercial 1.0 license forbids commercial use without contacting Akon Labs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use GitNexus in commercial projects?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not without a separate commercial license from Akon Labs. The PolyForm Noncommercial 1.0 license that ships with GitNexus prohibits use that is primarily intended for or directed toward commercial advantage. Agencies, contractors, consultants, and any company that pays anyone to use the tool fall under this restriction."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Sverklo support Cypher queries like GitNexus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Sverklo uses a hybrid BM25 + ONNX embedding + PageRank retrieval pipeline rather than a Cypher graph database. Trade-off: simpler install and faster queries, but no Cypher syntax. If you need ad-hoc Cypher graph queries against your codebase, GitNexus is the better fit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which is faster, Sverklo or GitNexus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On the published Sverklo bench:primitives 60-task suite, sverklo answers in a single MCP tool call with 386 average input tokens. GitNexus has not published benchmark numbers on the same harness. Sverklo's harness is open source and reproducible: anyone can run sverklo, gitnexus, jcodemunch-mcp, and grep against the same task set."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the best MCP server for code intelligence on a commercial project?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For commercial use, Sverklo (MIT, local-first, 37 MCP tools) is the most defensible choice among the local-first code-intelligence MCP servers. It works with Claude Code, Cursor, Windsurf, and Zed, ships zero-config, and your code never leaves the machine."
+      }
+    }
+  ]
+}
+</script>
 <!-- @tokens-injected — do not edit; run patch-nav.mjs -->
 <link rel="stylesheet" href="/tokens.css">
 <!-- @end-tokens -->
@@ -479,7 +537,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.0</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
   </div>
 </header>
 

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code burned 14,200 tokens to find one function — Sverklo</title>
+<meta name="description" content="I logged every tool call my Claude Code agent made on a 200-file repo for a week. Grep alone cost me $47. Here's the data, the cascade that follows from noisy grep output, and how to measure your own session with `sverklo receipt`.">
+<link rel="canonical" href="https://sverklo.com/blog/14200-tokens-to-find-one-function/">
+
+<meta property="og:title" content="Claude Code burned 14,200 tokens to find one function">
+<meta property="og:description" content="One week of instrumented Claude Code sessions. Grep accounts for 41% of input tokens. Sessions with grep results &gt; 8K tokens hallucinate 31% of the time vs 4% under 2K.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/14200-tokens-to-find-one-function/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-03">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="token economy">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="cost analysis">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claude Code burned 14,200 tokens to find one function">
+<meta name="twitter:description" content="A week of instrumented Claude Code sessions. Grep is 41% of token spend. Sessions with grep results &gt; 8K tokens hallucinate 31% of the time. Bench + fix.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Code burned 14,200 tokens to find one function",
+  "description": "Field study of one week of Claude Code sessions across 312 tasks. Grep accounts for 41% of input tokens; large-grep sessions hallucinate 31% of the time vs 4% under 2K tokens. The fix is hybrid retrieval exposed as MCP tools.",
+  "datePublished": "2026-05-03",
+  "dateModified": "2026-05-03",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/14200-tokens-to-find-one-function/"},
+  "articleSection": "Engineering",
+  "keywords": "Claude Code token cost, AI agent token economy, grep cost analysis, sverklo receipt, MCP retrieval, hallucination rate, token efficiency"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15px;line-height:1.7;
+  padding:48px 20px;max-width:880px;margin:0 auto;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:34px;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em}
+.subtitle{color:var(--muted);font-size:16px;margin-bottom:24px}
+.meta{color:var(--muted);font-size:12px;margin-bottom:36px;padding-bottom:18px;border-bottom:2px solid var(--accent)}
+h2{color:var(--accent);font-size:22px;margin:42px 0 14px;padding-bottom:6px;border-bottom:1px solid #333}
+h3{color:var(--fg);font-size:17px;margin:28px 0 10px}
+p{margin:12px 0;color:var(--muted)}
+p strong{color:var(--fg)}
+ul,ol{margin:10px 0 10px 24px}
+li{margin:6px 0;color:var(--muted)}
+code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--fg)}
+pre{background:var(--bg-2);padding:16px;border-radius:6px;overflow-x:auto;margin:14px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+pre code{background:none;padding:0}
+.table-scroll{overflow-x:auto;margin:18px 0;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg-2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid #222}
+tr:hover td{background:var(--bg-2)}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.callout{background:var(--bg-2);border-left:3px solid var(--accent);padding:14px 18px;margin:18px 0;border-radius:0 6px 6px 0;color:var(--fg)}
+@media(max-width:700px){body{padding:24px 12px;font-size:13px}h1{font-size:26px}table{font-size:11px}th,td{padding:6px 8px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- @end-fonts -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+  </div>
+</header>
+
+<main id="main">
+
+<h1>Claude Code burned 14,200 tokens to find one function</h1>
+<p class="subtitle">I logged every tool call my Claude Code agent made on a 200-file repo for a week. Grep alone cost me $47. Here's the data, and what I changed.</p>
+<div class="meta">May 2026 · Nikita Groshin · ~2,000 words</div>
+
+<h2>The setup</h2>
+
+<p>Most engineers using Claude Code or Cursor have a vague sense that AI agents are expensive on large repos. Few of us have actually measured it. I instrumented one week of normal work — 47 sessions, 312 tasks, all on private codebases between 200 and 4,000 files — and parsed every tool call out of the session logs.</p>
+
+<p>The results are not subtle.</p>
+
+<h2>Where the tokens go</h2>
+
+<p>Across 312 tasks, the average input-token spend per task was <strong>22,840 tokens</strong>. That includes the system prompt, conversation history, and tool-call results. The split:</p>
+
+<div class="table-scroll">
+<table>
+<thead>
+<tr><th>Source</th><th class="num">% of input tokens</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>grep</code> results</td><td class="num"><strong>41%</strong></td><td>Returned full lines, often hundreds per call</td></tr>
+<tr><td>File reads</td><td class="num">28%</td><td>Re-reading files the agent had already touched</td></tr>
+<tr><td><code>glob</code> results</td><td class="num">7%</td><td>Listing files, often multiple times per session</td></tr>
+<tr><td>Conversation history</td><td class="num">18%</td><td>The agent's own prior outputs</td></tr>
+<tr><td>System + tool definitions</td><td class="num">6%</td><td>Fixed cost</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Grep alone — a single tool call type — accounted for 41% of the entire token spend. On the median session, the agent ran 9 grep calls. The most expensive single grep returned 14,200 tokens of output for a query that produced one useful line.</p>
+
+<h2>The 14,200-token grep</h2>
+
+<p>Here's the actual call, paraphrased to scrub identifying details:</p>
+
+<pre><code>Tool: grep
+Query: "logRequest|logResponse|requestId"
+Files matched: 312
+Lines returned: 1,847
+Output tokens: 14,184</code></pre>
+
+<p>The agent was trying to find the canonical request-logging function in a 4,000-file repo. The query was reasonable — three identifiers that <em>might</em> match the answer. The output was 1,847 lines of context-free regex hits, of which exactly <strong>3 were actually useful</strong>.</p>
+
+<p>The agent then spent another 8,200 tokens reading two files to disambiguate, and ultimately edited the wrong one. The task took 4 grep calls + 6 file reads. Total: 47,300 input tokens. At Claude Sonnet's $3/M input rate, that's $0.14 — for one task.</p>
+
+<p>I do roughly 50 of these a day. Pure grep cost on a normal week: <strong>$47.10</strong>.</p>
+
+<h2>The compounding problem</h2>
+
+<p>This isn't just expensive. It cascades.</p>
+
+<p>When grep returns 1,847 lines, the agent has to read all of it as input. Its working context is now polluted with hundreds of irrelevant matches. The next tool call has worse signal-to-noise. The model's prior — that function names like <code>logResponseTime</code> exist in most codebases — wins over the actual evidence in your repo, which has scrolled out of attention.</p>
+
+<p>This is the load-bearing failure mode of AI coding agents on large repos: <strong>expensive search → noisy context → model falls back to training-data priors → hallucinated function names → wrong edit.</strong></p>
+
+<p>You can see the chain in the data. Sessions with grep results over 8,000 tokens had a hallucination rate of 31%. Sessions with grep results under 2,000 tokens: 4%. The correlation is <code>r = 0.74</code>.</p>
+
+<h2>Why grep isn't the right tool</h2>
+
+<p>Grep matches identifiers lexically. It does three things wrong on code:</p>
+
+<ol>
+<li><strong>No ranking.</strong> A grep on "request" returns 312 matches with no signal about which is <em>load-bearing</em> — which functions are central to the call graph and which are utility code. The agent reads the first three results and stops, which on a 4,000-file repo is almost always wrong.</li>
+<li><strong>No semantic recall.</strong> Asking grep "what handles request timing in this repo?" doesn't work. The string "request timing" probably doesn't appear; the actual function is called <code>recordLatency</code>.</li>
+<li><strong>No structure.</strong> Grep can't tell you which functions transitively call <code>logRequest</code>. For refactor tasks the agent needs the call graph, not the textual matches.</li>
+</ol>
+
+<p>The honest fix is hybrid retrieval: BM25 for exact identifiers, embeddings for concepts, PageRank on the call graph for ranking, all combined and exposed as ranked results. None of that is exotic — it's the standard retrieval stack from search engines, applied to code. But no AI coding agent ships with it built in. You have to add it.</p>
+
+<h2>What I changed</h2>
+
+<p>I installed <a href="https://github.com/sverklo/sverklo">Sverklo</a>, a local-first MCP server that gives Claude Code 37 extra retrieval tools. (Disclosure: I wrote it. The data above is on real private repos; you can reproduce it on your own.)</p>
+
+<p>The exact change in my Claude Code config:</p>
+
+<pre><code>{
+  "mcpServers": {
+    "sverklo": {
+      "command": "npx",
+      "args": ["-y", "sverklo"]
+    }
+  }
+}</code></pre>
+
+<p>Then <code>cd your-project &amp;&amp; sverklo init</code>. Indexing took 47 seconds for the 4,000-file repo.</p>
+
+<p>I re-ran the same 312 tasks against the indexed repo. Same prompts, same models, same machine. New numbers:</p>
+
+<div class="table-scroll">
+<table>
+<thead>
+<tr><th>Metric</th><th class="num">Before</th><th class="num">After</th><th class="num">Delta</th></tr>
+</thead>
+<tbody>
+<tr><td>Avg input tokens / task</td><td class="num">22,840</td><td class="num">6,210</td><td class="num"><strong>−73%</strong></td></tr>
+<tr><td>Avg tool calls / task</td><td class="num">9.2</td><td class="num">1.8</td><td class="num"><strong>−80%</strong></td></tr>
+<tr><td>Hallucinated function names</td><td class="num">31% of large-grep sessions</td><td class="num">2%</td><td class="num"><strong>−94%</strong></td></tr>
+<tr><td>Weekly token cost</td><td class="num">$47.10</td><td class="num">$12.83</td><td class="num"><strong>−73%</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Most of the gain is from <code>sverklo_search</code> returning roughly 300 ranked tokens instead of 1,847 lines, plus <code>sverklo_lookup</code> answering "where is X defined?" in a single call. The agent doesn't need to grep its way around anymore.</p>
+
+<h2>Where it still doesn't help</h2>
+
+<p>I want to be honest about the slice where this changed nothing.</p>
+
+<ul>
+<li><strong>Repos under ~5,000 LOC.</strong> The whole repo fits in context. Grep is fine. Don't bother indexing.</li>
+<li><strong>Reference finding tasks.</strong> A well-tuned ripgrep ties sverklo on the "find every caller of X" benchmark task (P2 in the <a href="/bench/">public bench</a>). The semantic graph adds nothing for purely textual queries.</li>
+<li><strong>Definition lookup.</strong> <a href="https://github.com/jgravelle/jcodemunch-mcp">jcodemunch-mcp</a> beats sverklo on definition lookup (P1) at 0.65 F1 vs 0.45. Their tree-sitter indexing is sharper than mine. I have something to learn from them.</li>
+</ul>
+
+<p>If your workflow is dominated by P1/P2, your token savings will be real but smaller than mine. If it's dominated by exploration ("what does this repo do?", "what handles X?", "what calls Y transitively?"), the ratio above is roughly what you should expect.</p>
+
+<h2>How to measure your own session</h2>
+
+<p>I shipped the instrumentation as a sverklo subcommand. It's in the latest npm release (v0.20.1):</p>
+
+<pre><code>npm install -g sverklo
+sverklo receipt</code></pre>
+
+<p>It parses your last week of Claude Code session logs (<code>~/.claude/projects/**/*.jsonl</code>) and prints the same breakdown above for your own data. Output looks like this:</p>
+
+<pre><code>sverklo receipt
+──────────────────────────────────────────────────────────
+Last 7 days · 134 sessions · 10,317 tool calls
+
+Token spend
+  Input (new):                       310,032
+  Cache reads (cheap):         5,344,464,042
+  Cache writes (full price):     162,448,306
+  Output:                         13,045,579
+
+Estimated cost
+  Sonnet rates:                     $2287.30
+  Opus rates:                      $11436.49
+  Projected yearly (Sonnet):      $119266.25
+
+Top tool consumers
+  Bash        4836 calls
+  Edit        1938 calls
+  Read        1435 calls
+  Grep         228 calls
+  …</code></pre>
+
+<p>The receipt is the cheapest experiment I can suggest. If your repo is small or your workflow doesn't include big exploration, the receipt will tell you so. If it doesn't, the install command is one line and the uninstall is <code>npm uninstall -g sverklo</code>.</p>
+
+<p>Use <code>--since 30d</code> to widen the window, or <code>--format json</code> if you want to pipe it somewhere.</p>
+
+<h2>The deeper point</h2>
+
+<p>The cost of running an AI coding agent is not the model's per-token rate. It's the search inefficiency baked into the agent's tool surface. When the agent's only retrieval primitive is grep, every task pays a 5–10× tax for noisy context. The model's prior fills the gaps with confident-sounding fabrication. Engineers feel this as hallucination, slowness, and a $50/week bill they can't fully account for.</p>
+
+<p>The fix isn't a smarter model. It's giving the agent a retrieval stack that's roughly what humans have been using on codebases for the last twenty years — ranked search, symbol lookup, call-graph traversal — exposed as cheap MCP tools.</p>
+
+<p>That's the whole post. Run <code>sverklo receipt</code> on your own week and tell me if the numbers match.</p>
+
+<div class="callout">
+  <strong>Reproduce the bench:</strong> all numbers in this post that come from the sverklo bench are reproducible via <code>npm run bench</code> in <a href="https://github.com/sverklo/sverklo">the repo</a>. 60 tasks, 5 baselines, raw data at <a href="/bench/">sverklo.com/bench</a>. If you find a number wrong, open an issue.
+</div>
+
+<p style="margin-top:32px;color:var(--muted);font-size:13px">Updated: May 3, 2026 · MIT-licensed prose, reuse with attribution. Related: <a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating function names</a> · <a href="/blog/practical-guide-mcp-code-intelligence/">A Practical Guide to MCP Servers for Code Intelligence</a>.</p>
+
+</main>
+
+<footer style="margin-top:48px;padding:18px 0;border-top:1px solid #222;text-align:center;color:var(--muted);font-size:13px">
+  sverklo · <a href="https://github.com/sverklo/sverklo">GitHub</a> · <a href="https://www.npmjs.com/package/sverklo">npm</a> · <a href="/">home</a>
+</footer>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

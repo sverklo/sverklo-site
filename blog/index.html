@@ -363,7 +363,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.0</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
   </div>
 </header>
 
@@ -373,6 +373,37 @@ body:has(header.top.nav-canonical) > #main {
     <p class="page-tagline">Technical writing from the Sverklo team. Deep dives on hybrid code search, PageRank for source code, bi-temporal memory, and the engineering decisions behind the local-first MCP server.</p>
 
     <div class="posts">
+
+      <a class="post" href="/blog/14200-tokens-to-find-one-function/">
+        <div class="post-meta">
+          <span class="date">2026-05-03</span>
+          <span class="tag">token economy</span>
+          <span class="tag">data</span>
+        </div>
+        <h2 class="post-title">Claude Code burned 14,200 tokens to find one function</h2>
+        <p class="post-excerpt">A field study of one week of instrumented Claude Code sessions across 312 tasks. Grep accounts for 41% of input tokens. Sessions with grep results over 8K tokens hallucinate 31% of the time vs 4% under 2K (r = 0.74). Includes the new `sverklo receipt` command (v0.20.1) that runs the same analysis on your own session logs.</p>
+      </a>
+
+      <a class="post" href="/blog/stopped-claude-code-hallucinating/">
+        <div class="post-meta">
+          <span class="date">2026-05-03</span>
+          <span class="tag">claude code</span>
+          <span class="tag">hallucination</span>
+        </div>
+        <h2 class="post-title">How I stopped Claude Code from hallucinating function names on a 4,000-file repo (with a local MCP server)</h2>
+        <p class="post-excerpt">My agent kept inventing function names that looked plausible but didn't exist (logResponseTime, trackRequestDuration — all fake). Three runs, three different invented names. The fix wasn't a smarter model — it was a real symbol graph exposed as MCP tools. Bench numbers, four failure modes, the cases where it doesn't help.</p>
+      </a>
+
+      <a class="post" href="/blog/practical-guide-mcp-code-intelligence/">
+        <div class="post-meta">
+          <span class="date">2026-05-03</span>
+          <span class="tag">MCP</span>
+          <span class="tag">landscape</span>
+          <span class="tag">guide</span>
+        </div>
+        <h2 class="post-title">A Practical Guide to MCP Servers for Code Intelligence (May 2026)</h2>
+        <p class="post-excerpt">Definitive landscape of 12 MCP servers for code intelligence. Honest comparison matrix on license, hosting, language coverage, tool count, and retrieval substrate. Includes a decision tree by team profile, a security PSA, a glossary, and a section that names the cases where Sverklo (the project that wrote the guide) loses.</p>
+      </a>
 
       <a class="post" href="/blog/i-added-two-competitors-to-my-own-benchmark/">
         <div class="post-meta">
