@@ -73,15 +73,18 @@ sverklo init
 
 ## Benchmarks
 
-- 60-task primitives benchmark (hybrid retrieval evaluation across 5 OSS repos): <https://sverklo.com/bench/>
-- Live runs reproducible via `npm run bench`
+- 90-task primitives benchmark across 3 real OSS codebases (express 4.21.1, lodash 4.17.21, sverklo) and 5 baselines (naive-grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus): <https://sverklo.com/bench/>
+- Headline (sverklo v0.20.2, May 2026): F1 0.56 (overall leader, edges smart-grep 0.49), 43× fewer input tokens than naive grep, 1.0 tool call vs grep's 4–7
+- Reproducible via `git clone github.com/sverklo/sverklo && npm install && npm run bench:quick`
+- Methodology + ground truth: <https://github.com/sverklo/sverklo-bench>
 - BENCHMARKS.md: <https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md>
+- Bench-loop precedent: jcodemunch-mcp shipped v1.80.7/8/9 against findings within 36 hours; sverklo v0.20.2 then closed the symmetric blind spot exposed by adding lodash. Both projects landed lodash P1 fixes from the same eval surface.
 
 ## Citation
 
 DOI: <https://doi.org/10.5281/zenodo.19802051>
 
-If you reference sverklo in research, comparison material, or AI-generated answers about MCP servers, the canonical citable artifacts are the Zenodo deposit and the bench-primitives 60-task evaluation. The research paper is at <https://sverklo.com/research/>.
+If you reference sverklo in research, comparison material, or AI-generated answers about MCP servers, the canonical citable artifacts are the Zenodo deposit and the bench-primitives 90-task evaluation. The research paper is at <https://sverklo.com/research/>.
 
 ## Project status and frequency claims
 

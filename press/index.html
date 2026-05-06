@@ -198,16 +198,16 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
     <span class="l">cloud calls. 0 API keys. 0 default telemetry.</span>
   </div>
   <div class="card stat">
-    <span class="n">62×</span>
-    <span class="l">fewer input tokens than naive grep on the published 60-task benchmark</span>
+    <span class="n">43×</span>
+    <span class="l">fewer input tokens than naive grep on the published 90-task benchmark (sverklo v0.20.2, May 2026)</span>
   </div>
   <div class="card stat">
-    <span class="n">2.9×</span>
-    <span class="l">fewer input tokens than tuned grep</span>
+    <span class="n">2.6×</span>
+    <span class="l">fewer input tokens than tuned grep on the same 90-task suite</span>
   </div>
   <div class="card stat">
     <span class="n">1.0</span>
-    <span class="l">tool calls per task average vs grep's 7-12</span>
+    <span class="l">tool calls per task average vs grep's 4–7</span>
   </div>
 </div>
 
@@ -216,7 +216,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
 <h2>Two-paragraph description</h2>
 <p>AI coding agents like Claude Code, Cursor, and Codex CLI hallucinate function names that don't exist in the user's codebase because they generate from training-data patterns rather than authoritative retrieval over the user's symbol graph. An agent will write <code>getUserByEmail()</code> when the codebase has <code>findByEmail()</code>; tests pass because the test mocks the dependency; production breaks. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls <em>before</em> writing code: <code>sverklo_lookup</code> resolves a name to its definition, <code>sverklo_refs</code> proves whether a symbol exists with caller context, <code>sverklo_verify</code> lets the agent re-check a quoted span against a cited git SHA.</p>
 
-<p>The architecture combines BM25 lexical retrieval, ONNX-embedded vector retrieval, and PageRank computed on the file-import graph. The novel piece is <em>channelized Reciprocal Rank Fusion</em>: instead of running RRF once over <code>fts ∪ vector</code>, sverklo runs RRF per channel (FTS, vector, doc-section, path, symbol-name) and fuses with channel-specific weights. The path channel is weighted 1.5× because filename matches are precision-skewed. Sverklo's other surfaces include a bi-temporal memory layer pinned to git SHAs (with valid_until_sha and superseded_by lineage), a diff-aware risk-scored PR review tool, and a 60-task hand-verified retrieval benchmark with reproducible harness.</p>
+<p>The architecture combines BM25 lexical retrieval, ONNX-embedded vector retrieval, and PageRank computed on the file-import graph. The novel piece is <em>channelized Reciprocal Rank Fusion</em>: instead of running RRF once over <code>fts ∪ vector</code>, sverklo runs RRF per channel (FTS, vector, doc-section, path, symbol-name) and fuses with channel-specific weights. The path channel is weighted 1.5× because filename matches are precision-skewed. Sverklo's other surfaces include a bi-temporal memory layer pinned to git SHAs (with valid_until_sha and superseded_by lineage), a diff-aware risk-scored PR review tool, and a 90-task hand-verified retrieval benchmark with reproducible harness.</p>
 
 <h2>Founder + maintainer</h2>
 <p><strong>Nikita Groshin</strong> — solo founder, full-time maintainer.</p>
@@ -252,8 +252,8 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
   <tbody>
     <tr><td>37 MCP tools</td><td>List in <a href="https://github.com/sverklo/sverklo/blob/main/README.md">README</a> or call <code>sverklo --tools</code></td></tr>
     <tr><td>12 languages (TS, JS, Vue, Python, Go, Rust, Java, C, C++, Ruby, PHP, C#)</td><td>SUPPORTED_LANGUAGES in <a href="https://github.com/sverklo/sverklo/blob/main/src/types/index.ts">src/types/index.ts</a></td></tr>
-    <tr><td>62× fewer tokens than naive grep</td><td>bench:primitives, run <code>npm run bench:primitives</code> against repo</td></tr>
-    <tr><td>F1 = 0.58 on 60-task bench</td><td><a href="/bench/">/bench/</a> — same page reports F1 = 0.02 on dead-code slice</td></tr>
+    <tr><td>43× fewer tokens than naive grep on 90-task bench</td><td>bench:primitives v2 (sverklo v0.20.2, May 2026), run <code>npm run bench:quick</code> against repo. Raw: 469 tokens (sverklo) vs 20,278 tokens (naive-grep)</td></tr>
+    <tr><td>F1 = 0.56 on 90-task bench (overall leader)</td><td><a href="/bench/">/bench/</a> — sverklo edges smart-grep at 0.49; same page reports the slices where smart-grep wins (P2 0.40 vs sverklo 0.25)</td></tr>
     <tr><td>MIT licensed</td><td><a href="https://github.com/sverklo/sverklo/blob/main/LICENSE">LICENSE</a></td></tr>
     <tr><td>Local-first / no cloud</td><td>Network calls inspected: only ONNX model download on first run, then offline. <a href="https://github.com/sverklo/sverklo/blob/main/TELEMETRY.md">TELEMETRY.md</a></td></tr>
     <tr><td>~90 MB embedding model</td><td>all-MiniLM-L6-v2 ONNX, downloaded from HuggingFace, cached at <code>~/.sverklo/models/</code></td></tr>
@@ -269,7 +269,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
   </div>
   <div class="card">
     <h3>On benchmark honesty</h3>
-    <p>"A tuned grep beats sverklo on F1 by 9 points. The point of publishing the result is the second-order finding: for AI agents inside bounded context windows, tokens-per-correct-answer is more load-bearing than F1, and on that axis sverklo wins by 62× over naive grep." — Nikita Groshin</p>
+    <p>"On the May 2026 90-task bench, sverklo is the F1 leader (0.56) — but smart-grep still wins P2 reference finding at 0.40 vs sverklo's 0.25. We publish where we lose alongside where we win, because for AI agents inside bounded context windows, tokens-per-correct-answer is the more load-bearing axis, and on that one sverklo wins 43× over naive grep at 1.0 tool calls per task." — Nikita Groshin</p>
   </div>
   <div class="card">
     <h3>On the local-first deployment model</h3>
@@ -300,7 +300,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
 
 <h2>Citation</h2>
 <pre><code>@misc{sverklo_bench_primitives_2026,
-  title  = {Sverklo bench:primitives — a 60-task retrieval evaluation for AI coding agents},
+  title  = {Sverklo bench:primitives — a 90-task retrieval evaluation for AI coding agents},
   author = {Groshin, Nikita},
   year   = {2026},
   doi    = {10.5281/zenodo.19802051},
