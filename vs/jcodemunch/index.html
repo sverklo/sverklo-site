@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo vs jcodemunch-mcp — code intelligence MCP comparison (with bench data)</title>
+<meta name="description" content="Sverklo and jcodemunch-mcp are both MIT-licensed local-first code-intelligence MCP servers. Both appear on the same 90-task benchmark. Side-by-side: bench results, architecture, install, retrieval model. Honest about where each one wins.">
+<meta name="keywords" content="jcodemunch-mcp alternative, sverklo vs jcodemunch, MCP server comparison, code intelligence, code search MCP, local-first MCP">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/vs/jcodemunch/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Sverklo vs jcodemunch-mcp — comparison with bench data on both">
+<meta property="og:description" content="Both MIT-licensed, both local-first. Both shipped lodash P1 fixes inside 36 hours of the original bench publication. Side-by-side comparison with the actual numbers.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/jcodemunch/">
+<meta property="og:site_name" content="Sverklo">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- JSON-LD FAQ Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between Sverklo and jcodemunch-mcp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both are MIT-licensed local-first MCP servers for code intelligence. Sverklo runs on Node + embedded SQLite with a hybrid BM25 + ONNX-embedding + PageRank retrieval pipeline. jcodemunch-mcp runs on Python and uses tree-sitter symbol indexing with a call-graph fallback. On the published 90-task bench, jcodemunch-mcp wins P1 definition lookup at F1 0.73 (tied with sverklo); sverklo wins P4 file dependencies at 0.71. Both projects shipped lodash P1 fixes within 36 hours of the original bench publication."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is jcodemunch-mcp a competitor to sverklo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both projects target the same problem (local-first code intelligence for AI coding agents) and both run as MCP servers, so yes. They use different retrieval substrates and have different tradeoffs — jcodemunch-mcp's tree-sitter symbol indexing is sharp on definition lookup; sverklo's hybrid retrieval wins on file-dependency analysis. The 90-task benchmark at sverklo.com/bench has both projects' numbers side-by-side and is reproducible from a fresh clone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which is faster, Sverklo or jcodemunch-mcp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On the 90-task bench, sverklo averages 469 input tokens per task and 1.0 tool calls. jcodemunch-mcp averages 1,267 tokens and 1.2 tool calls. Both are fast in absolute terms — sverklo's per-task cold start is ~1.4 seconds; jcodemunch's is shorter due to a Python interpreter rather than a Node + ONNX runtime. For long sessions both amortize cold-start completely."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does sverklo do everything jcodemunch-mcp does?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — different retrieval models cover different jobs. jcodemunch-mcp's tree-sitter call-graph wins on definition-shape questions. Sverklo's hybrid BM25 + embedding pipeline wins on retrieval where lexical and semantic signal both matter (P4 file dependencies, P5 dead code). For reference finding (P2), neither is the best — smart-grep wins that category. Both projects' P2 implementations are import-graph-shaped, which means they return ~0 on call-site reference questions; that's by design, not a bug."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I install jcodemunch-mcp vs sverklo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "jcodemunch-mcp installs via uvx (Python ecosystem): `uvx jcodemunch-mcp`. Sverklo installs via npm (Node ecosystem): `npm install -g sverklo`. Both expose MCP servers and work with Claude Code, Cursor, Windsurf, and Zed. Sverklo additionally supports VS Code MCP and JetBrains AI Assistant. Both are zero-config — point them at a repo and they index it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Both shipped fixes inside 36 hours of the bench — what happened?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When the 90-task bench was first published with both projects benchmarked, jcodemunch-mcp lost P1 lodash 0/10 (the 548KB single-file IIFE structure broke the call-graph fallback). The maintainer Jake Gravelle shipped v1.80.7, v1.80.8, v1.80.9 over 36 hours fixing the CommonJS module.exports re-export chain, the 500KB per-file size cap, and a monolithic-IIFE call-graph fallback. Adding lodash to sverklo's bench then exposed the symmetric blind spot in sverklo's own parser (a regex brace counter mis-counting braces inside string literals). Sverklo v0.20.2 fixed it; P1 went from 0.30 → 0.73. The cross-iteration is why publishing benchmarks with honest losses works."
+      }
+    }
+  ]
+}
+</script>
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0E0D0B; --bg-2: #16140F; --bg-3: #1C1A14;
+  --rule: #2A2620; --rule-2: #403A30;
+  --text: #EDE7D9; --text-2: #A39886; --text-3: #8A8270;
+  --accent: #E85A2A; --accent-dim: #B8441C; --accent-glow: rgba(232,90,42,0.12);
+  --ok: #8FB339; --warn: #D4A535;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px; line-height: 1.55; font-weight: 400; overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-2); transition: border-color 0.15s, color 0.15s; }
+a:hover { color: var(--accent); border-color: var(--accent); }
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+
+header.top {
+  border-bottom: 1px solid var(--rule); padding: 16px 0; position: sticky; top: 0;
+  background: rgba(14,13,11,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; }
+.brand { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; border: none; }
+.brand::before { content: "\25CC "; color: var(--accent); }
+.top-nav { display: flex; gap: 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+.top-nav a { border: none; color: var(--text-2); }
+.top-nav a:hover { color: var(--text); }
+
+.hero { padding: 80px 0 48px; border-bottom: 1px solid var(--rule); }
+.hero .kicker { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 24px; }
+.hero .kicker::before { content: "// "; color: var(--accent); }
+.hero h1 { font-family: 'JetBrains Mono', monospace; font-size: clamp(28px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.03em; font-weight: 700; margin-bottom: 24px; }
+.hero h1 .accent { color: var(--accent); }
+.hero .lede { font-size: 16px; line-height: 1.65; color: var(--text-2); max-width: 68ch; }
+.hero .lede strong { color: var(--text); font-weight: 500; }
+
+.cmp-section { padding: 64px 0; border-bottom: 1px solid var(--rule); }
+.cmp-section h2 { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 32px; }
+.cmp-section h2::before { content: "# "; color: var(--accent); }
+
+table.cmp { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.6; }
+table.cmp th, table.cmp td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.cmp th { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); background: var(--bg-2); }
+table.cmp th:first-child { width: 24%; }
+table.cmp th:nth-child(2), table.cmp th:nth-child(3) { width: 38%; }
+table.cmp td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text-2); }
+table.cmp td:nth-child(2) { color: var(--text); }
+table.cmp td:nth-child(3) { color: var(--text-2); }
+table.cmp tr:hover td { background: var(--bg-2); }
+table.cmp .num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+table.cmp .win { color: var(--ok); font-weight: 600; }
+
+.tag-mit { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ok); border: 1px solid var(--ok); padding: 2px 8px; border-radius: 3px; }
+
+.when { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 0; }
+.when-card { padding: 28px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: 8px; }
+.when-card h3 { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+.when-card h3::before { content: "» "; color: var(--accent); }
+.when-card ul { list-style: none; padding: 0; }
+.when-card li { padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 14px; line-height: 1.6; color: var(--text-2); }
+.when-card li:last-child { border-bottom: none; }
+.when-card li::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+
+@media (max-width: 720px) {
+  .when { grid-template-columns: 1fr; }
+  table.cmp th, table.cmp td { padding: 10px 8px; font-size: 13px; }
+}
+
+.bench-loop {
+  background: var(--bg-2); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+  padding: 24px 28px; border-radius: 6px; margin-top: 0; font-size: 15px; line-height: 1.6;
+}
+.bench-loop p { margin-bottom: 12px; color: var(--text-2); }
+.bench-loop p:last-child { margin-bottom: 0; }
+.bench-loop p strong { color: var(--text); font-weight: 600; }
+.bench-loop .when-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+
+.cta-section { padding: 80px 0; text-align: center; }
+.cta-section h2 { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+.cta-section p { font-size: 16px; color: var(--text-2); margin-bottom: 32px; }
+.cta-cmd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 15px; background: var(--bg-2); border: 1px solid var(--rule); padding: 16px 24px; border-radius: 6px; cursor: pointer; color: var(--text); transition: border-color 0.15s; }
+.cta-cmd:hover { border-color: var(--accent); }
+.cta-cmd .prompt { color: var(--accent); margin-right: 10px; }
+
+footer { padding: 48px 0 64px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--text-3); text-align: center; }
+footer a { border: none; color: var(--text-3); }
+footer a:hover { color: var(--accent); }
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+</head>
+<body>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="kicker">vs / jcodemunch-mcp</p>
+    <h1>Sverklo <span class="accent">vs</span> jcodemunch-mcp</h1>
+    <p class="lede">
+      Both are <strong>MIT-licensed, local-first, MCP-shaped</strong> code-intelligence servers. Both appear on the same 90-task benchmark. Both shipped lodash P1 fixes inside 36 hours of the original bench publication. Different retrieval substrates, different wins. The honest version is below.
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Side by side</h2>
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Sverklo</th>
+          <th>jcodemunch-mcp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>License</td>
+          <td><span class="tag-mit">MIT</span></td>
+          <td><span class="tag-mit">MIT</span></td>
+        </tr>
+        <tr>
+          <td>Runtime</td>
+          <td>Node 25, embedded SQLite, ONNX (~90 MB)</td>
+          <td>Python (uvx-installed)</td>
+        </tr>
+        <tr>
+          <td>Install</td>
+          <td><code>npm install -g sverklo</code></td>
+          <td><code>uvx jcodemunch-mcp</code></td>
+        </tr>
+        <tr>
+          <td>Retrieval substrate</td>
+          <td>Hybrid BM25 + ONNX embeddings + PageRank</td>
+          <td>Tree-sitter symbol indexing + call-graph fallback</td>
+        </tr>
+        <tr>
+          <td>MCP tools shipped</td>
+          <td><span class="num">37</span></td>
+          <td>(see jcodemunch docs)</td>
+        </tr>
+        <tr>
+          <td>Bench F1 — overall</td>
+          <td class="num win">0.56</td>
+          <td class="num">0.32</td>
+        </tr>
+        <tr>
+          <td>Bench F1 — P1 (def lookup)</td>
+          <td class="num win">0.73</td>
+          <td class="num win">0.73</td>
+        </tr>
+        <tr>
+          <td>Bench F1 — P2 (refs)</td>
+          <td class="num">0.25</td>
+          <td class="num">0.00</td>
+        </tr>
+        <tr>
+          <td>Bench F1 — P4 (file deps)</td>
+          <td class="num win">0.71</td>
+          <td class="num">0.46</td>
+        </tr>
+        <tr>
+          <td>Bench F1 — P5 (dead code)</td>
+          <td class="num">0.67</td>
+          <td class="num">0.00</td>
+        </tr>
+        <tr>
+          <td>Avg input tokens / task</td>
+          <td class="num win">469</td>
+          <td class="num">1,267</td>
+        </tr>
+        <tr>
+          <td>Avg tool calls / task</td>
+          <td class="num win">1.0</td>
+          <td class="num">1.2</td>
+        </tr>
+        <tr>
+          <td>Memory (bi-temporal, git-pinned)</td>
+          <td>Yes</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Diff-aware PR review</td>
+          <td>Yes</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>MCP clients supported</td>
+          <td>Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains</td>
+          <td>Claude Code, Cursor, Windsurf, Zed</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 18px; font-size: 13px; color: var(--text-3); line-height: 1.55;">
+      Bench data from <a href="/bench/">sverklo.com/bench</a> — sverklo v0.20.2 / jcodemunch-mcp v1.80.9, 90 tasks across express + lodash + sverklo. Reproducible: <code>npm run bench:quick</code>.
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>The bench-loop story</h2>
+    <div class="bench-loop">
+      <p class="when-eyebrow">2026-04-28 → 2026-05-04 · what happened</p>
+      <p>The original 60-task bench (Apr 28) had jcodemunch-mcp at <strong>P1 0.65</strong> (definition lookup leader) but <strong>P5 0.00 on Express</strong> — the CommonJS <code>module.exports = X</code> re-export chain wasn't modeled as a use site, so the only export of the entire module appeared to have no callers.</p>
+      <p>Within hours of the bench going live, jcodemunch-mcp's maintainer <a href="https://github.com/jgravelle">@jgravelle</a> shipped <strong>v1.80.7 / 1.80.8 / 1.80.9</strong> in 36 hours. The fixes: CommonJS re-export modeling, a 500 KB per-file size cap (lodash.js is 548 KB), and a monolithic-IIFE call-graph fallback. P5 went 0.00 → 1.00; lodash P1 went 0/10 → 9/10.</p>
+      <p>Adding lodash to sverklo's bench then exposed the <strong>symmetric</strong> blind spot in sverklo's own parser. The regex brace counter mis-counted braces inside string literals — line 6301 of <code>lodash.js</code> has <code>'{\n/* [wrapped with '</code> inside a string, and the unbalanced <code>{</code> made every function declaration after that line get absorbed into one ~11 K-line chunk. Sverklo v0.20.2 ships the fix; P1 went 0.30 → 0.73, overall F1 went 0.45 → 0.56.</p>
+      <p><strong>Both projects landed lodash P1 fixes inside 36 hours of the original bench publication.</strong> Different parsers, different bugs, same effect — and the public benchmark made each side's blind spot visible to the other in a way no internal eval would have. The full timeline lives on <a href="/bench/">sverklo.com/bench</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>When to use which</h2>
+    <div class="when">
+      <div class="when-card">
+        <h3>Choose Sverklo</h3>
+        <ul>
+          <li>You want the F1 leader on the published benchmark (0.56 vs 0.32) at lower input tokens (469 vs 1,267).</li>
+          <li>File-dependency analysis matters to your workflow — sverklo wins P4 at 0.71 vs jcodemunch's 0.46.</li>
+          <li>You want bi-temporal memory pinned to git SHAs (jcodemunch has no memory layer).</li>
+          <li>Your repo has TypeScript / TSX-heavy code where the regex parser plus tree-sitter fallback both matter.</li>
+          <li>You want diff-aware PR review (<code>sverklo review</code>) alongside retrieval.</li>
+          <li>Node ecosystem fits your install constraint better than uvx / Python.</li>
+        </ul>
+      </div>
+      <div class="when-card">
+        <h3>Choose jcodemunch-mcp</h3>
+        <ul>
+          <li>You only need P1 definition lookup and want a tighter, simpler tool — jcodemunch matches sverklo at 0.73 with a smaller surface.</li>
+          <li>Your stack is Python-native and uvx is the install path you already use.</li>
+          <li>You want the most active single-purpose MCP tool in this category — jcodemunch shipped three releases in 36 hours against bench findings, which is unusually responsive.</li>
+          <li>Tree-sitter call-graph is the substrate you trust over hybrid BM25 + embeddings.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Where neither wins</h2>
+    <p style="color: var(--text-2); font-size: 15px; line-height: 1.7; max-width: 72ch;">
+      Both projects' P2 reference-finding scores reflect import-graph-shaped models — they return ~0 on call-site reference questions because they track import sites, not call sites. That's a legitimate design choice for refactor-by-module workflows, not a bug. <strong>If your job is "find every caller of X", smart-grep beats both projects at F1 0.40.</strong> The bench page's <a href="/bench/">honesty section</a> calls this out at the per-task level. Different retrieval substrates, different jobs.
+    </p>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <h2>Try Sverklo</h2>
+    <p>MIT-licensed. Local-first. 37 MCP tools. Single install command.</p>
+    <button type="button" class="cta-cmd" aria-label="Copy: npm install -g sverklo &amp;&amp; sverklo init" onclick="navigator.clipboard.writeText('npm install -g sverklo &amp;&amp; sverklo init').catch(()=>{})"><span class="prompt">$</span>npm install -g sverklo &amp;&amp; sverklo init</button>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-3);">click to copy</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>sverklo &mdash; MIT Licensed</span>
+    &nbsp;·&nbsp;
+    <a href="/bench/">90-task bench</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/sverklo/sverklo-bench">methodology repo</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/sverklo/sverklo">github</a>
+    &nbsp;·&nbsp;
+    <a href="/vs/gitnexus/">vs gitnexus</a>
+    &nbsp;·&nbsp;
+    <a href="/vs/greptile/">vs greptile</a>
+  </div>
+</footer>
+
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
