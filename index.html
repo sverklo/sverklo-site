@@ -1920,7 +1920,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="comment"># ask Claude anything — sverklo is preferred automatically</span>
 <span class="prompt">&gt;</span> <span class="cmd">how does the auth middleware work?</span>
 
-  <span class="tool">⚡ sverklo_search</span>   <span class="dim">query="authentication middleware"</span>
+  <span class="tool">› sverklo_search</span>   <span class="dim">query="authentication middleware"</span>
   <span class="dim">─ src/middleware/auth.ts:42   validateToken()     score: 0.89</span>
   <span class="dim">─ src/routes/auth.ts:18       requireAuth()       score: 0.84</span>
   <span class="dim">─ src/lib/jwt.ts:12           verifyJWT()         score: 0.81</span>
@@ -1946,7 +1946,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="comment"># Cursor agent picks up sverklo on next session</span>
 <span class="prompt">&gt;</span> <span class="cmd">where do we handle stripe webhooks?</span>
 
-  <span class="tool">⚡ sverklo_context</span>  <span class="dim">task="stripe webhook handling"</span>
+  <span class="tool">› sverklo_context</span>  <span class="dim">task="stripe webhook handling"</span>
   <span class="dim">─ src/api/webhooks/stripe.ts:14  handleStripeEvent()  score: 0.92</span>
   <span class="dim">─ src/billing/events.ts:31       processCharge()      score: 0.78</span>
   <span class="ok">✓ bundle: 4 files, 2 memories — 1,840 tokens</span>
@@ -1965,10 +1965,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="comment"># Gemini in Antigravity uses sverklo via MCP</span>
 <span class="prompt">&gt;</span> <span class="cmd">review my branch before I merge to main</span>
 
-  <span class="tool">⚡ sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
-  <span class="warn">─ 🟠 risk 52  src/api/billing.ts</span>
+  <span class="tool">› sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
+  <span class="warn">─ ◆ risk 52  src/api/billing.ts</span>
   <span class="dim">    2 removed symbols still referenced; 8 importers</span>
-  <span class="tool">⚡ sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 5 covered · 1 uncovered (risk 78)</span>
   <span class="ok">verdict: BLOCKED — fix dangling refs in 3 files</span>
 </div>
@@ -2125,20 +2125,20 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         </div>
         <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge</span>
 
-  <span class="tool">⚡ sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 7 files changed (12 added, 3 removed, 4 modified)</span>
 
   <span class="warn">## ⚠️ Highest-risk files</span>
-  <span class="dim">─ 🔴 risk 78 (critical)  src/auth/session.ts</span>
+  <span class="dim">─ ◆ risk 78 (critical)  src/auth/session.ts</span>
   <span class="dim">    no matching tests; security-sensitive; 14 importers</span>
-  <span class="dim">─ 🟠 risk 52 (high)      src/api/billing.ts</span>
+  <span class="dim">─ ◆ risk 52 (high)      src/api/billing.ts</span>
   <span class="dim">    2 removed symbols still referenced; 8 importers</span>
 
-  <span class="tool">⚡ sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 5 covered · 2 uncovered</span>
-  <span class="warn">─ 🔴 risk 78 src/auth/session.ts ← block merge</span>
+  <span class="warn">─ ◆ risk 78 src/auth/session.ts ← block merge</span>
 
-  <span class="tool">⚡ sverklo_impact</span>       <span class="dim">symbol="oldValidateToken"</span>
+  <span class="tool">› sverklo_impact</span>       <span class="dim">symbol="oldValidateToken"</span>
   <span class="dim">─ 4 dangling references in 3 files — must fix</span>
 
   <span class="ok">verdict: BLOCKED — 1 critical, 4 dangling refs</span>
@@ -2381,7 +2381,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <div class="terminal-body"><span class="comment"># tuesday — agent saves the decision</span>
 <span class="prompt">&gt;</span> <span class="cmd">we picked Prisma for the ORM because of better TypeScript types</span>
 
-  <span class="tool">⚡ sverklo_remember</span>   <span class="dim">category="decision"</span>
+  <span class="tool">› sverklo_remember</span>   <span class="dim">category="decision"</span>
   <span class="ok">✓ memory #42 saved · main@a3f29e1</span>
 
 <span class="comment"># thursday — new conversation, fresh context window</span>
@@ -2391,7 +2391,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="prompt">&gt;</span> <span class="cmd">add a new API endpoint for user profiles</span>
 
 <span class="comment"># Claude already knows: Prisma + JWT (from memories #42, #43)</span>
-<span class="tool">⚡ writes endpoint with Prisma + JWT — no rediscovery</span>
+<span class="tool">› writes endpoint with Prisma + JWT — no rediscovery</span>
 </div>
       </div>
 
@@ -2748,6 +2748,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <li><a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener noreferrer">GitHub</a></li>
         <li><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener noreferrer">npm</a></li>
         <li><a href="https://github.com/sverklo/sverklo/issues" target="_blank" rel="noopener noreferrer">Issues</a></li>
+        <li><a href="https://github.com/sverklo/sverklo/releases" target="_blank" rel="noopener noreferrer">Changelog</a></li>
+        <li><a href="https://github.com/sverklo/sverklo-bench" target="_blank" rel="noopener noreferrer">Bench methodology</a></li>
       </ul>
     </div>
     <div class="col">
