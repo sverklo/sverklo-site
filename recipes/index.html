@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sverklo recipes — drop-in code intelligence for programmatic agents</title>
+<meta name="description" content="Short, copy-pasteable recipes for wiring sverklo as an MCP server into specific agent stacks (Cursor SDK, Claude Code, Windsurf, Zed, custom MCP clients).">
+<link rel="canonical" href="https://sverklo.com/recipes/">
+<meta property="og:title" content="Sverklo recipes — drop-in code intelligence for programmatic agents">
+<meta property="og:description" content="Short, copy-pasteable recipes for wiring sverklo into specific agent stacks.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sverklo.com/recipes/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/tokens.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.6;
+  }
+  .top{border-bottom:1px solid var(--rule);padding:14px 0}
+  .nav-grid{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:24px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .brand{color:var(--accent);text-decoration:none;font-weight:600;letter-spacing:0.04em;text-transform:lowercase;font-size:14px}
+  .top-nav{display:flex;gap:18px;flex-wrap:wrap}
+  .top-nav a{color:var(--text-2);text-decoration:none;text-transform:lowercase;letter-spacing:0.02em}
+  .top-nav a:hover{color:var(--accent)}
+  .top-cta{margin-left:auto}
+  .top-cta a{color:var(--text-3);text-decoration:none;font-size:12px;border:1px solid var(--rule);padding:4px 10px;border-radius:4px}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 24px}
+  h1{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;letter-spacing:-0.01em;margin-bottom:8px;color:var(--text)}
+  .lede{color:var(--text-2);font-size:16px;margin-bottom:32px;max-width:60ch}
+  .recipe{border:1px solid var(--rule);border-radius:6px;padding:18px 20px;margin-bottom:14px;background:var(--bg-2)}
+  .recipe a{color:var(--accent);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:14px}
+  .recipe a:hover{text-decoration:underline}
+  .recipe .summary{color:var(--text-2);font-size:14px;margin-top:6px;line-height:1.55}
+  .recipe .meta{color:var(--text-3);font-size:11px;margin-top:8px;font-family:'JetBrains Mono',monospace;text-transform:lowercase;letter-spacing:0.04em}
+  .placeholder{color:var(--text-3);font-style:italic;font-size:13px;margin-top:24px;padding:14px 16px;border-left:3px solid var(--rule);background:var(--bg-2)}
+  .footer{max-width:1100px;margin:48px auto 24px;padding:24px;border-top:1px solid var(--rule);color:var(--text-3);font-size:12px;font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/benchmarks/">benchmarks</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.20.2</a></div>
+  </div>
+</header>
+
+<main class="wrap">
+<h1>Recipes</h1>
+<p class="lede">Short, copy-pasteable integrations for wiring sverklo as an MCP server into specific agent stacks. One file, one shell command, one verifiable behaviour.</p>
+
+<div class="recipe">
+  <a href="/recipes/cursor-sdk/">cursor-sdk →</a>
+  <p class="summary">Wire sverklo as an MCP server inside a programmatic Cursor SDK agent. 30 lines of TypeScript. The agent gets sverklo's 37 tools alongside Cursor's built-in semSearch.</p>
+  <p class="meta">2026-05-02 · typescript · cursor sdk</p>
+</div>
+
+<p class="placeholder">More recipes for Claude Code subagents, Windsurf, Zed, and custom MCP clients are in the queue. Open an issue at <a href="https://github.com/sverklo/sverklo/issues" style="color:var(--accent);text-decoration:none;font-family:'JetBrains Mono',monospace">github.com/sverklo/sverklo/issues</a> with the integration you need next.</p>
+</main>
+
+<div class="footer">
+  <a href="/" style="color:var(--text-3);text-decoration:none">← back to sverklo.com</a>
+</div>
+</body>
+</html>

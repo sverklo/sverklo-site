@@ -655,7 +655,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>Architecture notes</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
-      Sverklo uses <strong style="color: var(--text);">SQLite with PageRank-based scoring</strong> and a hybrid retrieval pipeline (BM25 + ONNX embeddings + graph centrality).
+      Sverklo uses <strong style="color: var(--text);">SQLite with PageRank-based scoring</strong> and a hybrid retrieval pipeline (BM25 + ONNX embeddings + graph centrality). Hybrid means lexical and structural signal both rank — neither tool plays the <em>embedding lottery</em>.
       This keeps the install simple and dependency-free. The trade-off: you don't get Cypher query syntax or native graph traversals.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">

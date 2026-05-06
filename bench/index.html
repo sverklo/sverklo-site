@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sverklo Benchmark — 60-task code retrieval evaluation across 5 baselines (peer-reviewable)</title>
-<meta name="description" content="60 verified tasks across 2 OSS codebases, 5 baselines (naive grep, tuned grep, sverklo, jcodemunch-mcp, GitNexus). Reproducible. Honest about where each baseline wins and loses — including the slice where smart-grep ties sverklo and jcodemunch wins P1 outright.">
+<title>Sverklo Benchmark — 90-task code retrieval evaluation across 5 baselines (peer-reviewable)</title>
+<meta name="description" content="90 verified tasks across 3 OSS codebases (express, lodash, sverklo), 5 baselines (naive grep, tuned grep, sverklo, jcodemunch-mcp, GitNexus). Reproducible. Honest about where each baseline wins and loses — sverklo F1 0.56 (overall leader, edges smart-grep at 0.49), 43× fewer input tokens than naive grep, single tool call vs grep's 4–7.">
 <link rel="canonical" href="https://sverklo.com/bench/">
 
-<meta property="og:title" content="Sverklo Benchmark — 60 tasks, 5 baselines, honest results">
-<meta property="og:description" content="60 verified tasks. 5 baselines including jcodemunch-mcp and GitNexus. F1 + token-economy reported with the honesty section. Reproduce with one npm script.">
+<meta property="og:title" content="Sverklo Benchmark — 90 tasks, 5 baselines, honest results">
+<meta property="og:description" content="90 verified tasks. 5 baselines including jcodemunch-mcp and GitNexus. F1 + token-economy reported with the honesty section. Reproduce with one npm script.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/bench/">
 <meta property="og:image" content="https://sverklo.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sverklo Benchmark — 60 tasks, 5 baselines, honest results">
-<meta name="twitter:description" content="60 verified tasks, 5 baselines including jcodemunch-mcp and GitNexus. Reproducible. Honest about wins and losses.">
+<meta name="twitter:title" content="Sverklo Benchmark — 90 tasks, 5 baselines, honest results">
+<meta name="twitter:description" content="90 verified tasks, 5 baselines including jcodemunch-mcp and GitNexus. Reproducible. Honest about wins and losses.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -82,6 +82,85 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- @end-fonts -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Sverklo bench:primitives — 90-task code retrieval evaluation",
+  "description": "90 hand-verified retrieval tasks across three OSS codebases (express 4.21.1, lodash 4.17.21, sverklo) covering definition lookup (P1), reference finding (P2), file dependencies (P4), and dead-code detection (P5). Five baselines: naive grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus.",
+  "url": "https://sverklo.com/bench/",
+  "license": "https://opensource.org/licenses/MIT",
+  "creator": { "@type": "Person", "name": "Nikita Groshin", "url": "https://github.com/nike-17" },
+  "isAccessibleForFree": true,
+  "identifier": "10.5281/zenodo.19802051",
+  "sameAs": "https://github.com/sverklo/sverklo-bench",
+  "keywords": ["code retrieval", "MCP", "LLM benchmark", "code intelligence", "hybrid search"],
+  "variableMeasured": ["F1", "recall", "precision", "input_tokens", "tool_calls", "wall_time_ms"],
+  "distribution": [
+    { "@type": "DataDownload", "encodingFormat": "application/jsonl", "contentUrl": "https://github.com/sverklo/sverklo/tree/main/benchmark/results" },
+    { "@type": "DataDownload", "encodingFormat": "text/markdown", "contentUrl": "https://github.com/sverklo/sverklo-bench" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How many tasks are in sverklo's benchmark?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "90 hand-verified retrieval tasks across three OSS codebases (express 4.21.1, lodash 4.17.21, sverklo). Each codebase contributes 30 tasks distributed across P1 definition lookup (10), P2 reference finding (10), P4 file dependencies (5), and P5 dead-code detection (5)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is sverklo's F1 score on code retrieval?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo v0.20.2 achieves F1 0.56 on the 90-task bench, edging smart-grep at 0.49. P1 (definition lookup): 0.73, tied with jcodemunch-mcp. P4 (file dependencies): 0.71, the best of any baseline. Smart-grep wins P2 reference finding at 0.40."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does sverklo's token economy compare to grep?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On the 90-task bench, sverklo averages 469 input tokens per task at 1.0 tool call, vs naive grep's 20,278 tokens at 6.5 tool calls — 43× fewer input tokens than naive grep. Smart-grep is at 1,220 tokens with 4.9 tool calls."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is sverklo's benchmark reproducible?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Clone github.com/sverklo/sverklo, run npm install && npm run bench:quick. All 5 baselines run on a 16GB Apple Silicon laptop in under 10 minutes. Methodology and ground truth live in the spun-out repo at github.com/sverklo/sverklo-bench. Raw JSONL output, summary.json, and report.md per run land in benchmark/results/<timestamp>/."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does sverklo lose on the benchmark?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Smart-grep wins P2 reference finding (0.40 vs sverklo's 0.25) — tuned ripgrep on call-site references is genuinely competitive. Sverklo's P5 dead-code detection ties at 0.67. The page has a dedicated 'Where sverklo loses' section with task-level F1 scores below the wins."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between sverklo, jcodemunch-mcp, and GitNexus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "All three are local-first MCP code-intelligence servers. Sverklo (MIT) builds a hybrid BM25 + ONNX-embedding + PageRank index with single-tool-call retrieval. jcodemunch-mcp uses tree-sitter symbol indexing and wins P1 outright at 0.73. GitNexus (PolyForm Noncommercial) builds a code knowledge graph in KuzuDB with Cypher queries; it returns ~0 on P2 reference finding because it tracks import sites rather than call sites — a legitimate design choice for refactor-by-module workflows."
+      }
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
 
@@ -105,8 +184,8 @@
 
 <main id="main">
 
-<h1><span>bench:primitives</span> — 60-task code retrieval evaluation</h1>
-<p class="subtitle">Five retrieval baselines, two real OSS codebases, 60 hand-verified tasks. Reproducible.</p>
+<h1><span>bench:primitives</span> — 90-task code retrieval evaluation</h1>
+<p class="subtitle">Five retrieval baselines, three real OSS codebases (express, lodash, sverklo), 90 hand-verified tasks. Reproducible. The naive baseline is what most agents do today — <em>blind grep</em>, 20K tokens of unranked regex hits per task.</p>
 <div class="meta">
   April 2026 run: <code>2026-04-07T23:07:14Z</code> · 3 baselines (naive-grep, smart-grep, sverklo)<br>
   May 2026 update: <code>2026-05-02T23:35:52Z</code> · +2 baselines (jcodemunch-mcp, GitNexus) per <a href="https://github.com/sverklo/sverklo/issues/25">#25</a> · <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/README.md">harness on GitHub</a> · <a href="https://github.com/sverklo/sverklo-bench"><strong>methodology + ground truth: sverklo/sverklo-bench</strong></a>
@@ -363,15 +442,15 @@ BASELINES=sverklo    npm run bench:quick</code></pre>
 
 <h2>What this benchmark does NOT measure</h2>
 <ul>
-  <li><strong>Real coding-task latency.</strong> 60 retrieval primitives, not 60 end-to-end agent runs. The token economy translates to real-world savings, but a follow-up bench:swe (65 SWE-bench-style questions × 5 OSS repos) measures that and is on the public roadmap.</li>
-  <li><strong>Anything beyond Express + sverklo.</strong> The current slice is two TS/JS codebases. Coverage on Go, Python, Rust is the next dataset extension.</li>
+  <li><strong>Real coding-task latency.</strong> 90 retrieval primitives, not 90 end-to-end agent runs. The token economy translates to real-world savings, but a follow-up bench:swe (65 SWE-bench-style questions × 5 OSS repos) measures that and is on the public roadmap.</li>
+  <li><strong>Anything beyond Express + lodash + sverklo.</strong> The current slice is three JS/TS codebases. Coverage on Go, Python, Rust is the next dataset extension.</li>
   <li><strong>Cross-repo retrieval.</strong> The bench is single-repo; sverklo's workspace and cross-repo features aren't exercised.</li>
   <li><strong>Cost of indexing.</strong> The 3690ms cold-start figure is the index build for sverklo. We list it as a separate column rather than amortizing it into wall time, so you can decide whether your usage pattern justifies it.</li>
 </ul>
 
 <h2>Methodology</h2>
 <ul>
-  <li><strong>Tasks:</strong> 60 hand-verified retrieval primitives across <code>expressjs/express</code> and <code>sverklo/sverklo</code>, distributed across P1 (definition lookup, n=20), P2 (reference finding, n=20), P4 (file dependencies, n=10), P5 (dead-code detection, n=10).</li>
+  <li><strong>Tasks:</strong> 90 hand-verified retrieval primitives across <code>expressjs/express</code>, <code>lodash/lodash</code>, and <code>sverklo/sverklo</code>. Each dataset contributes 30 tasks distributed across P1 (definition lookup, 10), P2 (reference finding, 10), P4 (file dependencies, 5), P5 (dead-code detection, 5).</li>
   <li><strong>Metrics:</strong> F1, recall, precision, total input tokens, tool-call count, wall time. <em>tokens_per_correct_answer</em> = input_tokens / max(recall, 0.01) — lower is better. The <em>gated</em> column averages only over runs where F1 ≥ 0.8 — refusing to reward "found nothing cheaply".</li>
   <li><strong>Tolerances:</strong> P1 uses ±3-line tolerance, P2 uses ±2 lines, P4/P5 use set membership.</li>
   <li><strong>naive-grep</strong> floor: <code>grep -rn &lt;sym&gt; .</code> then read top 10 files in full.</li>
@@ -393,7 +472,7 @@ npm run bench:primitives</code></pre>
 <h2>Cite this</h2>
 <p>If you reference this benchmark in academic work or comparison material:</p>
 <pre><code>@misc{sverklo_bench_primitives_2026,
-  title  = {Sverklo bench:primitives — a 60-task retrieval evaluation for AI coding agents},
+  title  = {Sverklo bench:primitives — a 90-task retrieval evaluation for AI coding agents},
   author = {Groshin, Nikita},
   year   = {2026},
   doi    = {10.5281/zenodo.19802051},
@@ -402,7 +481,7 @@ npm run bench:primitives</code></pre>
 
 <h2>A few details we sweated</h2>
 
-<p><strong>Hand-verified ground truth.</strong> Every one of the 60 task answers was inspected by hand at the fixed commit. Auto-generated ground truth from existing tooling correlates with whatever generated it; we wanted the harness to be cleanly testable against any retrieval system, including future ones we haven't built.</p>
+<p><strong>Hand-verified ground truth.</strong> Every one of the 90 task answers was inspected by hand at the fixed commit. Auto-generated ground truth from existing tooling correlates with whatever generated it; we wanted the harness to be cleanly testable against any retrieval system, including future ones we haven't built.</p>
 
 <p><strong>The losing slice gets the same prominence as the winning slice.</strong> The dead-code (P5) F1 = 0.02 number lives in the same table as the wins, two scrolls apart. A bench that only releases when the maintainer wins is marketing; a bench that releases when the maintainer loses is a bench. The contribution is the harness, not the leaderboard.</p>
 
@@ -414,7 +493,7 @@ npm run bench:primitives</code></pre>
 
 <p><strong>Raw JSONL output, not just aggregates.</strong> <code>benchmark/results/&lt;timestamp&gt;/raw.jsonl</code> has every task's input, the system's output, and the per-task scoring breakdown. Disagreements with our aggregates are useful — file an issue with your machine spec and run timestamp and we'll triage.</p>
 
-<p><strong>Two codebases is small. We say so.</strong> The "What this benchmark does NOT measure" section above isn't decorative. The next dataset extension is Go / Python / Rust on 5+ codebases. The current 60-task slice is what we have today, with the limitations explicitly listed.</p>
+<p><strong>Three codebases is still small. We say so.</strong> The "What this benchmark does NOT measure" section above isn't decorative. The next dataset extension is Go / Python / Rust on 5+ codebases. The current 90-task slice is what we have today, with the limitations explicitly listed.</p>
 
 <h2>Get started</h2>
 <p>If the token-economy numbers look interesting:</p>
