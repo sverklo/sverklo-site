@@ -56,6 +56,22 @@
         "@type": "Answer",
         "text": "Yes. Sverklo includes diff-aware PR review with risk scoring and a CI gate (--fail-on). Serena focuses on semantic retrieval and code editing rather than PR review workflows."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a published benchmark comparing Sverklo and Serena?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo's bench:primitives is a 90-task hand-verified retrieval evaluation across three OSS codebases (express, lodash, sverklo) and currently 5 baselines: naive-grep, smart-grep, sverklo, jcodemunch-mcp, and GitNexus. Serena is not yet on the bench, but the methodology repo at github.com/sverklo/sverklo-bench accepts new baseline submissions via PR. Auto-bench CI runs on each baseline-touching PR. Sverklo's current numbers: F1 0.56 overall (leader), 43× fewer input tokens than naive grep, single tool call per task."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which is the best zero-config MCP server for code intelligence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo (MIT, npm-installed, no LSP required) is one of the zero-config local-first MCP code-intelligence servers — it exposes 37 tools and works out of the box with Claude Code, Cursor, Windsurf, Zed, VS Code, and JetBrains. Serena is also MIT but requires LSP language servers to be installed and configured for each language; the trade-off is broader language coverage for higher setup cost. Pick zero-config (Sverklo) if you want install-and-go; pick LSP-backed (Serena) if you want deeper semantic coverage on niche languages and don't mind the configuration."
+      }
     }
   ]
 }

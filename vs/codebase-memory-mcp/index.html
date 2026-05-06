@@ -56,6 +56,22 @@
         "@type": "Answer",
         "text": "Yes. Sverklo includes diff-aware PR review with risk scoring, blast-radius analysis, and a CI gate (--fail-on) via its open-source GitHub Action. codebase-memory-mcp focuses on codebase understanding and knowledge graph queries rather than review workflows."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a published benchmark comparing Sverklo and codebase-memory-mcp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo's bench:primitives is a 90-task hand-verified retrieval evaluation across three OSS codebases (express, lodash, sverklo) and 5 baselines (naive-grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus). codebase-memory-mcp publishes its own indexing-speed numbers (Linux kernel in ~3 minutes) but has not been benchmarked on the same retrieval task suite. The methodology repo at github.com/sverklo/sverklo-bench accepts new baseline submissions via PR; auto-bench CI runs on each baseline-touching PR. Sverklo's current numbers on the 90-task suite: F1 0.56 overall, 43× fewer input tokens than naive grep, single tool call per task."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which is faster — index time or query time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "These optimize for different things. codebase-memory-mcp wins on raw index time (single C binary, 3 minutes on the Linux kernel) and language coverage (66 languages via tree-sitter). Sverklo prioritizes query-time token economy and tool-call count: 469 input tokens per task and 1.0 tool calls on average across the 90-task bench, vs naive grep's 20,278 tokens and 6.5 tool calls. Different load-bearing axes — index speed compounds at first-touch; query economy compounds across every agent interaction."
+      }
     }
   ]
 }
