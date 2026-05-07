@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP code-intel index — Sverklo</title>
+<meta name="description" content="Sverklo's MCP code-intelligence index. Compares MCP servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, token economy, and tool-call count across 120 hand-verified tasks. Reproducible from a fresh clone. Sverklo on its own board, including the slices it loses.">
+<link rel="canonical" href="https://sverklo.com/mcp/">
+
+<meta property="og:title" content="MCP code-intel index — Sverklo">
+<meta property="og:description" content="Sverklo tells you if the MCP server's code is rotting. Comparison across 120 tasks, 4 datasets, 5 baselines. Reproducible.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/mcp/">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MCP code-intel index — Sverklo">
+<meta name="twitter:description" content="Smithery tells you it installs. Sverklo tells you if the code is rotting.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/tokens.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Sverklo MCP code-intel index",
+  "description": "Public ranking of MCP code-intelligence servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, per-category breakdown, token economy, and tool-call count. 120 hand-verified tasks across four OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3).",
+  "url": "https://sverklo.com/mcp/",
+  "license": "https://opensource.org/licenses/MIT",
+  "creator": { "@type": "Person", "name": "Nikita Groshin", "url": "https://github.com/nike-17" },
+  "isAccessibleForFree": true,
+  "sameAs": "https://github.com/sverklo/sverklo-bench",
+  "keywords": ["MCP", "code intelligence", "retrieval", "benchmark", "model context protocol"],
+  "variableMeasured": ["F1", "P1", "P2", "P4", "P5", "input_tokens", "tool_calls"]
+}
+</script>
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:15px;line-height:1.65;
+    padding:48px 20px;max-width:960px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:34px;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em}
+  h1 span{color:var(--accent)}
+  h2{color:var(--accent);font-size:20px;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid #333}
+  .subtitle{color:var(--muted);font-size:16px;margin-bottom:32px;max-width:60ch}
+  p{margin:10px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul{margin:8px 0 8px 20px} li{margin:6px 0;color:var(--muted)}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace}
+  blockquote{border-left:3px solid var(--accent);padding:12px 18px;margin:24px 0;background:var(--bg-2);border-radius:0 6px 6px 0;color:var(--fg);font-size:18px;line-height:1.45;font-style:italic}
+
+  .table-scroll{overflow-x:auto;margin:18px 0;-webkit-overflow-scrolling:touch}
+  table.mcp-table{width:100%;border-collapse:collapse;font-size:14px;min-width:680px}
+  table.mcp-table th{background:var(--bg-2);color:var(--accent);text-align:left;padding:10px 12px;border-bottom:2px solid var(--accent);white-space:nowrap}
+  table.mcp-table td{padding:10px 12px;border-bottom:1px solid #222}
+  table.mcp-table tr:hover td{background:var(--bg-2)}
+  table.mcp-table .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  table.mcp-table tr.self td{background:rgba(232,90,42,0.06)}
+  table.mcp-table tr.self:hover td{background:rgba(232,90,42,0.10)}
+  .self-tag{display:inline-block;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;background:var(--accent);color:#0E0D0B;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:middle;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+
+  .meta-line{font-size:12px;color:var(--muted);margin:12px 0 24px}
+  .meta-line a{color:var(--muted);border-bottom:1px solid #333}
+  .meta-line a:hover{color:var(--accent);border-color:var(--accent)}
+
+  details.reproducer{background:var(--bg-2);border:1px solid #2A2620;border-left:3px solid var(--rule-2);border-radius:4px;margin:18px 0;padding:0}
+  details.reproducer > summary{cursor:pointer;padding:14px 18px;color:var(--muted);font-size:14px;list-style:none;user-select:none}
+  details.reproducer > summary::-webkit-details-marker{display:none}
+  details.reproducer > summary::before{content:"▸ ";color:var(--accent);font-family:'JetBrains Mono',monospace;margin-right:4px}
+  details.reproducer[open] > summary::before{content:"▾ "}
+  details.reproducer[open]{padding:0 18px 18px}
+  details.reproducer pre{margin-top:8px}
+
+  .placeholder{background:var(--bg-2);border:1px solid #2A2620;border-left:3px solid var(--rule-2);border-radius:4px;padding:18px 22px;margin:18px 0;color:var(--muted)}
+
+  .axes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0}
+  @media(max-width:700px){.axes-grid{grid-template-columns:1fr}}
+  .axis-card{background:var(--bg-2);border:1px solid #2A2620;border-radius:6px;padding:14px 18px}
+  .axis-card h3{font-size:14px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:8px}
+  .axis-card p{font-size:14px;line-height:1.5}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "MCP code-intel index",
+      "item": "https://sverklo.com/mcp/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Index.template.html",
+      "item": "https://sverklo.com/mcp/index.template.html/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<header style="margin-bottom:48px">
+  <a href="/" style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px">← sverklo.com</a>
+</header>
+
+<main id="main">
+
+<h1>MCP <span>code-intel</span> index</h1>
+<p class="subtitle">A reproducible ranking of MCP code-intelligence servers on retrieval quality, token economy, and tool-call count. Sverklo on its own board — including the slices it loses.</p>
+
+<blockquote>Smithery tells you it installs. Sverklo tells you if the code is rotting.</blockquote>
+
+<h2>Latest results</h2>
+
+<!-- @mcp-index-data -->
+
+<h2>What this measures</h2>
+
+<div class="axes-grid">
+  <div class="axis-card">
+    <h3>F1 (overall + per category)</h3>
+    <p>Hand-verified retrieval tasks scored on F1. Per-category breakdown so wins on definition lookup don't paper over losses on reference finding. P1: definition lookup. P2: reference finding. P4: file dependencies. P5: dead-code detection.</p>
+  </div>
+  <div class="axis-card">
+    <h3>Tokens / task</h3>
+    <p>Average input tokens the agent ingests per task. The load-bearing axis for AI agents inside bounded context windows. Naive grep returns ~20K; sverklo ~500. Lower is better.</p>
+  </div>
+  <div class="axis-card">
+    <h3>Tools / task</h3>
+    <p>Average tool calls per task. A baseline that wins F1 by making 12 calls is a different product than one that wins F1 in 1 call. Lower = less round-trip latency.</p>
+  </div>
+  <div class="axis-card">
+    <h3>What's deliberately NOT a column</h3>
+    <p>No composite score. No A-F letter grade. No "verdict." Each axis stays independent so the methodology survives critique. <a href="https://github.com/sverklo/sverklo-bench/issues/5">RFC #5</a> documents the metric set.</p>
+  </div>
+</div>
+
+<h2>How to read this</h2>
+
+<p>Different baselines win different categories. Smart-grep beats sverklo on P2 reference finding (a tuned ripgrep is genuinely competitive on call-site lookups). Jcodemunch-mcp ties or beats sverklo on P1 definition lookup (their tree-sitter symbol indexing is sharp). Sverklo wins P4 file dependencies decisively (the symbol graph + PageRank is what graph-based retrieval is supposed to do). Naive grep is the floor.</p>
+
+<p>The story isn't "sverklo beats everything." It's <em>different retrieval substrates have different strengths, and the load-bearing axis depends on what you're optimizing for</em>. For agents inside bounded context windows, the token economy is the load-bearing axis; for human-facing search, F1 wins. The page above lets you sort either way.</p>
+
+<h2>Methodology</h2>
+
+<ul>
+  <li><strong>120 hand-verified tasks</strong> across four OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3). 30 tasks per dataset distributed across P1 (10), P2 (10), P4 (5), P5 (5).</li>
+  <li><strong>Five baselines</strong>: naive-grep (the floor), smart-grep (tuned ripgrep), sverklo, jcodemunch-mcp, GitNexus.</li>
+  <li><strong>Tolerances</strong>: P1 ±3 lines, P2 ±2 lines, P4/P5 set membership. Documented in <a href="https://github.com/sverklo/sverklo-bench">sverklo/sverklo-bench</a>.</li>
+  <li><strong>Refresh cadence</strong>: quarterly. Maintainer-triggered via the <code>bench-refresh</code> workflow on the sverklo repo. No on-push auto-publish — keeps the ranking gameable only via discrete maintainer actions.</li>
+  <li><strong>Sverklo on its own board</strong>: every published refresh includes sverklo's losing slices. The <a href="/bench/">/bench/ page</a> is the long-form artifact with the per-task breakdown of where sverklo loses.</li>
+</ul>
+
+<h2>How a maintainer adds their tool</h2>
+
+<ol>
+  <li>Read <a href="https://github.com/sverklo/sverklo-bench/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> in the methodology repo.</li>
+  <li>Open a PR against <a href="https://github.com/sverklo/sverklo">sverklo/sverklo</a> adding <code>benchmark/src/baselines/&lt;your-tool&gt;.ts</code> implementing the <code>Baseline</code> interface.</li>
+  <li>The auto-bench CI workflow runs on the PR (express dataset, ~10min), posts a results table, and uploads the raw artifact. You don't need to run anything locally.</li>
+  <li>If the implementation is faithful to your tool's intended use, we merge. Then the next quarterly refresh picks it up here.</li>
+</ol>
+
+<p>Disagreements with the methodology, the metric set, or specific task scoring: file an issue against <a href="https://github.com/sverklo/sverklo-bench/issues">sverklo-bench/issues</a>. Open invitation. We've already shipped fixes to our own parser in response to bench findings (<a href="/blog/bench-as-feedback-loop/">the bench-loop post</a> documents the pattern).</p>
+
+<h2>The wedge</h2>
+
+<p>Other surfaces in the MCP-server space score on different axes. <a href="https://glama.ai">Glama</a> is a directory with letter grades on metadata quality. <a href="https://mseep.ai">MseeP</a> scores npm-audit-shaped security. <a href="https://www.pulsemcp.com/">PulseMCP</a> curates editorially. <a href="https://registry.modelcontextprotocol.io">The official Registry</a> is neutral substrate, no opinion.</p>
+
+<p>None of them measure whether the MCP server <em>actually retrieves the right code</em>. That's the axis above. If your team picks an MCP server based on README polish or install count, the failure mode shows up in production: the agent hallucinates symbol names because retrieval missed the relevant chunk. The bench above measures the failure mode directly.</p>
+
+<h2>Cite this</h2>
+
+<pre><code>@misc{sverklo_mcp_index_2026,
+  title  = {Sverklo MCP code-intel index — comparative evaluation of MCP retrieval servers},
+  author = {Groshin, Nikita},
+  year   = {2026},
+  doi    = {10.5281/zenodo.19802051},
+  url    = {https://sverklo.com/mcp/}
+}</code></pre>
+
+<p style="margin-top:48px;font-size:12px;color:var(--muted)">
+  Sverklo is itself one of the baselines on this page. The numbers above include sverklo's losing slices — that's the point. Methodology + raw artifacts at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a>. The reproducer command is one click in the table above.
+</p>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
