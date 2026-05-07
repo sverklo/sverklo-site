@@ -290,6 +290,19 @@ body:has(header.top.nav-canonical) > #main {
 
 <p>Disagreements with the methodology, the metric set, or specific task scoring: file an issue against <a href="https://github.com/sverklo/sverklo-bench/issues">sverklo-bench/issues</a>. Open invitation. We've already shipped fixes to our own parser in response to bench findings (<a href="/blog/bench-as-feedback-loop/">the bench-loop post</a> documents the pattern).</p>
 
+<h2>Embed sverklo audit in your CI</h2>
+
+<p>If you maintain an MCP server (or any code-intel project), you can add the sverklo audit to your own CI in two lines. The audit runs on the GitHub Actions runner — your code never leaves the workflow:</p>
+
+<pre><code>- uses: sverklo/sverklo@main
+  with:
+    fail_on: ""        # or "F" to block merges on F-grade
+    comment: "true"    # post idempotent PR comment</code></pre>
+
+<p>The Action posts a markdown comment with the overall grade plus a per-dimension table (dead code, circular deps, coupling, security). Idempotent — re-runs update in place. Methodology link in every comment so disagreements have a place to land. Source: <a href="https://github.com/sverklo/sverklo/blob/main/action.yml">sverklo/sverklo/action.yml</a>.</p>
+
+<p>Or request a one-time audit posted publicly at <code>sverklo.com/report/&lt;owner&gt;/&lt;repo&gt;/</code>: file <a href="https://github.com/sverklo/sverklo/issues/new?template=request-audit.yml">the audit-request issue</a>.</p>
+
 <h2>The wedge</h2>
 
 <p>Other surfaces in the MCP-server space score on different axes. <a href="https://glama.ai">Glama</a> is a directory with letter grades on metadata quality. <a href="https://mseep.ai">MseeP</a> scores npm-audit-shaped security. <a href="https://www.pulsemcp.com/">PulseMCP</a> curates editorially. <a href="https://registry.modelcontextprotocol.io">The official Registry</a> is neutral substrate, no opinion.</p>
