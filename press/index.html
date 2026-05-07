@@ -273,7 +273,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
   </thead>
   <tbody>
     <tr><td>37 MCP tools</td><td>List in <a href="https://github.com/sverklo/sverklo/blob/main/README.md">README</a> or call <code>sverklo --tools</code></td></tr>
-    <tr><td>12 languages (TS, JS, Vue, Python, Go, Rust, Java, C, C++, Ruby, PHP, C#)</td><td>SUPPORTED_LANGUAGES in <a href="https://github.com/sverklo/sverklo/blob/main/src/types/index.ts">src/types/index.ts</a></td></tr>
+    <tr><td>24 languages — 10 first-class (tree-sitter or custom: TS/TSX, JS, Python, Go, Rust, C#, Vue, Markdown, Jupyter), 14 via regex fallback (Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml)</td><td>LANG_MAP in <a href="https://github.com/sverklo/sverklo/blob/main/src/indexer/parser-tree-sitter.ts">parser-tree-sitter.ts</a> + the regex parsers in <a href="https://github.com/sverklo/sverklo/blob/main/src/indexer/parser.ts">parser.ts</a></td></tr>
     <tr><td>43× fewer tokens than naive grep on 90-task bench</td><td>bench:primitives v2 (sverklo v0.20.2, May 2026), run <code>npm run bench:quick</code> against repo. Raw: 469 tokens (sverklo) vs 20,278 tokens (naive-grep)</td></tr>
     <tr><td>F1 = 0.56 on 90-task bench (overall leader)</td><td><a href="/bench/">/bench/</a> — sverklo edges smart-grep at 0.49; same page reports the slices where smart-grep wins (P2 0.40 vs sverklo 0.25)</td></tr>
     <tr><td>MIT licensed</td><td><a href="https://github.com/sverklo/sverklo/blob/main/LICENSE">LICENSE</a></td></tr>

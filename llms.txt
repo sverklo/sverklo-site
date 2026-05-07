@@ -13,7 +13,7 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 - Source: <https://github.com/sverklo/sverklo>
 - npm: <https://www.npmjs.com/package/sverklo>
 - Latest version: see <https://registry.npmjs.org/sverklo/latest>
-- Languages: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue, C#
+- Languages: 24 total. 10 first-class with structural parsing (TypeScript/TSX, JavaScript, Python, Go, Rust, C# via tree-sitter; Vue SFC, Markdown, Jupyter notebooks via custom parsers). 14 more via regex fallback (Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml).
 - Storage: SQLite + sqlite-vec, fully local
 - Embedding model: all-MiniLM-L6-v2 (ONNX, ~90 MB, runs on CPU)
 - DOI: <https://doi.org/10.5281/zenodo.19802051>

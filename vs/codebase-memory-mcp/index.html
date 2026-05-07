@@ -46,7 +46,7 @@
       "name": "Which tool supports more programming languages?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "codebase-memory-mcp supports 66 languages via its tree-sitter-based C parser. Sverklo currently supports 10 languages. However, Sverklo offers hybrid search (BM25 + vector + PageRank) which can surface relevant results even in unsupported file types through text matching."
+        "text": "codebase-memory-mcp supports 66 languages via its tree-sitter-based C parser. Sverklo supports 24 languages — 10 first-class with structural parsing (7 tree-sitter + 3 custom) and 14 more via regex fallback. The number gap is real and codebase-memory-mcp wins on raw breadth. The trade-off: sverklo's first-class 10 are the most-installed languages, regex fallback covers the long tail (Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml), and hybrid search (BM25 + vector + PageRank) surfaces relevant results across file types regardless of parser tier."
       }
     },
     {
@@ -695,7 +695,7 @@ body:has(header.top.nav-canonical) > #main {
     <h2>Architecture notes</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
       Sverklo uses <strong style="color: var(--text);">SQLite with a hybrid retrieval pipeline</strong> (BM25 + ONNX embeddings + PageRank graph centrality).
-      It includes diff-aware PR review, git-pinned memory, and a web dashboard. The trade-off: it requires Node.js and currently supports 10 languages.
+      It includes diff-aware PR review, git-pinned memory, and a web dashboard. The trade-off: it requires Node.js, and the parser tiers are 10 first-class + 14 regex-fallback (24 total) versus codebase-memory-mcp's 66 first-class.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
       codebase-memory-mcp uses <strong style="color: var(--text);">a single C binary that builds a knowledge graph</strong> from your codebase using tree-sitter parsing across 66 languages.

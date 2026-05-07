@@ -577,7 +577,7 @@ body:has(header.top.nav-canonical) > #main {
   <li><strong>jcodemunch-mcp wins P1 (definition lookup)</strong> at 0.65 F1 vs sverklo's 0.45. Their tree-sitter symbol indexing is sharper than ours. If you spend most of your time asking "where is X defined?", jcodemunch is the better tool.</li>
   <li><strong>Smart-grep ties sverklo on P2 (reference finding)</strong> at 0.50 F1 each. The semantic graph adds nothing to a textually-pure question. If P2 is dominant in your workflow, sverklo is genuinely overkill — well-configured ripgrep is fine.</li>
   <li><strong>Cypher graph expressiveness</strong> is something sverklo doesn't offer at all. If you want to write ad-hoc graph queries against your codebase ("show me every function in <code>auth/</code> that calls something in <code>db/</code>"), GitNexus's Cypher interface is the right tool.</li>
-  <li><strong>40+ language coverage</strong> via LSPs is Serena's. Sverklo currently parses 12 languages with tree-sitter. If your codebase is a polyglot of obscure languages, Serena via LSP wins on coverage.</li>
+  <li><strong>40+ language coverage</strong> via LSPs is Serena's. Sverklo parses 24 languages — 10 first-class (tree-sitter or custom: TS, JS, Python, Go, Rust, C#, Vue, Markdown, Jupyter) and 14 via regex fallback. If your codebase is a polyglot of obscure languages with semantic-correctness requirements, Serena via LSP wins on coverage.</li>
   <li><strong>Cold-start indexing on very large repos.</strong> First-time index of a 500K-LOC repo takes ~5 minutes on sverklo. After that it's incremental and fast, but the first run isn't free.</li>
 </ul>
 

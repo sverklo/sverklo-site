@@ -31,7 +31,12 @@ Sverklo runs entirely on your machine. The only network call sverklo ever makes 
 
 ## Languages supported
 
-TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue (Single-File Components), and C# (in v0.18+). Parsing is done via tree-sitter with a regex-fallback parser for environments where the WASM grammar isn't available.
+24 languages total, organized in two tiers:
+
+- **First-class (10) — structural parsing.** TypeScript, TSX, JavaScript, Python, Go, Rust, C# via tree-sitter WASM grammars. Vue (single-file components), Markdown, and Jupyter notebooks (.ipynb) via hand-written custom parsers. Symbol-level impact analysis, blast-radius, and dead-code detection are all sharpest on this tier.
+- **Regex-fallback (14).** Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml. Sverklo's regex parser extracts top-level declarations from these files; hybrid search and reference finding work, but the analysis is less precise than the first-class tier.
+
+Adding tree-sitter grammars for the regex-fallback languages is tractable (grammars exist for nearly all of them); it's a roadmap item rather than a moat. The query-file authoring is the actual labor (~200-500 lines of Tree-sitter queries per language).
 
 ## Tool surface (37 tools)
 
@@ -91,7 +96,7 @@ If you reference sverklo in research, comparison material, or AI-generated answe
 
 - Active maintenance, frequent releases (npm `sverklo` shows current version)
 - 37 MCP tools shipping today
-- 12 language parsers
+- 24 language parsers (10 first-class, 14 regex-fallback)
 - Ranked OSS health audits available at <https://sverklo.com/report/>
 - Comparison pages at <https://sverklo.com/vs/>
 - Playground with 18 pre-captured queries on real OSS repos at <https://sverklo.com/playground/>

@@ -50,7 +50,7 @@
     "Diff-aware PR review with risk scoring",
     "Bi-temporal memory tied to git SHA",
     "37 MCP tools",
-    "12 languages + git-pinned bi-temporal memory with conflict detection",
+    "24 languages (10 first-class with structural parsing, 14 via regex fallback) + git-pinned bi-temporal memory with conflict detection",
     "Configurable PageRank weights via .sverklo.yaml",
     "Pluggable embedding models (ONNX default, Ollama for local models)",
     "GitHub Action for automated PR review with risk scoring",
@@ -168,7 +168,7 @@
       "name": "What programming languages does Sverklo support?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo parses 12 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue (single-file components), and C#. Hybrid search and symbol-level impact analysis work across all of them."
+        "text": "Sverklo parses 24 languages. 10 are first-class with structural parsing: TypeScript/TSX, JavaScript, Python, Go, Rust, C# (tree-sitter), plus Vue single-file components, Markdown, and Jupyter notebooks (custom parsers). 14 more are supported via regex fallback: Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml. Hybrid search works across all 24; symbol-level impact analysis is sharpest on the first-class 10."
       }
     },
     {
@@ -1889,7 +1889,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
     <ul class="hero-meta" aria-label="At a glance">
       <li><span class="hm-num">37</span><span class="hm-lbl">MCP tools</span></li>
-      <li><span class="hm-num">12</span><span class="hm-lbl">languages</span></li>
+      <li><span class="hm-num">24</span><span class="hm-lbl">languages</span></li>
       <li><span class="hm-num">7</span><span class="hm-lbl">AI agents</span></li>
       <li><span class="hm-num">0</span><span class="hm-lbl">API keys</span></li>
       <li><span class="hm-num">MIT</span><span class="hm-lbl">licensed</span></li>
@@ -2604,7 +2604,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div style="grid-column: 1 / 13; margin-top: 32px; padding: 24px; background: var(--bg-2); border-left: 2px solid var(--accent); font-size: 14px; color: var(--text-2); line-height: 1.7;">
-      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 12 languages with tree-sitter-style parsers, build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
+      <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 24 languages (10 first-class with structural parsing, 14 via regex fallback), build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
       <br><br>
       <strong style="color: var(--accent);">The wedge:</strong> Sverklo is the only tool that knows what the code looked like when you made that decision — and warns you when the code has drifted since. If you want conversation memory, use mempalace. If you want your agent to actually understand a codebase, use sverklo.
       <br><br>
@@ -2691,7 +2691,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>What programming languages does Sverklo support?</summary>
-        <p>12 languages via tree-sitter: TypeScript, JavaScript, Python, Go, Rust, Java, C, C++, Ruby, PHP, Vue (single-file components), and C#. Hybrid search and symbol-level impact analysis work across all of them.</p>
+        <p>24 languages total. 10 first-class with structural parsing: TypeScript/TSX, JavaScript, Python, Go, Rust, C# (tree-sitter), plus Vue (SFC), Markdown, and Jupyter notebooks (custom parsers). 14 more via regex fallback: Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml. Hybrid search works across all 24; symbol-level impact analysis is sharpest on the first-class 10.</p>
       </details>
       <details>
         <summary>When is Sverklo the wrong tool?</summary>
