@@ -11,10 +11,17 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
+// Nav distinguishes the two "bench-y" pages explicitly:
+//   /bench/        → retrieval evaluation (90-task F1 / token economy)
+//   /benchmarks/   → latency + cold-start performance
+// Audit P0: previously a single "benchmarks" entry hid /bench/ entirely
+// from cross-page navigation, even though the bench-loop story
+// (sverklo's strongest content) lives on /bench/. Both now first-class.
 const CANONICAL_NAV = `<nav class="top-nav">
       <a href="/report/">reports</a>
       <a href="/vs/">compare</a>
-      <a href="/benchmarks/">benchmarks</a>
+      <a href="/bench/">bench</a>
+      <a href="/benchmarks/">perf</a>
       <a href="/research/">research</a>
       <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
@@ -63,7 +70,7 @@ const BREADCRUMB_MARKER_END = "<!-- @end-breadcrumb -->";
 const SEGMENT_NAMES = {
   "vs": "Compare",
   "blog": "Blog",
-  "bench": "Benchmark",
+  "bench": "Retrieval bench",
   "benchmarks": "Performance",
   "playground": "Playground",
   "research": "Research",
