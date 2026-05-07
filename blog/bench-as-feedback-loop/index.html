@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The bench is a feedback loop on two axes — Sverklo</title>
+<meta name="description" content="In 36 hours, two competing MCP servers shipped lodash P1 fixes against the same public benchmark. In another 24 hours, a Reddit comment turned into shipped CI. Same loop, two axes — bug fixes and contribution friction. The pattern works whenever the eval surface is reproducible and the methodology is visible.">
+<link rel="canonical" href="https://sverklo.com/blog/bench-as-feedback-loop/">
+
+<meta property="og:title" content="The bench is a feedback loop on two axes">
+<meta property="og:description" content="36 hours: two competitors shipped lodash P1 fixes. 24 hours: a Reddit comment turned into shipped CI. Same pattern, two axes — bug fixes and contribution friction.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/bench-as-feedback-loop/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-07">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="benchmark">
+<meta property="article:tag" content="bench-as-feedback-loop">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="open-source maintenance">
+<meta property="article:tag" content="continuous integration">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The bench is a feedback loop on two axes">
+<meta name="twitter:description" content="36 hours for two competitors to ship lodash P1 fixes. 24 hours for a Reddit comment to ship as CI. Same loop, different axes.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "The bench is a feedback loop on two axes",
+  "description": "Two iterations of the bench-as-feedback-loop pattern in one week, on different axes: bug fixes (jcodemunch v1.80.7-9 + sverklo v0.20.2 in 36h) and contribution friction (auto-bench CI shipped 24h after a Reddit suggestion). Same mechanism — public eval + visible methodology compresses iteration time across whatever axis is published.",
+  "datePublished": "2026-05-07",
+  "dateModified": "2026-05-07",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/bench-as-feedback-loop/"},
+  "articleSection": "Engineering",
+  "keywords": "bench as feedback loop, public benchmark, open source iteration, MCP benchmark, sverklo bench, jcodemunch, auto-bench CI, contribution friction"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:22px;line-height:1.4;color:var(--fg);margin:28px 0;padding:24px 28px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0;font-weight:500;letter-spacing:-0.01em}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}.pull{font-size:17px;padding:18px 20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Bench As Feedback Loop",
+      "item": "https://sverklo.com/blog/bench-as-feedback-loop/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<main id="main">
+
+<p class="kicker">/* engineering · 2026-05-07 */</p>
+<h1>The bench is a feedback loop on two axes</h1>
+
+<p class="meta-bar">
+  <span>2026-05-07</span>
+  <span>·</span>
+  <span>Nikita Groshin</span>
+  <span>·</span>
+  <span>~7 min read</span>
+</p>
+
+<p class="lede">
+  Two iterations of the same pattern in one week, on different axes. Last weekend the bench compressed two maintainers' iteration on a parser bug into 36 hours. This week it compressed a Reddit suggestion into shipped CI in 24. Same loop, two surfaces. The mechanism is the part worth writing down.
+</p>
+
+<h2>Axis 1 — bugs (the lodash arc, 36 hours)</h2>
+
+<p>I added <a href="https://github.com/jgravelle/jcodemunch-mcp">jcodemunch-mcp</a> and <a href="https://github.com/abhigyanpatwari/GitNexus">GitNexus</a> to <a href="/bench/">sverklo's 60-task retrieval bench</a> on May 2, then published the writeup with the parts where sverklo lost. <a href="https://github.com/jgravelle">Jake Gravelle</a> (jcodemunch's maintainer) read the post within hours and shipped <strong>three back-to-back releases</strong>: v1.80.7 (CommonJS <code>module.exports</code> re-export chains), v1.80.8 (a 500 KB per-file size cap, because lodash is 548 KB), v1.80.9 (a monolithic-IIFE call-graph fallback). His lodash P1 went from 0/10 to 9/10 against the same task suite.</p>
+
+<p>I then added lodash to <em>my</em> bench as a third dataset. That immediately exposed the symmetric bug on my side: the regex-based brace counter mis-counted braces inside string literals. Line 6301 of <code>lodash.js</code> has the literal <code>'{\n/* [wrapped with '</code>, and the unbalanced <code>{</code> made every function declaration after that line get absorbed into one ~11K-line chunk. Public methods (<code>map</code>, <code>filter</code>, <code>reduce</code>) never got their own chunks. Fix: a string-aware brace counter plus exact-match priority in the lookup tool. Sverklo v0.20.2 shipped on May 4. P1 went 0.30 → 0.73; overall F1 went 0.45 → 0.56.</p>
+
+<p>Both projects landed lodash P1 fixes inside 36 hours of the original bench publication. <strong>Different parsers, different bugs, same effect.</strong> The bench made each side's blind spot visible to the other in a way no internal eval would have.</p>
+
+<h2>Axis 2 — friction (the auto-bench CI arc, 24 hours)</h2>
+
+<p>Three days later I posted a follow-up to <a href="https://www.reddit.com/r/mcp/comments/1t4n9un/">r/mcp</a> describing the loop. The post got modest engagement — score 1, 3 comments, no front-page traffic. But one of the comments came from <code>u/d3vilzwrld</code>, who buried a useful question in the last paragraph:</p>
+
+<blockquote>
+  <p>Have you considered a "run on submit" CI action where anyone submitting an MCP server gets a PR with benchmark results? That would make the eval self-repairing — new entrants validate their own numbers before claiming them.</p>
+</blockquote>
+
+<p>This is the contribution-friction analog of the lodash arc. The lodash bug was about <em>code</em> drift; this was about <em>process</em> drift. Up to that point, contributing a baseline to <code>sverklo-bench</code> meant the maintainer (me) had to run the harness locally before merging. That doesn't scale past five baselines, and it forces every contributor to wait for maintainer ceremony before they can verify their own numbers. The friction was real and I hadn't seen it from inside.</p>
+
+<p>I filed <a href="https://github.com/sverklo/sverklo-bench/issues/4">sverklo-bench#4</a> the same day and shipped <a href="https://github.com/sverklo/sverklo/blob/main/.github/workflows/auto-bench.yml">.github/workflows/auto-bench.yml</a> in the main sverklo repo the next morning. The workflow detects which baseline files a PR touches via <code>git diff</code>, runs the harness on the express dataset (~30 tasks; lodash and sverklo datasets are too slow for free-tier GitHub Actions), and posts a results-table comment back to the PR within ~10 minutes. Idempotent — re-running the workflow updates the same comment in place. Full results upload as a GH Actions artifact.</p>
+
+<p>Total elapsed: ~24 hours from public ask to merged PR. Same arc shape: public surface → external maintainer (or contributor, in this case) responds → ship.</p>
+
+<h2>The pattern, written down</h2>
+
+<p class="pull">A public eval surface compresses iteration time across whatever axis you publish on. Bugs become trivial to file once the failure is reproducible. Friction becomes trivial to fix once a contributor names it.</p>
+
+<p>The version with more careful boundaries:</p>
+
+<ol>
+  <li><strong>Public surface.</strong> Not "we benchmarked it internally." A URL, a methodology document, a reproducer command. Both axes need this; the bug-fix axis needs it because Jake had to read the failure mode and trace it to his own parser; the friction axis needs it because d3vilzwrld had to see the contribution flow before he could critique it.</li>
+  <li><strong>Honest losses.</strong> If the surface only publishes wins, the loop doesn't start. The lodash arc didn't fire because sverklo published its own wins; it fired because sverklo published the slice where jcodemunch beat it (P1 0.65 vs sverklo 0.45 in the original run). Jake had a reason to read the writeup. The auto-bench arc fired because the writeup explicitly named contribution friction (the May 4 follow-up post said "the harness shape is documented; submitting a baseline takes one PR"); d3vilzwrld noticed that "one PR" still required maintainer-side ceremony and named the gap.</li>
+  <li><strong>Reproducibility.</strong> Both axes need a way to verify the response. Jake's three releases were merge-able only because anyone could re-run the bench against v1.80.9 and confirm the P5 recall went 0.00 → 1.00. Auto-bench is merge-able only because anyone can open a baseline-touching PR and watch the workflow comment back with their numbers.</li>
+  <li><strong>Low-friction merge surface.</strong> If responding to bench findings requires the responder to submit a separate paper, write a separate eval, or wait for the maintainer to schedule a re-run, the loop stalls. Jake shipped three back-to-back releases because his project's CI was already fast and he had merge rights. Auto-bench shipped fast because GitHub Actions templates are well-documented and the bench harness already exposed <code>BASELINES=</code> and <code>DATASETS=</code> filters.</li>
+</ol>
+
+<h2>When this doesn't work</h2>
+
+<p>Don't generalize from two data points without naming the failure modes.</p>
+
+<ul>
+  <li><strong>Closed evals.</strong> Most "we benchmarked it" claims in this category are closed: the eval set is private, the methodology is "trust us," and the numbers reset every release. The loop can't start because there's no surface to read.</li>
+  <li><strong>Hand-waved methodology.</strong> Even with a public dataset, if the scoring code is closed or the tolerances are vague, the responder can't verify whether their fix actually helped. The bench-loop assumes <a href="/bench/">tolerance-level disclosure</a> (P1 ±3 lines, P2 ±2 lines, P4/P5 set membership). Without it, drift hides.</li>
+  <li><strong>Maintainer cycle time exceeds bench cycle time.</strong> If the maintainer takes weeks to merge, contributors lose the iteration loop's heat. The auto-bench CI exists precisely to keep this from being the bottleneck.</li>
+  <li><strong>Audience mismatch.</strong> The lodash arc worked because Jake reads r/mcp and cares about jcodemunch's reputation against an honest eval. If the publication channel doesn't reach the responders — or if the responders don't believe the eval is honest — nothing happens. Both arcs ran on r/mcp because that's where the relevant maintainers are.</li>
+  <li><strong>The eval has to actually be wrong sometimes.</strong> If the bench is rigged so the maintainer always wins, no one bothers responding. <a href="/bench/">Smart-grep tying sverklo on overall F1</a>, jcodemunch winning P1 outright, are not bugs in the writeup; they're the precondition for anyone outside the project taking it seriously.</li>
+</ul>
+
+<h2>Where the bench goes next</h2>
+
+<p>Jake's r/mcp comment included an aside that's been on my mind since:</p>
+
+<blockquote>
+  <p>The bigger opportunity here is the potential genesis of an "MCP Server Arena" on par with what the leading AI/LLM/Chatbot arenas provide.</p>
+</blockquote>
+
+<p>This is the competing maintainer — the one who got beaten on P1 in the original run — publicly suggesting that sverklo's bench evolve into category-wide infrastructure. <a href="https://github.com/sverklo/sverklo-bench">sverklo-bench</a> is now spun out of the main repo as its own audit surface; auto-bench CI runs on every baseline-touching PR; the contribution flow is documented in <a href="https://github.com/sverklo/sverklo-bench/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>. The <em>category-arena</em> framing — per-tool brackets (code-intel, browser-automation, data-extraction, shell-execution) with their own metric sets — is genuinely possible from where we are now, and the responders Jake is gesturing at are the same people the existing bench-loop has already pulled to the table.</p>
+
+<p>None of which is sverklo-the-product. The bench is becoming category infrastructure that doesn't depend on any one project succeeding. That's the right shape for an eval surface — and it's why publishing your losses is load-bearing rather than embarrassing.</p>
+
+<h2>If you maintain a tool in a category with no shared eval</h2>
+
+<p>Two pieces of free advice and one offer.</p>
+
+<p>The first piece of advice: <strong>publish methodology before results.</strong> The bench-loop fires on the methodology, not the leaderboard. Numbers age fast; methodology compounds. Sverklo's bench page leads with "5 baselines, 90 hand-verified tasks, ±3-line tolerance on P1, set membership on P4/P5" before any F1 numbers appear, because the methodology is the part that survives the next release.</p>
+
+<p>The second: <strong>publish losses on the same page as wins.</strong> If you can't write a paragraph titled "Where this benchmark says we lose," the bench isn't going to be load-bearing. Pull the slice where a baseline beats you and put it adjacent to the slice where you beat the baseline. That's what makes the eval credible enough to drive responses.</p>
+
+<p>The offer: if you maintain a tool in a category that doesn't have a shared eval, I'm happy to share the harness shape that runs sverklo's bench. The methodology repo is at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a>; auto-bench CI is at <a href="https://github.com/sverklo/sverklo/blob/main/.github/workflows/auto-bench.yml">.github/workflows/auto-bench.yml</a>. Both are MIT-licensed and the design choices are documented. Open an issue if you want help wiring it up to your category.</p>
+
+<div class="cta-box">
+  <h3>The artifacts</h3>
+  <ul>
+    <li><a href="/bench/">bench:primitives</a> — the 90-task retrieval evaluation across 5 baselines</li>
+    <li><a href="https://github.com/sverklo/sverklo-bench">sverklo/sverklo-bench</a> — methodology + ground truth (the audit-trail repo)</li>
+    <li><a href="https://github.com/sverklo/sverklo/blob/main/.github/workflows/auto-bench.yml">auto-bench.yml</a> — the GitHub Actions workflow that runs on baseline-touching PRs</li>
+    <li><a href="/blog/i-added-two-competitors-to-my-own-benchmark/">"I added two competitors to my own benchmark"</a> — the original 5-baseline writeup that started axis 1</li>
+    <li><a href="https://www.reddit.com/r/mcp/comments/1t4n9un/">r/mcp 1t4n9un</a> — the follow-up post that started axis 2</li>
+  </ul>
+</div>
+
+<p>If you're running an MCP server in a category without a shared bench, the harness shape is the part that compounds. Numbers come and go; the methodology stays.</p>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
