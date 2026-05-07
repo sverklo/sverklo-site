@@ -30,6 +30,35 @@ const INDEX_URL = "https://t.sverklo.com/v1/index.json";
 
 const MARKER = "<!-- @mcp-index-data -->";
 
+// Map bench-baseline name → upstream {owner, repo} for fetching the
+// audit grade from t.sverklo.com/v1/badge/<owner>/<repo>.svg-adjacent
+// JSON. Built-in baselines (naive-grep, smart-grep) don't have a repo
+// — their column shows "—" by design.
+const BASELINE_REPOS = {
+  sverklo: { owner: "sverklo", repo: "sverklo" },
+  "sverklo-rerank": { owner: "sverklo", repo: "sverklo" },
+  jcodemunch: { owner: "jgravelle", repo: "jcodemunch-mcp" },
+  gitnexus: { owner: "abhigyanpatwari", repo: "gitnexus" },
+};
+
+// Read the published audit JSON directly from R2-fronted Worker.
+// Same shape as POST /v1/badge/publish stores: {grade, dimensions[], version}.
+async function fetchAuditFor(baseline) {
+  const repo = BASELINE_REPOS[baseline];
+  if (!repo) return null;
+  const url = `https://t.sverklo.com/v1/badge/${repo.owner}/${repo.repo}.json`;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+
 function escape(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -56,13 +85,20 @@ function fmtTimestamp(unixSecs) {
   return d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
 }
 
-function buildTable(data) {
+async function buildTable(data) {
   const cats = ["P1", "P2", "P4", "P5"];
   const baselines = Object.entries(data.byBaseline || {});
   // Sort by avg_f1 descending; sverklo will float to wherever the
   // numbers put it, NOT pinned to the top. That's load-bearing for
   // the "publishes losses" voice.
   baselines.sort((a, b) => (b[1].avg_f1 || 0) - (a[1].avg_f1 || 0));
+
+  // Fetch audit grades in parallel — one HTTP call per baseline that
+  // has a known upstream repo. Built-in baselines (naive-grep,
+  // smart-grep) skip the fetch and render "—" in the audit column.
+  const audits = await Promise.all(
+    baselines.map(([name]) => fetchAuditFor(name)),
+  );
 
   // Column header
   let html = `<div class="table-scroll"><table class="mcp-table">
@@ -73,24 +109,41 @@ function buildTable(data) {
 ${cats.map((c) => `    <th class="num">${c}</th>`).join("\n")}
     <th class="num">tokens</th>
     <th class="num">tools/task</th>
+    <th class="num"><span title="Sverklo audit grade — runs locally; see github.com/sverklo/sverklo">audit</span></th>
   </tr>
 </thead>
 <tbody>
 `;
 
-  for (const [name, row] of baselines) {
+  for (let i = 0; i < baselines.length; i++) {
+    const [name, row] = baselines[i];
+    const audit = audits[i];
     const cells = cats.map((c) => {
       const v = data.byCategory?.[c]?.[name]?.avg_f1;
       return `    <td class="num">${fmtPct(v)}</td>`;
     });
     const isSverklo = name === "sverklo" || name === "sverklo-rerank";
     const rowCls = isSverklo ? ' class="self"' : "";
+
+    // Audit cell: grade letter + per-dimension tooltip via title attr.
+    let auditCell = `    <td class="num audit-cell">—</td>`;
+    if (audit && audit.grade) {
+      const dimSummary = (audit.dimensions || []).map(
+        (d) => `${d.name}: ${d.grade}`
+      ).join(" · ");
+      const repo = BASELINE_REPOS[name];
+      const reportUrl = repo ? `/report/${repo.owner}/${repo.repo}/` : null;
+      const auditLetter = `<strong class="audit-${audit.grade}">${escape(audit.grade)}</strong>`;
+      auditCell = `    <td class="num audit-cell" title="${escape(dimSummary)}">${reportUrl ? `<a href="${reportUrl}">${auditLetter}</a>` : auditLetter}</td>`;
+    }
+
     html += `  <tr${rowCls}>
     <td class="name"><strong>${escape(name)}</strong>${isSverklo ? ' <span class="self-tag">us</span>' : ""}</td>
     <td class="num"><strong>${fmtPct(row.avg_f1)}</strong></td>
 ${cells.join("\n")}
     <td class="num">${fmtTokens(row.avg_input_tokens)}</td>
     <td class="num">${fmtTools(row.avg_tool_calls)}</td>
+${auditCell}
   </tr>
 `;
   }
@@ -131,7 +184,7 @@ async function main() {
     clearTimeout(timer);
     if (r.ok) {
       const data = await r.json();
-      dataHtml = buildTable(data);
+      dataHtml = await buildTable(data);
       publishedNote = ` (data: ${data.task_count} tasks, sha ${(data.sha || "?").slice(0, 7)})`;
     } else {
       console.warn(`[build-mcp-index] index fetch returned HTTP ${r.status}; using placeholder`);

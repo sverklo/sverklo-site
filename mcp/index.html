@@ -70,6 +70,15 @@
   table.mcp-table tr.self td{background:rgba(232,90,42,0.06)}
   table.mcp-table tr.self:hover td{background:rgba(232,90,42,0.10)}
   .self-tag{display:inline-block;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;background:var(--accent);color:#0E0D0B;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:middle;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+  /* Audit-grade column color coding. Mirrors the sverklo audit
+     badge palette so the same grade looks the same everywhere. */
+  .audit-cell{cursor:help}
+  .audit-cell a{text-decoration:none}
+  .audit-A{color:#4c1}
+  .audit-B{color:#97ca00}
+  .audit-C{color:#dfb317}
+  .audit-D{color:#fe7d37}
+  .audit-F{color:#e05d44}
 
   .meta-line{font-size:12px;color:var(--muted);margin:12px 0 24px}
   .meta-line a{color:var(--muted);border-bottom:1px solid #333}
@@ -251,6 +260,7 @@ body:has(header.top.nav-canonical) > #main {
     <th class="num">P5</th>
     <th class="num">tokens</th>
     <th class="num">tools/task</th>
+    <th class="num"><span title="Sverklo audit grade — runs locally; see github.com/sverklo/sverklo">audit</span></th>
   </tr>
 </thead>
 <tbody>
@@ -263,6 +273,7 @@ body:has(header.top.nav-canonical) > #main {
     <td class="num">0.75</td>
     <td class="num">498</td>
     <td class="num">1.0</td>
+    <td class="num audit-cell" title="Dead code: A · Circular deps: A · Coupling: F · Security: A"><a href="/report/sverklo/sverklo/"><strong class="audit-B">B</strong></a></td>
   </tr>
   <tr>
     <td class="name"><strong>smart-grep</strong></td>
@@ -273,6 +284,7 @@ body:has(header.top.nav-canonical) > #main {
     <td class="num">0.75</td>
     <td class="num">963</td>
     <td class="num">4.1</td>
+    <td class="num audit-cell">—</td>
   </tr>
   <tr>
     <td class="name"><strong>jcodemunch</strong></td>
@@ -283,6 +295,7 @@ body:has(header.top.nav-canonical) > #main {
     <td class="num">0.01</td>
     <td class="num">1,178</td>
     <td class="num">1.2</td>
+    <td class="num audit-cell" title="Dead code: C · Circular deps: B · Coupling: D · Security: F"><a href="/report/jgravelle/jcodemunch-mcp/"><strong class="audit-C">C</strong></a></td>
   </tr>
   <tr>
     <td class="name"><strong>naive-grep</strong></td>
@@ -293,6 +306,7 @@ body:has(header.top.nav-canonical) > #main {
     <td class="num">0.75</td>
     <td class="num">24,194</td>
     <td class="num">6.1</td>
+    <td class="num audit-cell">—</td>
   </tr>
   <tr>
     <td class="name"><strong>gitnexus</strong></td>
@@ -303,6 +317,7 @@ body:has(header.top.nav-canonical) > #main {
     <td class="num">0.75</td>
     <td class="num">333</td>
     <td class="num">1.2</td>
+    <td class="num audit-cell" title="Dead code: D · Circular deps: F · Coupling: F · Security: F"><a href="/report/abhigyanpatwari/gitnexus/"><strong class="audit-F">F</strong></a></td>
   </tr>
 </tbody></table></div>
 <p class="meta-line">
