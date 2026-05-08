@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Claude Code burned 14,200 tokens to find one function — Sverklo</title>
-<meta name="description" content="I logged every tool call my Claude Code agent made on a 200-file repo for a week. Grep alone cost me $47. Here's the data, the cascade that follows from noisy grep output, and how to measure your own session with `sverklo receipt`.">
+<title>Why Claude Code Burns So Many Tokens (Field Study: 14,200 Tokens to Find One Function) — Sverklo</title>
+<meta name="description" content="Claude Code burning tokens? One week of instrumented sessions across 312 tasks shows grep is 41% of input-token spend. Real numbers, the noisy-grep cascade, and how to cut Claude Code costs ~60% with hybrid retrieval.">
 <link rel="canonical" href="https://sverklo.com/blog/14200-tokens-to-find-one-function/">
 
-<meta property="og:title" content="Claude Code burned 14,200 tokens to find one function">
-<meta property="og:description" content="One week of instrumented Claude Code sessions. Grep accounts for 41% of input tokens. Sessions with grep results &gt; 8K tokens hallucinate 31% of the time vs 4% under 2K.">
+<meta property="og:title" content="Why Claude Code Burns So Many Tokens — Field Study (14,200 to Find One Function)">
+<meta property="og:description" content="One week of instrumented Claude Code. Grep is 41% of spend. Sessions with &gt;8K-token grep results hallucinate 31% of the time vs 4% under 2K. The fix and how to measure your own.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/blog/14200-tokens-to-find-one-function/">
 <meta property="og:site_name" content="Sverklo">
@@ -24,24 +24,65 @@
 <meta property="article:tag" content="cost analysis">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Claude Code burned 14,200 tokens to find one function">
-<meta name="twitter:description" content="A week of instrumented Claude Code sessions. Grep is 41% of token spend. Sessions with grep results &gt; 8K tokens hallucinate 31% of the time. Bench + fix.">
+<meta name="twitter:title" content="Why Claude Code Burns So Many Tokens — 14,200 to Find One Function">
+<meta name="twitter:description" content="Instrumented one week of Claude Code. Grep is 41% of spend; large-grep sessions hallucinate 31% of the time. Numbers + fix.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "Claude Code burned 14,200 tokens to find one function",
-  "description": "Field study of one week of Claude Code sessions across 312 tasks. Grep accounts for 41% of input tokens; large-grep sessions hallucinate 31% of the time vs 4% under 2K tokens. The fix is hybrid retrieval exposed as MCP tools.",
+  "headline": "Why Claude Code Burns So Many Tokens (Field Study: 14,200 Tokens to Find One Function)",
+  "description": "Field study of one week of Claude Code sessions across 312 tasks. Grep accounts for 41% of input tokens; large-grep sessions hallucinate 31% of the time vs 4% under 2K. The fix is hybrid retrieval exposed as MCP tools — measurable ~60% token reduction.",
   "datePublished": "2026-05-03",
-  "dateModified": "2026-05-03",
+  "dateModified": "2026-05-08",
   "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
   "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
   "image": "https://sverklo.com/og.png",
   "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/14200-tokens-to-find-one-function/"},
   "articleSection": "Engineering",
-  "keywords": "Claude Code token cost, AI agent token economy, grep cost analysis, sverklo receipt, MCP retrieval, hallucination rate, token efficiency"
+  "keywords": "Claude Code burns tokens, Claude Code token usage high, Claude Code cost optimization, reduce Claude Code tokens, AI agent token economy, grep cost analysis, sverklo receipt, MCP retrieval, hallucination rate, token efficiency"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code burn so many tokens?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In a one-week instrumented field study of 312 Claude Code tasks, grep alone accounted for 41% of input tokens. The agent runs a noisy grep, gets 200 lines back, then runs three more greps to disambiguate — each result re-fed into context. The dominant cost is not the model itself; it's the cascade of low-precision tool calls feeding raw text into the conversation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I reduce Claude Code token usage?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three steps: (1) measure first — instrument your sessions to see where tokens actually go, our open `sverklo receipt` command does this on session logs; (2) replace grep with a structured retriever that returns ranked symbols instead of raw lines; (3) cap tool results at 2K tokens — sessions with grep results over 8K hallucinate 31% of the time vs 4% under 2K, the noise itself causes wrong answers downstream."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Claude Code expensive on large repos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — and the cost grows non-linearly with repo size, because grep results scale with file count. A typical 200-file repo session in our study consumed 14,200 input tokens to locate a single function. The cost per task on Claude Sonnet at current pricing was about $0.04 — small individually, but compounded across hundreds of agent invocations per day. Hybrid retrieval (BM25 + embeddings + PageRank) cuts this ~60% in our bench."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does grep waste tokens for AI agents?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Empirically, yes. Grep returns every textual match including comments, test files, generated code, and binary noise. The agent has to read all of it to identify the relevant hit. A structured symbol index (tree-sitter parsed, ranked by PageRank) returns the canonical definition with ~95% fewer tokens. Grep is fine when you know the exact string and the corpus is small; for AI-agent retrieval over a large repo it is the leading source of context bloat."
+      }
+    }
+  ]
 }
 </script>
 
@@ -238,7 +279,7 @@ body:has(header.top.nav-canonical) > #main {
 
 <main id="main">
 
-<h1>Claude Code burned 14,200 tokens to find one function</h1>
+<h1>Why Claude Code Burns So Many Tokens — A Field Study (14,200 Tokens to Find One Function)</h1>
 <p class="subtitle">I logged every tool call my Claude Code agent made on a 200-file repo for a week. Grep alone cost me $47. Here's the data, and what I changed.</p>
 <div class="meta">May 2026 · Nikita Groshin · ~2,000 words</div>
 

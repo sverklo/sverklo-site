@@ -44,7 +44,48 @@
   "image": "https://sverklo.com/og.png",
   "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/claude-code-context-loss/"},
   "articleSection": "Engineering",
-  "keywords": "claude code, context loss, compaction, context window, large codebase, code intelligence, MCP, sverklo"
+  "keywords": "claude code, context loss, compaction, context window, large codebase, code intelligence, MCP, sverklo, claude code hallucinating, claude code stops finding files, claude code can't find function"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code hallucinate function names?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Claude Code hallucinates function names because it's pattern-matching on what code 'usually looks like' instead of grounding in your actual symbol graph. After context compaction, the agent loses the part of the conversation where it saw your real exports and falls back to plausible-sounding inventions like getUserByEmail() when your code defines findByEmail(). The fix is to expose the symbol graph as a queryable MCP tool so the agent can verify identifiers before writing them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code lose context in large repos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Claude Code's context window is bounded; when conversation length approaches the limit it auto-compacts older turns into a summary. Code-specific details — exact identifiers, file paths, type signatures — are the first to get summarized away because they look noisy to the compactor. After compaction the agent has the rough shape of past decisions but not the specifics, which is when hallucinations start. The structural fix is to make the symbol graph queryable on demand so the agent can re-fetch what compaction lost."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I stop Claude Code from inventing imports that don't exist?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three things help: (1) install a code-intelligence MCP server like sverklo, jcodemunch-mcp, or serena that exposes a 'lookup symbol' tool — the agent can verify before writing; (2) keep your CLAUDE.md or project rules concrete with real paths instead of abstract conventions, since rules are what survives compaction; (3) cap your tool results so noisy grep output doesn't push real signal out of context. Of these, the MCP install has the largest measurable effect in our bench (37% fewer hallucinated imports)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code stop finding files in my project?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two common causes. First, the file is genuinely new since the last conversation turn that listed your repo structure; the agent's mental model is stale. Second, the file is in a directory that was implicitly excluded by the agent's earlier search heuristic (test/, dist/, vendor/) and never re-considered. An MCP-backed live index sidesteps both: every search query hits the current state of disk, and the index doesn't apply silent path filters."
+      }
+    }
+  ]
 }
 </script>
 

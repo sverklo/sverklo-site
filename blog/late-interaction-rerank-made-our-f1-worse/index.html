@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Late-interaction rerank made our F1 worse, not better — a negative result — Sverklo</title>
+<meta name="description" content="We wired a poor-man's late-interaction reranker into sverklo's lookup and refs tools, ran A/B against the public bench three times deterministically, and the F1 dropped 3 points. Negative result, full diagnosis, what we'd try next.">
+<link rel="canonical" href="https://sverklo.com/blog/late-interaction-rerank-made-our-f1-worse/">
+
+<meta property="og:title" content="Late-interaction rerank made our F1 worse, not better">
+<meta property="og:description" content="We wired a poor-man's late-interaction reranker into sverklo's bench-exercising tools and F1 dropped 3 points. Why semantic token alignment is the wrong signal for symbol-name lookup.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/late-interaction-rerank-made-our-f1-worse/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-05">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="reranker">
+<meta property="article:tag" content="ColBERT">
+<meta property="article:tag" content="late-interaction">
+<meta property="article:tag" content="negative result">
+<meta property="article:tag" content="information retrieval">
+<meta property="article:tag" content="benchmark">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Late-interaction rerank made our F1 worse, not better">
+<meta name="twitter:description" content="Wired a reranker into our code search. A/B'd against the public bench. F1 dropped 3 points. Here's why.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Late-interaction rerank made our F1 worse, not better",
+  "description": "Negative-result writeup. We wired a poor-man's late-interaction reranker into sverklo's lookup and refs tools, ran the full 4-dataset 120-task bench three times deterministically, and F1 dropped 3 points. Diagnosis and next steps.",
+  "datePublished": "2026-05-05",
+  "dateModified": "2026-05-05",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/late-interaction-rerank-made-our-f1-worse/"},
+  "articleSection": "Engineering",
+  "keywords": "late-interaction rerank, ColBERT, MaxSim, MiniLM, code search reranker, sverklo bench, retrieval evaluation, negative result"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:22px;line-height:1.4;color:var(--fg);margin:28px 0;padding:24px 28px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0;font-weight:500;letter-spacing:-0.01em}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0}
+  th{text-align:left;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase}
+  th.num{text-align:right}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)}
+  td.fg{color:var(--fg)}
+  td.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  td.win{color:var(--accent);font-weight:600}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}.pull{font-size:17px;padding:18px 20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Late Interaction Rerank Made Our F1 Worse",
+      "item": "https://sverklo.com/blog/late-interaction-rerank-made-our-f1-worse/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Engineering · Sverklo · 2026-05-05</div>
+<h1>Late-interaction rerank made our F1 worse, not better</h1>
+
+<div class="meta-bar">
+  <span>2026-05-05</span>
+  <span>~6 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">We wired a poor-man's late-interaction reranker through sverklo's <code>lookup</code> and <code>refs</code> tools — the two primitives our public bench actually exercises — ran the full 4-dataset 120-task evaluation three times deterministically, and F1 dropped from 0.5847 to 0.5551. Negative result. <a href="https://github.com/sverklo/sverklo/issues/29">Issue #29</a> tracks the experiment; this post is the close-out.</p>
+
+<div class="pull">SQL match-quality (exact &gt; prefix &gt; substring) is already optimal for "find the symbol named <code>get</code>." Token-level semantic similarity dilutes the exact-match signal instead of sharpening it.</div>
+
+<h2>What we wired, exactly</h2>
+
+<p>"Late-interaction rerank" usually means ColBERT v2: a model trained end-to-end to produce token vectors for queries and documents, scored at retrieval time by MaxSim — for each query token, take the max cosine similarity against any document token, then sum. The shipped systems that lift retrieval F1 by 5–15% (PLAID, ColBERT v2, modern variants) all use a model trained for this objective.</p>
+
+<p>"Poor-man" means: take the same MiniLM-L6-v2 we already use for sentence embeddings, run the model with token-level outputs (the layer we currently mean-pool away), and use those token vectors as a stand-in for ColBERT's trained representations. Same MaxSim scoring, free model, no fine-tune. The hope was to get a non-trivial fraction of the published lift for almost no engineering cost. The cheapest possible thing to try.</p>
+
+<p>The wiring landed in two call sites:</p>
+
+<ul>
+  <li><code>sverklo_lookup</code> — pull a wider candidate pool from SQL (40 instead of the default 20), MaxSim-rerank against the symbol query, return top-K to the formatter.</li>
+  <li><code>sverklo_refs</code> — group references by file, take the highest-ranked chunk per file as the rerank input, reorder files by MaxSim score instead of PageRank.</li>
+</ul>
+
+<p>Both are the call paths that the bench's P1 (definition lookup) and P2 (reference finding) tasks exercise. Earlier rerank wiring lived only in <code>hybrid-search.ts</code>, which the bench primitives don't go through — that's why three earlier A/B runs had returned identical numbers (F1 0.7483 = 0.7483 = 0.7483, a structural finding, not noise). The wiring this round was the actual experiment.</p>
+
+<h2>The numbers</h2>
+
+<p>Setup: <code>BASELINES=sverklo,sverklo-rerank</code>, full 4-dataset run (express + lodash + sverklo + requests), 120 hand-verified tasks, three runs back-to-back with deterministic seeds. The numbers were stable across runs to four decimal places, so what's below is one run; the three-run mean is identical.</p>
+
+<table>
+  <thead>
+    <tr><th>Configuration</th><th class="num">F1</th><th class="num">P1 def</th><th class="num">P2 refs</th><th class="num">P4 deps</th><th class="num">Tokens</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="fg"><strong>sverklo</strong> (baseline)</td><td class="num win">0.5847</td><td class="num win">0.700</td><td class="num">0.290</td><td class="num">0.780</td><td class="num">498</td></tr>
+    <tr><td class="fg">sverklo-rerank (poor-man)</td><td class="num">0.5551</td><td class="num">0.625</td><td class="num">0.290</td><td class="num">0.780</td><td class="num">498</td></tr>
+    <tr><td class="fg"><strong>Δ (rerank − base)</strong></td><td class="num">−0.0296</td><td class="num">−0.075</td><td class="num">0.000</td><td class="num">0.000</td><td class="num">0</td></tr>
+  </tbody>
+</table>
+
+<p>P2 and P4 are unchanged because the rerank reordering doesn't change the binary "did the right file appear at all?" answer that those tasks score against — it only reorders the file list, and both the pre- and post-rerank lists contain the right files. Token cost is unchanged because the rerank pass touches ranking, not output.</p>
+
+<p>The whole regression is concentrated in P1, the slice we expected to win the most. Definition lookup goes from 0.700 to 0.625 — a clean 7.5-point drop. The rerank made the tool actively worse at the most basic retrieval task.</p>
+
+<h2>Why it broke instead of helped</h2>
+
+<p>P1 tasks have a specific shape. The query is always a literal symbol name: <code>get</code>, <code>Session</code>, <code>handleRequest</code>, <code>UserService</code>. The right answer is the canonical definition site. Sverklo's existing pipeline ranks by SQL match-quality first (exact symbol-name match &gt; prefix match &gt; substring match), then breaks ties by PageRank. That ordering is already exactly what the task wants: literal name match wins, structural importance breaks ties.</p>
+
+<p>What MaxSim scores instead is <strong>token-level semantic alignment</strong> between the query string and the chunk text. For a one-token query like <code>get</code>, this is almost meaningless — every JS file in lodash contains 50 tokens semantically near "get" (<code>fetch</code>, <code>retrieve</code>, <code>read</code>, <code>load</code>) and the chunk that <em>defines</em> <code>get</code> doesn't necessarily score highest under that metric. For a multi-token query like <code>UserService</code> the model decomposes it into <code>user</code> + <code>service</code> sub-tokens and aligns against any chunk with high "user" and "service" density — a test fixture mentioning <code>user.service.test('something')</code> can outrank the actual class definition.</p>
+
+<p>This is the bias that ColBERT v2's training fixes. The model learns that <em>literal token match</em> outweighs <em>semantic similarity</em> for code queries. MiniLM, which was trained as a sentence-embedding model on natural-language pairs, has the opposite bias by default — it pulls similar-meaning tokens close together, which is the wrong signal here.</p>
+
+<p>The mistake on our part was assuming "we already have the model, MaxSim is a cheap algorithmic addition" was the cheap experiment. The actual cheap experiment would have been to skip MiniLM and try ColBERT v2 directly. The model is the load-bearing component; MaxSim on top of an off-the-shelf encoder doesn't reproduce the published results because the published results aren't about MaxSim.</p>
+
+<h2>What this teaches about reranker scope</h2>
+
+<p>Two things worth saving from the wreckage:</p>
+
+<h3>1. Rerank helps where the underlying ranker is uncertain, not where it's already confident</h3>
+
+<p>The retrieval cases where rerank reliably wins in the literature are <em>concept queries</em>: "where does the auth token get refreshed?" — natural-language descriptions where BM25 matches lots of weakly-related files and the right answer needs semantic disambiguation. Those queries are the natural home for a reranker.</p>
+
+<p>P1 def-lookup is the opposite shape. The query <em>is</em> the symbol name. SQL match-quality already discriminates exact &gt; prefix &gt; substring with perfect precision. There's no uncertainty for a reranker to resolve — there's only certainty for a reranker to pollute. We should have known this before wiring it.</p>
+
+<h3>2. Always A/B against the bench-exercising call path, not the easy-to-instrument one</h3>
+
+<p>The first three rerank A/B runs we ever did were inert because the rerank wiring lived in <code>hybrid-search.ts</code> and the bench's primitives go through <code>lookup</code> / <code>refs</code> / <code>deps</code> / <code>audit</code> directly. Three identical F1 readouts (0.7483 each time) looked like noise but were actually a structural finding: the bench was indifferent to the experiment. The fix in this round was to wire rerank into the actual bench-exercised paths — at which point the experiment <em>did</em> register, and registered as a regression. Negative result, but the harness at least stopped lying to us.</p>
+
+<p>The lesson generalizes: if your benchmark says "no change" three runs in a row when you're sure your change should move it, the harness is the suspect, not the change. Bisect the call path before you bisect the algorithm.</p>
+
+<h2>What's next on the rerank track</h2>
+
+<p>The poor-man experiment is done. Issue #29 stays open because the original question — does <em>real</em> late-interaction rerank lift sverklo's F1? — is still unanswered. The next experiment is ColBERT v2 with a strong promotion gate:</p>
+
+<ul>
+  <li><strong>F1 lift ≥ +0.05</strong> (one full bench point above poor-man's regression, two above noise) with bootstrap CI lower bound &gt; 0.</li>
+  <li><strong>P1 doesn't regress.</strong> If the model breaks the symbol-name slice the way poor-man did, we don't ship it even if it lifts P2.</li>
+  <li><strong>Latency ≤ 50ms</strong> on M-series ANE. Sverklo's whole pitch is local-first with sub-second responses; a reranker that pushes lookup past a second isn't useful regardless of accuracy.</li>
+</ul>
+
+<p>The gates are deliberately strict because the cost of shipping a reranker is permanent — every future query pays the latency tax, and rolling it back later breaks bench reproducibility. We'd rather ship nothing than ship the wrong thing.</p>
+
+<h2>Why publish a negative result</h2>
+
+<p>The honest answer is that I'd rather show the reproducer for "we tried X and it didn't work" than ship a quietly-removed feature flag and hope no one notices. The 36-hour bench loop that produced this result is on <a href="/mcp/">sverklo.com/mcp</a> as one of two negative-result callouts (the other is a Python parser bug surfaced by adding the requests dataset, which <em>did</em> get fixed and lifted P4 from 0.10 to 1.00). Both are receipts for the same posture: the bench is the authority and the bench tells the truth.</p>
+
+<p>The competitive default in the AI-tools-for-coding space is to ship the win and stay quiet on the loss. The default I'd rather establish for sverklo is: every experiment generates a number, every number gets published, the experiments that don't pan out are as much of the story as the ones that do. If sverklo were any other product I'd be tempted to shelf this and only mention rerank once we had a positive result. As a tool that exists to <em>tell agents whether the code is rotting</em>, the brand really has no other choice.</p>
+
+<div class="cta-box">
+  <h3>Reproduce locally</h3>
+  <pre>git clone https://github.com/sverklo/sverklo
+cd sverklo && npm install
+SVERKLO_RERANK=poor-man BASELINES=sverklo,sverklo-rerank npm run bench:quick</pre>
+  <p>Output lands in <code>benchmark/results/&lt;timestamp&gt;/</code>. The run takes ~3 minutes on an M-series Mac. Disagreements with these numbers are useful — open an issue with your machine spec and run timestamp.</p>
+  <p><a href="https://github.com/sverklo/sverklo/issues/29">Issue #29 — full per-task breakdown and rerank wiring commits</a> · <a href="/mcp/">sverklo.com/mcp — leaderboard with both negative-result callouts</a></p>
+</div>
+
+<h2>References</h2>
+<ul>
+  <li>Issue tracking the experiment: <a href="https://github.com/sverklo/sverklo/issues/29">github.com/sverklo/sverklo#29</a></li>
+  <li>Rerank wiring (lookup): <a href="https://github.com/sverklo/sverklo/blob/main/src/server/tools/lookup.ts"><code>src/server/tools/lookup.ts</code></a></li>
+  <li>Rerank wiring (refs): <a href="https://github.com/sverklo/sverklo/blob/main/src/server/tools/find-references.ts"><code>src/server/tools/find-references.ts</code></a></li>
+  <li>Original ColBERT paper (Khattab &amp; Zaharia, 2020): <a href="https://arxiv.org/abs/2004.12832">arxiv.org/abs/2004.12832</a></li>
+  <li>ColBERT v2 (Santhanam et al., 2022): <a href="https://arxiv.org/abs/2112.01488">arxiv.org/abs/2112.01488</a></li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/blog/rrf-is-doing-80-percent-of-the-work/">Reciprocal Rank Fusion is doing 80% of the work in our hybrid search</a> — the combination function that the rerank was supposed to be on top of</li>
+  <li><a href="/blog/i-added-two-competitors-to-my-own-benchmark/">I added two competitors to my own benchmark. One of them beat me at P1.</a> — the bench expansion that this experiment ran against</li>
+  <li><a href="/blog/bench-as-feedback-loop/">Bench as feedback loop</a> — why we run the same bench every time we change anything</li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
