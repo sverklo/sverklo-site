@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>We Already Shipped MCP Code Mode — Sverklo's Tool Surface in Numbers — Sverklo</title>
+<meta name="description" content="MCP Code Mode is the Q2 2026 conversation: cut the tools-list system prompt by 80%+ for AI agents. Sverklo's SVERKLO_PROFILE env var has shipped this for months. Measured: 8,016 → 1,522 tokens with one env var (81% reduction). Per-profile table + when to use each.">
+<link rel="canonical" href="https://sverklo.com/blog/we-already-shipped-mcp-code-mode/">
+
+<meta property="og:title" content="We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured">
+<meta property="og:description" content="MCP Code Mode (Cloudflare, Anthropic Tool Search) is the Q2 conversation. Sverklo's SVERKLO_PROFILE has shipped the equivalent for months: 8,016 → 1,522 tokens, 81% reduction. Five named profiles, full table, honest tradeoffs.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/we-already-shipped-mcp-code-mode/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-08">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="Code Mode">
+<meta property="article:tag" content="token economy">
+<meta property="article:tag" content="Claude Code">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="We Already Shipped MCP Code Mode — 8,016 → 1,522 Tokens, Measured">
+<meta name="twitter:description" content="Sverklo's SVERKLO_PROFILE env var ships an 81% tool-list reduction with one knob. Numbers, table, honest tradeoffs.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured",
+  "description": "Q2 2026 MCP discourse landed on tool-list bloat: Cloudflare cut a 1.17M-token spec to ~1K with Code Mode, Anthropic shipped MCP Tool Search lazy-loading. Sverklo's SVERKLO_PROFILE env var has implemented the same idea for months. Measured: 8,016 → 1,522 tokens (81% reduction). Per-profile breakdown, what each profile contains, when each works and when it breaks.",
+  "datePublished": "2026-05-08",
+  "dateModified": "2026-05-08",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/we-already-shipped-mcp-code-mode/"},
+  "articleSection": "Engineering",
+  "keywords": "MCP code mode, MCP tool count, MCP server too many tools, Claude Code context bloat, sverklo profile, tool surface reduction, lazy tool loading, agent token economy"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does sverklo have too many MCP tools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo exposes 36 tools in the default `full` profile, which is the biggest local-first surface in the category. The cost is 8,016 tokens of system-prompt overhead — about 4% of a 200K context window. For agents with capable models that can ignore irrelevant tools this is fine. For token-conscious deployments, set `SVERKLO_PROFILE=core` to drop to 5 tools and 1,522 tokens — 81% reduction with one env var, no recompile."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I reduce my MCP server's tool list size?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three patterns. (1) Profile filtering: most servers have an env var or config to expose a subset of tools — sverklo has `SVERKLO_PROFILE=core|nav|lean|research|review|full`. (2) Anthropic's MCP Tool Search lazy-loads tools on demand instead of upfront, ~95% reduction on Claude Code. (3) Cloudflare's Code Mode collapses an entire API surface to two tools (`search()` + `execute()`) with the discoverable surface kept server-side. Sverklo implements pattern (1) today; the bench wins on tools-per-task=1.0 even before profile filtering."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is MCP Code Mode?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Code Mode is the term Cloudflare introduced for an MCP design pattern that exposes only two tools to the agent — `search()` to discover available actions, and `execute()` to run them — instead of registering every action upfront. They demonstrated cutting a 2,500-endpoint API spec from 1.17 million tokens to ~1,000 tokens (99.9% reduction). Anthropic's MCP Tool Search lazy-load is a related but distinct mechanism that keeps the typed surface but defers loading until first use. Both target the same problem: tool-list bloat eating the agent's context window."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which sverklo profile should I use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you only do code retrieval (find symbols, callers, dependencies), use `core` — 5 tools, 1,522 tokens. If you want the audit and review surfaces too, use `lean` (11 tools, 3,469 tokens). For open-ended exploration that needs concept clusters and verification, use `research` (18 tools, 3,950 tokens). For PR-review-focused agents, use `review` (10 tools, 2,788 tokens). Default `full` exposes all 36 tools at 8,016 tokens — fine for power users on Claude Sonnet, expensive for small models or long sessions."
+      }
+    }
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:22px;line-height:1.4;color:var(--fg);margin:28px 0;padding:24px 28px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0;font-weight:500;letter-spacing:-0.01em}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0}
+  th{text-align:left;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase}
+  th.num{text-align:right}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted)}
+  td.fg{color:var(--fg)}
+  td.num{text-align:right;font-family:'JetBrains Mono',monospace}
+  td.win{color:var(--accent);font-weight:600}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}.pull{font-size:17px;padding:18px 20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "We Already Shipped Mcp Code Mode",
+      "item": "https://sverklo.com/blog/we-already-shipped-mcp-code-mode/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Engineering · Sverklo · 2026-05-08</div>
+<h1>We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</h1>
+
+<div class="meta-bar">
+  <span>2026-05-08</span>
+  <span>~6 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">A commenter on yesterday's <a href="/mcp/">leaderboard launch</a> told me 37 tools is too much. They're not wrong. Q2 2026's defining MCP conversation is exactly this: <a href="https://blog.cloudflare.com/code-mode-mcp/">Cloudflare's Code Mode</a> cut a 2,500-endpoint API spec from 1.17M tokens to ~1K, <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">Anthropic's MCP Tool Search lazy-load</a> hit ~95% context reduction on Claude Code, <a href="https://www.getmaxim.ai/articles/cutting-mcp-token-costs-by-92-at-500-tools/">Maxim wrote about cutting 92% at 500+ tools</a>. Sverklo has shipped the same idea for months under <code>SVERKLO_PROFILE</code>. Today I sat down and measured it.</p>
+
+<div class="pull">SVERKLO_PROFILE=core drops the tools-list from 8,016 tokens to 1,522 tokens. 81% reduction with one env var. No recompile, no lazy-load wiring, no API redesign.</div>
+
+<h2>Method</h2>
+
+<p>Spawn sverklo MCP server with each <code>SVERKLO_PROFILE</code> value, send the JSON-RPC <code>tools/list</code> request, capture the response, and measure the JSON byte/token cost. Tokens estimated as <code>ceil(chars / 3.5)</code> — same heuristic sverklo uses internally for its own bench. The full code is <a href="https://github.com/sverklo/sverklo/blob/main/src/server/tool-overrides.ts">tool-overrides.ts</a>; the script that produced these numbers is at the bottom of this post and reproduces in &lt;30 seconds.</p>
+
+<h2>The numbers</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Profile</th>
+      <th class="num">Tools</th>
+      <th class="num">JSON chars</th>
+      <th class="num">Est. tokens</th>
+      <th class="num">Reduction vs full</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="fg"><strong>core</strong></td><td class="num">5</td><td class="num">5,324</td><td class="num">1,522</td><td class="num win">81.0%</td></tr>
+    <tr><td class="fg">nav</td><td class="num">8</td><td class="num">7,952</td><td class="num">2,272</td><td class="num">71.7%</td></tr>
+    <tr><td class="fg">review</td><td class="num">10</td><td class="num">9,757</td><td class="num">2,788</td><td class="num">65.2%</td></tr>
+    <tr><td class="fg">lean</td><td class="num">11</td><td class="num">12,141</td><td class="num">3,469</td><td class="num">56.7%</td></tr>
+    <tr><td class="fg">research</td><td class="num">18</td><td class="num">13,824</td><td class="num">3,950</td><td class="num">50.7%</td></tr>
+    <tr><td class="fg"><strong>full</strong> (default)</td><td class="num">36</td><td class="num">28,055</td><td class="num">8,016</td><td class="num">—</td></tr>
+  </tbody>
+</table>
+
+<p>The headline: 81% reduction with <code>SVERKLO_PROFILE=core</code>. That's competitive with Maxim's 92% (which they hit at 500+ tools, where the marginal token saving curve is steeper) and with Anthropic's lazy-load 95% (which only kicks in if the agent doesn't actually use most tools). Sverklo's profile system gets there with five hard-coded named subsets — no tool-search round-trip, no lazy-load handshake, no behavioral change at all from the agent's perspective.</p>
+
+<h2>What's in each profile</h2>
+
+<h3>core (5 tools — code-intel hot path)</h3>
+
+<p><code>sverklo_search</code>, <code>sverklo_lookup</code>, <code>sverklo_overview</code>, <code>sverklo_refs</code>, <code>sverklo_impact</code>. The five tools an agent reaches for in 80% of code-intelligence sessions: search-by-concept, lookup-by-name, file structure, find-references, blast-radius. If your agent only does code retrieval and graph navigation, this is the right pick.</p>
+
+<h3>nav (8 — adds dependency + context surfaces)</h3>
+
+<p>Core plus <code>sverklo_deps</code>, <code>sverklo_context</code>, <code>sverklo_status</code>. The point of nav is to handle file-level questions ("who imports this?", "what does it depend on?") without bringing in memory or audit. Useful for refactoring agents where you want the full graph but not the human-facing audit grades.</p>
+
+<h3>lean (11 — adds memory + diff review)</h3>
+
+<p>Nav plus <code>sverklo_remember</code>, <code>sverklo_recall</code>, <code>sverklo_review_diff</code>. This is the most common power-user pick: continuous memory of past decisions across sessions, plus the diff-review surface for PR-time. If you're using sverklo with Claude Code on a long-running project, lean is probably what you want — full graph, full memory, no specialized audit/concept tools eating context until you need them.</p>
+
+<h3>research (18 — open-ended exploration)</h3>
+
+<p>Adds <code>sverklo_search_iterative</code>, <code>sverklo_investigate</code>, <code>sverklo_ask</code>, <code>sverklo_concepts</code>, <code>sverklo_patterns</code>, <code>sverklo_clusters</code>, <code>sverklo_verify</code>, <code>sverklo_critique</code>, and the <code>ctx_*</code> handle ops. For agents doing onboarding, code archaeology, or methodology questions where the next tool call depends on the previous answer.</p>
+
+<h3>review (10 — PR/MR review)</h3>
+
+<p>Diff tools front-and-center: <code>sverklo_review_diff</code>, <code>sverklo_diff_search</code>, <code>sverklo_test_map</code>, <code>sverklo_impact</code>, <code>sverklo_refs</code>, <code>sverklo_lookup</code>, <code>sverklo_search</code>, <code>sverklo_investigate</code>, <code>sverklo_verify</code>, <code>sverklo_status</code>. For agents that wake up on PR-open and need to assess risk before posting a comment.</p>
+
+<h3>full (36 — default)</h3>
+
+<p>All 36 tools including memory ops (<code>pin</code>, <code>unpin</code>, <code>promote</code>, <code>demote</code>, <code>forget</code>, <code>memories</code>, <code>wakeup</code>), context-handle suite (<code>ctx_grep</code>, <code>ctx_peek</code>, <code>ctx_slice</code>, <code>ctx_stats</code>, <code>head_results</code>, <code>grep_results</code>), audit (<code>audit</code>), <code>ast_grep</code>, and the legacy <code>get_indexing_status</code> compatibility alias. The default for a reason — it's the most capable surface — but the right setting only when context is cheap and agent capability is high.</p>
+
+<h2>How to set it</h2>
+
+<p>Three options, in order of binding strength:</p>
+
+<pre><code># 1. Process env var (per session)
+SVERKLO_PROFILE=core sverklo .
+
+# 2. .sverklo.yaml (per project, version-controlled)
+profile: core
+
+# 3. Shell rc (per machine)
+export SVERKLO_PROFILE=core
+</code></pre>
+
+<p>The cache is built once at sverklo startup, so changes need a restart of the MCP server (the MCP client's IDE window). This matches how agents already expect tool metadata to work — stable per session.</p>
+
+<p>For finer control, <code>SVERKLO_DISABLED_TOOLS=tool1,tool2</code> drops specific tools from any profile (useful when you want <code>core</code> but minus <code>sverklo_overview</code>, say). And <code>SVERKLO_TOOL_&lt;NAME&gt;_DESCRIPTION</code> overrides individual descriptions, which is how power users repurpose <code>sverklo_remember</code> as an architecture decision log without forking.</p>
+
+<h2>What this is not</h2>
+
+<p>Sverklo's profile system is not <em>Cloudflare's</em> Code Mode. The Cloudflare pattern collapses N tools to two: <code>search(query)</code> and <code>execute(action, args)</code>. The agent never sees the typed surface; it queries for available actions on demand. That's a 99.9% reduction at 2,500 endpoints — but it costs the agent two extra round-trips per invocation, and you lose the structured tool descriptions that help the agent pick the right verb upfront.</p>
+
+<p>Sverklo's design bet is the opposite: the typed surface is a feature for capable agents (the bench measures sverklo at <strong>1.0 tools-per-task</strong> vs naive grep's 6.1, on the same task suite — one typed call gets the answer, no cascade). Slim the surface enough to fit the context budget, but keep it typed.</p>
+
+<p>If we run into a deployment where 1,522 tokens for the <code>core</code> profile is still too many, the Cloudflare pattern is a real next step. For now the data says profile filtering is sufficient. Tell me if you hit a wall.</p>
+
+<h2>The subagent example</h2>
+
+<p>Yesterday I shipped <a href="https://github.com/sverklo/sverklo/blob/main/agents/sverklo-explore.md">agents/sverklo-explore.md</a> as a drop-in replacement for Claude Code's built-in Explore subagent. It's the slim-surface posture in a copy-paste artifact: the subagent declares only seven sverklo tools (<code>lookup</code>, <code>refs</code>, <code>deps</code>, <code>overview</code>, <code>impact</code>, <code>search</code>, <code>status</code>) and explicit anti-patterns ("don't grep, don't chain, don't summarize beyond tool output"). The parent agent only sees those seven in the subagent's frontmatter, which is identical to running with a custom <code>SVERKLO_DISABLED_TOOLS</code> list — same effect, different mechanism.</p>
+
+<p>If you're using Claude Code on a large repo today and watching tokens, that subagent file is the cheapest possible thing to copy in.</p>
+
+<h2>Honest tradeoffs</h2>
+
+<p>What you lose in <code>core</code>:</p>
+
+<ul>
+  <li><strong>Memory persistence</strong> — <code>sverklo_remember</code> / <code>sverklo_recall</code> are not in core. If your agent relies on bi-temporal memory across sessions, use <code>lean</code> instead.</li>
+  <li><strong>Audit grades</strong> — <code>sverklo_audit</code> is not in core. Drops the dead-code / coupling / coverage report. For one-shot retrieval that's fine; for review agents, use <code>review</code> or <code>full</code>.</li>
+  <li><strong>Context-handle ops</strong> — <code>ctx_grep</code>, <code>ctx_peek</code>, <code>ctx_slice</code>, <code>ctx_stats</code> are gone. If your agent uses sverklo's handle system to refine retrieval iteratively, use <code>research</code>.</li>
+  <li><strong>Diff-aware review</strong> — <code>sverklo_review_diff</code>, <code>sverklo_diff_search</code>, <code>sverklo_test_map</code> are absent. Use <code>review</code> or <code>lean</code>.</li>
+</ul>
+
+<p>None of these break <em>retrieval</em>. They just remove sverklo's specialized surfaces. The bench (which measures retrieval F1 only) is unaffected by profile choice — sverklo F1=0.60 on the public ranking is the <code>core</code> number too, since P1/P2/P4 only need <code>lookup</code>/<code>refs</code>/<code>deps</code>.</p>
+
+<h2>Reproducer</h2>
+
+<pre><code>npm install -g sverklo
+SVERKLO_PROFILE=core sverklo /path/to/repo &amp;
+# Send tools/list via JSON-RPC stdin, count chars in result.tools
+</code></pre>
+
+<p>Or copy the &lt;50-line measurement script we used here from the sverklo repo at <a href="https://github.com/sverklo/sverklo/blob/main/scripts/measure-profiles.mjs">scripts/measure-profiles.mjs</a>. Re-run on your own machine and post a delta if the numbers don't match.</p>
+
+<h2>Why publish this now</h2>
+
+<p>The 37-tools complaint <a href="/mcp/">on the launch thread</a> was a real signal. The Q2 2026 trend is real. Sverklo has shipped the answer for months but never measured it publicly. The cost of writing this post was about three hours including the measurement and the SoftwareApplication schema additions on the comparison pages. The cost of <em>not</em> writing it was that anyone evaluating sverklo against the Code Mode discourse would assume we hadn't thought about it.</p>
+
+<p>The pattern keeps being right. The bench losing teaches the bench more than the bench winning. The slim-profile post lands tonight; if a maintainer of a competing MCP server wants to publish their own profile measurements, the harness is portable. <a href="https://github.com/sverklo/sverklo/issues/new">Open an issue</a> if you want me to bench against a specific tool.</p>
+
+<div class="cta-box">
+  <h3>Try sverklo with the slim profile</h3>
+  <pre>npm install -g sverklo
+SVERKLO_PROFILE=core sverklo init</pre>
+  <p>5 tools, 1,522 tokens of system-prompt overhead, full hybrid retrieval underneath. <a href="/mcp/">Public bench</a> · <a href="https://github.com/sverklo/sverklo/blob/main/agents/sverklo-explore.md">Drop-in subagent for Claude Code</a> · <a href="https://github.com/sverklo/sverklo/blob/main/src/server/tool-overrides.ts">Source of the profile system</a></p>
+</div>
+
+<h2>References</h2>
+<ul>
+  <li><a href="https://blog.cloudflare.com/code-mode-mcp/">Cloudflare: Code Mode MCP</a> — the 2,500-endpoint to 2-tool reduction</li>
+  <li><a href="https://www.anthropic.com/engineering/code-execution-with-mcp">Anthropic: Code Execution with MCP</a> — the official Tool Search / lazy-load piece</li>
+  <li><a href="https://www.getmaxim.ai/articles/cutting-mcp-token-costs-by-92-at-500-tools/">Maxim: Cutting MCP token costs by 92% at 500+ tools</a></li>
+  <li><a href="https://github.com/sverklo/sverklo/blob/main/src/server/tool-overrides.ts">sverklo: tool-overrides.ts</a> — the actual profile filter</li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens</a> — the field study that showed grep is 41% of agent token spend</li>
+  <li><a href="/blog/late-interaction-rerank-made-our-f1-worse/">Late-interaction rerank made our F1 worse</a> — the close-out for the rerank experiment, same posture as this post: measure, publish, including the failures</li>
+  <li><a href="/mcp/">MCP code-intel ranking</a> — the public 5-baseline benchmark with sverklo F1=0.60 leading</li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

@@ -405,6 +405,34 @@ body:has(header.top.nav-canonical) > #main {
 }
 /* @end-nav */
 </style>
+<!-- ItemList: every comparison page on /vs/, ordered by category. Drives
+     internal PageRank from the hub to the leaves and signals a topic
+     cluster to Google + AI summarizers (the previously orphaned /vs/
+     pages now have one canonical source-of-truth listing). -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Sverklo vs. Code Intelligence Tools — 13 Honest Comparisons",
+  "description": "Sverklo compared against every direct and adjacent code-intelligence tool: MCP servers, hosted PR-review SaaS, AI coding agents, and IDE-native code search.",
+  "numberOfItems": 13,
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "url": "https://sverklo.com/vs/jcodemunch/", "name": "Sverklo vs Jcodemunch-MCP" },
+    { "@type": "ListItem", "position": 2, "url": "https://sverklo.com/vs/gitnexus/", "name": "Sverklo vs GitNexus" },
+    { "@type": "ListItem", "position": 3, "url": "https://sverklo.com/vs/serena/", "name": "Sverklo vs Serena" },
+    { "@type": "ListItem", "position": 4, "url": "https://sverklo.com/vs/claude-context/", "name": "Sverklo vs Claude-Context (Zilliz)" },
+    { "@type": "ListItem", "position": 5, "url": "https://sverklo.com/vs/codebase-memory-mcp/", "name": "Sverklo vs Codebase Memory MCP" },
+    { "@type": "ListItem", "position": 6, "url": "https://sverklo.com/vs/sourcegraph-cody/", "name": "Sverklo vs Sourcegraph Cody" },
+    { "@type": "ListItem", "position": 7, "url": "https://sverklo.com/vs/greptile/", "name": "Sverklo vs Greptile" },
+    { "@type": "ListItem", "position": 8, "url": "https://sverklo.com/vs/cursor-codebase/", "name": "Sverklo vs Cursor Codebase Indexing" },
+    { "@type": "ListItem", "position": 9, "url": "https://sverklo.com/vs/claude-code/", "name": "Sverklo vs Claude Code (built-in)" },
+    { "@type": "ListItem", "position": 10, "url": "https://sverklo.com/vs/aider/", "name": "Sverklo vs Aider" },
+    { "@type": "ListItem", "position": 11, "url": "https://sverklo.com/vs/continue/", "name": "Sverklo vs Continue" },
+    { "@type": "ListItem", "position": 12, "url": "https://sverklo.com/vs/codex-cli/", "name": "Sverklo vs Codex CLI" },
+    { "@type": "ListItem", "position": 13, "url": "https://sverklo.com/vs/matrix/", "name": "Sverklo Comparison Matrix (all)" }
+  ]
+}
+</script>
 <!-- @fonts-injected — do not edit; run patch-nav.mjs -->
 <!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
 <!-- @end-fonts -->
