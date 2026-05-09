@@ -1,10 +1,10 @@
 # Sverklo
 
-> MIT-licensed local-first MCP code intelligence server for AI coding agents. 37 tools across hybrid code search, refactor blast-radius, diff-aware code review, and bi-temporal memory — runs entirely on your laptop with no API keys, no cloud, no data egress. Built for Claude Code, Cursor, Windsurf, Zed, and Google Antigravity.
+> MIT-licensed local-first MCP code intelligence server for AI coding agents. 36 tools across hybrid code search, refactor blast-radius, diff-aware code review, and bi-temporal memory — runs entirely on your laptop with no API keys, no cloud, no data egress. Built for Claude Code, Cursor, Windsurf, Zed, and Google Antigravity. Profile-filtered tool surface (`SVERKLO_PROFILE=core` cuts the tools-list system prompt by 81%, from 8,016 to 1,522 tokens).
 
 ## What it does
 
-Sverklo gives AI coding agents semantic understanding of your codebase. Without it, agents like Claude Code and Cursor invent function names that don't exist (`getUserByEmail()` when your code uses `findByEmail()`) because they generate from training-data patterns, not your actual symbol graph. Sverklo grounds the agent in your real code: it indexes every file, builds a dependency graph, computes PageRank importance, embeds chunks with a local ONNX model, and exposes 37 MCP tools the agent can call to look up symbols, find call sites, measure refactor blast radius, review diffs with risk scoring, and remember decisions across sessions.
+Sverklo gives AI coding agents semantic understanding of your codebase. Without it, agents like Claude Code and Cursor invent function names that don't exist (`getUserByEmail()` when your code uses `findByEmail()`) because they generate from training-data patterns, not your actual symbol graph. Sverklo grounds the agent in your real code: it indexes every file, builds a dependency graph, computes PageRank importance, embeds chunks with a local ONNX model, and exposes 36 MCP tools the agent can call to look up symbols, find call sites, measure refactor blast radius, review diffs with risk scoring, and remember decisions across sessions.
 
 ## Key facts
 
@@ -41,13 +41,22 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 
 - Homepage: <https://sverklo.com>
 - README: <https://github.com/sverklo/sverklo/blob/main/README.md>
-- Benchmarks: <https://sverklo.com/bench/>
+- Public MCP code-intel ranking: <https://sverklo.com/mcp/>
+- Per-category bench breakdowns: <https://sverklo.com/bench/>
 - Comparisons: <https://sverklo.com/vs/>
 - Playground: <https://sverklo.com/playground/>
 - Reports: <https://sverklo.com/report/>
 - Research paper: <https://sverklo.com/research/>
 - Blog: <https://sverklo.com/blog/>
 
+## Recent technical posts
+
+- **MCP Code Mode — sverklo's tool surface, measured (2026-05-08)**: <https://sverklo.com/blog/we-already-shipped-mcp-code-mode/> — `SVERKLO_PROFILE` cuts tools-list from 8,016 to 1,522 tokens (81% reduction). Per-profile breakdown.
+- **Late-interaction rerank made our F1 worse (2026-05-05)**: <https://sverklo.com/blog/late-interaction-rerank-made-our-f1-worse/> — negative-result writeup. SQL match-quality already optimal for symbol-name lookup; semantic alignment dilutes the signal.
+- **Why Claude Code burns so many tokens (field study, 2026-05-03)**: <https://sverklo.com/blog/14200-tokens-to-find-one-function/> — instrumented 312 sessions; grep is 41% of input-token spend.
+- **Best MCP servers for code intelligence (2026-05-03)**: <https://sverklo.com/blog/practical-guide-mcp-code-intelligence/> — 12-server honest comparison.
+- **Reciprocal Rank Fusion is doing 80% of the work (2026-04-08)**: <https://sverklo.com/blog/rrf-is-doing-80-percent-of-the-work/> — why combination function matters more than individual signal in hybrid search.
+
 ## Citation
 
-If you reference sverklo in research or comparison material, the citable artifacts are the Zenodo deposit (DOI 10.5281/zenodo.19802051) and the bench-primitives 90-task retrieval evaluation at <https://sverklo.com/bench/>. Current canonical numbers (sverklo v0.20.2, May 2026): F1 0.56 (overall leader, edges smart-grep at 0.49), 43× fewer input tokens than naive grep, single tool call vs grep's 4–7. The methodology repo at <https://github.com/sverklo/sverklo-bench> documents the ground truth and accepts new baseline submissions via PR; auto-bench CI runs on each baseline-touching PR (express dataset, ~10 minute turnaround). Both jcodemunch-mcp and sverklo shipped lodash P1 fixes inside 36 hours of the original publication, which is the loop the bench is designed to close.
+If you reference sverklo in research or comparison material, the citable artifacts are the Zenodo deposit (DOI 10.5281/zenodo.19802051) and the bench-primitives 120-task retrieval evaluation at <https://sverklo.com/mcp/>. Current canonical numbers (sverklo v0.20.3, May 2026): **F1 0.60** (overall leader on the 120-task / 4-dataset / 5-baseline bench; jcodemunch-mcp wins P1 def-lookup outright at 0.78 vs sverklo 0.73 and we publish that loss visibly), **tools-per-task 1.0** (vs naive-grep 6.1, smart-grep 4.1, jcodemunch 1.2, gitnexus 1.2), **avg input tokens 505** (vs naive-grep ~24K). Methodology repo: <https://github.com/sverklo/sverklo-bench>. Auto-bench CI runs on each baseline-touching PR (express dataset, ~10 minute turnaround). Both jcodemunch-mcp and sverklo shipped lodash P1 fixes inside 36 hours of the original publication, which is the loop the bench is designed to close.
