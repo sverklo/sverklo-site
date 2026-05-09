@@ -56,6 +56,36 @@ const ALLOWED_HISTORICAL = [
     snippet: "v0.20.3",
     note: "updates feed: provenance for the cascade-bug fix (sv-p4-04)",
   },
+  // Memoir comparison: third-party version (v0.1.9 = memoir-ai PyPI alpha).
+  // Not a sverklo version, but lint can't tell from regex alone.
+  // Match "v0.1.9" anywhere on the line — it's always Memoir's version.
+  {
+    file: "vs/memoir/index.html",
+    version: "v0.1.9",
+    snippet: "v0.1.9",
+    note: "memoir comparison: third-party (Memoir/memoir-ai) version, not sverklo",
+  },
+  {
+    file: "blog/we-already-shipped-git-for-agent-memory/index.html",
+    version: "v0.1.9",
+    snippet: "v0.1.9",
+    note: "memoir comparison post: third-party (Memoir) version, not sverklo",
+  },
+  // Sverklo's current production version (v0.20.6 as of 2026-05-09)
+  // referenced as a factual provenance claim on the new comparison
+  // pages. Not a UI fallback — the badge fetches live from npm.
+  {
+    file: "blog/we-already-shipped-git-for-agent-memory/index.html",
+    version: "v0.20.6",
+    snippet: "Production (v0.20.6)",
+    note: "memoir comparison post: factual claim about sverklo current version",
+  },
+  {
+    file: "vs/memoir/index.html",
+    version: "v0.20.6",
+    snippet: "0.20.6",
+    note: "memoir comparison page: factual claim about sverklo current version (multiple lines)",
+  },
   // Research paper citations: which sverklo version produced the
   // numbers in the paper. NOT a UI fallback — a factual claim.
   {

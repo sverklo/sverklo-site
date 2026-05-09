@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot — Sverklo</title>
+<meta name="description" content="A 1,768-view tweet pitched 'Memoir' as Git-for-AI-agent-memory. Sverklo's bi-temporal memory layer ships the deeper version: SHA-pinned point-in-time queries instead of branch-level HEAD pointers. Honest comparison, the one ergonomic win Memoir has, and the borrowable idea.">
+<link rel="canonical" href="https://sverklo.com/blog/we-already-shipped-git-for-agent-memory/">
+
+<meta property="og:title" content="We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot">
+<meta property="og:description" content="Memoir got picked up on X today framing 'Git-style memory for AI agents'. Sverklo's bi-temporal memory has shipped the deeper abstraction for months. SHA-pinned point-in-time queries vs per-branch HEAD pointers.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/we-already-shipped-git-for-agent-memory/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-09">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="memory">
+<meta property="article:tag" content="bi-temporal">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="agent memory">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot">
+<meta name="twitter:description" content="Memoir was just pitched as Git-for-AI-memory. Sverklo's bi-temporal memory has shipped the deeper version for months. Honest comparison.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot",
+  "description": "Memoir was pitched on X today as Git-for-AI-agent-memory. Sverklo's bi-temporal memory layer (valid_from_sha + valid_until_sha + superseded_by) has shipped the deeper abstraction for months — SHA-pinned point-in-time queries vs Memoir's per-branch HEAD pointers. Honest comparison, the one ergonomic win Memoir has, and the borrowable idea worth implementing.",
+  "datePublished": "2026-05-09",
+  "dateModified": "2026-05-09",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/we-already-shipped-git-for-agent-memory/"},
+  "articleSection": "Engineering",
+  "keywords": "git for agent memory, AI agent memory, bi-temporal memory, branch-aware memory, MCP memory server, sverklo, memoir, prollytree, agent context"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Git-style memory for AI agents?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Git-style memory means treating an AI agent's persisted observations like a version-controlled artifact: every memory carries a commit-shaped identifier, updates are non-destructive (insert new + mark old as superseded), and you can query 'what did the agent know at this point in history?' instead of just 'what does it know now?' Two existing implementations are sverklo (bi-temporal SHA-pinned, MIT, runs locally as an MCP server) and Memoir (branch-snapshot, Apache 2.0, alpha, also has an MCP server). They make different trade-offs on what 'point in history' means."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is bi-temporal memory?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bi-temporal memory tracks two timelines per fact: when the fact entered the database (transaction time) and when the fact was true in the world (valid time). For AI agent memory, valid time is pinned to git SHAs — the fact is true between commit A and commit B. Queries can ask 'what was true at commit abc?' regardless of when that fact was recorded. Sverklo's memory layer uses valid_from_sha, valid_until_sha, and superseded_by columns to implement this. The pattern dates to relational databases in the 1990s; applying it to agent memory makes context compaction recoverable instead of destructive."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does sverklo's memory compare to Memoir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both pitch 'Git-style memory for AI agents'. Sverklo's bi-temporal model is strictly more expressive: it can answer 'what was true at commit abc?' for any commit in history. Memoir's per-branch HEAD pointers can only answer 'what's true on branch X right now' — Memoir's own source comment notes that VersionedKvStore only supports branch checkout, not commit checkout, so point-in-time rollback is a placeholder. The trade is ergonomics: when you `git checkout feature-x`, Memoir's memory view auto-isolates per-branch; sverklo's bi-temporal model doesn't currently filter by branch by default. Different implementation choices on the same problem; sverklo has the deeper abstraction, Memoir has sharper UX for the active-development case."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why use SHA-pinned memory instead of branch-pinned?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Branches move. A memory pinned to 'feature-x' at one moment may correspond to a different commit five hours later. SHA-pinning gives you point-in-time queries that survive rebases, merges, and force-pushes — exactly the operations that make branch-pinning lossy. The cost is one extra column per memory row (valid_from_sha) and a second one for invalidation (valid_until_sha + superseded_by). Worth it when 'what did this team believe about auth at commit abc?' is a question your agent needs to answer; not worth it for short-lived per-feature scratchpad memory where branch-isolation is the actual user need."
+      }
+    }
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:14px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:22px;line-height:1.4;color:var(--fg);margin:28px 0;padding:24px 28px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0;font-weight:500;letter-spacing:-0.01em}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0}
+  th{text-align:left;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+  td.fg{color:var(--fg);font-weight:600}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}.pull{font-size:17px;padding:18px 20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "We Already Shipped Git For Agent Memory",
+      "item": "https://sverklo.com/blog/we-already-shipped-git-for-agent-memory/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Engineering · Sverklo · 2026-05-09</div>
+<h1>We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot</h1>
+
+<div class="meta-bar">
+  <span>2026-05-09</span>
+  <span>~7 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">A tweet from earlier today pitched <a href="https://github.com/zhangfengcdt/memoir">Memoir</a> as <em>"Git-style memory for AI agents"</em> — semantic memory paths, branch-aware isolation, commits, diffs, rollback. 1,768 views and 28 bookmarks in eight hours. The framing is right; the conversation is real. Sverklo has shipped the same idea for months, and our implementation goes deeper on the dimension that matters most: <strong>SHA-pinned point-in-time queries</strong> instead of per-branch HEAD pointers. Here's the honest comparison, the one ergonomic win Memoir has, and the borrowable idea worth implementing.</p>
+
+<div class="pull">Sverklo's bi-temporal memory can answer "what was true at commit abc?" Memoir's branch-snapshot model can't — their own source comment notes that <code>VersionedKvStore only supports branch checkout, not commit checkout</code>. Different abstractions on the same problem; sverklo's is more rigorous, Memoir's is more ergonomic for the active-development case.</div>
+
+<h2>The Memoir pitch, decoded</h2>
+
+<p>The X thread lists five claims. Here's what each actually means after reading <a href="https://github.com/zhangfengcdt/memoir">the Memoir source</a> and <a href="https://github.com/zhangfengcdt/prollytree">the underlying ProllyTree library</a>:</p>
+
+<table>
+  <thead>
+    <tr><th>Pitch</th><th>What it actually is</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="fg">Semantic memory paths instead of UUIDs</td><td>Hierarchical taxonomy: paths like <code>profile.professional.occupation</code> instead of free-text categories. UX win, mostly orthogonal to versioning.</td></tr>
+    <tr><td class="fg">Branch-aware memory isolation</td><td>Real and novel: when you <code>git checkout feature-x</code>, Memoir's memory view auto-filters to that branch's HEAD. Different memory state per branch.</td></tr>
+    <tr><td class="fg">Commits, diffs &amp; rollback support</td><td>Branch-level only. Memoir's source comment: <em>"VersionedKvStore only supports branch checkout, not commit checkout"</em>. Commit-level rollback is a placeholder.</td></tr>
+    <tr><td class="fg">O(log n) hierarchical lookup</td><td>Implementation detail of the prefix trie. Doesn't matter to users; same Big-O as a SQLite index.</td></tr>
+    <tr><td class="fg">Transparent, inspectable memory state</td><td>TUI + web UI for browsing the Merkle KV tree. Sverklo has the same via <code>sverklo ui</code> and the dashboard at <code>/api/memories</code>.</td></tr>
+  </tbody>
+</table>
+
+<p>Net: of five claims, two (semantic paths and branch isolation) are real differentiators. The other three are either marketing fluff or implementation details. The substantive question is whether <strong>branch-snapshot</strong> is the right abstraction for agent memory at all.</p>
+
+<h2>Sverklo's bi-temporal model</h2>
+
+<p>Sverklo's memory layer has shipped <a href="/blog/bi-temporal-memory-for-ai-agents/">bi-temporal SHA-pinned memory</a> since v0.13. Every memory row carries three columns:</p>
+
+<pre><code>valid_from_sha    -- the git SHA when this memory became true
+valid_until_sha   -- nullable; the git SHA when it stopped being true (or null = still true)
+superseded_by     -- nullable FK to the memory that replaced this one</code></pre>
+
+<p>Updates are non-destructive: when you call <code>sverklo_remember</code> with content that contradicts an existing memory, sverklo doesn't overwrite. It inserts a new row, sets <code>valid_until_sha</code> on the old row to the current commit, and links them via <code>superseded_by</code>. Recall queries naturally exclude invalidated rows ("what's true now?") but a single column flip turns them into history queries ("what was true at commit abc?").</p>
+
+<p>This is a 1990s pattern from relational databases applied to agent memory. <a href="https://docs.snowflake.com/en/sql-reference/sql/select-bi-temporal">Snowflake</a>, <a href="https://docs.xtdb.com/concepts/bitemporality.html">XTDB</a>, and <a href="https://www.crdb.io/blog/bi-temporal-data">CockroachDB</a> all support some form of it for OLTP correctness. The pattern's correctness guarantees translate cleanly to agent memory because the same property — "the state of the world at time T is recoverable" — is what makes context compaction non-destructive.</p>
+
+<h2>Why SHA-pinning is more rigorous than branch-pinning</h2>
+
+<p>Branches move. A memory tagged "feature-x" at 9 AM may correspond to a different commit at 3 PM after rebases, force-pushes, or fast-forwards. Memoir's per-branch HEAD pointers walk forward as the branch walks; you can't ask "what was true on this branch yesterday" because yesterday's HEAD was overwritten.</p>
+
+<p>SHA-pinning gives you immutability for free. Once <code>valid_from_sha = abc123</code> is recorded, that row is bound to that commit forever, regardless of what happens to any branch pointer. The cost is two columns per row and a slightly more complex recall query. The benefit is point-in-time correctness across the operations that <em>actually happen</em> on a real codebase.</p>
+
+<p>The Memoir source itself acknowledges this: <code>VersionedKvStore only supports branch checkout, not commit checkout</code>. They're aware of the gap. Filling it requires a Merkle tree that addresses each commit independently, which is structurally most of what bi-temporal columns give you for free in a regular SQLite store.</p>
+
+<h2>What Memoir does better</h2>
+
+<p>One thing, and it's a real one: <strong>active-development ergonomics</strong>. When you <code>git checkout feature-x</code> in your IDE, Memoir's memory view automatically isolates to that branch. Sverklo's bi-temporal model doesn't filter by current branch context by default — you'd need to manually pin recall queries to <code>HEAD</code>'s SHA, or accept that experimental-branch memories appear alongside main-branch memories until invalidated.</p>
+
+<p>This matters when you have an active feature branch that experiments with a refactor pattern you don't want polluting the main-branch agent context. Memoir's per-branch isolation makes the "context contamination on git checkout" failure mode go away by construction. Sverklo's model can do the same thing but requires the user to opt in.</p>
+
+<p>That's the borrowable idea: <strong>add a SVERKLO_MEMORY_BRANCH_ISOLATE flag</strong> that filters recall by current-branch ancestry. The bi-temporal data is already SHA-stamped; we just need <code>git merge-base</code> to know whether a memory's <code>valid_from_sha</code> is reachable from the current HEAD. ~1 day of engineering on top of the existing schema. Worth it for users who live on long-lived feature branches.</p>
+
+<h2>The honest comparison</h2>
+
+<table>
+  <thead>
+    <tr><th>Dimension</th><th>Sverklo</th><th>Memoir</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="fg">License</td><td>MIT</td><td>Apache 2.0</td></tr>
+    <tr><td class="fg">Storage substrate</td><td>SQLite + sqlite-vec</td><td>ProllyTree (Merkle B-tree, custom)</td></tr>
+    <tr><td class="fg">Versioning model</td><td>Bi-temporal (valid_from_sha + valid_until_sha + superseded_by)</td><td>Per-branch HEAD pointers; commit-level rollback is a placeholder</td></tr>
+    <tr><td class="fg">Point-in-time queries</td><td>Yes — any commit, any branch, any history depth</td><td>No — branch HEADs only</td></tr>
+    <tr><td class="fg">Branch isolation on git checkout</td><td>Not by default (opt-in via filtering, see below)</td><td>Yes by default — biggest UX win</td></tr>
+    <tr><td class="fg">MCP server</td><td>Yes (36 tools, profile-filterable to 5)</td><td>Yes (memory-only)</td></tr>
+    <tr><td class="fg">Claude Code auto-capture hooks</td><td>No (manual <code>sverklo_remember</code>)</td><td>Yes (SessionStart/UserPromptSubmit/Stop hooks)</td></tr>
+    <tr><td class="fg">Bundled with retrieval</td><td>Yes — same hybrid retrieval powers code search</td><td>No — memory-only library</td></tr>
+    <tr><td class="fg">Public benchmark</td><td>Yes — <a href="/mcp/">120-task / 5-baseline retrieval bench</a></td><td>None published</td></tr>
+    <tr><td class="fg">Status</td><td>Production (v0.20.6)</td><td>Alpha (v0.1.9)</td></tr>
+    <tr><td class="fg">GitHub stars</td><td>—</td><td>239 (as of 2026-05-09)</td></tr>
+  </tbody>
+</table>
+
+<h2>Two ideas to borrow</h2>
+
+<h3>1. Branch-isolation flag (real engineering)</h3>
+
+<p>Add <code>SVERKLO_MEMORY_BRANCH_ISOLATE=true</code> as an opt-in flag. When set, recall queries filter to memories whose <code>valid_from_sha</code> is reachable from the current HEAD via <code>git merge-base</code>. Memories from sibling branches don't appear unless explicitly requested. Cost: ~1 day. Benefit: matches Memoir's ergonomics for the long-lived-feature-branch case while keeping bi-temporal as the underlying truth.</p>
+
+<h3>2. Auto-capture Claude Code hooks (real engineering, bigger)</h3>
+
+<p>Memoir ships SessionStart, UserPromptSubmit, and Stop hooks via its Claude Code plugin. Sverklo has manual <code>sverklo_remember</code> via the agent calling the tool. The hook-based pattern auto-captures observations without explicit tool calls — the agent doesn't need to "decide to remember", the hook does it for likely-significant turns.</p>
+
+<p>This is the bigger engineering item (~1 week including the right capture heuristic), but it would make the memory layer 10× stickier in practice. Manual remember requires the agent to think about memory; auto-capture means memory accrues from the conversation passively. Filed at <a href="https://github.com/sverklo/sverklo/issues">sverklo/sverklo issues</a> for follow-up.</p>
+
+<h2>Why publish this now</h2>
+
+<p>Same reason as the Code Mode post a day ago. The conversation is happening; sverklo has the deeper version of the answer; not publishing means anyone evaluating the Memoir pitch assumes nothing else exists. The pattern keeps being right: <strong>measure the competitor's claims against the actual implementation, name what they do better, name what we do better, name the borrowable idea</strong>. Bi-temporal is the more rigorous abstraction. Branch-isolation is the better default UX. We can ship the latter on top of the former in a week.</p>
+
+<p>Memoir is not the same product as sverklo — it's memory-only, no retrieval, no impact analysis, no PR review. The comparison is pointed at the memory dimension specifically. For everything else, the comparison is at <a href="/vs/memoir/">/vs/memoir/</a>.</p>
+
+<div class="cta-box">
+  <h3>Try sverklo's bi-temporal memory</h3>
+  <pre>npm install -g sverklo
+sverklo init
+# in your AI agent, after a design decision:
+sverklo_remember "we chose Prisma over Drizzle for the typed ORM surface"
+# six months later, after the migration:
+sverklo_recall "ORM choice"  # returns the current decision
+sverklo_recall "ORM choice" --at-sha abc123  # returns what was true then</pre>
+  <p><a href="/blog/bi-temporal-memory-for-ai-agents/">Bi-temporal memory deep dive</a> · <a href="/vs/memoir/">Sverklo vs Memoir comparison</a> · <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a></p>
+</div>
+
+<h2>References</h2>
+<ul>
+  <li><a href="https://github.com/zhangfengcdt/memoir">Memoir on GitHub</a> — Apache 2.0, Python, alpha. The product this post compares against.</li>
+  <li><a href="https://github.com/zhangfengcdt/prollytree">ProllyTree</a> — the Merkle B-tree storage substrate underneath Memoir.</li>
+  <li><a href="https://x.com/DivyanshT91162/status/2053039562608587263">The X post that prompted this writeup</a></li>
+  <li><a href="https://docs.xtdb.com/concepts/bitemporality.html">XTDB on bitemporality</a> — the database pattern sverklo's memory layer adapts.</li>
+  <li><a href="/blog/bi-temporal-memory-for-ai-agents/">Bi-temporal memory for AI coding agents</a> — sverklo's own deep dive on the pattern (April 2026).</li>
+  <li><a href="/blog/git-for-ai-agent-memory/">Git for AI agent memory</a> — the original post on the framing (March 2026).</li>
+</ul>
+
+<h2>See also</h2>
+<ul>
+  <li><a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode</a> — same posture, same pattern, same result. The conversation kept moving toward sverklo's existing surface; we measured and published.</li>
+  <li><a href="/blog/late-interaction-rerank-made-our-f1-worse/">Late-interaction rerank made our F1 worse</a> — the negative-result counterpart to "we already shipped this". Both belong to the same brand: measure, publish, including the failures.</li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

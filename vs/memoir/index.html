@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo vs Memoir — Bi-Temporal SHA-Pinned vs Branch-Snapshot Agent Memory</title>
+<meta name="description" content="Sverklo vs Memoir: both pitch Git-style memory for AI agents. Sverklo's bi-temporal SHA-pinned model can answer 'what was true at commit abc?' for any commit. Memoir's per-branch HEAD pointers can't (their own source comment confirms). Honest feature + license + architecture comparison.">
+<meta name="keywords" content="memoir alternative, memoir vs sverklo, AI agent memory, bi-temporal memory, MCP memory server, git for agent memory, branch-aware memory">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/vs/memoir/">
+
+<meta property="og:title" content="Sverklo vs Memoir — Bi-Temporal SHA-Pinned vs Branch-Snapshot">
+<meta property="og:description" content="Memoir was pitched on X today as Git-style memory for AI agents. Sverklo's bi-temporal model has shipped the deeper abstraction for months. Honest comparison: what each does better.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/memoir/">
+<meta property="og:site_name" content="Sverklo">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- JSON-LD SoftwareApplication (sverklo) for entity-graph signal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.20.6",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "description": "Local-first MCP code-intelligence server with bi-temporal SHA-pinned agent memory. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents.",
+  "featureList": "Local-first indexing, 36 MCP tools, bi-temporal SHA-pinned memory, hybrid retrieval, blast-radius analysis, risk-scored PR review, profile-filtered tool surface (SVERKLO_PROFILE)",
+  "publisher": {"@type": "Organization", "name": "Sverklo", "url": "https://sverklo.com"}
+}
+</script>
+
+<!-- JSON-LD FAQ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Sverklo a Memoir alternative?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo and Memoir overlap on the memory-for-AI-agents dimension and diverge everywhere else. Sverklo bundles bi-temporal SHA-pinned memory with hybrid code retrieval, blast-radius analysis, and PR review — 36 MCP tools, MIT-licensed, production (v0.20.6). Memoir is memory-only — Apache 2.0, alpha (v0.1.9), built on the ProllyTree Merkle B-tree. If you want memory plus retrieval bundled, sverklo is the alternative. If you want memory-only with sharper per-branch checkout ergonomics, Memoir is its own thing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Sverklo support branch-aware memory like Memoir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not by default — but it's coming as an opt-in flag. Memoir's branch-aware memory automatically isolates by current git branch on `git checkout`. Sverklo's bi-temporal memory is SHA-pinned (more rigorous than branch-pinned: a memory bound to commit abc123 stays bound to that commit forever), but doesn't filter recall by current-branch ancestry by default. The borrowable Memoir idea — SVERKLO_MEMORY_BRANCH_ISOLATE flag using `git merge-base` for ancestry filtering — is filed for the next sverklo release."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is bi-temporal memory and why does it matter for AI agents?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bi-temporal memory tracks two timelines per fact: when the fact was recorded (transaction time) and when it was true in the world (valid time). For agent memory, valid time is pinned to git SHAs. Each memory has valid_from_sha + valid_until_sha + superseded_by columns. Updates are non-destructive: contradicting a memory inserts a new row and marks the old one as superseded. The query 'what was true at commit abc?' is answerable for any commit in history. Memoir's per-branch HEAD pointers can only answer 'what's true on branch X right now' — their own source comment notes commit-level checkout is a placeholder."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use Sverklo and Memoir together?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In principle yes — both expose MCP servers, and they don't compete on the same surface (sverklo bundles retrieval, Memoir is memory-only). In practice the two memory layers would diverge on what 'point in history' means and you'd lose the bi-temporal correctness guarantee on Memoir-tracked memories. If you want bi-temporal SHA-pinned memory with retrieval, use sverklo alone. If you specifically want Memoir's per-branch isolation UX, run Memoir alone and skip sverklo's memory layer."
+      }
+    }
+  ]
+}
+</script>
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0E0D0B; --bg-2: #16140F; --bg-3: #1C1A14;
+  --rule: #2A2620; --rule-2: #403A30;
+  --text: #EDE7D9; --text-2: #A39886; --text-3: #8A8270;
+  --accent: #E85A2A; --accent-dim: #B8441C;
+  --ok: #8FB339; --warn: #D4A535;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px; line-height: 1.55; font-weight: 400; overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-2); transition: border-color 0.15s, color 0.15s; }
+a:hover { color: var(--accent); border-color: var(--accent); }
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+.hero { padding: 80px 0 48px; border-bottom: 1px solid var(--rule); }
+.hero .kicker { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 24px; }
+.hero .kicker::before { content: "// "; color: var(--accent); }
+.hero h1 { font-family: 'JetBrains Mono', monospace; font-size: clamp(28px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.03em; font-weight: 700; margin-bottom: 24px; }
+.hero h1 .accent { color: var(--accent); }
+.hero .lede { font-size: 16px; line-height: 1.65; color: var(--text-2); max-width: 70ch; }
+.hero .lede strong { color: var(--text); font-weight: 500; }
+.cmp-section { padding: 64px 0; border-bottom: 1px solid var(--rule); }
+.cmp-section h2 { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 24px; }
+.cmp-section h2::before { content: "# "; color: var(--accent); }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.cmp th { text-align: left; padding: 12px 14px; border-bottom: 2px solid var(--accent); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; vertical-align: top; }
+table.cmp td { padding: 12px 14px; border-bottom: 1px solid var(--rule); color: var(--text-2); vertical-align: top; }
+table.cmp td:first-child { color: var(--text); font-weight: 500; }
+.tag-mit { background: rgba(143, 179, 57, 0.12); color: var(--ok); border: 1px solid rgba(143, 179, 57, 0.3); padding: 2px 8px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.tag-warn { background: rgba(212, 165, 53, 0.12); color: var(--warn); border: 1px solid rgba(212, 165, 53, 0.3); padding: 2px 8px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.when { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+@media (max-width: 720px) { .when { grid-template-columns: 1fr; } }
+.when-card { background: var(--bg-2); border: 1px solid var(--rule); padding: 24px; border-radius: 4px; }
+.when-card h3 { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.when-card .accent { color: var(--accent); }
+.when-card ul { list-style: none; padding: 0; margin: 0; }
+.when-card li { padding: 8px 0 8px 18px; position: relative; color: var(--text-2); font-size: 14px; line-height: 1.6; }
+.when-card li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.cta-section { padding: 80px 0; text-align: center; }
+.cta-section h2 { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.cta-section p { color: var(--text-2); margin-bottom: 24px; font-size: 14px; }
+.cta-cmd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 14px; background: var(--bg-2); border: 1px solid var(--rule-2); padding: 12px 24px; cursor: pointer; transition: border-color 0.15s; color: var(--text); }
+.cta-cmd:hover { border-color: var(--accent); }
+.cta-cmd .prompt { color: var(--accent); }
+footer { border-top: 1px solid var(--rule); padding: 40px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-3); }
+footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+footer a { color: var(--text-3); border: none; }
+footer a:hover { color: var(--text-2); }
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Compare",
+      "item": "https://sverklo.com/vs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Memoir",
+      "item": "https://sverklo.com/vs/memoir/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">comparison</div>
+    <h1>Sverklo vs <span class="accent">Memoir</span></h1>
+    <p class="lede">
+      Both pitch <em>Git-style memory for AI agents</em>. Memoir (Apache 2.0, alpha, 239 stars) implements per-branch HEAD pointers over a Merkle B-tree — when you <code>git checkout feature-x</code>, the memory view auto-isolates. Sverklo (MIT, production v0.20.6) implements bi-temporal SHA-pinning — every memory carries <code>valid_from_sha</code> + <code>valid_until_sha</code> + <code>superseded_by</code>, so "what was true at commit <em>abc</em>?" is answerable for any commit in history.
+      <strong>Different abstractions on the same problem.</strong> Memoir's branch-snapshot is sharper UX for the active-development case; sverklo's bi-temporal is more rigorous for "what did this team believe at commit abc?" historical queries.
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Feature comparison</h2>
+    <table class="cmp">
+      <thead>
+        <tr><th></th><th>Sverklo</th><th>Memoir</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>License</td><td><span class="tag-mit">MIT</span></td><td><span class="tag-mit">Apache 2.0</span></td></tr>
+        <tr><td>Status</td><td>Production (v0.20.6)</td><td>Alpha (v0.1.9)</td></tr>
+        <tr><td>Storage substrate</td><td>SQLite + sqlite-vec</td><td>ProllyTree (Merkle B-tree)</td></tr>
+        <tr><td>Versioning model</td><td>Bi-temporal: <code>valid_from_sha</code> + <code>valid_until_sha</code> + <code>superseded_by</code></td><td>Per-branch HEAD pointers (Merkle KV)</td></tr>
+        <tr><td>Point-in-time queries</td><td>Yes — any commit, any branch, any history depth</td><td>No — branch HEADs only. Source: <code>VersionedKvStore only supports branch checkout, not commit checkout</code></td></tr>
+        <tr><td>Branch isolation on git checkout</td><td>Not by default (opt-in via filtering, planned)</td><td>Yes — biggest UX win</td></tr>
+        <tr><td>Memory scope</td><td>Memory bundled with retrieval, impact, audit, review</td><td>Memory-only library</td></tr>
+        <tr><td>MCP server</td><td>Yes — 36 tools, profile-filterable to 5</td><td>Yes — memory tools only</td></tr>
+        <tr><td>Auto-capture hooks</td><td>No (manual <code>sverklo_remember</code>)</td><td>SessionStart / UserPromptSubmit / Stop hooks</td></tr>
+        <tr><td>Hybrid retrieval (BM25 + vector)</td><td>Yes — same pipeline that powers /mcp/ leaderboard</td><td>No (memory-only)</td></tr>
+        <tr><td>Languages</td><td>10 first-class via tree-sitter, 14 via regex fallback</td><td>Memory store is language-agnostic</td></tr>
+        <tr><td>Public benchmark</td><td><a href="/mcp/">120-task / 5-baseline retrieval bench</a></td><td>None published</td></tr>
+        <tr><td>Install</td><td><code>npm install -g sverklo &amp;&amp; sverklo init</code></td><td><code>pip install memoir-ai</code> or Claude Code plugin</td></tr>
+        <tr><td>GitHub stars</td><td>—</td><td>239 (2026-05-09)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Public benchmark coverage</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 120 hand-verified tasks across 4 OSS codebases (express, lodash, requests, sverklo). Sverklo F1=0.60 leading; jcodemunch-mcp wins P1 def-lookup outright at 0.78. <strong>Memoir is not on the public bench yet</strong> — it's memory-only, so the existing P1/P2/P4/P5 retrieval categories don't apply directly. A memory-specific benchmark (recall persistence across context compaction, point-in-time correctness, branch isolation correctness) is a gap in the field that the maintainers of sverklo-bench would entertain — open an issue at <a href="https://github.com/sverklo/sverklo-bench/issues">sverklo/sverklo-bench</a> if you'd contribute task design.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
+      In the meantime, the comparison above is feature-shaped — describing what each tool exposes, not how each tool scores on a common eval. Treat the above as positioning, not measurement.
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>When to use each</h2>
+    <div class="when">
+      <div class="when-card">
+        <h3>Choose <span class="accent">Sverklo</span> when</h3>
+        <ul>
+          <li>You want one tool that bundles memory with hybrid code retrieval, blast-radius analysis, and PR review — not a memory-only library you'd glue to a separate retriever.</li>
+          <li>Point-in-time queries matter — "what did this team believe about auth at commit abc?" is a question your agent or your reviewers actually need to answer.</li>
+          <li>You want a production-stable surface (v0.20.6) over an alpha library (v0.1.9).</li>
+          <li>Bi-temporal correctness across rebases / force-pushes / merges is more important than per-branch checkout ergonomics.</li>
+          <li>You're already using sverklo for code retrieval and want the memory layer to share the same MCP server.</li>
+          <li>You're allergic to standing up a separate Python service (Memoir) when your stack is Node-first.</li>
+        </ul>
+      </div>
+      <div class="when-card">
+        <h3>Choose <span class="accent">Memoir</span> when</h3>
+        <ul>
+          <li>You only need memory — no retrieval, no impact analysis, no PR review — and you want the most ergonomically branch-aware option.</li>
+          <li>Long-lived experimental feature branches are common in your workflow and you want their memories isolated from main-branch context by default.</li>
+          <li>The Claude Code SessionStart / UserPromptSubmit / Stop auto-capture hooks are a load-bearing UX feature for you.</li>
+          <li>Your stack is Python-native and you want a Python-first memory library.</li>
+          <li>You're building on top of Merkle B-trees specifically (e.g. content-addressable storage requirements) and the ProllyTree substrate is structurally aligned with your design.</li>
+          <li>Alpha-stage software is acceptable in your environment.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cmp-section" style="border-bottom: none;">
+  <div class="wrap">
+    <h2>Different abstractions on the same problem</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      Memoir's branch-snapshot pins memory to a moving reference (the branch HEAD). Sverklo's bi-temporal model pins memory to immutable references (commit SHAs). The branch reference is more <em>ergonomic</em> for the active-development case where you want "this branch's memory" filtered without thinking. The SHA reference is more <em>rigorous</em> for the historical-correctness case where rebases, force-pushes, and merges shouldn't lose memory provenance.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
+      Memoir's own source comment acknowledges the gap: <em>"VersionedKvStore only supports branch checkout, not commit checkout."</em> Closing that gap requires a Merkle tree that addresses each commit independently, which is structurally most of what bi-temporal columns give you for free in a regular SQLite store. The two designs converge as Memoir adds commit-level checkout; the trade then becomes implementation choice (Merkle vs SQL) more than abstraction.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
+      Full deep dive on the comparison: <a href="/blog/we-already-shipped-git-for-agent-memory/">"We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot"</a>.
+    </p>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <h2>Try Sverklo</h2>
+    <p>MIT licensed. One command. Bi-temporal memory + hybrid retrieval in the same MCP server.</p>
+    <button type="button" class="cta-cmd" aria-label="Copy: npm install -g sverklo &amp;&amp; sverklo init" onclick="navigator.clipboard.writeText('npm install -g sverklo &amp;&amp; sverklo init').catch(()=>{})"><span class="prompt">$</span> npm install -g sverklo &amp;&amp; sverklo init</button>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-3);">click to copy</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>sverklo &mdash; MIT Licensed</span>
+    <span>
+      <a href="https://github.com/sverklo/sverklo">GitHub</a> &middot;
+      <a href="https://www.npmjs.com/package/sverklo">npm</a> &middot;
+      <a href="/">Home</a>
+    </span>
+  </div>
+</footer>
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
