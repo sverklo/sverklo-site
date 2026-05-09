@@ -42,6 +42,20 @@ const CURRENT = m[1];
 // substring of the line so patch-nav.mjs injecting new <head>/<style>
 // blocks doesn't shift line numbers and break the allowlist.
 const ALLOWED_HISTORICAL = [
+  // Updates feed: factual statements about which version shipped which
+  // change. Not UI fallbacks — provenance for the ship/fix entries.
+  {
+    file: "updates/index.html",
+    version: "v0.20.6",
+    snippet: "v0.20.6",
+    note: "updates feed: provenance for the audit JSON 1.0.0 ship entry",
+  },
+  {
+    file: "updates/index.html",
+    version: "v0.20.3",
+    snippet: "v0.20.3",
+    note: "updates feed: provenance for the cascade-bug fix (sv-p4-04)",
+  },
   // Research paper citations: which sverklo version produced the
   // numbers in the paper. NOT a UI fallback — a factual claim.
   {

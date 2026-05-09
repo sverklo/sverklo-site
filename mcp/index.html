@@ -266,24 +266,35 @@ body:has(header.top.nav-canonical) > #main {
 <tbody>
   <tr class="self">
     <td class="name"><strong>sverklo</strong> <span class="self-tag">us</span></td>
-    <td class="num"><strong>0.58</strong></td>
-    <td class="num">0.70</td>
-    <td class="num">0.29</td>
-    <td class="num">0.78</td>
+    <td class="num"><strong>0.60</strong></td>
+    <td class="num">0.72</td>
+    <td class="num">0.30</td>
+    <td class="num">0.80</td>
     <td class="num">0.75</td>
-    <td class="num">498</td>
+    <td class="num">505</td>
     <td class="num">1.0</td>
     <td class="num audit-cell" title="Dead code: A · Circular deps: A · Coupling: F · Security: A"><a href="/report/sverklo/sverklo/"><strong class="audit-B">B</strong></a></td>
   </tr>
   <tr>
     <td class="name"><strong>smart-grep</strong></td>
-    <td class="num"><strong>0.41</strong></td>
-    <td class="num">0.33</td>
-    <td class="num">0.30</td>
+    <td class="num"><strong>0.40</strong></td>
+    <td class="num">0.35</td>
+    <td class="num">0.24</td>
     <td class="num">0.46</td>
+    <td class="num">0.78</td>
+    <td class="num">842</td>
+    <td class="num">8.0</td>
+    <td class="num audit-cell">—</td>
+  </tr>
+  <tr>
+    <td class="name"><strong>naive-grep</strong></td>
+    <td class="num"><strong>0.34</strong></td>
+    <td class="num">0.25</td>
+    <td class="num">0.19</td>
+    <td class="num">0.42</td>
     <td class="num">0.75</td>
-    <td class="num">963</td>
-    <td class="num">4.1</td>
+    <td class="num">20,711</td>
+    <td class="num">6.3</td>
     <td class="num audit-cell">—</td>
   </tr>
   <tr>
@@ -298,39 +309,28 @@ body:has(header.top.nav-canonical) > #main {
     <td class="num audit-cell" title="Dead code: C · Circular deps: B · Coupling: D · Security: F"><a href="/report/jgravelle/jcodemunch-mcp/"><strong class="audit-C">C</strong></a></td>
   </tr>
   <tr>
-    <td class="name"><strong>naive-grep</strong></td>
-    <td class="num"><strong>0.27</strong></td>
-    <td class="num">0.07</td>
-    <td class="num">0.14</td>
-    <td class="num">0.42</td>
-    <td class="num">0.75</td>
-    <td class="num">24,194</td>
-    <td class="num">6.1</td>
-    <td class="num audit-cell">—</td>
-  </tr>
-  <tr>
     <td class="name"><strong>gitnexus</strong></td>
     <td class="num"><strong>0.24</strong></td>
     <td class="num">0.23</td>
     <td class="num">0.00</td>
     <td class="num">0.25</td>
     <td class="num">0.75</td>
-    <td class="num">333</td>
+    <td class="num">332</td>
     <td class="num">1.2</td>
     <td class="num audit-cell" title="Dead code: D · Circular deps: F · Coupling: F · Security: F"><a href="/report/abhigyanpatwari/gitnexus/"><strong class="audit-F">F</strong></a></td>
   </tr>
 </tbody></table></div>
 <p class="meta-line">
   120 tasks across 4 datasets (express, lodash, sverklo, requests).
-  Run <code>2026-05-07T16-51-40-288Z</code> at sverklo
-  <a href="https://github.com/sverklo/sverklo/commit/c6a50e54fa5f"><code>c6a50e5</code></a>.
-  Published <span title="2026-05-07 17:19 UTC">2026-05-07 17:19 UTC</span>.
+  Run <code>2026-05-08T00-32-45-846Z</code> at sverklo
+  <a href="https://github.com/sverklo/sverklo/commit/1c142f4e5d43"><code>1c142f4</code></a>.
+  Published <span title="2026-05-08 00:36 UTC">2026-05-08 00:36 UTC</span>.
 </p>
 <details class="reproducer">
   <summary>Reproduce these numbers locally</summary>
-  <pre><code>git clone https://github.com/sverklo/sverklo &amp;&amp; cd sverklo &amp;&amp; git checkout c6a50e54fa5f36615f2f20c62cbd1f538494e060 &amp;&amp; npm install &amp;&amp; npm run build &amp;&amp; npm run bench:quick</code></pre>
+  <pre><code>git clone https://github.com/sverklo/sverklo &amp;&amp; cd sverklo &amp;&amp; git checkout 1c142f4e5d43a56c41a7f518eebef9df63845e8e &amp;&amp; npm install &amp;&amp; npm run build &amp;&amp; npm run bench:quick</code></pre>
   <p>The harness writes <code>summary.json</code>, <code>raw.jsonl</code>, and <code>report.md</code> to <code>benchmark/results/&lt;timestamp&gt;/</code>. Diff against this page; file an issue at <a href="https://github.com/sverklo/sverklo-bench/issues">sverklo-bench/issues</a> if your numbers differ.</p>
-  <p>Raw artifact for this run: <a href="https://github.com/sverklo/sverklo/tree/c6a50e54fa5f36615f2f20c62cbd1f538494e060/benchmark/results/2026-05-07T16-51-40-288Z"><code>sverklo/sverklo/tree/c6a50e54fa5f36615f2f20c62cbd1f538494e060/benchmark/results/2026-05-07T16-51-40-288Z</code></a></p>
+  <p>Raw artifact for this run: <a href="https://github.com/sverklo/sverklo/tree/1c142f4e5d43a56c41a7f518eebef9df63845e8e/benchmark/results/2026-05-08T00-32-45-846Z"><code>sverklo/sverklo/tree/1c142f4e5d43a56c41a7f518eebef9df63845e8e/benchmark/results/2026-05-08T00-32-45-846Z</code></a></p>
 </details>
 
 <h2>What this measures</h2>

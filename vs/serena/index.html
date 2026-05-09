@@ -19,6 +19,33 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
+<!-- JSON-LD SoftwareApplication (sverklo) for entity-graph signal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.20.5",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sverklo",
+    "url": "https://sverklo.com"
+  }
+}
+</script>
+
 <!-- JSON-LD FAQ Schema -->
 <script type="application/ld+json">
 {
@@ -62,7 +89,7 @@
       "name": "Is there a published benchmark comparing Sverklo and Serena?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo's bench:primitives is a 90-task hand-verified retrieval evaluation across three OSS codebases (express, lodash, sverklo) and currently 5 baselines: naive-grep, smart-grep, sverklo, jcodemunch-mcp, and GitNexus. Serena is not yet on the bench, but the methodology repo at github.com/sverklo/sverklo-bench accepts new baseline submissions via PR. Auto-bench CI runs on each baseline-touching PR. Sverklo's current numbers: F1 0.56 overall (leader), 43× fewer input tokens than naive grep, single tool call per task."
+        "text": "Sverklo's bench:primitives is a 120-task hand-verified retrieval evaluation across four OSS codebases (express, lodash, sverklo) and currently 5 baselines: naive-grep, smart-grep, sverklo, jcodemunch-mcp, and GitNexus. Serena is not yet on the bench, but the methodology repo at github.com/sverklo/sverklo-bench accepts new baseline submissions via PR. Auto-bench CI runs on each baseline-touching PR. Sverklo's current numbers: F1 0.56 overall (leader), 43× fewer input tokens than naive grep, single tool call per task."
       }
     },
     {
@@ -656,6 +683,18 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Public benchmark coverage</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 120 hand-verified tasks across 4 OSS codebases (express 4.21.1, lodash 4.17.21, requests 2.32.3, sverklo). Sverklo F1=0.60 leading; jcodemunch-mcp wins P1 def-lookup outright at 0.78. <strong>Serena is not on the public bench yet</strong> — we'd add it cheerfully if a maintainer opens a PR adding the baseline. The methodology repo at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a> documents the contract; the auto-bench CI runs against the express slice and posts a results-table comment within ~10 minutes.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
+      In the meantime, the comparison above is feature-shaped, not bench-shaped — we're describing what each tool exposes, not how each tool scores on a common eval. Treat the above as positioning, not measurement.
+    </p>
   </div>
 </section>
 

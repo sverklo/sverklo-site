@@ -19,6 +19,33 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
+<!-- JSON-LD SoftwareApplication (sverklo) for entity-graph signal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.20.5",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sverklo",
+    "url": "https://sverklo.com"
+  }
+}
+</script>
+
 <!-- JSON-LD FAQ Schema -->
 <script type="application/ld+json">
 {
@@ -30,7 +57,7 @@
       "name": "What is the difference between Sverklo and GitNexus?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is an MIT-licensed local-first MCP server for code intelligence with a published 90-task benchmark. GitNexus is a code-knowledge-graph MCP server licensed under PolyForm Noncommercial 1.0, which restricts commercial use without a separate enterprise agreement from Akon Labs. Sverklo runs on embedded SQLite with PageRank-ranked hybrid retrieval; GitNexus runs on KuzuDB and exposes a Cypher query interface."
+        "text": "Sverklo is an MIT-licensed local-first MCP server for code intelligence with a published 120-task benchmark. GitNexus is a code-knowledge-graph MCP server licensed under PolyForm Noncommercial 1.0, which restricts commercial use without a separate enterprise agreement from Akon Labs. Sverklo runs on embedded SQLite with PageRank-ranked hybrid retrieval; GitNexus runs on KuzuDB and exposes a Cypher query interface."
       }
     },
     {
@@ -62,7 +89,7 @@
       "name": "Which is faster, Sverklo or GitNexus?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On the published Sverklo bench:primitives 90-task suite, sverklo answers in a single MCP tool call with 469 average input tokens. GitNexus also runs on the same suite and averages 372 input tokens with 1.2 tool calls per task; sverklo's overall F1 is 0.56 vs GitNexus's 0.25. Numbers reproducible from a fresh clone: anyone can run sverklo, gitnexus, jcodemunch-mcp, smart-grep, and naive-grep against the same task set with `npm run bench:quick`."
+        "text": "On the published Sverklo bench:primitives 120-task suite, sverklo answers in a single MCP tool call with 469 average input tokens. GitNexus also runs on the same suite and averages 372 input tokens with 1.2 tool calls per task; sverklo's overall F1 is 0.56 vs GitNexus's 0.25. Numbers reproducible from a fresh clone: anyone can run sverklo, gitnexus, jcodemunch-mcp, smart-grep, and naive-grep against the same task set with `npm run bench:quick`."
       }
     },
     {
@@ -646,6 +673,58 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>By the bench numbers</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 18px;">
+      Both sverklo and GitNexus are on the public 5-baseline retrieval benchmark — 120 hand-verified tasks across 4 OSS codebases (express, lodash, requests, sverklo). <a href="/mcp/">Full ranking page</a>. Sverklo wins overall F1; GitNexus wins lowest token cost.
+    </p>
+    <div class="table-scroll" style="overflow-x:auto;margin:14px 0;">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>baseline</th>
+            <th>F1</th>
+            <th>P1 def</th>
+            <th>P2 refs</th>
+            <th>P4 deps</th>
+            <th>tokens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>sverklo</strong></td>
+            <td><strong>0.60</strong></td>
+            <td>0.73</td>
+            <td>0.30</td>
+            <td><strong>0.80</strong></td>
+            <td>505</td>
+          </tr>
+          <tr>
+            <td>jcodemunch-mcp</td>
+            <td>0.32</td>
+            <td><strong>0.78</strong></td>
+            <td>0.00</td>
+            <td>0.34</td>
+            <td>1,178</td>
+          </tr>
+          <tr>
+            <td>gitnexus</td>
+            <td>0.24</td>
+            <td>0.23</td>
+            <td>0.00</td>
+            <td>0.25</td>
+            <td><strong>333</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      GitNexus's strength is the lowest token cost in the category — 333 average input tokens per task vs sverklo's 505 and jcodemunch's 1,178. The tradeoff is overall recall: GitNexus's F1 0.24 is lowest among MCP-shaped tools because the LLM-derived knowledge graph drops detail relative to a hybrid BM25 + embedding + PageRank stack. If your agent is operating under a tight context budget and you can tolerate the recall drop on def-lookup and deps, GitNexus's compression is real. If retrieval correctness is the priority, sverklo's overall lead translates directly.
+    </p>
   </div>
 </section>
 

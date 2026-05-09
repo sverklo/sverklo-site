@@ -754,23 +754,6 @@ body:has(header.top.nav-canonical) > #main {
 }
 /* @end-nav */
 </style>
-<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
-<script>
-(async () => {
-  const el = document.getElementById('version-badge');
-  if (!el) return;
-  try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 2000);
-    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
-    clearTimeout(t);
-    const data = await r.json();
-    if (data && data.version) el.textContent = 'v' + data.version;
-  } catch { /* keep static value */ }
-})();
-</script>
-<!-- @end-version-script -->
-
 <script>
 /* Bench staleness detector. Compares <body data-bench-version> against
    the latest sverklo version on npm. If they differ, surfaces a small

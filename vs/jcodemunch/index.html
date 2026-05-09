@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sverklo vs jcodemunch-mcp — code intelligence MCP comparison (with bench data)</title>
-<meta name="description" content="Sverklo and jcodemunch-mcp are both MIT-licensed local-first code-intelligence MCP servers. Both appear on the same 90-task benchmark. Side-by-side: bench results, architecture, install, retrieval model. Honest about where each one wins.">
+<meta name="description" content="Sverklo and jcodemunch-mcp are both MIT-licensed local-first code-intelligence MCP servers. Both appear on the same 120-task benchmark. Side-by-side: bench results, architecture, install, retrieval model. Honest about where each one wins.">
 <meta name="keywords" content="jcodemunch-mcp alternative, sverklo vs jcodemunch, MCP server comparison, code intelligence, code search MCP, local-first MCP">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/vs/jcodemunch/">
@@ -19,6 +19,33 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
+<!-- JSON-LD SoftwareApplication (sverklo) for entity-graph signal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.20.5",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sverklo",
+    "url": "https://sverklo.com"
+  }
+}
+</script>
+
 <!-- JSON-LD FAQ Schema -->
 <script type="application/ld+json">
 {
@@ -30,7 +57,7 @@
       "name": "What is the difference between Sverklo and jcodemunch-mcp?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Both are MIT-licensed local-first MCP servers for code intelligence. Sverklo runs on Node + embedded SQLite with a hybrid BM25 + ONNX-embedding + PageRank retrieval pipeline. jcodemunch-mcp runs on Python and uses tree-sitter symbol indexing with a call-graph fallback. On the published 90-task bench, jcodemunch-mcp wins P1 definition lookup at F1 0.73 (tied with sverklo); sverklo wins P4 file dependencies at 0.71. Both projects shipped lodash P1 fixes within 36 hours of the original bench publication."
+        "text": "Both are MIT-licensed local-first MCP servers for code intelligence. Sverklo runs on Node + embedded SQLite with a hybrid BM25 + ONNX-embedding + PageRank retrieval pipeline. jcodemunch-mcp runs on Python and uses tree-sitter symbol indexing with a call-graph fallback. On the published 120-task bench (4 OSS codebases, 5 baselines), jcodemunch-mcp wins P1 definition lookup outright at F1 0.78 vs sverklo's 0.73; sverklo wins overall F1 at 0.60 vs 0.32 and dominates P4 file dependencies at 0.80 vs 0.34. Both projects shipped lodash P1 fixes within 36 hours of the original bench publication."
       }
     },
     {
@@ -38,7 +65,7 @@
       "name": "Is jcodemunch-mcp a competitor to sverklo?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Both projects target the same problem (local-first code intelligence for AI coding agents) and both run as MCP servers, so yes. They use different retrieval substrates and have different tradeoffs — jcodemunch-mcp's tree-sitter symbol indexing is sharp on definition lookup; sverklo's hybrid retrieval wins on file-dependency analysis. The 90-task benchmark at sverklo.com/bench has both projects' numbers side-by-side and is reproducible from a fresh clone."
+        "text": "Both projects target the same problem (local-first code intelligence for AI coding agents) and both run as MCP servers, so yes. They use different retrieval substrates and have different tradeoffs — jcodemunch-mcp's tree-sitter symbol indexing is sharp on definition lookup; sverklo's hybrid retrieval wins on file-dependency analysis. The 120-task benchmark at sverklo.com/bench has both projects' numbers side-by-side and is reproducible from a fresh clone."
       }
     },
     {
@@ -46,7 +73,7 @@
       "name": "Which is faster, Sverklo or jcodemunch-mcp?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On the 90-task bench, sverklo averages 469 input tokens per task and 1.0 tool calls. jcodemunch-mcp averages 1,267 tokens and 1.2 tool calls. Both are fast in absolute terms — sverklo's per-task cold start is ~1.4 seconds; jcodemunch's is shorter due to a Python interpreter rather than a Node + ONNX runtime. For long sessions both amortize cold-start completely."
+        "text": "On the 120-task bench, sverklo averages 469 input tokens per task and 1.0 tool calls. jcodemunch-mcp averages 1,267 tokens and 1.2 tool calls. Both are fast in absolute terms — sverklo's per-task cold start is ~1.4 seconds; jcodemunch's is shorter due to a Python interpreter rather than a Node + ONNX runtime. For long sessions both amortize cold-start completely."
       }
     },
     {
@@ -70,7 +97,7 @@
       "name": "Both shipped fixes inside 36 hours of the bench — what happened?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "When the 90-task bench was first published with both projects benchmarked, jcodemunch-mcp lost P1 lodash 0/10 (the 548KB single-file IIFE structure broke the call-graph fallback). The maintainer Jake Gravelle shipped v1.80.7, v1.80.8, v1.80.9 over 36 hours fixing the CommonJS module.exports re-export chain, the 500KB per-file size cap, and a monolithic-IIFE call-graph fallback. Adding lodash to sverklo's bench then exposed the symmetric blind spot in sverklo's own parser (a regex brace counter mis-counting braces inside string literals). Sverklo v0.20.2 fixed it; P1 went from 0.30 → 0.73. The cross-iteration is why publishing benchmarks with honest losses works."
+        "text": "When the 120-task bench was first published with both projects benchmarked, jcodemunch-mcp lost P1 lodash 0/10 (the 548KB single-file IIFE structure broke the call-graph fallback). The maintainer Jake Gravelle shipped v1.80.7, v1.80.8, v1.80.9 over 36 hours fixing the CommonJS module.exports re-export chain, the 500KB per-file size cap, and a monolithic-IIFE call-graph fallback. Adding lodash to sverklo's bench then exposed the symmetric blind spot in sverklo's own parser (a regex brace counter mis-counting braces inside string literals). Sverklo v0.20.2 fixed it; P1 went from 0.30 → 0.73. The cross-iteration is why publishing benchmarks with honest losses works."
       }
     }
   ]
@@ -329,7 +356,7 @@ body:has(header.top.nav-canonical) > #main {
     <p class="kicker">vs / jcodemunch-mcp</p>
     <h1>Sverklo <span class="accent">vs</span> jcodemunch-mcp</h1>
     <p class="lede">
-      Both are <strong>MIT-licensed, local-first, MCP-shaped</strong> code-intelligence servers. Both appear on the same 90-task benchmark. Both shipped lodash P1 fixes inside 36 hours of the original bench publication. Different retrieval substrates, different wins. The honest version is below.
+      Both are <strong>MIT-licensed, local-first, MCP-shaped</strong> code-intelligence servers. Both appear on the same 120-task benchmark. Both shipped lodash P1 fixes inside 36 hours of the original bench publication. Different retrieval substrates, different wins. The honest version is below.
     </p>
   </div>
 </section>
@@ -368,38 +395,38 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
         <tr>
           <td>MCP tools shipped</td>
-          <td><span class="num">37</span></td>
+          <td><span class="num">36</span> <span style="font-size:11px;color:var(--text-3);">(SVERKLO_PROFILE filterable to 5)</span></td>
           <td>(see jcodemunch docs)</td>
         </tr>
         <tr>
           <td>Bench F1 — overall</td>
-          <td class="num win">0.56</td>
+          <td class="num win">0.60</td>
           <td class="num">0.32</td>
         </tr>
         <tr>
           <td>Bench F1 — P1 (def lookup)</td>
-          <td class="num win">0.73</td>
-          <td class="num win">0.73</td>
+          <td class="num">0.73</td>
+          <td class="num win">0.78</td>
         </tr>
         <tr>
           <td>Bench F1 — P2 (refs)</td>
-          <td class="num">0.25</td>
+          <td class="num win">0.30</td>
           <td class="num">0.00</td>
         </tr>
         <tr>
           <td>Bench F1 — P4 (file deps)</td>
-          <td class="num win">0.71</td>
-          <td class="num">0.46</td>
+          <td class="num win">0.80</td>
+          <td class="num">0.34</td>
         </tr>
         <tr>
           <td>Bench F1 — P5 (dead code)</td>
-          <td class="num">0.67</td>
-          <td class="num">0.00</td>
+          <td class="num">0.75</td>
+          <td class="num">0.01</td>
         </tr>
         <tr>
           <td>Avg input tokens / task</td>
-          <td class="num win">469</td>
-          <td class="num">1,267</td>
+          <td class="num win">505</td>
+          <td class="num">1,178</td>
         </tr>
         <tr>
           <td>Avg tool calls / task</td>
@@ -449,8 +476,8 @@ body:has(header.top.nav-canonical) > #main {
       <div class="when-card">
         <h3>Choose Sverklo</h3>
         <ul>
-          <li>You want the F1 leader on the published benchmark (0.56 vs 0.32) at lower input tokens (469 vs 1,267).</li>
-          <li>File-dependency analysis matters to your workflow — sverklo wins P4 at 0.71 vs jcodemunch's 0.46.</li>
+          <li>You want the overall F1 leader on the published benchmark (0.60 vs 0.32) at lower input tokens (505 vs 1,178).</li>
+          <li>File-dependency analysis matters to your workflow — sverklo wins P4 at 0.80 vs jcodemunch's 0.34.</li>
           <li>You want bi-temporal memory pinned to git SHAs (jcodemunch has no memory layer).</li>
           <li>Your repo has TypeScript / TSX-heavy code where the regex parser plus tree-sitter fallback both matter.</li>
           <li>You want diff-aware PR review (<code>sverklo review</code>) alongside retrieval.</li>
@@ -492,7 +519,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <span>sverklo &mdash; MIT Licensed</span>
     &nbsp;·&nbsp;
-    <a href="/bench/">90-task bench</a>
+    <a href="/bench/">120-task bench</a>
     &nbsp;·&nbsp;
     <a href="https://github.com/sverklo/sverklo-bench">methodology repo</a>
     &nbsp;·&nbsp;
