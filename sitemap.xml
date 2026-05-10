@@ -516,4 +516,54 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- Added 2026-05-10: pages on disk but missing from sitemap -->
+  <url>
+    <loc>https://sverklo.com/security/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>quarterly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/blog/14200-tokens-to-find-one-function/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/blog/i-added-two-competitors-to-my-own-benchmark/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/blog/mcp-stdio-command-injection-audit/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/blog/practical-guide-mcp-code-intelligence/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/blog/stopped-claude-code-hallucinating/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/vs/claude-context/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sverklo.com/vs/greptile/</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
