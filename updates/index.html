@@ -116,6 +116,25 @@
 <div class="entry">
   <div class="entry-meta">
     <span class="date">2026-05-09</span>
+    <span class="kind ship">ship</span>
+  </div>
+  <h2 class="entry-title"><code>sverklo profile suggest</code> — derive a tool-set profile from your real usage</h2>
+  <p class="entry-body">New CLI subcommand reads the per-project activity log (<code>~/.sverklo/&lt;project&gt;/activity.jsonl</code>), aggregates per-tool invocation counts, and computes coverage of every named profile against your actual usage. Output names the smallest profile with ≥95% coverage, or the closest match plus the gap if no profile is a clean fit. Direct response to a r/mcp commenter who measured 14 → 5 tools over 2 weeks via a custom proxy. Sverklo can do that introspection now without the proxy.</p>
+  <p class="entry-links"><a href="/recipes/defer-loading/">recipe page</a><span>·</span><a href="https://github.com/sverklo/sverklo/blob/main/bin/sverklo.ts">bin/sverklo.ts</a></p>
+</div>
+
+<div class="entry">
+  <div class="entry-meta">
+    <span class="date">2026-05-09</span>
+    <span class="kind post">post</span>
+  </div>
+  <h2 class="entry-title"><a href="/blog/we-already-shipped-git-for-agent-memory/">We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot</a></h2>
+  <p class="entry-body">Memoir was pitched on X today as Git-style memory for AI agents. Sverklo's bi-temporal SHA-pinned memory layer ships the deeper version — <code>valid_from_sha</code> / <code>valid_until_sha</code> / <code>superseded_by</code> can answer "what was true at commit abc?" for any commit. Memoir's per-branch HEAD pointers can't (their own source comment notes commit-checkout is a placeholder). Honest comparison + the borrowable idea: <code>SVERKLO_MEMORY_BRANCH_ISOLATE</code> via <code>git merge-base</code>.</p>
+</div>
+
+<div class="entry">
+  <div class="entry-meta">
+    <span class="date">2026-05-09</span>
     <span class="kind fix">fix</span>
     <span class="kind ship">v0.20.6</span>
   </div>

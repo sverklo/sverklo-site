@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe — Sverklo + Tool Search lazy-loading (defer_loading) — Sverklo</title>
+<meta name="description" content="How to combine sverklo's static profile system with Claude Code's Tool Search / Claude API's defer_loading for the smallest possible system-prompt tools-list. Three patterns: profile-only, defer-only, hybrid.">
+<link rel="canonical" href="https://sverklo.com/recipes/defer-loading/">
+
+<meta property="og:title" content="Sverklo + Tool Search lazy-loading recipe">
+<meta property="og:description" content="Combine sverklo's profile system with Claude Code's Tool Search / Claude API's defer_loading. Profile-only, defer-only, hybrid — when to pick each.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/recipes/defer-loading/">
+<meta property="og:site_name" content="Sverklo">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Sverklo + Tool Search lazy-loading (defer_loading) recipe",
+  "description": "Three patterns for cutting sverklo's tools-list system-prompt size. Profile-only (server-side, hard-coded), defer-only (host-side, Claude Code config), or hybrid. Honest tradeoffs for each.",
+  "datePublished": "2026-05-09",
+  "author": {"@type": "Person", "name": "Nikita Groshin"},
+  "publisher": {"@type": "Organization", "name": "Sverklo", "url": "https://sverklo.com"}
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:760px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:17px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:21px;letter-spacing:-0.01em;margin:36px 0 14px;color:var(--fg)}
+  h3{font-size:16px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0}
+  th{text-align:left;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+  td.fg{color:var(--fg);font-weight:500}
+  .pull{font-size:18px;line-height:1.5;color:var(--fg);margin:24px 0;padding:18px 22px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Recipes",
+      "item": "https://sverklo.com/recipes/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Defer Loading",
+      "item": "https://sverklo.com/recipes/defer-loading/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Recipe · Sverklo</div>
+<h1>Sverklo + Tool Search lazy-loading (defer_loading)</h1>
+
+<div class="meta-bar">
+  <span>2026-05-09</span>
+  <span>~5 min read</span>
+</div>
+
+<p class="lede">Sverklo exposes 36 MCP tools by default — about 8,016 tokens of system-prompt overhead. Claude Code 4.x and the Claude API both ship a "Tool Search" / <code>defer_loading</code> mechanism that loads tool definitions on demand instead of upfront. They compose. This recipe shows three patterns: <strong>profile-only</strong> (server-side, hard-coded), <strong>defer-only</strong> (host-side, dynamic), and <strong>hybrid</strong> (both, for the most aggressive context budget).</p>
+
+<div class="pull">Sverklo's <code>SVERKLO_PROFILE</code> filters which tools the MCP server exposes. <code>defer_loading</code> filters which tools the Claude host surfaces to the model. They're orthogonal — set both for maximum reduction.</div>
+
+<h2>Quickstart: which pattern do I want?</h2>
+
+<table>
+  <thead>
+    <tr><th>Pattern</th><th>Where</th><th>Tradeoff</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="fg">Profile-only</td><td>sverklo (env var or .sverklo.yaml)</td><td>Static — pick a named subset, sverklo never exposes the others. Simple. <strong>Use this if</strong> your usage is consistent.</td></tr>
+    <tr><td class="fg">Defer-only</td><td>Claude Code settings.json / Claude API MCP Connector</td><td>Dynamic — sverklo exposes all 36, host lazy-loads. Tools appear when needed. <strong>Use this if</strong> your usage is variable.</td></tr>
+    <tr><td class="fg">Hybrid</td><td>Both</td><td>Smallest possible upfront list. Profile picks the always-loaded core; defer_loading governs the rest. <strong>Use this if</strong> you want minimum context overhead.</td></tr>
+  </tbody>
+</table>
+
+<h2>Pattern 1: Profile-only (server-side)</h2>
+
+<p>Set <code>SVERKLO_PROFILE</code> at sverklo startup. The MCP server's <code>tools/list</code> response only contains the named subset; everything else is invisible to every host.</p>
+
+<pre><code># In your shell rc:
+export SVERKLO_PROFILE=core    # 5 tools, 1,522 tokens (81% reduction)
+# or:
+export SVERKLO_PROFILE=nav     # 8 tools
+export SVERKLO_PROFILE=lean    # 11 tools
+export SVERKLO_PROFILE=full    # 36 tools (default)
+
+# Or per-project, in .sverklo.yaml:
+profile: core</code></pre>
+
+<p>List all profiles + their members: <code>sverklo profile list</code>. Suggest a profile from your real usage data: <code>sverklo profile suggest</code>.</p>
+
+<p><strong>Pro:</strong> works with any MCP host (Claude Code, Cursor, Windsurf, Zed, custom proxies), no host config required, deterministic. <strong>Con:</strong> hard-coded set — if you occasionally need a tool outside the profile, the host can't surface it.</p>
+
+<h2>Pattern 2: Defer-only (host-side)</h2>
+
+<p>Sverklo exposes all 36 tools; the Claude host lazy-loads them. <strong>This is automatic in Claude Code</strong> when MCP tool definitions exceed ~10K tokens — sverklo's full surface (8,016 tokens) is just under, but adding any other MCP server crosses the threshold and Tool Search activates.</p>
+
+<p>For Claude API direct, configure <code>defer_loading</code> per-tool via the MCP Connector:</p>
+
+<pre><code>{
+  "type": "mcp_toolset",
+  "mcp_server_name": "sverklo",
+  "default_config": { "defer_loading": true },
+  "configs": {
+    "sverklo_search":   { "defer_loading": false },
+    "sverklo_lookup":   { "defer_loading": false },
+    "sverklo_overview": { "defer_loading": false },
+    "sverklo_refs":     { "defer_loading": false },
+    "sverklo_impact":   { "defer_loading": false }
+  }
+}</code></pre>
+
+<p>This is the same shape as <code>SVERKLO_PROFILE=core</code>, but the deferred tools remain accessible — Claude can <em>search</em> for them when needed.</p>
+
+<p><strong>Pro:</strong> nothing missing — agent can reach any tool dynamically, just doesn't pay the upfront token cost. <strong>Con:</strong> requires host that supports Tool Search (Claude Code 4.x, Claude API). Not portable to other MCP clients.</p>
+
+<h2>Pattern 3: Hybrid</h2>
+
+<p>Profile-only filters server-side <em>and</em> defer_loading filters host-side. Best for context-conscious deployments running long sessions.</p>
+
+<pre><code># Server: sverklo only exposes the lean profile (11 tools, 3,469 tokens)
+export SVERKLO_PROFILE=lean
+
+# Host (Claude API): of those 11, only 5 load eagerly; the rest defer.
+{
+  "type": "mcp_toolset",
+  "mcp_server_name": "sverklo",
+  "default_config": { "defer_loading": true },
+  "configs": {
+    "sverklo_search":   { "defer_loading": false },
+    "sverklo_lookup":   { "defer_loading": false },
+    "sverklo_overview": { "defer_loading": false },
+    "sverklo_refs":     { "defer_loading": false },
+    "sverklo_impact":   { "defer_loading": false }
+  }
+}</code></pre>
+
+<p>Result: ~1,522 tokens upfront for the 5 always-loaded tools, with the other 6 (deps, context, status, remember, recall, review_diff) reachable via Tool Search when relevant. ~81% reduction vs full, with no functionality lost.</p>
+
+<h2>How to find your right profile from real usage</h2>
+
+<p>After ~1 week of normal sverklo use, sverklo's activity log will have enough data to recommend a profile. Run:</p>
+
+<pre><code>sverklo profile suggest
+# Or with a custom window:
+sverklo profile suggest --days 14</code></pre>
+
+<p>Output looks like:</p>
+
+<pre><code>Sverklo profile suggestion — based on 498 tool calls in the last 30 days
+
+----------------------------------------------------------------------
+tool                                       calls     share
+----------------------------------------------------------------------
+sverklo_lookup                               150     30.1%
+sverklo_refs                                 150     30.1%
+sverklo_deps                                  75     15.1%
+sverklo_audit                                 75     15.1%
+sverklo_status                                48      9.6%
+----------------------------------------------------------------------
+
+Profile coverage on your usage:
+core        5 tools   covers  60.2%
+nav         8 tools   covers  84.9%   ~ close
+review     10 tools   covers  69.9%
+lean       11 tools   covers  84.9%   ~ close
+research   18 tools   covers  84.9%   ~ close
+
+Closest match: SVERKLO_PROFILE=nav (8 tools, 84.9% coverage)
+But you also use sverklo_audit (15.1% of calls) which aren't in this profile.</code></pre>
+
+<p>Reads <code>~/.sverklo/&lt;project&gt;/activity.jsonl</code>, aggregates per-tool counts, computes coverage for each named profile. Two paths if no profile is a clean fit: accept the gap (use <code>nav</code>, audit calls fail until you bump to <code>full</code>), or keep <code>full</code> and use <code>SVERKLO_DISABLED_TOOLS</code> to drop the long-tail tools you never call.</p>
+
+<h2>References</h2>
+<ul>
+  <li><a href="/blog/we-already-shipped-mcp-code-mode/">Sverklo's Code Mode measurement post</a> — full per-profile token breakdown</li>
+  <li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool">Claude API: Tool Search Tool</a></li>
+  <li><a href="https://platform.claude.com/docs/en/agents-and-tools/mcp-connector">Claude API: MCP Connector with defer_loading</a></li>
+  <li><a href="https://www.anthropic.com/engineering/code-execution-with-mcp">Anthropic Engineering: Code execution with MCP</a></li>
+  <li><a href="https://github.com/sverklo/sverklo/blob/main/src/server/tool-overrides.ts">sverklo's profile filter source</a></li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
