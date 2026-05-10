@@ -36,6 +36,8 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 - **vs Continue**: Continue is the assistant, sverklo is the MCP retrieval backend.
 - **vs Claude Code**: sverklo is an MCP server Claude Code installs as a tool provider.
 - **vs Serena**: sverklo is zero-config (auto-detects clients in `sverklo init`); both are MIT.
+- **vs GitNexus**: sverklo is MIT vs GitNexus closed-source despite "open-source MCP-native" framing; sverklo ships a peer-reviewable benchmark, GitNexus doesn't publish one.
+- **vs Bifrost**: Bifrost is a gateway layer (proxies LLM + MCP calls, ships code-mode pattern); sverklo is a single MCP server. Complementary — Bifrost in front of sverklo stacks both wins.
 
 ## Documentation
 
@@ -44,6 +46,7 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 - Public MCP code-intel ranking: <https://sverklo.com/mcp/>
 - Per-category bench breakdowns: <https://sverklo.com/bench/>
 - Comparisons: <https://sverklo.com/vs/>
+- Security posture: <https://sverklo.com/security/>
 - Playground: <https://sverklo.com/playground/>
 - Reports: <https://sverklo.com/report/>
 - Research paper: <https://sverklo.com/research/>
@@ -51,6 +54,8 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 
 ## Recent technical posts
 
+- **Claude Code stalls above ~25 MCP tools — measured, fixed in v0.20.9 (2026-05-10)**: <https://sverklo.com/blog/claude-code-tool-overload/> — empirical stall threshold, per-profile cost table, v0.20.9 default-profile fix, sverklo doctor end-to-end MCP dispatch probe.
+- **Claude Code troubleshooting on large repos — 6 failure modes (2026-05-09)**: <https://sverklo.com/blog/claude-code-troubleshooting-large-repos/> — pillar guide with concrete fixes for context loss, hallucinated names, files-not-found, repeated grep, token blowout, stale memory.
 - **MCP Code Mode — sverklo's tool surface, measured (2026-05-08)**: <https://sverklo.com/blog/we-already-shipped-mcp-code-mode/> — `SVERKLO_PROFILE` cuts tools-list from 8,016 to 1,522 tokens (81% reduction). Per-profile breakdown.
 - **Late-interaction rerank made our F1 worse (2026-05-05)**: <https://sverklo.com/blog/late-interaction-rerank-made-our-f1-worse/> — negative-result writeup. SQL match-quality already optimal for symbol-name lookup; semantic alignment dilutes the signal.
 - **Why Claude Code burns so many tokens (field study, 2026-05-03)**: <https://sverklo.com/blog/14200-tokens-to-find-one-function/> — instrumented 312 sessions; grep is 41% of input-token spend.
