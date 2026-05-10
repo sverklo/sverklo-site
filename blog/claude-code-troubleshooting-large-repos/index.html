@@ -433,7 +433,7 @@ sverklo_recall "ORM choice" --at-sha abc123  # what we believed at commit abc</c
 
 <p>Sverklo ships these as a named profile: <code>SVERKLO_PROFILE=core</code> exposes only those 5, dropping the system-prompt tool-list size <strong>81%</strong> (8,016 → 1,522 tokens). The remaining 31 specialized tools stay hidden until you opt up.</p>
 
-<p>Deep dive on the measurement: <a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a>. Recipe page on combining profile-filtering with Anthropic's host-side <code>defer_loading</code>: <a href="/recipes/defer-loading/">Sverklo + Tool Search lazy-loading</a>.</p>
+<p>Deep dive on this specific failure mode (stall threshold, profile cost table, doctor probe): <a href="/blog/claude-code-tool-overload/">Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9</a>. Profile-filtering vs Code Mode comparison: <a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a>. Recipe on combining profile-filtering with Anthropic's host-side <code>defer_loading</code>: <a href="/recipes/defer-loading/">Sverklo + Tool Search lazy-loading</a>.</p>
 
 <h2 id="context-window-full">6. Claude Code's context window fills up</h2>
 

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9 — Sverklo</title>
+<meta name="description" content="Claude Code freezes or thrashes on tool selection when an MCP server advertises too many tools. We measured the stall threshold (~25 tools), shipped a 6-tool default profile (v0.20.9), and verified the round-trip with sverklo doctor. 8,016 → 1,522 tokens, 81% reduction.">
+<link rel="canonical" href="https://sverklo.com/blog/claude-code-tool-overload/">
+
+<meta property="og:title" content="Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9">
+<meta property="og:description" content="The 'too many MCP tools' gripe is real. We measured it on Claude Code (~25-tool stall threshold), shipped a 6-tool default profile, and verified end-to-end dispatch with sverklo doctor. 81% tool-list token reduction.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/claude-code-tool-overload/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-10">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="MCP tools">
+<meta property="article:tag" content="tool overload">
+<meta property="article:tag" content="MCP profile">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9">
+<meta name="twitter:description" content="The stall is reproducible. The fix is one env var. Sverklo shipped it as the new default in v0.20.9 — measured 8,016 → 1,522 tokens, 81% reduction.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9",
+  "description": "Reports of Claude Code freezing on tool selection when an MCP server advertises 'too many' tools are real. We reproduced the stall above ~25 tools on a cold session, shipped a 6-tool default profile, and added an end-to-end dispatch probe in sverklo doctor. Per-profile cost table, fix path, and the activation telemetry trace that drove the release.",
+  "datePublished": "2026-05-10",
+  "dateModified": "2026-05-10",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/claude-code-tool-overload/"},
+  "articleSection": "Engineering",
+  "keywords": "Claude Code MCP tools, Claude Code stuck, Claude Code 36 tools, MCP server too many tools, sverklo profile, MCP tool selection failure, SVERKLO_PROFILE core"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code stall when I install too many MCP servers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Claude Code reads the tool list into its system prompt on session start. Every tool adds 200-400 tokens of schema + description. Above ~25 advertised tools (counting both built-ins and MCP), tool-selection accuracy drops sharply and cold sessions can freeze or thrash. The cause is the tool-selection step itself, not the tools — the model picks worse from a longer list, and the manifest displaces working context. Fix: configure your MCP server to advertise only the subset you actually use, or use a host that supports lazy tool loading (Anthropic's Tool Search). Sverklo ships SVERKLO_PROFILE=core as the default in v0.20.9+ which exposes 6 tools instead of 36."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many MCP tools is too many for Claude Code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The empirical threshold is around 25 tools per session on cold start. Sverklo's reproducer used a single server with 36 tools; the stall was consistent. Below 25, selection accuracy stays acceptable. Above 35-40, the manifest itself starts to displace 5-10% of usable context window even before any tool fires. Multiple MCP servers stack — three servers with 12 tools each is 36, which hits the same threshold."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's in the sverklo core profile?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Six tools covering 80% of real code-intelligence sessions: sverklo_status (is the index alive?), sverklo_search (concept-level retrieval), sverklo_lookup (find a symbol by name), sverklo_overview (codebase map by PageRank), sverklo_refs (find callers of a symbol), sverklo_impact (refactor blast radius). The remaining 30 specialized tools — audit, diff-aware review, ctx-handle ops, memory, etc. — are available via SVERKLO_PROFILE=lean, research, review, or full when needed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I verify my MCP server actually works with Claude Code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "v0.20.9 adds sverklo doctor with a full MCP round-trip probe: it spawns the server, sends initialize, then tools/list, then tools/call sverklo_status, and reports each step. A passing doctor run prints 'MCP dispatch verified end-to-end' — this is the same path Claude Code takes on every cold session, so passing here is positive proof the wiring works. Doctor also surfaces the active SVERKLO_PROFILE so users on stale 36-tool configs see the warning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I still use the full sverklo tool surface when I need it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the profile is a runtime env var. Set SVERKLO_PROFILE=full to advertise all 36 tools, or use lean (11), research (18), or review (10) for narrower workflows. The default in v0.20.9+ is core (6) because it's the lowest-token profile that still answers 80% of code-intel sessions. Switch profiles with .mcp.json env: { SVERKLO_PROFILE: 'lean' } and restart your AI agent."
+      }
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Sverklo", "item": "https://sverklo.com/"},
+    {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://sverklo.com/blog/"},
+    {"@type": "ListItem", "position": 3, "name": "Claude Code Tool Overload", "item": "https://sverklo.com/blog/claude-code-tool-overload/"}
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:18px;line-height:1.5;color:var(--fg);margin:24px 0;padding:18px 22px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0}
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--text-3);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:0.05em}
+  td:first-child{color:var(--fg);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}h2{font-size:20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Claude Code Tool Overload",
+      "item": "https://sverklo.com/blog/claude-code-tool-overload/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+
+<body>
+
+<div class="kicker">/* engineering · 2026-05-10 · tool-selection failure */</div>
+
+<h1>Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9</h1>
+
+<div class="meta-bar">
+  <span>2026-05-10</span>
+  <span>~6 min read</span>
+  <span><a href="/blog/claude-code-troubleshooting-large-repos/">Part of: Claude Code troubleshooting pillar</a></span>
+</div>
+
+<p class="lede">Reports of Claude Code freezing on tool selection when an MCP server exposes "too many" tools have been stacking up across r/mcp, r/ChatGPTCoding, and our own issue tracker for weeks. This week a user pushed back with measurements from his proxy setup. We reproduced the stall, shipped a 6-tool default profile in <strong>v0.20.9</strong>, and added an end-to-end MCP dispatch probe to <code>sverklo doctor</code> so the fix is verifiable on every fresh install.</p>
+
+<h2>The symptom</h2>
+
+<p>You install an MCP server. You restart Claude Code. The tool list shows up in <code>/mcp</code>. You ask a question that should obviously route to one of the new tools. Claude Code either ignores them and falls back to grep, or it sits visibly thinking longer than it should before picking the wrong one.</p>
+
+<p class="pull">"I've been trying to use this for the past few hours but even with the giant block in the agent file I cannot get Claude Code to actually use it." — Ian Costa, on Dan Luu's X thread, 2026-05-09</p>
+
+<p>This is a tool-selection failure, not an install failure. The MCP wiring is correct — <code>tools/list</code> returns the tools, <code>tools/call</code> works on direct invocation. What breaks is the agent's selection step: faced with a long list of options, the model either freezes, picks the safest fallback (grep), or thrashes between candidates.</p>
+
+<h2>The measurement</h2>
+
+<p>We tested with sverklo's <code>full</code> profile (36 tools advertised) stacked alongside Claude Code's built-ins (~10-15 depending on session). The combined tool list crosses the threshold above which selection accuracy degrades.</p>
+
+<table>
+  <thead>
+    <tr><th>Profile</th><th>Tools</th><th>System prompt</th><th>Stall on cold session</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>full</td><td>36</td><td>8,016 tokens</td><td>Yes (reproducible)</td></tr>
+    <tr><td>research</td><td>18</td><td>3,950 tokens</td><td>Sometimes</td></tr>
+    <tr><td>lean</td><td>11</td><td>3,469 tokens</td><td>No</td></tr>
+    <tr><td>review</td><td>10</td><td>2,788 tokens</td><td>No</td></tr>
+    <tr><td>core (new default)</td><td>6</td><td>1,522 tokens</td><td>No</td></tr>
+  </tbody>
+</table>
+
+<p>The empirical threshold sits around 25 advertised tools per session. Below that, selection works. Above it, you start losing routing accuracy. Above 35-40, the manifest displaces 5-10% of usable context window before any tool fires.</p>
+
+<p>Industry signal corroborates this — Atlassian's <a href="https://www.atlassian.com/blog/development/mcp-compression-preventing-tool-bloat-in-ai-agents" target="_blank" rel="noopener">mcp-compressor write-up</a> claims 70-97% reduction is achievable; <a href="https://growthmethod.com/anthropic-tool-search/" target="_blank" rel="noopener">Anthropic's Tool Search</a> went GA partly to address this; <a href="https://thenewstack.io/how-to-reduce-mcp-token-bloat/" target="_blank" rel="noopener">The New Stack</a> reports cases of "55-77K tokens before any work begins" with multiple MCP servers stacked.</p>
+
+<h2>The fix path</h2>
+
+<p>v0.20.9 ships <code>SVERKLO_PROFILE=core</code> as the default in <code>.mcp.json</code> when you run <code>sverklo init</code>. Six tools, 1,522 tokens, no manual env var to remember:</p>
+
+<pre>npm i -g sverklo@latest
+cd your-project
+sverklo init
+sverklo doctor</pre>
+
+<p>For users on a pre-v0.20.9 install, <code>sverklo init</code> includes a soft migration: if your existing <code>.mcp.json</code> has the sverklo entry but no <code>env</code> block, it appends <code>SVERKLO_PROFILE=core</code> automatically. If you already set a profile, it leaves your choice alone.</p>
+
+<h3>What's in the core profile</h3>
+
+<p>Six tools that cover the 80% of code-intel sessions where users actually reach for an MCP server:</p>
+
+<ul>
+  <li><code>sverklo_status</code> — index health and "is this thing alive?" check</li>
+  <li><code>sverklo_search</code> — concept-level retrieval ("where does auth happen?")</li>
+  <li><code>sverklo_lookup</code> — find a symbol by name with file:line</li>
+  <li><code>sverklo_overview</code> — codebase map ranked by PageRank</li>
+  <li><code>sverklo_refs</code> — find callers of a symbol</li>
+  <li><code>sverklo_impact</code> — blast radius for a refactor</li>
+</ul>
+
+<p>The remaining 30 tools — audit, diff-aware review, memory, concept clustering, ctx-handle ops — stay available via <code>SVERKLO_PROFILE=lean | research | review | full</code> when those workflows are active.</p>
+
+<h2>Verifying it works</h2>
+
+<p>The other half of v0.20.9 is <code>sverklo doctor</code> with a full MCP round-trip probe:</p>
+
+<pre>$ sverklo doctor
+sverklo doctor — checking MCP setup
+
+  ✓ sverklo binary               /opt/homebrew/bin/sverklo
+  ✓ version                      sverklo v0.20.14
+  ✓ embedding model              86MB at ~/.sverklo/models/model.onnx
+  ✓ .mcp.json (project root)     sverklo configured (profile: core)
+  ✓ permissions auto-allow       sverklo tools won't prompt for approval
+  ✓ prefer-sverklo instructions  installed in CLAUDE.md
+  ✓ MCP handshake                responds correctly (protocol 2024-11-05)
+  ✓ MCP tools/list               6 tools advertised (sverklo_status present)
+  ✓ MCP tools/call               sverklo_status returned 1021 chars — dispatch round-trip works
+
+All checks passed — MCP dispatch verified end-to-end.
+If Claude Code was running before init, restart it to pick up the new config.</pre>
+
+<p>The new probe runs the same three calls Claude Code makes on every cold session: <code>initialize</code> → <code>tools/list</code> → <code>tools/call sverklo_status</code>. Passing this is positive proof the wiring works, not just that the binary speaks JSON-RPC. The previous "MCP handshake responds correctly" check only verified the first step, which led to "doctor passed but Claude still doesn't call sverklo" reports.</p>
+
+<h2>What this doesn't fix</h2>
+
+<p>Profile-filtering shrinks the tool list one server advertises. It doesn't fix:</p>
+
+<ul>
+  <li><strong>Multiple MCP servers stacked.</strong> If you run sverklo (6) + filesystem (4) + GitHub (8) + Linear (6), you're back to 24 tools combined. The fix at that layer is host-side lazy loading (<a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool" target="_blank" rel="noopener">Anthropic's Tool Search</a>) or gateway-level code mode (Bifrost, Cloudflare's pattern).</li>
+  <li><strong>The agent ignoring its instructions.</strong> If Claude Code reads your CLAUDE.md but still routes to grep, the snippet is too soft. Sverklo's init writes a MUST/NEVER imperative block as of v0.20.9 to mitigate this.</li>
+  <li><strong>Tool descriptions that are too long.</strong> Some MCP servers ship 1K+ tokens per tool. Even 6 such tools can blow past 6K of overhead. Sverklo's tool descriptions are deliberately short; check yours.</li>
+</ul>
+
+<div class="cta-box">
+  <h3>Try the fix</h3>
+  <pre>npm i -g sverklo@latest
+cd your-project &amp;&amp; sverklo init    # writes profile=core
+sverklo doctor                       # verifies end-to-end MCP dispatch</pre>
+  <p>One install, one verification. <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a> · <a href="/blog/claude-code-troubleshooting-large-repos/">Full troubleshooting pillar</a> · <a href="/blog/we-already-shipped-mcp-code-mode/">Deep dive: SVERKLO_PROFILE vs Code Mode</a></p>
+</div>
+
+<h2>Related</h2>
+
+<ul>
+  <li><a href="/blog/claude-code-troubleshooting-large-repos/">Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes</a> (this post is the deep dive on section 5)</li>
+  <li><a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a></li>
+  <li><a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — Field Study</a></li>
+  <li><a href="/recipes/defer-loading/">Recipe: Sverklo + Tool Search lazy-loading</a></li>
+  <li><a href="/mcp/">MCP code-intelligence index — public 5-baseline bench</a></li>
+</ul>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
