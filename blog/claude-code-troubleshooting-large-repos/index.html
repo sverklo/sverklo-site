@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes — Sverklo</title>
+<meta name="description" content="Claude Code stops finding files, hallucinates function names, burns tokens on grep, forgets yesterday's decisions, repeats the same searches, and exhausts context. Six failure modes with concrete fixes and the data behind each.">
+<link rel="canonical" href="https://sverklo.com/blog/claude-code-troubleshooting-large-repos/">
+
+<meta property="og:title" content="Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes">
+<meta property="og:description" content="Lost context, hallucinated names, can't find files, repeated grep, token blowout, stale memory. Pillar guide with concrete fixes for each. Real numbers from instrumented sessions.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/claude-code-troubleshooting-large-repos/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-09">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="troubleshooting">
+<meta property="article:tag" content="large repos">
+<meta property="article:tag" content="MCP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes">
+<meta name="twitter:description" content="Six failure modes Claude Code hits on big repos, with concrete fixes and the data behind each. Pillar guide.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes",
+  "description": "Definitive troubleshooting guide for Claude Code on codebases >100 files. Covers context loss, hallucinated function names, files-not-found, grep-cascade token bloat, stale memory across sessions, and tool-choice failure. Each failure mode gets a concrete fix and links to the relevant deep-dive.",
+  "datePublished": "2026-05-09",
+  "dateModified": "2026-05-09",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/claude-code-troubleshooting-large-repos/"},
+  "articleSection": "Engineering",
+  "keywords": "Claude Code troubleshooting, Claude Code stops finding files, Claude Code hallucinating, Claude Code context loss, Claude Code burns tokens, Claude Code can't find function, Claude Code large repo, Claude Code memory"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code stop finding files on a large repo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two common causes. First, the file is genuinely new since the last conversation turn that listed your repo structure; the agent's mental model is stale because it never re-read the directory. Second, the file is in a directory the agent's earlier search heuristic implicitly excluded (test/, dist/, vendor/, build artifacts) and never re-considered. The fix in both cases is a live symbol index — sverklo's MCP server exposes sverklo_overview which always reflects current disk state, and sverklo_lookup which doesn't apply silent path filters."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code hallucinate function names that don't exist?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "After context compaction, Claude Code loses the part of the conversation where it saw your real exports and falls back to pattern-matching what code 'usually looks like.' getUserByEmail() instead of findByEmail(), camelCase where your codebase uses snake_case. The structural fix is to expose the symbol graph as a queryable MCP tool so the agent can verify identifiers before writing them — sverklo's lookup + refs tools verify against a tree-sitter-parsed symbol table instead of training-data priors."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code burn so many tokens on a 200-file repo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In a one-week instrumented field study of 312 Claude Code tasks, grep alone accounted for 41% of input-token spend. The agent runs a noisy grep, gets 200 lines back, then runs three more greps to disambiguate. The dominant cost is the cascade of low-precision tool calls feeding raw text into the conversation. Replace grep with a typed symbol lookup that returns ranked results and the cost drops ~60%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code forget design decisions from yesterday?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Context window is bounded. When conversation length approaches the limit, Claude Code auto-compacts older turns into a summary. Code-specific decisions — exact identifiers, file paths, type signatures, the rationale for choosing one library over another — are the first to get summarized away. The fix is bi-temporal memory pinned to git SHAs: every decision gets recorded with valid_from_sha and valid_until_sha columns so future sessions can ask 'what was true at commit abc?' even after a dozen compactions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code keep running the same grep over and over?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Repeated-grep sessions usually mean the agent doesn't know what tools are available, or doesn't know which tool to reach for. The fix is a slim, opinionated tool surface — too many tools and the model freezes on selection; too few and it falls back to grep. Sverklo's profile system (SVERKLO_PROFILE=core) exposes 5 retrieval primitives that cover 80% of code-intel sessions. The remaining specialized tools defer or stay hidden until needed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Claude Code's context window fill up on large repos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three sources, in descending order: tool-call results (especially noisy grep output), accumulated conversation history, and the system prompt's tool definitions. A 200-file repo with grep-heavy retrieval can consume 14,200 tokens to find one function. The fix stack: typed retrieval (cuts grep cost ~95%), profile-filtered tool surface (cuts system-prompt overhead ~80%), and bi-temporal memory (lets compaction be lossless instead of destructive). Each addresses a different bucket of the bloat."
+      }
+    }
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:740px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:24px;letter-spacing:-0.01em;margin:48px 0 14px;color:var(--fg);scroll-margin-top:80px}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:18px;line-height:1.5;color:var(--fg);margin:24px 0;padding:18px 22px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0}
+  .toc{background:var(--bg-2);border:1px solid var(--border);padding:18px 22px;border-radius:6px;margin:24px 0;font-size:15px}
+  .toc-title{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .toc ol{margin:0 0 0 22px}
+  .toc li{margin:5px 0;color:var(--text-2)}
+  .toc li a{color:var(--text)}
+  .symptom{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;color:var(--text-3);margin-top:6px;margin-bottom:14px}
+  .symptom::before{content:"// symptom: ";color:var(--accent)}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}h2{font-size:20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Claude Code Troubleshooting Large Repos",
+      "item": "https://sverklo.com/blog/claude-code-troubleshooting-large-repos/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main id="main">
+
+<div class="kicker">Engineering · Sverklo · 2026-05-09</div>
+<h1>Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes</h1>
+
+<div class="meta-bar">
+  <span>2026-05-09</span>
+  <span>~12 min read</span>
+  <span>by Nikita Groshin</span>
+</div>
+
+<p class="lede">Claude Code is the strongest agentic coding tool I've used. On a 30-file project it's near-magical. On a 4,000-file repo it falls into specific, repeatable failure modes — files it can't find, function names it invents, tool calls it cascades, decisions it forgets, context windows it exhausts. Each failure has a name, a cause, and a fix. Six of them, in order of how often I've watched them happen, with the data behind each and links to the deeper writeups where they exist.</p>
+
+<div class="pull">If you only read one section: <a href="#token-blowout">grep accounts for 41% of Claude Code's input-token spend</a>. The single highest-leverage fix is replacing grep cascades with a typed symbol lookup. Everything else is downstream.</div>
+
+<div class="toc">
+  <div class="toc-title">In this guide</div>
+  <ol>
+    <li><a href="#stops-finding-files">Claude Code stops finding files</a></li>
+    <li><a href="#hallucinates-function-names">Claude Code hallucinates function names</a></li>
+    <li><a href="#token-blowout">Claude Code burns tokens on grep cascades</a></li>
+    <li><a href="#forgets-decisions">Claude Code forgets yesterday's decisions</a></li>
+    <li><a href="#repeats-grep">Claude Code keeps repeating the same grep</a></li>
+    <li><a href="#context-window-full">Claude Code's context window fills up</a></li>
+  </ol>
+</div>
+
+<h2 id="stops-finding-files">1. Claude Code stops finding files</h2>
+
+<p class="symptom">"the file you're describing doesn't exist in this repository"</p>
+
+<p>You added <code>src/auth/refresh.ts</code> ten minutes ago. The agent can see you typing about it. But when you ask it to "open the auth refresh file" it returns the equivalent of <em>file not found</em>.</p>
+
+<p>Two causes, often combined:</p>
+
+<p><strong>Stale mental model.</strong> Claude Code internally maintains a soft model of your repo's structure based on the last directory listing it observed. New files added after that listing are invisible until something forces a re-read. The agent doesn't know it doesn't know.</p>
+
+<p><strong>Implicit path exclusions.</strong> The agent's earlier searches likely excluded <code>test/</code>, <code>dist/</code>, <code>vendor/</code>, <code>build/</code>, and similar directories as a noise-reduction heuristic. Once excluded, those paths stay invisible for the rest of the session — even if the file you're asking about lives there.</p>
+
+<h3>The fix: a live symbol index</h3>
+
+<p>Don't rely on the agent's cached directory state. Expose a query surface that always reflects current disk state:</p>
+
+<ul>
+  <li><strong>sverklo_overview</strong> — top files by PageRank, language breakdown, hub files. Always reflects what's currently indexed; doesn't carry conversation memory.</li>
+  <li><strong>sverklo_lookup</strong> — find any symbol by name, no path filters. Returns canonical definition with location.</li>
+  <li><strong>sverklo_search</strong> — hybrid retrieval (BM25 + ONNX embeddings + PageRank) over current index.</li>
+</ul>
+
+<p>The structural fix is exposing these as MCP tools so the agent can re-query disk on demand. Deep dive on the hallucination side of this failure: <a href="/blog/claude-code-context-loss/">Why Claude Code Hallucinates Function Names That Don't Exist In Your Codebase</a>.</p>
+
+<h2 id="hallucinates-function-names">2. Claude Code hallucinates function names</h2>
+
+<p class="symptom">"<code>getUserByEmail()</code> is defined in <code>src/users.ts</code>" — except your codebase calls it <code>findByEmail</code></p>
+
+<p>The agent confidently writes code that calls <code>getUserByEmail()</code>. Your codebase has <code>findByEmail()</code>. Tests pass because the test mocks the dependency. The PR ships. Production breaks.</p>
+
+<p>This is a generation-from-priors failure. Claude saw thousands of <code>getUserBy*</code> functions in training data; your codebase's actual conventions are a single context-window away. After compaction, the priors win.</p>
+
+<h3>The fix: ground generations in your real symbol graph</h3>
+
+<p>Three layers, in order of effectiveness:</p>
+
+<ol>
+  <li><strong>Install a code-intelligence MCP server.</strong> Sverklo, jcodemunch-mcp, serena, Claude-Context — pick one. The agent gets a <code>lookup</code> tool that verifies identifiers against a tree-sitter-parsed symbol table before writing them. Measurable effect: <strong>37% fewer hallucinated imports</strong> on our bench.</li>
+  <li><strong>Keep your CLAUDE.md concrete.</strong> Real paths, real identifiers, real conventions — not abstractions. Rules survive compaction better than examples; examples survive better than abstract guidance.</li>
+  <li><strong>Cap tool results at 2K tokens.</strong> Sessions with grep results over 8K tokens hallucinate <strong>31% of the time vs 4% under 2K</strong>. The noise itself causes wrong answers downstream.</li>
+</ol>
+
+<p>Deep dive: <a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating function names on a 4,000-file repo</a>.</p>
+
+<h2 id="token-blowout">3. Claude Code burns tokens on grep cascades</h2>
+
+<p class="symptom">14,200 input tokens consumed to locate one function</p>
+
+<p>You ask Claude Code to find where <code>parseConfig</code> is defined. It runs <code>grep -r "parseConfig"</code>. The grep returns 80 lines (definitions, calls, comments, test mocks). The agent runs three more greps to disambiguate. Each result re-feeds into context. By the time it produces an answer it has consumed 14,200 input tokens — about $0.04 on Claude Sonnet at current pricing. Multiply by 200 invocations a day across an engineering team and the math gets loud.</p>
+
+<p>This is the single most common failure mode and the one with the largest measurable impact:</p>
+
+<table>
+  <thead>
+    <tr><th>Sample</th><th>Tokens</th><th>Hallucination rate</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Grep results &lt;2K tokens</td><td>≈1,800</td><td>4%</td></tr>
+    <tr><td>Grep results 2K–8K tokens</td><td>≈4,400</td><td>14%</td></tr>
+    <tr><td>Grep results &gt;8K tokens</td><td>≈11,200</td><td><strong>31%</strong></td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:13px;color:var(--text-3);margin-top:6px">Sample: 312 Claude Code tasks across one week, 200-file TypeScript repo. Full methodology + raw data in the field study.</p>
+
+<h3>The fix: typed retrieval instead of grep cascades</h3>
+
+<p>Replace grep with a structured symbol lookup that returns ranked results scoped by symbol type. Sverklo's hybrid retrieval (BM25 over chunk content + cosine similarity over ONNX embeddings + PageRank-weighted file ranking) returns the canonical definition with ~95% fewer tokens than grep.</p>
+
+<p>The single tool call that replaces a grep cascade:</p>
+
+<pre><code># Before — grep cascade, 14,200 tokens
+grep -r "parseConfig" src/
+grep -r "parseConfig" --include="*.ts" src/
+grep -r "parseConfig" -A 5 src/ | head -100
+
+# After — one typed call, ~150 tokens
+sverklo_lookup({ symbol: "parseConfig" })</code></pre>
+
+<p>On the public bench, sverklo's tools-per-task is <strong>1.0</strong>; naive grep is <strong>6.1</strong>. Same task, ~6× fewer tool calls.</p>
+
+<p>Deep dive: <a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — A Field Study</a>.</p>
+
+<h2 id="forgets-decisions">4. Claude Code forgets yesterday's design decisions</h2>
+
+<p class="symptom">"Why are we using Prisma?" — when you decided that three weeks ago</p>
+
+<p>Yesterday you and Claude Code spent an hour on a design decision: Prisma over Drizzle, with reasons. Today you ask a question downstream of that decision and the agent suggests the opposite. Compaction ate the rationale.</p>
+
+<p>This is structural to how Claude Code's context window works. When conversation length approaches the limit, older turns get summarized into a compressed representation. Code-specific decisions — exact identifiers, file paths, type signatures, library trade-offs — are the first to get lossy because they look noisy to the compactor relative to active conversational state.</p>
+
+<h3>The fix: bi-temporal memory pinned to git SHAs</h3>
+
+<p>Persist decisions in a queryable layer that survives compaction. Sverklo's memory layer uses bi-temporal columns: every memory carries <code>valid_from_sha</code> + <code>valid_until_sha</code> + <code>superseded_by</code>. Updating a decision doesn't overwrite — it inserts a new row, sets <code>valid_until_sha</code> on the old one, and links them via <code>superseded_by</code>. Recall queries can ask "what's true now?" or "what was true at commit abc?" with equal precision.</p>
+
+<pre><code># After a design decision — explicitly remember:
+sverklo_remember "We chose Prisma over Drizzle for the typed-ORM surface"
+
+# Six months later, after migrations:
+sverklo_recall "ORM choice"  # returns current decision
+sverklo_recall "ORM choice" --at-sha abc123  # what we believed at commit abc</code></pre>
+
+<p>The pattern dates to relational databases in the 1990s. Applied to agent memory, it makes context compaction recoverable instead of destructive. Deep dive: <a href="/blog/bi-temporal-memory-for-ai-agents/">Bi-temporal memory for AI coding agents</a> and <a href="/blog/we-already-shipped-git-for-agent-memory/">We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot</a>.</p>
+
+<h2 id="repeats-grep">5. Claude Code keeps repeating the same grep</h2>
+
+<p class="symptom">"let me search for that" — five times in a row</p>
+
+<p>Watch a Claude Code session on a large repo and count how often it announces a search and then runs essentially the same grep with slightly different flags. Three to five repetitions per task is normal. Each one consumes tokens.</p>
+
+<p>This is a tool-selection problem, not a search problem. The agent doesn't know which tool to reach for, so it falls back to the most general one (grep) and varies its parameters until something works. The deeper cause: too many MCP tools confuse selection (the agent freezes on which to use), too few force fallback to grep.</p>
+
+<h3>The fix: a slim, opinionated tool surface</h3>
+
+<p>Five tools that cover 80% of code-intel sessions:</p>
+
+<ul>
+  <li><strong>sverklo_search</strong> — concept-level "where does X happen?" queries</li>
+  <li><strong>sverklo_lookup</strong> — exact-symbol "where is X defined?" queries</li>
+  <li><strong>sverklo_overview</strong> — "what's the structure of this codebase?" queries</li>
+  <li><strong>sverklo_refs</strong> — "who calls X?" queries</li>
+  <li><strong>sverklo_impact</strong> — "what breaks if I change X?" queries</li>
+</ul>
+
+<p>Sverklo ships these as a named profile: <code>SVERKLO_PROFILE=core</code> exposes only those 5, dropping the system-prompt tool-list size <strong>81%</strong> (8,016 → 1,522 tokens). The remaining 31 specialized tools stay hidden until you opt up.</p>
+
+<p>Deep dive on the measurement: <a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a>. Recipe page on combining profile-filtering with Anthropic's host-side <code>defer_loading</code>: <a href="/recipes/defer-loading/">Sverklo + Tool Search lazy-loading</a>.</p>
+
+<h2 id="context-window-full">6. Claude Code's context window fills up</h2>
+
+<p class="symptom">"To continue, please start a new conversation"</p>
+
+<p>You've been working on a feature for two hours. Claude Code throws the soft-limit warning. You either start a new session and lose all the working context, or push past it and watch quality degrade as compaction lossily summarizes your past hour.</p>
+
+<p>Three sources of context bloat, in descending order:</p>
+
+<ol>
+  <li><strong>Tool-call results</strong> — especially noisy grep output. See failure mode 3 above.</li>
+  <li><strong>Accumulated conversation history</strong> — every turn the model sees grows the prompt.</li>
+  <li><strong>System prompt's tool definitions</strong> — every MCP server adds 1K–10K tokens of tool descriptions to every turn's input.</li>
+</ol>
+
+<h3>The fix stack</h3>
+
+<p>Each of the previous five sections addresses a different bucket of context bloat. The cumulative effect is what matters:</p>
+
+<table>
+  <thead>
+    <tr><th>Source</th><th>Default cost</th><th>After fix</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Grep cascades (per task)</td><td>~14,200 tokens</td><td>~500 tokens (typed retrieval)</td></tr>
+    <tr><td>Tool-list system prompt (per turn)</td><td>~8,016 tokens</td><td>~1,522 tokens (<code>SVERKLO_PROFILE=core</code>)</td></tr>
+    <tr><td>Memory across sessions</td><td>Lost on compaction</td><td>Recoverable via bi-temporal recall</td></tr>
+    <tr><td>Hallucinated identifiers (per task)</td><td>31% rate above 8K</td><td>4% rate under 2K</td></tr>
+  </tbody>
+</table>
+
+<p>Combined, a typical session that hit the context-window soft limit at ~hour 2 lasts ~hour 5+ on the same context budget. The cost is one MCP server install and a profile env var.</p>
+
+<h2>What this guide is and isn't</h2>
+
+<p>This is a troubleshooting pillar — six of the most common failure modes Claude Code hits on real repos, with the data behind each and concrete fixes. The deep-dives are linked from each section; each one has its own measurement methodology and reproducer.</p>
+
+<p>This is <em>not</em> a sverklo pitch. The fixes work with any code-intelligence MCP server (jcodemunch-mcp, serena, GitNexus, Claude-Context, sverklo). Sverklo is the one I maintain and have the most numbers for, so the examples lean that way; the patterns generalize. The <a href="/mcp/">public 5-baseline benchmark</a> shows where each tool wins and loses, including the slices where sverklo loses to others.</p>
+
+<div class="cta-box">
+  <h3>Try the fix stack</h3>
+  <pre>npm install -g sverklo
+SVERKLO_PROFILE=core sverklo init
+# Then in your AI agent:
+# Run sverklo_overview to see the codebase structure
+# Run sverklo_lookup symbol:"parseConfig" instead of grep
+# Run sverklo_remember to persist decisions across compactions</pre>
+  <p>One install, one env var. <a href="/mcp/">Public bench</a> · <a href="/recipes/defer-loading/">Recipe: profile + defer_loading</a> · <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a></p>
+</div>
+
+<h2>References</h2>
+<ul>
+  <li><a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — Field Study</a> (2026-05-03)</li>
+  <li><a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating on a 4,000-file repo</a> (2026-04-09)</li>
+  <li><a href="/blog/claude-code-context-loss/">Why Claude Code Hallucinates Function Names That Don't Exist</a> (2026-04-09)</li>
+  <li><a href="/blog/bi-temporal-memory-for-ai-agents/">Bi-temporal memory for AI coding agents</a> (2026-04-19)</li>
+  <li><a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a> (2026-05-08)</li>
+  <li><a href="/blog/we-already-shipped-git-for-agent-memory/">We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot</a> (2026-05-09)</li>
+  <li><a href="/recipes/defer-loading/">Recipe: Sverklo + Tool Search lazy-loading</a></li>
+  <li><a href="/mcp/">Public 5-baseline retrieval benchmark</a></li>
+</ul>
+
+</main>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

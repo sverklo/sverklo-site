@@ -127,6 +127,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://sverklo.com/blog/claude-code-troubleshooting-large-repos/</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://sverklo.com/blog/we-already-shipped-mcp-code-mode/</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
