@@ -54,6 +54,7 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 
 ## Recent technical posts
 
+- **Anthropic's Tool Search fixed the manifest. It didn't fix the grep cascade. (2026-05-11)**: <https://sverklo.com/blog/tool-search-doesnt-fix-grep/> — Tool Search lazy-loads MCP manifest (~85% reduction, default-on in Claude Code). Sverklo replaces the grep cascade (~41% of input-token spend per 312-session study). Different bills, both fixed, additive on Claude Code, complementary on Cursor/Windsurf/Zed/JetBrains.
 - **Claude Code stalls above ~25 MCP tools — measured, fixed in v0.20.9 (2026-05-10)**: <https://sverklo.com/blog/claude-code-tool-overload/> — empirical stall threshold, per-profile cost table, v0.20.9 default-profile fix, sverklo doctor end-to-end MCP dispatch probe.
 - **Claude Code troubleshooting on large repos — 6 failure modes (2026-05-09)**: <https://sverklo.com/blog/claude-code-troubleshooting-large-repos/> — pillar guide with concrete fixes for context loss, hallucinated names, files-not-found, repeated grep, token blowout, stale memory.
 - **MCP Code Mode — sverklo's tool surface, measured (2026-05-08)**: <https://sverklo.com/blog/we-already-shipped-mcp-code-mode/> — `SVERKLO_PROFILE` cuts tools-list from 8,016 to 1,522 tokens (81% reduction). Per-profile breakdown.

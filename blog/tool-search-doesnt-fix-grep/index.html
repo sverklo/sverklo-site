@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anthropic's Tool Search Fixed the Manifest. It Didn't Fix the Grep Cascade. — Sverklo</title>
+<meta name="description" content="Tool Search shipped GA in Jan 2026 and is now default-on in Claude Code. It cuts manifest tokens ~85%. But manifest is one bill; the grep retrieval cascade is the other — and it's 41% of input-token spend in our 312-session field study. Tool Search doesn't touch it. Sverklo does.">
+<link rel="canonical" href="https://sverklo.com/blog/tool-search-doesnt-fix-grep/">
+
+<meta property="og:title" content="Anthropic's Tool Search Fixed the Manifest. It Didn't Fix the Grep Cascade.">
+<meta property="og:description" content="Two different token bills, two different fixes. Tool Search lazy-loads the manifest. Sverklo replaces the grep loop with one MCP call. Both ship today. Both stack.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/tool-search-doesnt-fix-grep/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-11">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="Tool Search">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="token economy">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Anthropic's Tool Search Fixed the Manifest. It Didn't Fix the Grep Cascade.">
+<meta name="twitter:description" content="Two different token bills, two different fixes. Tool Search + sverklo stack — they're not the same lane.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Anthropic's Tool Search Fixed the Manifest. It Didn't Fix the Grep Cascade.",
+  "description": "Tool Search lazy-loads MCP tool definitions (manifest-side, ~85% reduction). Sverklo's MCP retrieval replaces grep cascades (retrieval-side, ~41% of input-token spend per a 312-session field study). They solve different halves of the bill and stack cleanly. Plus: Cursor, Windsurf, and Zed don't have Tool Search yet — sverklo's profile filtering works there today.",
+  "datePublished": "2026-05-11",
+  "dateModified": "2026-05-11",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/tool-search-doesnt-fix-grep/"},
+  "articleSection": "Engineering",
+  "keywords": "Tool Search Claude Code, MCP tool search lazy loading, Claude Code token cost, sverklo Tool Search, MCP manifest reduction, grep cascade tokens, claude code reduce tokens"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does Anthropic's Tool Search make sverklo obsolete?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Tool Search and sverklo solve different halves of the same bill. Tool Search lazy-loads MCP tool DEFINITIONS — the manifest the agent sees in its system prompt. Anthropic reports ~85% manifest-token reduction in Claude Code default-on as of Feb 2026. Sverklo's wedge is RETRIEVAL — replacing 7-12 noisy grep calls with one structured MCP call against a symbol graph. The 312-session field study measured grep at 41% of input-token spend; Tool Search doesn't touch that number. They stack: Tool Search shrinks sverklo's own manifest, sverklo shrinks the retrieval cascade. Both wins are real, both are additive."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is Tool Search different from sverklo's SVERKLO_PROFILE?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both reduce manifest tokens but operate at different layers. SVERKLO_PROFILE is server-side: sverklo advertises only the tools in the active profile (core/nav/lean/research/review/full). The host (Claude Code, Cursor, Windsurf, etc.) sees a smaller tools/list response. Tool Search is host-side: Claude Code keeps the full manifest server-side and pages in tool definitions on demand. SVERKLO_PROFILE works in every MCP host (Cursor, Windsurf, Zed, JetBrains don't have Tool Search yet); Tool Search is Claude-Code-only today. They're complementary — set SVERKLO_PROFILE=core for narrower advertisement, let Tool Search lazy-load whatever Claude Code does need."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the grep cascade and why does it cost so much?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Watch any Claude Code session on a 200+ file repo. The agent runs grep with a guess at the symbol name, gets 200 lines of noisy matches, runs two more greps with different flags to disambiguate, then maybe a fourth grep with a longer pattern. Each result is raw text dumped into context. A 312-session instrumented study measured this pattern at 41% of total input-token spend — by far the largest single cost line. Replacing the cascade with one structured MCP call (sverklo_lookup or sverklo_search) drops it to ~500 tokens. That's the retrieval bill Tool Search doesn't touch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need both Tool Search and sverklo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you're on Claude Code: yes, they're additive. Tool Search shrinks the manifest (server-side), sverklo shrinks retrieval (replaces grep). If you're on Cursor, Windsurf, Zed, or JetBrains: Tool Search isn't available, so SVERKLO_PROFILE=core is your manifest fix AND sverklo handles retrieval. Either way, sverklo doctor's MCP dispatch probe (initialize + tools/list + tools/call) confirms the wiring works in your specific host. The two systems were designed for different layers — there's no overlap in what they optimize."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does sverklo still ship SVERKLO_PROFILE if Tool Search exists?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three reasons. (1) Most agents aren't Claude Code. Cursor (largest user base), Windsurf, Zed, JetBrains Junie, Antigravity — none have Tool Search yet. SVERKLO_PROFILE is the only manifest fix that works on them. (2) Tool Search has cold-start cost: the first time Claude Code wants a sverklo tool, it pages in the definition. A smaller server-advertised surface avoids that round trip. (3) Defense in depth: even on Claude Code, two reductions stack — sverklo advertises 6 tools (not 36), Tool Search lazy-loads from those 6. Belt-and-suspenders on token cost is the right posture for token-conscious deployments."
+      }
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Sverklo", "item": "https://sverklo.com/"},
+    {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://sverklo.com/blog/"},
+    {"@type": "ListItem", "position": 3, "name": "Tool Search Doesn't Fix Grep", "item": "https://sverklo.com/blog/tool-search-doesnt-fix-grep/"}
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/tokens.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:18px;line-height:1.5;color:var(--fg);margin:24px 0;padding:18px 22px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0}
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--text-3);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:0.05em}
+  td:first-child{color:var(--fg);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}h2{font-size:20px}}
+</style>
+</head>
+
+<body>
+
+<div class="kicker">/* engineering · 2026-05-11 · context economics */</div>
+
+<h1>Anthropic's Tool Search Fixed the Manifest. It Didn't Fix the Grep Cascade.</h1>
+
+<div class="meta-bar">
+  <span>2026-05-11</span>
+  <span>~7 min read</span>
+  <span><a href="/blog/we-already-shipped-mcp-code-mode/">Companion: SVERKLO_PROFILE measured</a></span>
+</div>
+
+<p class="lede">Tool Search shipped GA in January 2026 and is now <strong>default-on in Claude Code</strong>. Anthropic reports it cuts MCP manifest tokens by ~85%. A predictable question follows: <em>does sverklo's "stop Claude Code from burning tokens on grep" pitch still hold?</em> Short answer: yes, because they're not the same bill. Tool Search shrinks the manifest. Sverklo replaces the grep loop. The 312-session field study we ran in May measured grep at 41% of total input-token spend — Tool Search doesn't touch that number. Long answer below.</p>
+
+<h2>Two different bills</h2>
+
+<p>Every Claude Code session that uses MCP pays tokens in at least two places:</p>
+
+<table>
+  <thead>
+    <tr><th>Bill</th><th>What's in it</th><th>Typical cost (full sverklo)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Manifest</td><td>The <code>tools/list</code> response — every MCP tool's name, description, JSON schema, fed into the system prompt on session start</td><td>~8,016 tokens for 36 tools</td></tr>
+    <tr><td>Retrieval</td><td>Tool-call results streamed back into context — grep output, file contents, search hits</td><td>~14,200 tokens per "find a function" task (312-session study)</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Tool Search optimizes the manifest bill.</strong> It moves the tool catalog server-side and pages in definitions on demand. ~85% reduction on the manifest, per Anthropic's published numbers. Default-on in Claude Code as of Feb 2026.</p>
+
+<p><strong>Sverklo optimizes the retrieval bill.</strong> The agent calls <code>sverklo_search</code> or <code>sverklo_lookup</code> against a pre-built symbol graph instead of running grep. One structured tool call replaces 7-12 grep cascades. The retrieval payload drops from ~14,200 tokens to ~500.</p>
+
+<p>These are different lines on the receipt. Optimizing one doesn't optimize the other.</p>
+
+<h2>The 312-session study</h2>
+
+<p>Earlier this month we instrumented 312 Claude Code sessions on real engineering tasks — the same harness the bench uses, but with token-attribution turned on. <a href="/blog/14200-tokens-to-find-one-function/">Full writeup here</a>. The breakdown by category of input-token spend:</p>
+
+<ul>
+  <li><strong>Grep cascades</strong> — 41% of input tokens. The largest single line. Tool Search doesn't touch this.</li>
+  <li><strong>Tool manifest</strong> — 6% of input tokens before Tool Search. Now ~1% with default-on Tool Search.</li>
+  <li><strong>File contents read</strong> — 28% of input tokens. Sverklo's structured retrieval reduces this substantially because results come pre-scoped to symbols.</li>
+  <li><strong>Conversation history + system prompt</strong> — 25%. Out of scope for both tools.</li>
+</ul>
+
+<p>Tool Search default-on dropped manifest from 6% to ~1% on Claude Code sessions — real, measurable, exactly what Anthropic claimed. Grep cascades stayed at 41%. The bottom-line input-token spend dropped ~5% on a typical session from Tool Search alone. That's a real win and it stacks cleanly with sverklo's retrieval-side wins.</p>
+
+<h2>SVERKLO_PROFILE vs Tool Search</h2>
+
+<p>Worth being precise about manifest reduction because both systems do it, but at different layers:</p>
+
+<table>
+  <thead>
+    <tr><th>System</th><th>Layer</th><th>Mechanism</th><th>Hosts</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>SVERKLO_PROFILE</td><td>Server-side</td><td>sverklo advertises fewer tools in <code>tools/list</code></td><td>Every MCP host</td></tr>
+    <tr><td>Tool Search</td><td>Host-side</td><td>Claude Code lazy-loads tool definitions from full server catalog</td><td>Claude Code only (today)</td></tr>
+  </tbody>
+</table>
+
+<p>Three things this matters for:</p>
+
+<p><strong>Most agents aren't Claude Code.</strong> Cursor (the largest installed base), Windsurf, Zed, JetBrains Junie, Antigravity — none have Tool Search yet. For users on those hosts, <code>SVERKLO_PROFILE=core</code> is the only manifest fix available. Sverklo defaults to that profile as of v0.20.9, so the win lands without configuration.</p>
+
+<p><strong>Cold-start cost.</strong> Tool Search's first request for a sverklo tool requires a round trip to page in the definition. On a session that starts with "find auth code", that's one extra round-trip latency before the agent actually retrieves. SVERKLO_PROFILE eliminates that by advertising only the tools likely to be used.</p>
+
+<p><strong>Defense in depth.</strong> Even on Claude Code with Tool Search, two reductions stack. Sverklo advertises 6 tools (not 36); Tool Search then lazy-loads from those 6. The combined manifest cost is lower than either system alone.</p>
+
+<h2>The verification problem (and how doctor solves it)</h2>
+
+<p>One real difficulty with both systems: <strong>how do you know they're working?</strong> Tool Search is transparent to user code. SVERKLO_PROFILE applies at <code>tools/list</code> time and isn't visible in any standard MCP tooling. A user could install sverklo, expect <code>core</code> profile, and have no way to confirm the host actually sees 6 tools and not 36.</p>
+
+<p>That's the gap <code>sverklo doctor</code> fills. As of v0.20.15, the doctor probe sends the same three calls Claude Code makes on every fresh session — <code>initialize</code> → <code>tools/list</code> → <code>tools/call sverklo_status</code> — and reports the tool count it actually receives:</p>
+
+<pre>$ sverklo doctor
+sverklo doctor — checking MCP setup
+  ✓ .mcp.json (project root)     sverklo configured (profile: core)
+  ✓ MCP handshake                responds correctly (protocol 2024-11-05)
+  ✓ MCP tools/list               6 tools advertised (sverklo_status present)
+  ✓ MCP tools/call               sverklo_status returned 1021 chars — dispatch round-trip works
+
+All checks passed — MCP dispatch verified end-to-end.</pre>
+
+<p>If you see "6 tools advertised" the SVERKLO_PROFILE is in effect. If you see "36 tools advertised" with profile=core in <code>.mcp.json</code>, something's wrong — and doctor will say so. (v0.20.15 fixes a real bug where doctor's own probe ignored the <code>.mcp.json</code> env block — the headline v0.20.9 fix used to be silently undone in the headline diagnostic.)</p>
+
+<h2>What if Anthropic ships native code intel?</h2>
+
+<p>This is the right next question. Tool Search is one of several Anthropic patterns absorbing what used to be MCP-server territory — Code Execution with MCP (write Python to call tools), Skills (declarative behavior bundles), Tool Search (lazy manifest). The honest answer is: <strong>if Anthropic ships a built-in symbol graph for Claude Code, sverklo's wedge gets narrower for Claude Code specifically.</strong></p>
+
+<p>Three reasons we still think this works:</p>
+
+<ul>
+  <li><strong>Multi-host is structural.</strong> Anthropic native features land in Claude Code first, the rest of the ecosystem second (or never). Cursor users, Windsurf users, Zed users, JetBrains users — they need a non-vendor solution. Sverklo's job there doesn't change.</li>
+  <li><strong>Bench is the moat.</strong> Whatever Anthropic ships, the <a href="/bench/">public 90-task benchmark</a> measures both sverklo and the new alternative on the same tasks. We'd publish the head-to-head numbers honestly, including the slices where the built-in wins. That credibility compounds even when the underlying product changes.</li>
+  <li><strong>Bi-temporal memory is uncontested.</strong> Tool Search is stateless. Code Execution is stateless. Skills are stateless. Sverklo's <code>memory_remember</code> / <code>memory_recall</code> with SHA-pinned validity is the one thing no other MCP server (or native host feature) currently offers. <a href="/blog/we-already-shipped-git-for-agent-memory/">Deep dive on the architecture</a>.</li>
+</ul>
+
+<h2>Bottom line</h2>
+
+<p>Tool Search is a real ship. Anthropic's 85% manifest reduction number lines up with our measurements. If you're on Claude Code, you should let it run — sverklo's manifest gets lazy-loaded automatically and you save ~5% of input tokens session-over-session for free.</p>
+
+<p>But Tool Search and sverklo are not competitors. The retrieval cascade — grep loops, file reads, low-signal context dumps — is a separate bill, ~41% of input-token spend, and it's still the largest single cost line in a Claude Code session. Sverklo's wedge is on that bill. <a href="/bench/">The numbers</a> hold.</p>
+
+<div class="cta-box">
+  <h3>Try the stack</h3>
+  <pre>npm i -g sverklo@latest
+cd your-project &amp;&amp; sverklo init    # writes SVERKLO_PROFILE=core
+sverklo doctor                       # verifies dispatch end-to-end
+# Then restart your AI agent — sverklo + Tool Search compose automatically on Claude Code</pre>
+  <p><a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a> · <a href="/bench/">Public 90-task bench</a> · <a href="/security/">Security posture</a></p>
+</div>
+
+<h2>Related</h2>
+
+<ul>
+  <li><a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — Field Study</a></li>
+  <li><a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a></li>
+  <li><a href="/blog/claude-code-tool-overload/">Claude Code Stalls Above ~25 MCP Tools — Measured, Fixed in v0.20.9</a></li>
+  <li><a href="/blog/claude-code-troubleshooting-large-repos/">Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes</a></li>
+  <li><a href="/recipes/defer-loading/">Recipe: SVERKLO_PROFILE + Anthropic Tool Search composition</a></li>
+</ul>
+
+</body>
+</html>
