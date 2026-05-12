@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stop Claude Code Burning Tokens on Grep — Sverklo MCP (43× fewer tokens)</title>
-<meta name="description" content="One MCP call instead of 7-12 grep loops. Sverklo gives Claude Code, Cursor, and Windsurf a real symbol graph — 43× fewer input tokens, F1 0.56 leader on a 90-task public bench. Local, MIT, no cloud.">
+<meta name="description" content="One MCP call instead of 7-12 grep loops. Sverklo gives Claude Code, Cursor, and Windsurf a real symbol graph — 34× fewer input tokens, F1 0.56 leader on a 180-task public bench across 6 codebases. Local, MIT, no cloud.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/">
 
 <!-- Open Graph -->
 <meta property="og:title" content="Stop Claude Code Burning Tokens on Grep — Sverklo MCP">
-<meta property="og:description" content="1 MCP call instead of 7-12. 43× fewer input tokens than grep, F1 0.56 leader on a 90-task public bench. Local-first code intelligence for Claude Code, Cursor, Windsurf. MIT.">
+<meta property="og:description" content="1 MCP call instead of 7-12. 34× fewer input tokens than grep, F1 0.56 leader on a 180-task public bench across 6 codebases. Local-first code intelligence for Claude Code, Cursor, Windsurf. MIT.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/">
 <meta property="og:site_name" content="Sverklo">
@@ -22,7 +22,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Stop Claude Code Burning Tokens on Grep — Sverklo MCP">
-<meta name="twitter:description" content="1 MCP call instead of 7-12. 43× fewer input tokens than grep, F1 0.56 leader on a 90-task public bench. Local-first code intelligence for AI coding agents.">
+<meta name="twitter:description" content="1 MCP call instead of 7-12. 34× fewer input tokens than grep, F1 0.56 leader on a 180-task public bench across 6 codebases. Local-first code intelligence for AI coding agents.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -119,7 +119,7 @@
       "name": "What is the best local-first MCP server for code intelligence?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo. MIT-licensed, ships hybrid retrieval (BM25 + ONNX embeddings + PageRank), symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs in one zero-config install. Runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup. Numbers reproducible on the published 90-task bench at sverklo.com/bench."
+        "text": "Sverklo. MIT-licensed, ships hybrid retrieval (BM25 + ONNX embeddings + PageRank), symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs in one zero-config install. Runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup. Numbers reproducible on the published 180-task bench at sverklo.com/bench."
       }
     },
     {
@@ -1867,7 +1867,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <h1>Stop Claude Code from burning tokens on grep.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
 
     <div class="lede">
-      <p><strong>1 tool call instead of 7-12.</strong> Claude Code, Cursor, and Windsurf hunt your codebase with grep loops that burn input tokens and still hallucinate function names. Sverklo answers in <strong>one MCP call</strong> against a real symbol graph — running locally on your machine. <a href="/bench/">90-task bench</a>: <strong>43× fewer input tokens</strong>, <strong>F1 0.56 — overall leader</strong> (edges smart-grep at 0.49).</p>
+      <p><strong>1 tool call instead of 7-12.</strong> Claude Code, Cursor, and Windsurf hunt your codebase with grep loops that burn input tokens and still hallucinate function names. Sverklo answers in <strong>one MCP call</strong> against a real symbol graph — running locally on your machine. <a href="/bench/">180-task bench across 6 codebases</a>: <strong>34× fewer input tokens than grep</strong>, <strong>F1 0.56 — overall leader</strong> (smart-grep next at 0.34, P4 file-deps win 0.84 vs 0.40).</p>
       <p>Local-first, MIT-licensed, no API keys, no cloud upload. The only code-intel MCP with a peer-reviewable benchmark — <em>the slice where sverklo loses to grep is on the same page as the wins</em>.</p>
     </div>
 
@@ -2017,7 +2017,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <ol class="loop-tl" aria-label="Timeline of events">
       <li>
         <span class="loop-date">Apr 28</span>
-        <span class="loop-evt">Published <a href="/bench/">90-task bench</a> with two competing local-first MCP code-intel servers (jcodemunch-mcp, GitNexus) and the slice where sverklo lost.</span>
+        <span class="loop-evt">Published <a href="/bench/">180-task bench</a> across 6 codebases with two competing local-first MCP code-intel servers (jcodemunch-mcp, GitNexus) and the slices where sverklo lost — including FastAPI P5 dead-code (0.00 vs grep's 1.00).</span>
       </li>
       <li>
         <span class="loop-date">May 2 → 3</span>

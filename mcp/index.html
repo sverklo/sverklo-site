@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MCP code-intel index — Sverklo</title>
-<meta name="description" content="Sverklo's MCP code-intelligence index. Compares MCP servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, token economy, and tool-call count across 120 hand-verified tasks. Reproducible from a fresh clone. Sverklo on its own board, including the slices it loses.">
+<meta name="description" content="Sverklo's MCP code-intelligence index. Compares MCP servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, token economy, and tool-call count across 180 hand-verified tasks on 6 codebases. Reproducible from a fresh clone. Sverklo on its own board, including the slices it loses (P5 fastapi 0.00, P1 sverklo 0.00 on 2 tasks).">
 <link rel="canonical" href="https://sverklo.com/mcp/">
 
 <meta property="og:title" content="MCP code-intel index — Sverklo">
-<meta property="og:description" content="Sverklo tells you if the MCP server's code is rotting. Comparison across 120 tasks, 4 datasets, 5 baselines. Reproducible.">
+<meta property="og:description" content="Sverklo tells you if the MCP server's code is rotting. Comparison across 180 tasks, 6 datasets, 5 baselines. Reproducible.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/mcp/">
 <meta property="og:image" content="https://sverklo.com/og.png">
@@ -28,7 +28,7 @@
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "Sverklo MCP code-intel index",
-  "description": "Public ranking of MCP code-intelligence servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, per-category breakdown, token economy, and tool-call count. 120 hand-verified tasks across four OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3).",
+  "description": "Public ranking of MCP code-intelligence servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, per-category breakdown, token economy, and tool-call count. 180 hand-verified tasks across six OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3, flask 3.0.3, fastapi 0.115.0).",
   "url": "https://sverklo.com/mcp/",
   "license": "https://opensource.org/licenses/MIT",
   "creator": { "@type": "Person", "name": "Nikita Groshin", "url": "https://github.com/nike-17" },
@@ -266,66 +266,67 @@ body:has(header.top.nav-canonical) > #main {
 <tbody>
   <tr class="self">
     <td class="name"><strong>sverklo</strong> <span class="self-tag">us</span></td>
-    <td class="num"><strong>0.60</strong></td>
-    <td class="num">0.72</td>
-    <td class="num">0.30</td>
-    <td class="num">0.80</td>
-    <td class="num">0.75</td>
-    <td class="num">505</td>
+    <td class="num"><strong>0.56</strong></td>
+    <td class="num">0.63</td>
+    <td class="num">0.28</td>
+    <td class="num">0.84</td>
+    <td class="num">0.67</td>
+    <td class="num">658</td>
     <td class="num">1.0</td>
-    <td class="num audit-cell" title="Dead code: A · Circular deps: A · Coupling: F · Security: A"><a href="/report/sverklo/sverklo/"><strong class="audit-B">B</strong></a></td>
+    <td class="num audit-cell" title="Dead code: C · Circular deps: A · Coupling: C · Security: A"><a href="/report/sverklo/sverklo/"><strong class="audit-B">B</strong></a></td>
   </tr>
   <tr>
     <td class="name"><strong>smart-grep</strong></td>
-    <td class="num"><strong>0.40</strong></td>
-    <td class="num">0.35</td>
-    <td class="num">0.24</td>
-    <td class="num">0.46</td>
-    <td class="num">0.78</td>
-    <td class="num">842</td>
-    <td class="num">8.0</td>
+    <td class="num"><strong>0.34</strong></td>
+    <td class="num">0.22</td>
+    <td class="num">0.20</td>
+    <td class="num">0.40</td>
+    <td class="num">0.83</td>
+    <td class="num">712</td>
+    <td class="num">3.2</td>
     <td class="num audit-cell">—</td>
   </tr>
   <tr>
-    <td class="name"><strong>naive-grep</strong></td>
-    <td class="num"><strong>0.34</strong></td>
-    <td class="num">0.25</td>
-    <td class="num">0.19</td>
-    <td class="num">0.42</td>
-    <td class="num">0.75</td>
-    <td class="num">20,711</td>
-    <td class="num">6.3</td>
-    <td class="num audit-cell">—</td>
+    <td class="name"><strong>gitnexus</strong></td>
+    <td class="num"><strong>0.31</strong></td>
+    <td class="num">0.37</td>
+    <td class="num">0.00</td>
+    <td class="num">0.27</td>
+    <td class="num">0.83</td>
+    <td class="num">630</td>
+    <td class="num">1.2</td>
+    <td class="num audit-cell" title="Dead code: D · Circular deps: F · Coupling: F · Security: F"><a href="/report/abhigyanpatwari/gitnexus/"><strong class="audit-F">F</strong></a></td>
   </tr>
   <tr>
     <td class="name"><strong>jcodemunch</strong></td>
-    <td class="num"><strong>0.32</strong></td>
-    <td class="num">0.78</td>
-    <td class="num">0.00</td>
-    <td class="num">0.34</td>
+    <td class="num"><strong>0.29</strong></td>
+    <td class="num">0.52</td>
     <td class="num">0.01</td>
-    <td class="num">1,178</td>
+    <td class="num">0.33</td>
+    <td class="num">0.34</td>
+    <td class="num">813</td>
     <td class="num">1.2</td>
     <td class="num audit-cell" title="Dead code: C · Circular deps: B · Coupling: D · Security: F"><a href="/report/jgravelle/jcodemunch-mcp/"><strong class="audit-C">C</strong></a></td>
   </tr>
   <tr>
-    <td class="name"><strong>gitnexus</strong></td>
-    <td class="num"><strong>0.24</strong></td>
-    <td class="num">0.23</td>
-    <td class="num">0.00</td>
-    <td class="num">0.25</td>
-    <td class="num">0.75</td>
-    <td class="num">332</td>
-    <td class="num">1.2</td>
-    <td class="num audit-cell" title="Dead code: D · Circular deps: F · Coupling: F · Security: F"><a href="/report/abhigyanpatwari/gitnexus/"><strong class="audit-F">F</strong></a></td>
+    <td class="name"><strong>naive-grep</strong></td>
+    <td class="num"><strong>0.26</strong></td>
+    <td class="num">0.07</td>
+    <td class="num">0.11</td>
+    <td class="num">0.35</td>
+    <td class="num">0.83</td>
+    <td class="num">22,676</td>
+    <td class="num">6.2</td>
+    <td class="num audit-cell">—</td>
   </tr>
 </tbody></table></div>
 <p class="meta-line">
-  120 tasks across 4 datasets (express, lodash, sverklo, requests).
-  Run <code>2026-05-08T00-32-45-846Z</code> at sverklo
-  <a href="https://github.com/sverklo/sverklo/commit/1c142f4e5d43"><code>1c142f4</code></a>.
-  Published <span title="2026-05-08 00:36 UTC">2026-05-08 00:36 UTC</span>.
-  Flask dataset (30 tasks) added 2026-05-11 by <a href="https://github.com/yallalaraja">@yallalaraja</a> — re-run with flask included is queued.
+  180 tasks across 6 datasets (express 4.21.1, lodash 4.17.21, sverklo, requests 2.32.3, flask 3.0.3, fastapi 0.115.0).
+  Run <code>2026-05-12T17-11-45-853Z</code> at sverklo
+  <a href="https://github.com/sverklo/sverklo/commit/c48b922"><code>c48b922</code></a>.
+  Published <span title="2026-05-12 17:30 UTC">2026-05-12 17:30 UTC</span>.
+  Flask dataset added 2026-05-11 by <a href="https://github.com/yallalaraja">@yallalaraja</a>;
+  fastapi added 2026-05-12 ahead of this run.
 </p>
 
 <h3 style="margin-top: 36px; font-size: 18px;">Tracked but not yet measured</h3>
@@ -375,7 +376,7 @@ body:has(header.top.nav-canonical) > #main {
 <h2>Methodology</h2>
 
 <ul>
-  <li><strong>120 hand-verified tasks</strong> across four OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3). 30 tasks per dataset distributed across P1 (10), P2 (10), P4 (5), P5 (5).</li>
+  <li><strong>180 hand-verified tasks</strong> across six OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3, flask 3.0.3, fastapi 0.115.0). 30 tasks per dataset distributed across P1 (10), P2 (10), P4 (5), P5 (5).</li>
   <li><strong>Five baselines</strong>: naive-grep (the floor), smart-grep (tuned ripgrep), sverklo, jcodemunch-mcp, GitNexus.</li>
   <li><strong>Tolerances</strong>: P1 ±3 lines, P2 ±2 lines, P4/P5 set membership. Documented in <a href="https://github.com/sverklo/sverklo-bench">sverklo/sverklo-bench</a>.</li>
   <li><strong>Refresh cadence</strong>: quarterly. Maintainer-triggered via the <code>bench-refresh</code> workflow on the sverklo repo. No on-push auto-publish — keeps the ranking gameable only via discrete maintainer actions.</li>
