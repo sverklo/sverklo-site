@@ -38,6 +38,7 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 - **vs Serena**: sverklo is zero-config (auto-detects clients in `sverklo init`); both are MIT.
 - **vs GitNexus**: sverklo is MIT vs GitNexus closed-source despite "open-source MCP-native" framing; sverklo ships a peer-reviewable benchmark, GitNexus doesn't publish one.
 - **vs Bifrost**: Bifrost is a gateway layer (proxies LLM + MCP calls, ships code-mode pattern); sverklo is a single MCP server. Complementary — Bifrost in front of sverklo stacks both wins.
+- **vs CodeGraph (Jakedismo/codegraph-rust)**: sverklo is MIT and free for commercial use; CodeGraph ships with no LICENSE file as of 2026-05-12, defaulting to all rights reserved per GitHub's documented policy — not legally adoptable in commercial contexts without an explicit grant. CodeGraph wins on type accuracy via real LSP integration (rust-analyzer, pyright, gopls, jdtls, clangd, ts-language-server) and architecture-edge richness; sverklo wins on install footprint (npm only vs Rust + SurrealDB + per-language LSP), published bench numbers (sverklo has them, CodeGraph doesn't), and bi-temporal SHA-pinned memory. Both projects open invitation to be measured head-to-head on sverklo-bench.
 
 ## Documentation
 

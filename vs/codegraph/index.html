@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sverklo vs CodeGraph (Jakedismo) — Code Intelligence MCP Comparison</title>
+<meta name="description" content="Honest comparison of Sverklo and CodeGraph (Jakedismo/codegraph-rust). MIT vs no LICENSE, hybrid SQLite vs SurrealDB + LSP, install footprint, language coverage, published bench numbers, when to use each.">
+<meta name="keywords" content="codegraph alternative, sverklo vs codegraph, codegraph-rust, Jakedismo codegraph, MCP server comparison, MIT alternative codegraph, MCP code intelligence rust, surrealdb code graph">
+<meta name="theme-color" content="#0E0D0B">
+<link rel="canonical" href="https://sverklo.com/vs/gitnexus/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Sverklo vs CodeGraph — MCP Code Intelligence Comparison">
+<meta property="og:description" content="Sverklo (MIT, hybrid SQLite, published bench) vs CodeGraph (no LICENSE, Rust + SurrealDB + LSP, no published bench). Where each wins, honest matrix.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/vs/gitnexus/">
+<meta property="og:site_name" content="Sverklo">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- JSON-LD SoftwareApplication (sverklo) for entity-graph signal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.20.5",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sverklo",
+    "url": "https://sverklo.com"
+  }
+}
+</script>
+
+<!-- JSON-LD FAQ Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between Sverklo and CodeGraph?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo is an MIT-licensed local-first MCP server for code intelligence with a published 5-baseline benchmark. CodeGraph (Jakedismo/codegraph-rust) is a Rust implementation of code graphRAG backed by SurrealDB with multi-language LSP integration (rust-analyzer, pyright, gopls, jdtls, clangd, typescript-language-server). The repo currently ships without a LICENSE file, which by GitHub default means all rights reserved — corporate users typically cannot legally adopt it until a license is added. CodeGraph's strength is type-aware accuracy via real LSP integration; sverklo's strength is bench-validated retrieval, MIT licensing, and a single npm install with no per-language toolchain prerequisites."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is CodeGraph (Jakedismo) open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not strictly. As of 2026-05-12, the github.com/Jakedismo/codegraph-rust repository does not include a LICENSE file. Under GitHub's documented default, source without a license defaults to all rights reserved — users may read it but copying, modifying, distributing, or running it in commercial contexts is not legally authorized. The code is public, but not open source in the OSI sense. Sverklo is MIT-licensed and free for commercial, agency, contractor, and SaaS use without an enterprise agreement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use CodeGraph in commercial projects?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not without an explicit grant from the author. With no LICENSE file, github.com/Jakedismo/codegraph-rust defaults to all rights reserved per GitHub's documentation, meaning commercial users cannot legally copy, run, or distribute it. If you need an MIT-licensed alternative for commercial use, Sverklo is the closest match in the category."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Sverklo use LSP servers like CodeGraph?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Sverklo uses tree-sitter parsers + regex fallback for symbol extraction. The tradeoff: less type-aware accuracy than LSP, but no per-language toolchain prerequisites (CodeGraph requires rust-analyzer, typescript-language-server, pyright-langserver, gopls, jdtls, and clangd installed for full-tier indexing). For agents that need a single npm install with no language-server dependencies, sverklo is the simpler choice; for projects that need maximum type-accuracy on languages with mature LSP support, CodeGraph's full-tier indexing is more capable."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which has published benchmark numbers, Sverklo or CodeGraph?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sverklo publishes a reproducible benchmark at github.com/sverklo/sverklo-bench: 5 baselines across 5 OSS codebases (sverklo, express 4.21.1, lodash 4.17.21, requests 2.32.3, flask 3.0.3), reproducible from a fresh clone with one npm command. CodeGraph (Jakedismo) currently publishes no comparative benchmark numbers; its README claims richer graph + LSP-based accuracy but does not include head-to-head retrieval scores. The sverklo bench has an open invitation for CodeGraph to be added as a baseline."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the best MCP server for code intelligence on a commercial project?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For commercial use, Sverklo (MIT, local-first, 36 MCP tools, published 5-baseline bench) is the most defensible choice among the local-first code-intelligence MCP servers. CodeGraph is technically impressive but cannot be adopted commercially until a LICENSE is added to the repo. GitNexus's PolyForm Noncommercial license forbids commercial use without an enterprise agreement. Cody is hosted and enterprise-priced. Serena requires per-language LSP setup. Sverklo works with Claude Code, Cursor, Windsurf, and Zed, ships zero-config, and your code never leaves the machine."
+      }
+    }
+  ]
+}
+</script>
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0E0D0B;
+  --bg-2: #16140F;
+  --bg-3: #1C1A14;
+  --rule: #2A2620;
+  --rule-2: #403A30;
+  --text: #EDE7D9;
+  --text-2: #A39886;
+  --text-3: #8A8270;
+  --accent: #E85A2A;
+  --accent-dim: #B8441C;
+  --accent-glow: rgba(232, 90, 42, 0.12);
+  --ok: #8FB339;
+  --warn: #D4A535;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+  transition: border-color 0.15s, color 0.15s;
+}
+a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ───────── TOP BAR ───────── */
+header.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(14, 13, 11, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+}
+header.top .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: none;
+}
+.brand::before {
+  content: "\25CC ";
+  color: var(--accent);
+}
+.top-nav {
+  display: flex;
+  gap: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.top-nav a { border: none; color: var(--text-2); }
+.top-nav a:hover { color: var(--text); }
+
+/* ───────── HERO ───────── */
+.hero {
+  padding: 80px 0 48px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero .kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.hero .kicker::before { content: "// "; color: var(--accent); }
+
+.hero h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.hero h1 .accent { color: var(--accent); }
+
+.hero .lede {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-2);
+  max-width: 68ch;
+}
+.hero .lede strong { color: var(--text); font-weight: 500; }
+
+/* ───────── TABLE ───────── */
+.cmp-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.cmp-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.cmp-section h2::before { content: "# "; color: var(--accent); }
+
+table.cmp {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.6;
+}
+table.cmp th,
+table.cmp td {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+table.cmp th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--bg-2);
+}
+table.cmp th:first-child { width: 22%; }
+table.cmp th:nth-child(2),
+table.cmp th:nth-child(3) { width: 39%; }
+
+table.cmp td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+table.cmp td:nth-child(2) { color: var(--text); }
+table.cmp td:nth-child(3) { color: var(--text-2); }
+
+table.cmp tr:hover td { background: var(--bg-2); }
+
+.tag-mit {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ok);
+  border: 1px solid var(--ok);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.tag-warn {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+/* ───────── WHEN TO USE ───────── */
+.when {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 0;
+}
+.when-card {
+  padding: 28px;
+  border: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.when-card h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.when-card h3 .accent { color: var(--accent); }
+.when-card ul {
+  list-style: none;
+  padding: 0;
+}
+.when-card ul li {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.7;
+  padding-left: 18px;
+  position: relative;
+}
+.when-card ul li::before {
+  content: "\2192";
+  position: absolute;
+  left: 0;
+  color: var(--text-3);
+}
+
+/* ───────── CTA ───────── */
+.cta-section {
+  padding: 80px 0;
+  text-align: center;
+}
+.cta-section h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.cta-section p {
+  color: var(--text-2);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+.cta-cmd {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  background: var(--bg-2);
+  border: 1px solid var(--rule-2);
+  padding: 14px 28px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cta-cmd:hover { border-color: var(--accent); }
+.cta-cmd .prompt { color: var(--accent); }
+
+/* ───────── FOOTER ───────── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+footer .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer a { color: var(--text-3); border: none; }
+footer a:hover { color: var(--text-2); }
+
+@media (max-width: 700px) {
+  .when { grid-template-columns: 1fr; }
+  table.cmp { font-size: 13px; }
+  table.cmp th, table.cmp td { padding: 10px 8px; }
+}
+/* @a11y-injected — do not edit; run patch-a11y.mjs */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent, #E85A2A) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.top-nav a, nav.top-nav a {
+  padding: 10px 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 16px; top: 16px;
+  width: auto; height: auto;
+  padding: 8px 14px;
+  background: #16140F;
+  color: #EDE7D9;
+  border: 2px solid #E85A2A;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  z-index: 10000;
+  text-decoration: none;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* @end-a11y */
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Compare",
+      "item": "https://sverklo.com/vs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "vs GitNexus",
+      "item": "https://sverklo.com/vs/gitnexus/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="top nav-canonical">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/report/">reports</a>
+      <a href="/vs/">compare</a>
+      <a href="/bench/">bench</a>
+      <a href="/benchmarks/">perf</a>
+      <a href="/research/">research</a>
+      <a href="/playground/">playground</a>
+      <a href="/blog/">blog</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">/* comparison */</div>
+    <h1>Sverklo vs <span class="accent">CodeGraph</span></h1>
+    <p class="lede">
+      Both are MCP code-intelligence servers. Both parse your repo locally and expose tools to AI coding agents.
+      <strong>CodeGraph</strong> (<a href="https://github.com/Jakedismo/codegraph-rust" target="_blank" rel="noopener">Jakedismo/codegraph-rust</a>) is a Rust implementation backed by SurrealDB with multi-language LSP integration. <strong>Sverklo</strong> is a TypeScript implementation with tree-sitter parsing, hybrid retrieval, and a published reproducible benchmark.
+      <strong>This page is an honest matrix — where each genuinely wins.</strong>
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>Feature comparison</h2>
+
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Sverklo</th>
+          <th>GitNexus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>License</td>
+          <td><span class="tag-mit">MIT</span> Free for all use</td>
+          <td><span class="tag-warn">none</span> No LICENSE file — defaults to all rights reserved</td>
+        </tr>
+        <tr>
+          <td>Commercial use</td>
+          <td>Free, no restrictions</td>
+          <td>Not legally authorized without explicit grant from author</td>
+        </tr>
+        <tr>
+          <td>Implementation</td>
+          <td>TypeScript (single npm install)</td>
+          <td>Rust (cargo build, requires Rust toolchain)</td>
+        </tr>
+        <tr>
+          <td>Parser</td>
+          <td>Tree-sitter + regex fallback</td>
+          <td>AST + FastML + per-language LSP (rust-analyzer, pyright, gopls, jdtls, clangd, ts-language-server)</td>
+        </tr>
+        <tr>
+          <td>Storage backend</td>
+          <td>SQLite + sqlite-vec (embedded)</td>
+          <td>SurrealDB (separate process)</td>
+        </tr>
+        <tr>
+          <td>Memory system</td>
+          <td>Bi-temporal, git-SHA-pinned (valid_from_sha, valid_until_sha)</td>
+          <td>None published</td>
+        </tr>
+        <tr>
+          <td>Indexing tiers</td>
+          <td>SVERKLO_PROFILE (core 6 / lean 11 / review 10 / research 18 / full 36)</td>
+          <td>fast / balanced / full</td>
+        </tr>
+        <tr>
+          <td>Languages</td>
+          <td>10 first-class via tree-sitter</td>
+          <td>6 via LSP (Rust, TS/JS, Python, Go, Java, C/C++)</td>
+        </tr>
+        <tr>
+          <td>Published benchmark</td>
+          <td>F1 0.56 leader on 90-task public bench, 5 baselines, reproducible from clone</td>
+          <td>None published</td>
+        </tr>
+        <tr>
+          <td>Install footprint</td>
+          <td><code>npm i -g sverklo</code> + 86 MB ONNX model on first run</td>
+          <td>Rust toolchain + SurrealDB binary + per-language LSP for balanced/full tier (init <strong>fails fast</strong> without them)</td>
+        </tr>
+        <tr>
+          <td>Network egress</td>
+          <td>3 documented calls (model download, opt-in telemetry, explicit update check)</td>
+          <td>Not documented in public posture page</td>
+        </tr>
+        <tr>
+          <td>Stars (2026-05-12)</td>
+          <td>47</td>
+          <td>269</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>By the bench numbers</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 18px;">
+      Sverklo is on the public 5-baseline retrieval benchmark — 90 hand-verified tasks across 4 OSS codebases (latest run; flask added 2026-05-11, requests 2026-05). <a href="/mcp/">Full ranking page</a>. <strong>CodeGraph is not yet measured on this benchmark.</strong> We have an open invitation at <a href="https://github.com/sverklo/sverklo-bench/issues/8" target="_blank" rel="noopener">sverklo-bench#8</a> for any code-intel MCP server to be added as a baseline — the offer extends to CodeGraph specifically. Until then this section shows where sverklo stands today; we'll publish the head-to-head numbers honestly when CodeGraph is added.
+    </p>
+    <div class="table-scroll" style="overflow-x:auto;margin:14px 0;">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>baseline</th>
+            <th>F1</th>
+            <th>P1 def</th>
+            <th>P2 refs</th>
+            <th>P4 deps</th>
+            <th>tokens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>sverklo</strong></td>
+            <td><strong>0.56</strong></td>
+            <td>0.73</td>
+            <td>0.30</td>
+            <td><strong>0.80</strong></td>
+            <td>505</td>
+          </tr>
+          <tr>
+            <td>smart-grep</td>
+            <td>0.49</td>
+            <td>0.61</td>
+            <td>0.18</td>
+            <td>0.42</td>
+            <td>4,100</td>
+          </tr>
+          <tr>
+            <td>jcodemunch-mcp</td>
+            <td>0.32</td>
+            <td><strong>0.78</strong></td>
+            <td>0.00</td>
+            <td>0.34</td>
+            <td>1,178</td>
+          </tr>
+          <tr>
+            <td>gitnexus</td>
+            <td>0.24</td>
+            <td>0.23</td>
+            <td>0.00</td>
+            <td>0.25</td>
+            <td><strong>333</strong></td>
+          </tr>
+          <tr>
+            <td>codegraph (Jakedismo)</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
+      Empty CodeGraph row is intentional — we don't fabricate scores. CodeGraph's README emphasizes graph richness (module/dataflow/doc edges, LSP-resolved definitions, architecture boundary rules) without comparative retrieval numbers against the field. Whether that richness translates to better retrieval F1 on a fixed task set is exactly what the bench would measure. The harness is one npm script; we'd run it as soon as a baseline adapter lands.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
+      Until then, the honest claim is: <strong>sverklo has measurements, CodeGraph has architecture</strong>. Both can be true at the same time. The decision factor for many buyers is which one their codebase actually exercises better, and that question is unresolved until the head-to-head run lands.
+    </p>
+  </div>
+</section>
+
+<section class="cmp-section">
+  <div class="wrap">
+    <h2>When to use each</h2>
+
+    <div class="when">
+      <div class="when-card">
+        <h3>Choose <span class="accent">Sverklo</span> when</h3>
+        <ul>
+          <li>You need an MIT-licensed tool for commercial use today (CodeGraph has no LICENSE)</li>
+          <li>You want a single <code>npm install</code> with no per-language toolchain prerequisites</li>
+          <li>You want published, reproducible benchmark numbers before adopting</li>
+          <li>You need git-SHA-pinned memory that survives <code>/compact</code></li>
+          <li>You want a documented security posture with explicit network-egress accounting</li>
+          <li>Your codebase mixes 10+ languages with varying LSP availability</li>
+        </ul>
+      </div>
+      <div class="when-card">
+        <h3>Choose CodeGraph when</h3>
+        <ul>
+          <li>You're using it for personal / research projects where the missing LICENSE isn't a blocker</li>
+          <li>Your project is mostly one of the 6 LSP-supported languages (Rust, TS/JS, Python, Go, Java, C/C++)</li>
+          <li>You've already installed and run all required LSP servers locally</li>
+          <li>Type-aware accuracy matters more than measured retrieval quality</li>
+          <li>You want architecture boundary rules + dataflow edges in the graph itself</li>
+          <li>You're comfortable with a Rust + SurrealDB stack and the operational surface that comes with it</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cmp-section" style="border-bottom: none;">
+  <div class="wrap">
+    <h2>Architecture notes</h2>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
+      Sverklo uses <strong style="color: var(--text);">SQLite + sqlite-vec with PageRank-based scoring</strong> and a hybrid retrieval pipeline (BM25 + ONNX embeddings + graph centrality). The parser is tree-sitter + regex fallback. The install is one npm package; everything runs in-process. The tradeoff: less type-aware accuracy than real LSP integration, and the graph is import/symbol-edge-only, not dataflow-level.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
+      CodeGraph uses <strong style="color: var(--text);">SurrealDB</strong> as a graph + document backend and shells out to <strong style="color: var(--text);">real language servers</strong> (rust-analyzer, typescript-language-server, pyright-langserver, gopls, jdtls, clangd) for type resolution at the balanced/full tiers. The graph carries module/dataflow/doc edges and supports architecture boundary rules. The tradeoff: a heavier operational stack (Rust toolchain + SurrealDB process + per-language LSP servers), and the fail-fast prerequisite check means installation can dead-end on a language you weren't planning to use.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; font-size: 14px;">
+      <em>Note on the LICENSE situation:</em> As of 2026-05-12, github.com/Jakedismo/codegraph-rust ships without a LICENSE file. <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository#choosing-the-right-license" target="_blank" rel="noopener">Per GitHub's documentation</a>, source code without a license defaults to all rights reserved — readable but not legally usable in derivative, commercial, or distributed contexts without an explicit grant from the author. This is likely an oversight rather than intent and is fixable by adding a LICENSE file; we'd update this page within 24h of that happening.
+    </p>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <h2>Try Sverklo</h2>
+    <p>MIT licensed. One command. Works with every MCP client.</p>
+    <button type="button" class="cta-cmd" aria-label="Copy: npm install -g sverklo &amp;&amp; sverklo init" onclick="navigator.clipboard.writeText('npm install -g sverklo &amp;&amp; sverklo init').catch(()=>{})"><span class="prompt">$</span> npm install -g sverklo &amp;&amp; sverklo init</button>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-3);">click to copy</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>sverklo &mdash; MIT Licensed</span>
+    <span>
+      <a href="https://github.com/sverklo/sverklo">GitHub</a> &middot;
+      <a href="https://www.npmjs.com/package/sverklo">npm</a> &middot;
+      <a href="/">Home</a>
+    </span>
+  </div>
+</footer>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

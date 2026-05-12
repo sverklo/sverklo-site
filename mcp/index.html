@@ -325,7 +325,19 @@ body:has(header.top.nav-canonical) > #main {
   Run <code>2026-05-08T00-32-45-846Z</code> at sverklo
   <a href="https://github.com/sverklo/sverklo/commit/1c142f4e5d43"><code>1c142f4</code></a>.
   Published <span title="2026-05-08 00:36 UTC">2026-05-08 00:36 UTC</span>.
+  Flask dataset (30 tasks) added 2026-05-11 by <a href="https://github.com/yallalaraja">@yallalaraja</a> — re-run with flask included is queued.
 </p>
+
+<h3 style="margin-top: 36px; font-size: 18px;">Tracked but not yet measured</h3>
+<p style="color: var(--text-2); line-height: 1.6; max-width: 76ch; margin-bottom: 12px;">
+  These code-intelligence MCP servers are known peers in the category but have not yet been added as bench baselines. Open invitation: <a href="https://github.com/sverklo/sverklo-bench/issues/8">sverklo-bench#8</a> tracks the queue, and the maintainer of any project listed here is welcome to PR a baseline adapter or critique the methodology before measurement.
+</p>
+<ul style="color: var(--text-2); line-height: 1.7; max-width: 76ch; padding-left: 24px; margin-bottom: 24px;">
+  <li><strong>CodeGraph</strong> (<a href="https://github.com/Jakedismo/codegraph-rust" target="_blank" rel="noopener">Jakedismo/codegraph-rust</a>) — Rust + SurrealDB + per-language LSP. Type-aware via real language servers (rust-analyzer, pyright, gopls, jdtls, clangd, ts-language-server). 269 stars. No LICENSE file as of 2026-05-12. <a href="/vs/codegraph/">Comparison</a>.</li>
+  <li><strong>Serena</strong> (<a href="https://github.com/oraios/serena" target="_blank" rel="noopener">oraios/serena</a>) — LSP-based, per-language config. MIT. <a href="/vs/serena/">Comparison</a>.</li>
+  <li><strong>Claude Context</strong> (<a href="https://github.com/zilliztech/claude-context" target="_blank" rel="noopener">zilliztech/claude-context</a>) — Milvus-backed, vector-only semantic search. Apache 2.0. <a href="/vs/claude-context/">Comparison</a>.</li>
+  <li><strong>Codebase Memory MCP</strong> (<a href="https://github.com/HarryFlower/codebase-memory-mcp" target="_blank" rel="noopener">HarryFlower/codebase-memory-mcp</a>) — Memory-focused, lightweight. MIT. <a href="/vs/codebase-memory-mcp/">Comparison</a>.</li>
+</ul>
 <details class="reproducer">
   <summary>Reproduce these numbers locally</summary>
   <pre><code>git clone https://github.com/sverklo/sverklo &amp;&amp; cd sverklo &amp;&amp; git checkout 1c142f4e5d43a56c41a7f518eebef9df63845e8e &amp;&amp; npm install &amp;&amp; npm run build &amp;&amp; npm run bench:quick</code></pre>
