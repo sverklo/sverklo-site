@@ -220,25 +220,25 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
     <span class="l">cloud calls. 0 API keys. 0 default telemetry.</span>
   </div>
   <div class="card stat">
-    <span class="n">43×</span>
-    <span class="l">fewer input tokens than naive grep on the published 90-task benchmark (sverklo v0.20.2, May 2026)</span>
+    <span class="n">34×</span>
+    <span class="l">fewer input tokens than naive grep on the published 180-task benchmark (sverklo v0.20.18, 2026-05-12 run)</span>
   </div>
   <div class="card stat">
-    <span class="n">2.6×</span>
-    <span class="l">fewer input tokens than tuned grep on the same 90-task suite</span>
+    <span class="n">~1×</span>
+    <span class="l">vs smart-grep on tokens (712 vs 658 — near tie); F1 0.56 vs 0.34 (22-point gap, doubled at 180-task scale)</span>
   </div>
   <div class="card stat">
     <span class="n">1.0</span>
-    <span class="l">tool calls per task average vs grep's 4–7</span>
+    <span class="l">tool calls per task average vs naive-grep's 6.2 / smart-grep's 3.2</span>
   </div>
 </div>
 
-<p><strong>Important:</strong> the bench also reports the slice where sverklo loses to grep on F1 (P5 dead-code detection, F1 = 0.02). The numbers above are the wins; the losses are <a href="/bench/">on the same page</a>.</p>
+<p><strong>Important:</strong> the bench also reports the slices where sverklo loses to grep. On the 180-task run: P5 dead-code F1 0.67 vs naive-grep / smart-grep / gitnexus tied at 0.83 (sverklo's audit had a Python-decorator false-positive bug; fix shipped in v0.20.19 — expect P5 to reach parity in the next published run). The numbers above are the wins; the losses are <a href="/bench/">on the same page</a>.</p>
 
 <h2>Two-paragraph description</h2>
 <p>AI coding agents like Claude Code, Cursor, and Codex CLI hallucinate function names that don't exist in the user's codebase because they generate from training-data patterns rather than authoritative retrieval over the user's symbol graph. An agent will write <code>getUserByEmail()</code> when the codebase has <code>findByEmail()</code>; tests pass because the test mocks the dependency; production breaks. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls <em>before</em> writing code: <code>sverklo_lookup</code> resolves a name to its definition, <code>sverklo_refs</code> proves whether a symbol exists with caller context, <code>sverklo_verify</code> lets the agent re-check a quoted span against a cited git SHA.</p>
 
-<p>The architecture combines BM25 lexical retrieval, ONNX-embedded vector retrieval, and PageRank computed on the file-import graph. The novel piece is <em>channelized Reciprocal Rank Fusion</em>: instead of running RRF once over <code>fts ∪ vector</code>, sverklo runs RRF per channel (FTS, vector, doc-section, path, symbol-name) and fuses with channel-specific weights. The path channel is weighted 1.5× because filename matches are precision-skewed. Sverklo's other surfaces include a bi-temporal memory layer pinned to git SHAs (with valid_until_sha and superseded_by lineage), a diff-aware risk-scored PR review tool, and a 90-task hand-verified retrieval benchmark with reproducible harness.</p>
+<p>The architecture combines BM25 lexical retrieval, ONNX-embedded vector retrieval, and PageRank computed on the file-import graph. The novel piece is <em>channelized Reciprocal Rank Fusion</em>: instead of running RRF once over <code>fts ∪ vector</code>, sverklo runs RRF per channel (FTS, vector, doc-section, path, symbol-name) and fuses with channel-specific weights. The path channel is weighted 1.5× because filename matches are precision-skewed. Sverklo's other surfaces include a bi-temporal memory layer pinned to git SHAs (with valid_until_sha and superseded_by lineage), a diff-aware risk-scored PR review tool, and a 180-task hand-verified retrieval benchmark across 6 codebases with reproducible harness.</p>
 
 <h2>Founder + maintainer</h2>
 <p><strong>Nikita Groshin</strong> — solo founder, full-time maintainer.</p>
@@ -274,8 +274,8 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
   <tbody>
     <tr><td>37 MCP tools</td><td>List in <a href="https://github.com/sverklo/sverklo/blob/main/README.md">README</a> or call <code>sverklo --tools</code></td></tr>
     <tr><td>24 languages — 10 first-class (tree-sitter or custom: TS/TSX, JS, Python, Go, Rust, C#, Vue, Markdown, Jupyter), 14 via regex fallback (Java, C, C++, Ruby, PHP, Kotlin, Scala, Swift, Dart, Elixir, Lua, Zig, Haskell, Clojure, OCaml)</td><td>LANG_MAP in <a href="https://github.com/sverklo/sverklo/blob/main/src/indexer/parser-tree-sitter.ts">parser-tree-sitter.ts</a> + the regex parsers in <a href="https://github.com/sverklo/sverklo/blob/main/src/indexer/parser.ts">parser.ts</a></td></tr>
-    <tr><td>43× fewer tokens than naive grep on 90-task bench</td><td>bench:primitives v2 (sverklo v0.20.2, May 2026), run <code>npm run bench:quick</code> against repo. Raw: 469 tokens (sverklo) vs 20,278 tokens (naive-grep)</td></tr>
-    <tr><td>F1 = 0.56 on 90-task bench (overall leader)</td><td><a href="/bench/">/bench/</a> — sverklo edges smart-grep at 0.49; same page reports the slices where smart-grep wins (P2 0.40 vs sverklo 0.25)</td></tr>
+    <tr><td>34× fewer tokens than naive grep on 180-task bench</td><td>bench:primitives v2 (sverklo v0.20.18, 2026-05-12 run), reproducible via <code>npm run bench:quick</code>. Raw: 658 tokens (sverklo) vs 22,676 tokens (naive-grep). <em>Note: prior "43×" claim was from the older 90-task / 4-codebase run; the 180-task / 6-codebase number is the current canonical.</em></td></tr>
+    <tr><td>F1 = 0.56 on 180-task bench (overall leader)</td><td><a href="/bench/">/bench/</a> — sverklo leads smart-grep at 0.34, gitnexus at 0.31, jcodemunch at 0.29; same page reports the slices where sverklo loses (P5 dead-code 0.67 vs others 0.83)</td></tr>
     <tr><td>MIT licensed</td><td><a href="https://github.com/sverklo/sverklo/blob/main/LICENSE">LICENSE</a></td></tr>
     <tr><td>Local-first / no cloud</td><td>Network calls inspected: only ONNX model download on first run, then offline. <a href="https://github.com/sverklo/sverklo/blob/main/TELEMETRY.md">TELEMETRY.md</a></td></tr>
     <tr><td>~90 MB embedding model</td><td>all-MiniLM-L6-v2 ONNX, downloaded from HuggingFace, cached at <code>~/.sverklo/models/</code></td></tr>
@@ -291,7 +291,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
   </div>
   <div class="card">
     <h3>On benchmark honesty</h3>
-    <p>"On the May 2026 90-task bench, sverklo is the F1 leader (0.56) — but smart-grep still wins P2 reference finding at 0.40 vs sverklo's 0.25. We publish where we lose alongside where we win, because for AI agents inside bounded context windows, tokens-per-correct-answer is the more load-bearing axis, and on that one sverklo wins 43× over naive grep at 1.0 tool calls per task." — Nikita Groshin</p>
+    <p>"On the May 2026 180-task bench (6 codebases × 5 baselines), sverklo is the F1 leader (0.56) — but we lose P5 dead-code at 0.67 vs the field tied at 0.83. We publish where we lose alongside where we win, because for AI agents inside bounded context windows, tokens-per-correct-answer is the more load-bearing axis, and on that one sverklo wins 34× over naive grep at 1.0 tool calls per task." — Nikita Groshin</p>
   </div>
   <div class="card">
     <h3>On the local-first deployment model</h3>
