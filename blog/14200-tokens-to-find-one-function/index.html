@@ -283,6 +283,10 @@ body:has(header.top.nav-canonical) > #main {
 <p class="subtitle">I logged every tool call my Claude Code agent made on a 200-file repo for a week. Grep alone cost me $47. Here's the data, and what I changed.</p>
 <div class="meta">May 2026 · Nikita Groshin · ~2,000 words</div>
 
+<div style="background:var(--bg-2);border-left:3px solid var(--accent);padding:16px 20px;margin:24px 0;font-size:14px;line-height:1.6;color:var(--text-2);">
+  <strong style="color:var(--text);">Update — 2026-05-13:</strong> The "P1 jcodemunch 0.65 vs sverklo 0.45" claim in section below is from the original 312-session field study (May 2026, 90-task bench). The bench has since expanded to <strong>180 tasks across 6 codebases</strong> (express, lodash, sverklo, requests, flask, fastapi) and re-ran on 2026-05-12. Updated numbers: <strong>sverklo P1 is now 0.63 (leader)</strong>, jcodemunch 0.52, gitnexus 0.37, smart-grep 0.22. The field-study narrative below is preserved as the original observation; the canonical current numbers live on <a href="/mcp/">/mcp/</a> and the full task-by-task losses on <a href="/bench/losses/">/bench/losses/</a>.
+</div>
+
 <h2>The setup</h2>
 
 <p>Most engineers using Claude Code or Cursor have a vague sense that AI agents are expensive on large repos. Few of us have actually measured it. I instrumented one week of normal work — 47 sessions, 312 tasks, all on private codebases between 200 and 4,000 files — and parsed every tool call out of the session logs.</p>

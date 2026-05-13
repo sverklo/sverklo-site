@@ -131,7 +131,7 @@ footer a { color: var(--text-2); }
 
 <section class="hero">
   <div class="wrap">
-    <div class="kicker">/* security posture · last reviewed 2026-05-10 */</div>
+    <div class="kicker">/* security posture · last reviewed 2026-05-13 */</div>
     <h1>Local-first by design. Three documented network calls. MIT.</h1>
     <p class="lede">Sverklo indexes code on your machine, stores the index on your machine, and never sends code, queries, file paths, or symbol names anywhere. <strong>The only network calls are: model download on first run (one fixed URL), opt-in telemetry (9 documented fields, off by default), and an explicit user-initiated update check.</strong> Audit the source — it's MIT, reproducible from clone.</p>
   </div>
@@ -147,7 +147,16 @@ footer a { color: var(--text-2); }
       <div class="fact"><div class="num">0</div><div class="lbl">API keys, auth tokens, or cloud accounts required</div></div>
       <div class="fact"><div class="num">MIT</div><div class="lbl">licensed source — audit, fork, vendor as you please</div></div>
     </div>
-    <p>References: <a href="https://thehackernews.com/2026/04/anthropic-mcp-design-vulnerability.html" target="_blank" rel="noopener">The Hacker News — MCP design vulnerability (Apr 2026)</a> · <a href="https://www.ox.security/blog/mcp-supply-chain-advisory-rce-vulnerabilities-across-the-ai-ecosystem/" target="_blank" rel="noopener">OX Security — MCP supply chain advisory</a></p>
+    <p>The disclosure cycle has kept compounding through May 2026:</p>
+    <ul style="margin: 0 0 16px 24px; line-height: 1.7; color: var(--text-2); font-size: 14px;">
+      <li><strong>CVE-2026-22252</strong> — LibreChat MCP integration</li>
+      <li><strong>CVE-2026-22688</strong> — WeKnora MCP</li>
+      <li><strong>CVE-2026-26118</strong> — Microsoft MCP server, AI tool hijacking</li>
+      <li><strong>CVE-2026-33032</strong> — nginx-ui MCP, CVSS 9.8, ~2,600 exposed instances, unauthenticated full takeover</li>
+      <li><strong>Anthropic MCP design flaw</strong> (April 2026) — affecting 7,000+ servers, 150M+ downloads. Anthropic declined to revise the protocol, calling the behavior "expected." (<a href="https://thehackernews.com/2026/04/anthropic-mcp-design-vulnerability.html" target="_blank" rel="noopener">The Hacker News</a>; <a href="https://www.ox.security/blog/mcp-supply-chain-advisory-rce-vulnerabilities-across-the-ai-ecosystem/" target="_blank" rel="noopener">OX Security advisory</a>; <a href="https://www.securityweek.com/by-design-flaw-in-mcp-could-enable-widespread-ai-supply-chain-attacks/" target="_blank" rel="noopener">SecurityWeek</a>)</li>
+      <li><strong>MCPwn</strong> — independent supply-chain scanner ran against 14 popular MCP servers in May 2026 (<a href="https://dev.to/piiiico/mcpwn-is-live-we-scanned-the-supply-chains-of-14-mcp-servers-heres-what-we-found-38cl" target="_blank" rel="noopener">writeup</a>). Aikido/firecrawl reported "30+ MCP CVEs in Jan-Feb alone, 66% of popular servers have findings."</li>
+    </ul>
+    <p><strong>Sverklo's attack surface against this cycle:</strong> no remote endpoint (nothing to authenticate, nothing to hijack), no protocol-revision risk (we don't expose a network protocol — sverklo runs over stdio inside the user's MCP client process), no outbound except the three documented calls in the table below. CVE-2026-33032-class issues categorically don't apply because there is no listening service to expose.</p>
   </div>
 </section>
 
@@ -215,7 +224,7 @@ footer a { color: var(--text-2); }
 
 <footer>
   <div class="wrap">
-    <p>Last reviewed 2026-05-10. Sverklo is MIT-licensed and pre-1.0; this page is the canonical security posture as of that date. Vulnerability reports: <a href="mailto:security@sverklo.com">security@sverklo.com</a>.</p>
+    <p>Last reviewed 2026-05-13. Sverklo is MIT-licensed and pre-1.0; this page is the canonical security posture as of that date. Vulnerability reports: <a href="mailto:security@sverklo.com">security@sverklo.com</a>.</p>
   </div>
 </footer>
 
