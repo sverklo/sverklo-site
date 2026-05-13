@@ -212,7 +212,7 @@
 <main id="main">
 
 <h1><span>bench:primitives</span> — 180-task code retrieval evaluation</h1>
-<p class="subtitle">Five retrieval baselines, three real OSS codebases (express, lodash, sverklo), 90 hand-verified tasks. Reproducible. The naive baseline is what most agents do today — <em>blind grep</em>, 20K tokens of unranked regex hits per task.</p>
+<p class="subtitle">Five retrieval baselines, six real OSS codebases (express, lodash, sverklo, requests, flask, fastapi), 180 hand-verified tasks. Reproducible. The naive baseline is what most agents do today — <em>blind grep</em>, ~22K tokens of unranked regex hits per task. <strong>See also: <a href="/bench/losses/">every task where sverklo loses</a> (42 of 180) — published in full because a bench that only shows wins is marketing, not measurement.</strong></p>
 <div class="meta">
   April 2026 run: <code>2026-04-07T23:07:14Z</code> · 3 baselines (naive-grep, smart-grep, sverklo)<br>
   May 2026 update: <code>2026-05-02T23:35:52Z</code> · +2 baselines (jcodemunch-mcp, GitNexus) per <a href="https://github.com/sverklo/sverklo/issues/25">#25</a> · <a href="https://github.com/sverklo/sverklo/blob/main/benchmark/README.md">harness on GitHub</a> · <a href="https://github.com/sverklo/sverklo-bench"><strong>methodology + ground truth: sverklo/sverklo-bench</strong></a>
