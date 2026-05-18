@@ -34,7 +34,7 @@ const CANONICAL_NAV = `<nav class="top-nav">
 // release so subpages don't drift back to a stale fallback when npm
 // is offline. The canonical truth is on npm; this is just a placeholder
 // that gets shown for ~50ms before the fetch resolves.
-const VERSION_FALLBACK = "v0.20.2";
+const VERSION_FALLBACK = "v0.22.1";
 
 // Canonical design tokens. Loaded before page-local styles so the
 // per-page `:root { ... }` blocks override only when they want to.
@@ -332,6 +332,7 @@ const TARGETS = [
   new URL("../report/index.html", import.meta.url).pathname,
   new URL("../research/index.html", import.meta.url).pathname,
   new URL("../bench/index.html", import.meta.url).pathname,
+  new URL("../docs/config/index.html", import.meta.url).pathname,
   new URL("../press/index.html", import.meta.url).pathname,
   new URL("../vs/index.html", import.meta.url).pathname,
   new URL("../vs/matrix/index.html", import.meta.url).pathname,

@@ -430,7 +430,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.22.1</a></div>
   </div>
 </header>
 
@@ -440,6 +440,17 @@ body:has(header.top.nav-canonical) > #main {
     <p class="page-tagline">Receipts, methodology, losses. We publish the benchmark, the competitors patch, we patch back. Hybrid code search, PageRank for source code, bi-temporal memory, and the parser bugs we found by running the bench on real codebases.</p>
 
     <div class="posts">
+
+      <a class="post" href="/blog/bun-rust-audit-gap/">
+        <div class="post-meta">
+          <span class="date">2026-05-15</span>
+          <span class="tag">analysis</span>
+          <span class="tag">audit</span>
+          <span class="tag">ai-rewrites</span>
+        </div>
+        <h2 class="post-title">1 million lines, 10,400 <code>unsafe</code> blocks, 6 days. The audit gap is the bottleneck.</h2>
+        <p class="post-excerpt">The Bun → Rust PR (#30412) merged yesterday — full runtime rewrite, ~1M lines, AI agents at the keyboard. The viral nerve isn't "Rust vs Zig," it's the 10,400 <code>unsafe</code> blocks plus Sumner's "we haven't been typing code ourselves for many months now." When agents write a million lines in a week, the bottleneck moves from generation to verification. Sverklo's role in that loop, the measurement layer angle, and the dogfood admission of a HIGH-severity regression caught by our own agents.</p>
+      </a>
 
       <a class="post" href="/blog/claude-code-troubleshooting-large-repos/">
         <div class="post-meta">

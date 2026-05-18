@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1 million lines, 10,400 `unsafe` blocks, 6 days — the audit gap is the bottleneck — Sverklo</title>
+<meta name="description" content="The Bun → Rust rewrite merged in 6 days with ~1M lines and 10,400 `unsafe` blocks, written by AI agents. The viral nerve isn't Rust vs Zig — it's 'who audits this?' Here's how code-intel MCP tools close that gap.">
+<link rel="canonical" href="https://sverklo.com/blog/bun-rust-audit-gap/">
+
+<meta property="og:title" content="1M lines, 10,400 unsafe blocks, 6 days — the audit gap is the bottleneck">
+<meta property="og:description" content="The Bun → Rust rewrite merged with AI agents at the keyboard. 10,400 unsafe blocks shipped. Sumner: 'we haven't been typing code for months.' Verification didn't scale with generation. Here's the measurement-layer answer.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/bun-rust-audit-gap/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-10">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="MCP tools">
+<meta property="article:tag" content="tool overload">
+<meta property="article:tag" content="MCP profile">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="1M lines, 10,400 unsafe blocks, 6 days — the audit gap is the bottleneck">
+<meta name="twitter:description" content="The Bun → Rust rewrite merged with AI agents at the keyboard. The viral nerve isn't Rust vs Zig — it's 'who audits this?' Here's the measurement-layer answer.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "1 million lines, 10,400 unsafe blocks, 6 days. The audit gap is the bottleneck.",
+  "description": "Bun's Zig-to-Rust rewrite shipped via Claude Code agents — ~1M lines, ~6 days, 10,400 unsafe blocks. The viral nerve isn't language choice, it's 'who audits a million lines an agent shipped?' The audit-layer case for code-intel MCP tools.",
+  "datePublished": "2026-05-15",
+  "dateModified": "2026-05-15",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/bun-rust-audit-gap/"},
+  "articleSection": "Analysis",
+  "keywords": "Bun Rust rewrite, AI code review, Claude Code audit, code intelligence MCP, sverklo, AI-generated code verification, unsafe blocks Rust"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Sverklo", "item": "https://sverklo.com/"},
+    {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://sverklo.com/blog/"},
+    {"@type": "ListItem", "position": 3, "name": "Bun-Rust audit gap", "item": "https://sverklo.com/blog/bun-rust-audit-gap/"}
+  ]
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:22px;letter-spacing:-0.01em;margin:36px 0 16px;color:var(--fg)}
+  h3{font-size:17px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:18px 0;color:var(--fg);background:var(--bg-2);border-radius:0 4px 4px 0}
+  .pull{font-size:18px;line-height:1.5;color:var(--fg);margin:24px 0;padding:18px 22px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0}
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--text-3);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:0.05em}
+  td:first-child{color:var(--fg);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px}
+  .cta-box{background:var(--bg-2);border:1px solid var(--border);padding:22px 24px;border-radius:6px;margin:32px 0}
+  .cta-box h3{color:var(--fg);font-size:17px;margin:0 0 8px}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}h2{font-size:20px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Bun Rust Audit Gap",
+      "item": "https://sverklo.com/blog/bun-rust-audit-gap/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+
+<body>
+
+<div class="kicker">/* analysis · 2026-05-15 · the audit gap */</div>
+
+<h1>1 million lines, 10,400 <code>unsafe</code> blocks, 6 days. The audit gap is the bottleneck.</h1>
+
+<div class="meta-bar">
+  <span>2026-05-15</span>
+  <span>~7 min read</span>
+  <span><a href="/blog/bench-as-feedback-loop/">Part of: bench-loop posts</a></span>
+</div>
+
+<p class="lede">Yesterday <a href="https://github.com/oven-sh/bun/pull/30412" target="_blank" rel="noopener">PR #30412</a> merged. The Bun runtime — about a million lines, 6,755 commits, ~2,188 files — was rewritten from Zig to Rust. The work was executed by Claude Code agents under Anthropic, which now owns the Bun team. The <a href="https://news.ycombinator.com/item?id=48132488" target="_blank" rel="noopener">HN thread</a> hit 685 points in a day. The PR itself sits at 1,382 thumbs-up and 1,186 thumbs-down. That's not a normal merge.</p>
+
+<p class="pull">"We haven't been typing code ourselves for many months now." — Jarred Sumner, on the Bun rewrite</p>
+
+<p>If you read the comments, you'll notice something. The loudest objections are not "Rust was the wrong call" or "Zig deserved better." Those threads exist, but they're not the ones with the upvotes. The upvoted criticism is narrower and harder to dismiss:</p>
+
+<ol>
+  <li>The rewrite ships with <strong>10,400 <code>unsafe</code> blocks across 736 files</strong>. That undercuts the memory-safety pitch the rewrite was partly justified by.</li>
+  <li><strong>Agents wrote it.</strong> Sumner says he and his team haven't been typing the code for months.</li>
+  <li><strong>So who actually audits a million lines an agent shipped?</strong></li>
+</ol>
+
+<p>The third question is the one that matters. The first two are inputs to it.</p>
+
+<h2>The question is settled. The next one isn't.</h2>
+
+<p>It's tempting to write a post about whether AI agents should be writing production runtimes. Don't bother. The merge button got pressed. The benchmarks Bun publishes are roughly neutral-to-faster than the Zig version. The PR is in main. Anthropic, who builds the agent, owns the team that shipped the agent's output. The question of <em>whether</em> is over.</p>
+
+<p>The question of <em>how do you evaluate what shipped</em> is wide open.</p>
+
+<p>That's the gap. When a human writes a 500-line PR, the reviewer reads it. When an agent writes a million lines across two thousand files, "read the diff" stops being a coherent strategy. You need a measurement layer — something that can answer "what changed structurally, what's the blast radius, where's the risk concentrated" without depending on a second LLM to summarize the first one.</p>
+
+<p>I work on <a href="/">sverklo</a>, a local-first MCP code-intelligence server. Sverklo exists for exactly this question. Not as a replacement for review — humans still have to make the call — but as the instrument you point at a codebase before you decide where to spend your reviewing attention.</p>
+
+<p>Here's what that looks like in practice.</p>
+
+<h2>What "audit" means when you can't read the diff</h2>
+
+<p>Two of sverklo's tools are directly relevant to the Bun situation: <code>sverklo_audit</code> and <code>sverklo_impact</code>.</p>
+
+<p><code>sverklo_audit</code> returns a structural health report — god nodes, hub files, dead code, security pattern hits, circular dependencies — graded A through F. Run against sverklo's own codebase last week, the agent-led dogfood run returned <strong>Grade A</strong> after the v0.20.27 vendored-path filter shipped, up from Grade B before. The grade is heuristic, not magic. But it surfaces the things you'd want a human reviewer to start with: which files have outsized fan-in, which symbols touch too much of the graph, where the unsafe-pattern density spikes.</p>
+
+<p>For a rewrite the size of Bun's, what you'd actually want to know is not "is this codebase good" — it's "where is the risk concentrated." Grade A vs F isn't the interesting number. The interesting numbers are the per-file unsafe density, the hub-file list, and the circular-dep count. Those are the addresses for review attention.</p>
+
+<p><code>sverklo_impact</code> answers the second question: blast radius. Ask it about a symbol, and it returns every reference, grouped by file and call-site type. On our dogfood run this week, <code>sverklo_impact "parseFile"</code> returned <strong>19 references across 4 files</strong>. That's the kind of answer you want before touching a hot path. If an agent proposes to change <code>parseFile</code>, knowing the 19 downstream callers up front is the difference between a routine refactor and a Friday afternoon you regret.</p>
+
+<p>Neither tool tells you whether the agent's code is good. They tell you where to look. That's the gap between "the agent shipped" and "we know what shipped."</p>
+
+<h2>We just shipped 11 releases this week. With agents. Read this part carefully.</h2>
+
+<p>I want to be specific about why I think we have standing to write this post.</p>
+
+<p>Between Monday and today, sverklo shipped versions <strong>v0.20.22 through v0.20.31</strong> — eleven releases in a week. Most of that work was driven by Claude Code agents running against sverklo's own repo. The agents found bugs in sverklo by running sverklo against itself, then fixing what they found, then re-running.</p>
+
+<p>That cycle is not clean. In v0.20.25 I made a path-lookup change. The dogfood audit agent, on its next pass, flagged a <strong>HIGH-severity security regression</strong> in that exact change — a SQL wildcard-injection opening I hadn't noticed (GLOB metachars in bound parameters). I shipped the fix in v0.20.29. The agent found the bug I introduced. That's the loop working. It is also exactly the kind of thing that would have made it to main if I'd been the only reviewer.</p>
+
+<p>I'm not telling that story to brag about the catch. I'm telling it because it's the smaller-scale version of what just happened with Bun. An agent shipped code. A different agent, running a different tool, found a problem in it. The human in the loop — me — was a coordinator, not the auditor. The audit was tooling.</p>
+
+<p>If you can't tell that story honestly at small scale, you have no business making claims about it at million-line scale. So: that's our scale, that's what the agents caught, and that's what we shipped.</p>
+
+<h2>What this is, and what it isn't</h2>
+
+<p>A few things sverklo is not:</p>
+
+<ul>
+  <li>It is <strong>not a replacement</strong> for human code review. A grade and a blast-radius number don't approve a PR.</li>
+  <li>It is <strong>not an LLM-based reviewer</strong>. <code>sverklo_review_diff</code> produces risk-scored diff summaries from static analysis, not from another model's opinion. That's deliberate — adding a second LLM to audit the first one's output is not the answer.</li>
+  <li>It is <strong>not a verdict</strong> on whether agents should ship code. The Bun merge already settled that question for the runtime layer.</li>
+</ul>
+
+<p>What it is: a measurement layer. The kind of thing you point at a codebase — agent-written, human-written, or hybrid — when you need to know where to spend your attention.</p>
+
+<p>The Bun rewrite makes the case for that measurement layer the way no marketing copy could. A million lines, ten thousand unsafe blocks, six days, agents at the keyboard, and now in production. If that's the new normal, "I'll read the diff" is not a strategy anyone can defend with a straight face.</p>
+
+<h2>On honesty about the tool itself</h2>
+
+<p>The reason this post can be written is that we don't sell sverklo on belief. We sell it on numbers you can verify.</p>
+
+<ul>
+  <li><a href="/bench/">sverklo-bench</a> is a public retrieval benchmark with 180 hand-verified tasks across five baselines.</li>
+  <li><a href="/bench/losses/">sverklo.com/bench/losses</a> is the page where we publish the tasks sverklo <em>loses</em> on, with the failing queries and the winning baselines.</li>
+  <li>The bench-loop pattern — measure, get feedback, ship fix, re-measure — is documented in three prior posts: <a href="/blog/bench-as-feedback-loop/">bench-as-feedback-loop</a>, <a href="/blog/i-added-two-competitors-to-my-own-benchmark/">I added two competitors to my own benchmark</a>, and <a href="/blog/14200-tokens-to-find-one-function/">14,200 tokens to find one function</a>.</li>
+</ul>
+
+<p>The reason I'm pointing at those before asking you to install anything is that the appropriate response to "an agent shipped a million lines, trust the measurements" is to look at the measurements. Same standard. We publish where we lose so the wins are checkable.</p>
+
+<h2>If the audit gap is the bottleneck</h2>
+
+<p>The Bun rewrite is the canary, not the crisis. The crisis is that the next ten rewrites are coming, the agents are getting faster, and the review surface is getting wider. Some of those rewrites will go fine. Some of them will ship <code>unsafe</code> blocks no human ever read. The differentiator between those two outcomes is going to be the tooling around the agent, not the agent itself.</p>
+
+<p>If you want to point a measurement layer at your own repo:</p>
+
+<div class="cta-box">
+  <h3>Try the measurement layer</h3>
+  <pre>npm install -g sverklo
+sverklo init      # writes .mcp.json + CLAUDE.md
+sverklo bench self    # measure cold-start + warm-call latency on YOUR repo</pre>
+  <p>If you want to verify the retrieval claims before installing, <a href="/bench/">the bench</a> is the right place to start. F1, P@1, baselines, losses — all of it.</p>
+  <p>A million lines is a lot of code to take on faith. Don't.</p>
+</div>
+
+<h2>Related</h2>
+
+<ul>
+  <li><a href="/blog/bench-as-feedback-loop/">The Bench-as-Feedback-Loop Pattern — Two Iterations</a></li>
+  <li><a href="/blog/i-added-two-competitors-to-my-own-benchmark/">I Added Two Competitors to My Own Benchmark</a></li>
+  <li><a href="/blog/14200-tokens-to-find-one-function/">14,200 Tokens to Find One Function — A Field Study</a></li>
+  <li><a href="/bench/">sverklo-bench — public 180-task retrieval evaluation</a></li>
+  <li><a href="/bench/losses/">sverklo-bench losses — every task we lose</a></li>
+</ul>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

@@ -89,7 +89,7 @@
       "name": "Is there a published benchmark comparing Sverklo and codebase-memory-mcp?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo's bench:primitives is a 120-task hand-verified retrieval evaluation across four OSS codebases (express, lodash, sverklo) and 5 baselines (naive-grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus). codebase-memory-mcp publishes its own indexing-speed numbers (Linux kernel in ~3 minutes) but has not been benchmarked on the same retrieval task suite. The methodology repo at github.com/sverklo/sverklo-bench accepts new baseline submissions via PR; auto-bench CI runs on each baseline-touching PR. Sverklo's current numbers on the 120-task suite: F1 0.56 overall, 43× fewer input tokens than naive grep, single tool call per task."
+        "text": "Sverklo's bench:primitives is a 180-task hand-verified retrieval evaluation across six OSS codebases (express, lodash, sverklo, requests, flask, fastapi) and 5 baselines (naive-grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus). codebase-memory-mcp publishes its own indexing-speed numbers (Linux kernel in ~3 minutes) but has not been benchmarked on the same retrieval task suite. The methodology repo at github.com/sverklo/sverklo-bench accepts new baseline submissions via PR; auto-bench CI runs on each baseline-touching PR. Sverklo's current numbers (2026-05-13 run): F1 0.58 overall, 35× fewer input tokens than naive grep, single tool call per task."
       }
     },
     {
@@ -592,7 +592,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.22.1</a></div>
   </div>
 </header>
 

@@ -89,7 +89,7 @@
       "name": "Which is faster, Sverklo or GitNexus?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On the published Sverklo bench:primitives 120-task suite, sverklo answers in a single MCP tool call with 469 average input tokens. GitNexus also runs on the same suite and averages 372 input tokens with 1.2 tool calls per task; sverklo's overall F1 is 0.56 vs GitNexus's 0.25. Numbers reproducible from a fresh clone: anyone can run sverklo, gitnexus, jcodemunch-mcp, smart-grep, and naive-grep against the same task set with `npm run bench:quick`."
+        "text": "On the published Sverklo bench:primitives 180-task suite (2026-05-13 run), sverklo answers in a single MCP tool call with 652 average input tokens. GitNexus also runs on the same suite and averages 630 input tokens with 1.2 tool calls per task; sverklo's overall F1 is 0.58 vs GitNexus's 0.30. Numbers reproducible from a fresh clone: anyone can run sverklo, gitnexus, jcodemunch-mcp, smart-grep, and naive-grep against the same task set with `npm run bench:quick`."
       }
     },
     {
@@ -592,7 +592,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.22.1</a></div>
   </div>
 </header>
 
@@ -680,7 +680,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>By the bench numbers</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 18px;">
-      Both sverklo and GitNexus are on the public 5-baseline retrieval benchmark — 180 hand-verified tasks across 6 OSS codebases (express, lodash, sverklo, requests, flask, fastapi). <a href="/mcp/">Full ranking page</a>. Sverklo wins overall F1 (0.56 vs 0.31); GitNexus wins lowest token cost (630 vs sverklo's 658, near-tie).
+      Both sverklo and GitNexus are on the public 5-baseline retrieval benchmark — 180 hand-verified tasks across 6 OSS codebases (express, lodash, sverklo, requests, flask, fastapi). <a href="/mcp/">Full ranking page</a>. On the 2026-05-13 run sverklo wins overall F1 (0.58 vs 0.30); GitNexus wins lowest token cost (630 vs sverklo's 652, near-tie). <em>Note: GitNexus maintainer @abhigyanpatwari has flagged the bench frames GitNexus as a "standalone retriever" when its design assumption is "graph-augmentation alongside the host agent's grep" — a sibling bracket measuring agent-loop cost is in discussion on <a href="https://github.com/sverklo/sverklo-bench/issues/2">sverklo-bench#2</a>.</em>
     </p>
     <div class="table-scroll" style="overflow-x:auto;margin:14px 0;">
       <table class="cmp">

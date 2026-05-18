@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>.sverklo.yaml configuration — Sverklo</title>
+<meta name="description" content="Full schema for the optional .sverklo.yaml config file. Tune indexing ignore patterns, PageRank weights, search budgets, and embedding providers — all per project.">
+<link rel="canonical" href="https://sverklo.com/docs/config/">
+
+<meta property="og:title" content=".sverklo.yaml configuration reference">
+<meta property="og:description" content="Schema and recipes for the optional sverklo project config: ignore patterns, weights, search budgets, embedding providers.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/docs/config/">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:760px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .meta-bar{color:var(--muted);font-size:13px;margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;font-family:'JetBrains Mono',ui-monospace,monospace}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.18;letter-spacing:-0.02em;margin:0 0 18px;color:var(--fg)}
+  .lede{font-size:17px;line-height:1.55;color:var(--fg);margin:0 0 36px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+  h2{font-size:21px;letter-spacing:-0.01em;margin:36px 0 14px;color:var(--fg)}
+  h3{font-size:16px;margin:24px 0 10px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  p strong{color:var(--fg)}
+  ul,ol{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:6px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:18px 0;border-left:3px solid var(--accent);font-size:13px;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.55}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0}
+  th{text-align:left;padding:10px;border-bottom:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+  td.fg{color:var(--fg);font-weight:500}
+  .pull{font-size:18px;line-height:1.5;color:var(--fg);margin:24px 0;padding:18px 22px;background:var(--bg-2);border-left:4px solid var(--accent);border-radius:0 6px 6px 0}
+  @media(max-width:700px){body{padding:24px 14px;font-size:15px}h1{font-size:24px}.lede{font-size:15px}}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Docs",
+      "item": "https://sverklo.com/docs/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Config",
+      "item": "https://sverklo.com/docs/config/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<div class="kicker">Reference · Config</div>
+<h1>.sverklo.yaml — project configuration</h1>
+<p class="lede">Drop a <code>.sverklo.yaml</code> in your repo root to tune how sverklo indexes and ranks your code. The file is optional — sverklo works out of the box without one. Use it when you need to <strong>exclude directories</strong>, boost certain paths, swap embedding providers, or fit a monorepo's shape.</p>
+
+<div class="meta-bar">
+  <span>Updated 2026-05-18</span>
+  <span>Schema v1 (sverklo &ge; 0.22.0)</span>
+</div>
+
+<h2>Quick start: exclude directories in a monorepo</h2>
+
+<p>The most common need. Drop this in your repo root as <code>.sverklo.yaml</code>:</p>
+
+<pre>ignore:
+  - "vendor/**"
+  - "third_party/**"
+  - "**/__generated__/**"
+  - "fixtures/**"
+  - "packages/legacy-app/**"
+</pre>
+
+<p>Then re-run <code>sverklo audit</code> to rebuild the index. Anything matching these globs is skipped at indexing time — never parsed, never embedded, never showing up in search.</p>
+
+<div class="pull">Standard ignores (<code>node_modules/</code>, <code>dist/</code>, <code>.git/</code>, <code>.sverklo/</code>) are always applied. Your <code>ignore</code> entries are <em>additive</em> on top.</div>
+
+<h2>Full schema</h2>
+
+<pre># .sverklo.yaml (all keys optional)
+ignore:
+  - "vendor/**"          # glob (picomatch syntax)
+  - "fixtures/**"
+
+weights:
+  - glob: "src/core/**"
+    weight: 1.5          # 0.0–10.0, 1.0 = neutral
+  - glob: "scripts/**"
+    weight: 0.3          # downweight one-off scripts
+
+search:
+  defaultTokenBudget: 2000
+  maxResults: 30
+  budgets:
+    sverklo_search: 1500
+    sverklo_overview: 800
+
+indexing:
+  extensions:
+    .pyi: "python"       # treat .pyi as python for parsing
+    .erb: "html"
+
+embeddings:
+  provider: onnx         # onnx (default) | ollama
+  model: bge-small-en    # provider-specific
+  dimensions: 384        # auto-detected if omitted
+  ollama:
+    baseUrl: "http://localhost:11434"
+    model: "nomic-embed-text"
+  onnx:
+    modelPath: "/abs/path/to/model.onnx"
+</pre>
+
+<h2>Field reference</h2>
+
+<h3><code>ignore</code> &mdash; array of globs</h3>
+
+<p>Glob patterns (<a href="https://github.com/micromatch/picomatch">picomatch syntax</a>) for paths to skip during indexing. Additive on top of sverklo's defaults. Examples:</p>
+
+<ul>
+  <li><code>"vendor/**"</code> &mdash; skip everything under <code>vendor/</code></li>
+  <li><code>"**/*.test.ts"</code> &mdash; skip test files anywhere in the tree</li>
+  <li><code>"packages/legacy-*/**"</code> &mdash; skip multiple sibling packages</li>
+</ul>
+
+<h3><code>weights</code> &mdash; array of <code>{ glob, weight }</code></h3>
+
+<p>Multipliers applied to PageRank importance for files matching each glob. Range is <code>0.0</code>–<code>10.0</code> (clamped). <code>1.0</code> is neutral. Use this to:</p>
+
+<ul>
+  <li>Boost domain code: <code>{glob: "src/domain/**", weight: 2.0}</code></li>
+  <li>Downweight generated code: <code>{glob: "**/generated/**", weight: 0.2}</code></li>
+  <li>De-emphasize scripts that <em>look</em> central but aren't: <code>{glob: "scripts/**", weight: 0.3}</code></li>
+</ul>
+
+<h3><code>search</code> &mdash; ranking budgets</h3>
+
+<table>
+  <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td class="fg">defaultTokenBudget</td><td>integer</td><td>2000</td><td>Cap on tokens returned by search before truncation</td></tr>
+    <tr><td class="fg">maxResults</td><td>integer</td><td>30</td><td>Hard cap on result count regardless of token budget</td></tr>
+    <tr><td class="fg">budgets</td><td>map&lt;tool, int&gt;</td><td>—</td><td>Per-tool overrides (e.g., <code>sverklo_search: 1500</code>)</td></tr>
+  </tbody>
+</table>
+
+<h3><code>indexing.extensions</code> &mdash; treat new extensions as a known language</h3>
+
+<p>Map a file extension to one of sverklo's supported parsers. Useful if your project uses non-standard extensions (e.g., <code>.pyi</code> as python).</p>
+
+<h3><code>embeddings</code> &mdash; pick a provider</h3>
+
+<p>Default is the bundled ONNX provider (no setup needed). Switch to Ollama for larger models or custom dimensions:</p>
+
+<pre>embeddings:
+  provider: ollama
+  ollama:
+    baseUrl: "http://localhost:11434"
+    model: "nomic-embed-text"
+</pre>
+
+<h2>Recipes</h2>
+
+<h3>Monorepo with one indexed package, rest excluded</h3>
+
+<pre>ignore:
+  - "packages/!(api)/**"
+  - "apps/**"
+  - "tools/**"
+</pre>
+
+<h3>Boost recently-touched code; downweight legacy</h3>
+
+<pre>weights:
+  - glob: "src/**"
+    weight: 1.2
+  - glob: "legacy/**"
+    weight: 0.2
+</pre>
+
+<h3>Tight token budgets for small repos on slow machines</h3>
+
+<pre>search:
+  defaultTokenBudget: 1000
+  maxResults: 10
+</pre>
+
+<h2>Validation behavior</h2>
+
+<p>Sverklo loads <code>.sverklo.yaml</code> at startup and validates the structure. Invalid entries are <strong>logged and discarded</strong>; valid entries are kept. The server never crashes on a bad config &mdash; you'll see warnings on stderr like:</p>
+
+<pre>[config] .sverklo.yaml: invalid weight entry {…}, skipping
+[config] .sverklo.yaml: weight for "vendor/**" clamped from -1 to 0.0
+</pre>
+
+<p>To verify your config is being picked up, run <code>sverklo doctor</code> — it lists the resolved config file path.</p>
+
+<h2>See also</h2>
+
+<ul>
+  <li><a href="/recipes/defer-loading/">Recipe — Sverklo + Tool Search lazy-loading</a> (tools-list size)</li>
+  <li><a href="https://github.com/sverklo/sverklo/issues">Open an issue</a> if a field you need isn't here</li>
+</ul>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

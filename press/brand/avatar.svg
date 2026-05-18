@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Background — deep warm black, rounded corners.
+       The 18 / 100 ratio from the favicon scales to 184 / 1024. -->
+  <rect width="1024" height="1024" fill="#0E0D0B" rx="184" ry="184"/>
+
+  <!-- Orange vertical bar — accent color, left side, centered vertically.
+       Scales the favicon's 10x44 at 27,28 (in a 100x100 box) to:
+         x=276 y=286 w=102 h=451 (in a 1024x1024 box). -->
+  <rect x="276" y="286" width="102" height="451" fill="#E85A2A"/>
+
+  <!-- Lowercase "s" in JetBrains Mono Bold, warm cream.
+       Falls back through Monaco and ui-monospace so most browsers
+       render it cleanly even without the font installed. -->
+  <text
+    x="430"
+    y="727"
+    font-family="'JetBrains Mono', 'Monaco', ui-monospace, monospace"
+    font-weight="700"
+    font-size="573"
+    letter-spacing="-20"
+    fill="#EDE7D9"
+  >s</text>
+</svg>

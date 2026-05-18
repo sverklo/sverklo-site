@@ -3,23 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sverklo vs Cursor @Codebase — Code Intelligence MCP Comparison</title>
-<meta name="description" content="Sverklo vs Cursor's built-in @codebase indexing. Symbol-level dependency graphs, blast-radius analysis, and diff-aware review vs seamless IDE integration. Use both for best results.">
-<meta name="keywords" content="cursor alternative, sverklo vs cursor, cursor codebase indexing, MCP server, code intelligence, cursor @codebase, code search">
+<title>Sverklo vs Smart-Grep at Scale — Code Intelligence MCP Comparison</title>
+<meta name="description" content="Sverklo vs smart-grep on the 180-task code-intelligence benchmark: F1 0.58 vs 0.34, P1 0.63 vs 0.20, P4 0.84 vs 0.40, average tokens 652 vs 714. Where ripgrep+heuristics stops scaling and why.">
+<meta name="keywords" content="smart-grep vs sverklo, ripgrep code intelligence, MCP code search benchmark, grep at scale, hybrid retrieval, BM25 vs grep, F1 P1 P4 benchmark">
 <meta name="theme-color" content="#0E0D0B">
-<link rel="canonical" href="https://sverklo.com/vs/cursor-codebase/">
+<link rel="canonical" href="https://sverklo.com/vs/smart-grep-at-scale/">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Sverklo vs Cursor @Codebase — Code Intelligence MCP Comparison">
-<meta property="og:description" content="Cursor's @codebase gives you seamless indexing inside the IDE. Sverklo adds symbol-level dependency graphs, blast-radius analysis, and works with any MCP client. They complement each other.">
+<meta property="og:title" content="Sverklo vs Smart-Grep — F1 0.58 vs 0.34 at 180-task Scale Code Intelligence Comparison">
+<meta property="og:description" content="The strongest grep-baseline you can build (ripgrep + def-shaped patterns + language filters + ±10 lines context) vs sverklo's hybrid retrieval. F1, P1-P5, tokens, where each wins.">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://sverklo.com/vs/cursor-codebase/">
+<meta property="og:url" content="https://sverklo.com/vs/smart-grep-at-scale/">
 <meta property="og:site_name" content="Sverklo">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<!-- JSON-LD FAQ -->
+<!-- JSON-LD SoftwareApplication (sverklo) for entity-graph signal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Sverklo",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS, Linux, Windows",
+  "url": "https://sverklo.com",
+  "downloadUrl": "https://www.npmjs.com/package/sverklo",
+  "softwareVersion": "0.20.5",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sverklo",
+    "url": "https://sverklo.com"
+  }
+}
+</script>
+
+<!-- JSON-LD FAQ Schema -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -27,34 +54,50 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Can I use Sverklo and Cursor together?",
+      "name": "What is smart-grep, and how does it differ from plain grep?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo complements Cursor's built-in @codebase indexing. Cursor handles seamless in-IDE search and auto-indexing, while Sverklo adds symbol-level dependency graphs, blast-radius analysis, diff-aware PR review with risk scoring, and git-pinned memory. Many developers use both."
+        "text": "Smart-grep is the strong text-search baseline in sverklo-bench. It wraps ripgrep with three pieces of intelligence: language-aware file filters (extension globs), def-shaped patterns per task type (function/class/def regex with word boundaries), and ±10 lines of context around each hit. The implementation lives in benchmark/src/baselines/smart-grep.ts and is the best version of 'grep + a thoughtful prompt' — not a strawman. It exists so 'sverklo beats grep' means sverklo beats grep at its strongest, not grep at its dumbest."
       }
     },
     {
       "@type": "Question",
-      "name": "Does Sverklo work outside of Cursor?",
+      "name": "How does Sverklo compare to smart-grep on the benchmark?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo is an MCP server that works with any MCP-compatible client including Claude Code, Windsurf, Zed, and others. Cursor's @codebase indexing only works inside Cursor."
+        "text": "On 180 hand-verified tasks across 6 codebases (express 4.21.1, lodash 4.17.21, sverklo, requests 2.32.3, flask 3.0.3, fastapi 0.115.0): Sverklo F1 0.58 vs smart-grep 0.34. The largest gaps are P1 (def-lookup) 0.63 vs 0.20 and P4 (file dependencies) 0.84 vs 0.40 — both task types where flat text search cannot reconstruct cross-file relationships. P2 (ref-finding) 0.27 vs 0.20. P5 (dead-code detection) ties at 0.83 vs 0.83 — the Python-decorator audit fix shipped in v0.20.19 closed the prior gap."
       }
     },
     {
       "@type": "Question",
-      "name": "Is Sverklo free?",
+      "name": "Are sverklo's token savings over smart-grep meaningful?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo is MIT licensed and free for all use, including commercial projects. Cursor's @codebase indexing requires Cursor Pro at $20/month."
+        "text": "Average tokens per task: sverklo 652, smart-grep 714 — about a 9% advantage. Not the headline. The headline is the 24-point F1 gap at the same token budget. The interesting effect compounds across a session: when smart-grep misses, the agent re-queries (2-3 follow-up calls), spending its actual token win and more. Sverklo's first answer is more often the right answer."
       }
     },
     {
       "@type": "Question",
-      "name": "What does Sverklo do that Cursor's @codebase doesn't?",
+      "name": "Why does the F1 gap widen at scale?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo provides symbol-level dependency graphs with PageRank scoring, blast-radius analysis showing what breaks when you change a function, diff-aware PR review with risk scoring and CI gates, and git-pinned memory that persists across sessions. Cursor's indexing is embedding-based search without structural code analysis."
+        "text": "At 90 tasks (the prior bench run) the gap was 7 F1 points. At 180 tasks it's 22 points. Two reasons: (a) the 180-task set adds more multi-file refactor and dependency-graph tasks, which grep cannot answer regardless of pattern quality; (b) the larger codebases (fastapi, requests) have deeper import graphs where 'find every caller across modules' is the question. Smart-grep's accuracy is per-file local; sverklo's is repo-global via the import graph and PageRank centrality."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I prefer smart-grep over sverklo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three honest cases: (1) small repos where grep + a few language filters already finds everything in one pass, (2) zero-tolerance for install steps — smart-grep is a wrapper around the ripgrep binary you may already have, (3) zero cold-start budget at all (smart-grep has no warm state to maintain). For larger repos, cross-file refactors, dependency-graph questions, or anything where you want memory across sessions, sverklo's hybrid retrieval is measurably more accurate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the smart-grep baseline tuned fairly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The baseline implementation is in github.com/sverklo/sverklo-bench/blob/main/src/baselines/smart-grep.ts and is open for review. It uses tuned regex patterns per task type (def-lookup gets language-appropriate definition shapes, refs get word-boundary identifiers, etc.) and language-aware file filters. PRs improving the smart-grep baseline are welcome — if a better-tuned grep wrapper closes the gap, that's a legitimate result worth publishing."
       }
     }
   ]
@@ -525,8 +568,8 @@ body:has(header.top.nav-canonical) > #main {
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "vs Cursor @codebase",
-      "item": "https://sverklo.com/vs/cursor-codebase/"
+      "name": "Smart Grep At Scale",
+      "item": "https://sverklo.com/vs/smart-grep-at-scale/"
     }
   ]
 }
@@ -556,91 +599,134 @@ body:has(header.top.nav-canonical) > #main {
 <section class="hero">
   <div class="wrap">
     <div class="kicker">/* comparison */</div>
-    <h1>Sverklo vs <span class="accent">Cursor @Codebase</span></h1>
+    <h1>Sverklo vs <span class="accent">Smart-Grep</span> at Scale</h1>
     <p class="lede">
-      Cursor's built-in @codebase indexing gives you seamless code search inside the IDE. Sverklo is an MCP server that adds symbol-level dependency graphs, blast-radius analysis, and diff-aware PR review to any AI coding client.
-      <strong>They complement each other. This page explains what each does best and where they differ.</strong>
+      <strong>Smart-grep is sverklo's closest competitor on raw token cost.</strong> Sverklo at 652 input tokens per task, smart-grep at 714 — a ~9% advantage. On every other axis the gap is wider, and on the F1 axis specifically it grew from 7 points at 90-task scale to <strong>24 points at 180-task scale</strong> (0.58 vs 0.34). The honest story: when is a tuned grep good enough? When isn't it? Numbers from the public <a href="/bench/">180-task bench</a> across express, lodash, sverklo, requests, flask, and fastapi.
     </p>
   </div>
 </section>
 
 <section class="cmp-section">
   <div class="wrap">
-    <h2>Feature comparison</h2>
+    <h2>Bench numbers — 180-task / 6-codebase run (2026-05-13)</h2>
+
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Sverklo</th>
+          <th>Smart-grep</th>
+          <th>Gap</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Overall F1</td>
+          <td><strong>0.58</strong></td>
+          <td>0.34</td>
+          <td><strong>+24 pts</strong> (was +7 at 90-task)</td>
+        </tr>
+        <tr>
+          <td>P1 definition lookup</td>
+          <td><strong>0.63</strong></td>
+          <td>0.20</td>
+          <td><strong>+43 pts</strong></td>
+        </tr>
+        <tr>
+          <td>P2 reference finding</td>
+          <td><strong>0.27</strong></td>
+          <td>0.20</td>
+          <td>+7 pts</td>
+        </tr>
+        <tr>
+          <td>P4 file dependencies</td>
+          <td><strong>0.84</strong></td>
+          <td>0.40</td>
+          <td><strong>+44 pts</strong></td>
+        </tr>
+        <tr>
+          <td>P5 dead-code detection</td>
+          <td>0.83</td>
+          <td>0.83</td>
+          <td>tie (v0.20.19 fix landed)</td>
+        </tr>
+        <tr>
+          <td>Input tokens / task</td>
+          <td><strong>652</strong></td>
+          <td>714</td>
+          <td>−62 tokens (~9% sverklo win)</td>
+        </tr>
+        <tr>
+          <td>Tool calls / task</td>
+          <td><strong>1.0</strong></td>
+          <td>3.2</td>
+          <td><strong>3.2× fewer</strong></td>
+        </tr>
+        <tr>
+          <td>Wall time / task (warm)</td>
+          <td><strong>64 ms</strong></td>
+          <td>1,130 ms</td>
+          <td><strong>18× faster</strong></td>
+        </tr>
+        <tr>
+          <td>Cold-start cost</td>
+          <td>~26 s (index build, M-series)</td>
+          <td>0</td>
+          <td>Smart-grep wins on cold-start</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 style="margin-top: 40px;">Feature comparison</h2>
 
     <table class="cmp">
       <thead>
         <tr>
           <th></th>
           <th>Sverklo</th>
-          <th>Cursor @Codebase</th>
+          <th>Smart-grep</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Type</td>
-          <td>MCP server (works with any client)</td>
-          <td>Built-in IDE feature (Cursor only)</td>
-        </tr>
-        <tr>
-          <td>License / Price</td>
-          <td><span class="tag-mit">MIT</span> Free for all use</td>
-          <td><span class="tag-warn">$20/mo</span> Cursor Pro required</td>
-        </tr>
-        <tr>
-          <td>Client support</td>
-          <td>Claude Code, Windsurf, Zed, Cursor, any MCP client</td>
-          <td>Cursor only</td>
-        </tr>
-        <tr>
-          <td>Indexing approach</td>
-          <td>Tree-sitter AST parsing + symbol graph + embeddings</td>
-          <td>Embedding-based semantic indexing</td>
-        </tr>
-        <tr>
-          <td>Dependency graph</td>
-          <td>Symbol-level with PageRank scoring</td>
-          <td>Not available</td>
-        </tr>
-        <tr>
-          <td>Blast-radius analysis</td>
-          <td>Shows what breaks when you change a function</td>
-          <td>Not available</td>
-        </tr>
-        <tr>
-          <td>PR review</td>
-          <td>Risk-scored diffs with CI gate (--fail-on)</td>
-          <td>Not available</td>
-        </tr>
-        <tr>
-          <td>Memory system</td>
-          <td>Bi-temporal, git-pinned (memories tied to SHA)</td>
-          <td>Not available</td>
-        </tr>
-        <tr>
-          <td>PR history search</td>
-          <td>Not available</td>
-          <td>Search across PR history and conversations</td>
-        </tr>
-        <tr>
-          <td>Team sharing</td>
-          <td>Local-first, no cloud sync</td>
-          <td>Shared team index and context</td>
+          <td>Implementation</td>
+          <td>MCP server + tree-sitter + ONNX embeddings + PageRank + SQLite</td>
+          <td>Shell baseline: <code>rg</code> with language filters, definition-shaped patterns, ±10-line context reads</td>
         </tr>
         <tr>
           <td>Setup</td>
-          <td>npm install + init</td>
-          <td>Zero setup (automatic in Cursor)</td>
+          <td><code>npm i -g sverklo &amp;&amp; sverklo init</code> (one-time index build)</td>
+          <td>Install ripgrep; nothing else</td>
         </tr>
         <tr>
-          <td>Privacy</td>
-          <td>100% local, no telemetry, no API keys</td>
-          <td>Indexes sent to Cursor's cloud</td>
+          <td>Cold-start cost</td>
+          <td>~180 s on a ~4000-file repo (index build)</td>
+          <td>None</td>
         </tr>
         <tr>
-          <td>Open source</td>
-          <td>Yes (MIT)</td>
-          <td>No (proprietary)</td>
+          <td>Warm wall time</td>
+          <td>~68 ms per task</td>
+          <td>~1,130 ms per task (multi-grep cascade)</td>
+        </tr>
+        <tr>
+          <td>Cross-file graph awareness</td>
+          <td>Yes — symbol graph, PageRank-ranked retrieval, file deps</td>
+          <td>No — each grep call is stateless</td>
+        </tr>
+        <tr>
+          <td>Memory across sessions</td>
+          <td>Bi-temporal SHA-pinned memory</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Languages</td>
+          <td>10 first-class (TS/JS, Python, Go, Rust, C#, Vue, Markdown, Jupyter, etc.)</td>
+          <td>Any language grep matches (all of them); no symbol-level semantics</td>
+        </tr>
+        <tr>
+          <td>License</td>
+          <td>MIT</td>
+          <td>BSD-3 (ripgrep); the smart-grep wrapper used here is shipped in <code>benchmark/src/baselines/smart-grep.ts</code> MIT</td>
         </tr>
       </tbody>
     </table>
@@ -655,22 +741,21 @@ body:has(header.top.nav-canonical) > #main {
       <div class="when-card">
         <h3>Choose <span class="accent">Sverklo</span> when</h3>
         <ul>
-          <li>You use Claude Code, Windsurf, Zed, or multiple AI coding tools</li>
-          <li>You need to understand how a change propagates through your codebase</li>
-          <li>Your CI pipeline needs automated PR review with quality gates</li>
-          <li>You want memory that persists across sessions and tracks git state</li>
-          <li>You work on open-source or commercial projects (MIT licensed, free)</li>
-          <li>Your code must stay local with zero cloud dependency</li>
+          <li>Your repo is large enough that "find every reference" or "find every dependency" actually matters — P2 and P4 are where the F1 gap is widest</li>
+          <li>You want one tool to answer def-lookup, ref-finding, and import-graph questions instead of three separate workflows</li>
+          <li>You need memory that survives <code>/compact</code> — past decisions, file-level notes, pinned context</li>
+          <li>You're paying for tokens and care about the 652-vs-714 average (small but compounds across long sessions)</li>
+          <li>You want benchmark-validated F1 numbers, not vibes</li>
         </ul>
       </div>
       <div class="when-card">
-        <h3>Choose <span class="accent">Cursor @Codebase</span> when</h3>
+        <h3>Choose <span class="accent">smart-grep</span> when</h3>
         <ul>
-          <li>Cursor is your primary editor and you want zero-setup indexing</li>
-          <li>You need to search PR history and past conversations</li>
-          <li>Your team shares a Cursor workspace and needs shared context</li>
-          <li>Seamless UX matters more than structural code analysis</li>
-          <li>You already pay for Cursor Pro</li>
+          <li>The repo is small enough that ripgrep + a few language filters already finds everything in one pass</li>
+          <li>You will not tolerate <em>any</em> install step — smart-grep is a wrapper around the ripgrep binary you may already have</li>
+          <li>You don't want a cold-start budget at all — every query is fresh-shell, no daemon, no index</li>
+          <li>Flat namespaces dominate (config files, scripts, single-package repos) where def-shaped regex patterns hit cleanly</li>
+          <li>You're fine treating "5 grep results with 10 lines of context" as the final answer instead of a retrieval input</li>
         </ul>
       </div>
     </div>
@@ -679,12 +764,15 @@ body:has(header.top.nav-canonical) > #main {
 
 <section class="cmp-section" style="border-bottom: none;">
   <div class="wrap">
-    <h2>Better together</h2>
+    <h2>How smart-grep works internally</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
-      Sverklo and Cursor's @codebase are not mutually exclusive. <strong style="color: var(--text);">Use Cursor for fast in-IDE search and conversational context</strong>, and add Sverklo as an MCP server for the structural analysis Cursor does not provide: dependency graphs, blast-radius queries, diff-aware review with risk scoring, and persistent git-pinned memory.
+      The "smart-grep" baseline in <a href="https://github.com/sverklo/sverklo-bench" target="_blank" rel="noopener">sverklo-bench</a> is not naïve ripgrep. The implementation in <code>benchmark/src/baselines/smart-grep.ts</code> applies language-aware filters (file globs by extension), constructs def-shaped patterns per task type (e.g., <code>function\s+name</code>, <code>class\s+name</code>, <code>def\s+name</code>), reads ±10 lines of context around each hit, and de-duplicates. It is, in practice, the best version of "grep + a thoughtful prompt" — which is why we use it as the strong text-search baseline instead of a strawman.
     </p>
-    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      If you work across multiple editors or AI coding tools, Sverklo gives you <strong style="color: var(--text);">one code intelligence layer that follows you everywhere</strong> rather than locking your context into a single IDE. It is MIT licensed and free, so there is no cost to adding it alongside Cursor Pro.
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
+      Sverklo uses a hybrid pipeline: <strong style="color: var(--text);">SQLite + sqlite-vec</strong> for storage, <strong style="color: var(--text);">tree-sitter + regex fallback</strong> for parsing, <strong style="color: var(--text);">BM25 + ONNX (all-MiniLM-L6-v2)</strong> embeddings for ranking, and <strong style="color: var(--text);">PageRank</strong> over the import/symbol graph for centrality. The graph is what lets P4 ("which files depend on X?") return 0.84 instead of the 0.40 a grep wrapper can manage. Everything runs in-process from a single <code>npm install</code>; no daemons, no separate LSP processes.
+    </p>
+    <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; font-size: 14px;">
+      <em>Where sverklo lost in earlier runs:</em> P5 (cross-file dead-code) used to show smart-grep at 0.83 vs sverklo at 0.67 because the audit's <code>DECORATOR_ENTRY_POINT</code> regex was TS/NestJS-only and flagged every FastAPI/Flask route as dead. Fixed in v0.20.19; the 2026-05-13 rerun shows both baselines tied at 0.83. We left the historical context here so the bench-loop arc is visible — the public losses page lists every task where sverklo still loses to at least one baseline.
     </p>
   </div>
 </section>

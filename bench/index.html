@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sverklo Benchmark — 180-task code retrieval across 6 codebases × 5 baselines</title>
-<meta name="description" content="180 verified tasks across 6 OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests 2.32.3, flask 3.0.3, fastapi 0.115.0), 5 baselines (naive grep, smart grep, sverklo, jcodemunch-mcp, GitNexus). Reproducible. Sverklo F1 0.56 (overall leader; smart-grep next at 0.34), 34× fewer input tokens than naive grep, 1 tool call vs grep's 6.2. Published losses: P5 dead-code 0.67 vs 0.83.">
+<meta name="description" content="180 verified tasks across 6 OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests 2.32.3, flask 3.0.3, fastapi 0.115.0), 5 baselines (naive grep, smart grep, sverklo, jcodemunch-mcp, GitNexus). Reproducible. Sverklo F1 0.58 (overall leader; smart-grep next at 0.34), 35× fewer input tokens than naive grep, 1 tool call vs grep's 6.3. P5 dead-code tied at 0.83; jcodemunch now only baseline with P5 recall = 1.00.">
 <link rel="canonical" href="https://sverklo.com/bench/">
 
 <meta property="og:title" content="Sverklo Benchmark — 180 tasks, 6 codebases, 5 baselines, honest results">
@@ -116,7 +116,7 @@
       "name": "What is sverklo's F1 score on code retrieval?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo v0.20.18 achieves F1 0.56 on the 180-task bench (2026-05-12 run), leading smart-grep at 0.34, gitnexus at 0.31, jcodemunch at 0.29, and naive-grep at 0.26. P1 (definition lookup): 0.63 (leader). P4 (file dependencies): 0.84 (dominant by 44 points over smart-grep). P5 dead-code: sverklo loses at 0.67 vs naive-grep, smart-grep, gitnexus tied at 0.83 — published visibly."
+        "text": "Sverklo v0.20.21 achieves F1 0.58 on the 180-task bench (2026-05-13 run), leading smart-grep at 0.34, gitnexus at 0.30, jcodemunch at 0.29, and naive-grep at 0.25. P1 (definition lookup): 0.63 (leader). P4 (file dependencies): 0.84 (dominant by 44 points over smart-grep). P5 dead-code: sverklo ties at 0.83 with naive-grep, smart-grep, gitnexus after v0.20.19 closed the Python-decorator audit gap. jcodemunch is now the only baseline with P5 recall = 1.00 after the sverklo-bench#3 max_results=0 integration update."
       }
     },
     {
@@ -124,7 +124,7 @@
       "name": "How does sverklo's token economy compare to grep?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On the 180-task bench (2026-05-12 run), sverklo averages 658 input tokens per task at 1.0 tool call, vs naive grep's 22,676 tokens at 6.2 tool calls — 34× fewer input tokens than naive grep. Smart-grep is at 712 tokens with 3.2 tool calls — close on raw cost but F1 0.34 vs sverklo's 0.56."
+        "text": "On the 180-task bench (2026-05-13 run), sverklo averages 652 input tokens per task at 1.0 tool call, vs naive grep's 22,704 tokens at 6.3 tool calls — 35× fewer input tokens than naive grep. Smart-grep is at 714 tokens with 3.2 tool calls — close on raw cost but F1 0.34 vs sverklo's 0.58."
       }
     },
     {
@@ -140,7 +140,7 @@
       "name": "Where does sverklo lose on the benchmark?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Smart-grep wins P2 reference finding (0.40 vs sverklo's 0.25) — tuned ripgrep on call-site references is genuinely competitive. Sverklo's P5 dead-code detection ties at 0.67. The page has a dedicated 'Where sverklo loses' section with task-level F1 scores below the wins."
+        "text": "P2 reference finding is the weakest category for everyone — sverklo 0.27, smart-grep 0.20, jcodemunch 0.01, gitnexus 0.00. P5 dead-code is now tied across naive-grep, smart-grep, sverklo, gitnexus at 0.83 — but jcodemunch has recall 1.00 (precision 0.34) after the sverklo-bench#3 integration refresh, meaning it finds every expected dead-code name at the cost of false-positive density. The full task-by-task loss table is on /bench/losses/."
       }
     },
     {
@@ -205,7 +205,7 @@
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.20.2</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.22.1</a></div>
   </div>
 </header>
 
@@ -248,6 +248,34 @@
     <li><a href="https://github.com/sverklo/sverklo/issues/26">#26</a> — Lodash 4.17.21 added as third dataset, 30 new tasks (10 P1 + 10 P2 + 5 P4 + 5 P5), commit <a href="https://github.com/sverklo/sverklo/commit/5fba805">5fba805</a>.</li>
   </ul>
   Updated 3-dataset numbers are below. The April-only table is preserved further down for historical reference.
+</div>
+
+<div class="headline" style="border-left:4px solid #4ade80;padding:18px 22px;background:rgba(74,222,128,0.05);margin:18px 0">
+  <strong style="color:#4ade80;font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">May 13, 2026 — full 180-task rerun (sverklo v0.20.21, jcodemunch v1.81.1)</strong><br><br>
+  Two bench-loop iterations landed since the last published table:
+  <ul style="margin-top:8px">
+    <li><strong>Sverklo overall F1: 0.56 → 0.58</strong> (652 avg input tokens, 1.0 tool call, 64 ms warm). v0.20.19 closed the Python-decorator audit gap that was capping P5 at 0.67 — sverklo now ties the field at 0.83 on P5.</li>
+    <li><strong>jcodemunch baseline refresh per <a href="https://github.com/sverklo/sverklo-bench/issues/3">sverklo-bench#3</a>:</strong> @jgravelle handed over an integration playbook; we shipped <code>max_results=0</code> on <code>get_dead_code_v2</code> and surfaced <code>_meta.mode/truncated/total_matches</code> in per-task notes. Result: jcodemunch P5 recall jumped from cap-bound to <strong>1.00 across all 30 dead-code tasks</strong>. Precision lands at 0.34 (the unlimited list surfaces ~3× more plausible-but-not-expected names), F1 0.34, token cost 10,172. jcodemunch is now the only baseline in the field with zero false negatives on P5.</li>
+    <li><strong>P2 is the field-wide weak point.</strong> Sverklo 0.27, smart-grep 0.20, jcodemunch 0.01, gitnexus 0.00. No baseline has cracked it yet — call-site reference resolution remains the open category.</li>
+  </ul>
+  Full 180-task numbers (5 baselines × 6 datasets) are in the table below. Raw run: <code>2026-05-13T18-32-20-478Z</code>.
+</div>
+
+<div class="headline" style="border-left:4px solid #4ade80;padding:18px 22px;background:rgba(74,222,128,0.05);margin:18px 0">
+  <strong style="color:#4ade80;font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">May 13, 2026 — headline (180-task, 5 baselines, 6 datasets)</strong><br><br>
+  <div class="table-scroll" style="margin-top:8px"><table>
+    <thead>
+      <tr><th>baseline</th><th class="num">n</th><th class="num">F1</th><th class="num">P1</th><th class="num">P2</th><th class="num">P4</th><th class="num">P5</th><th class="num">avg tokens</th><th class="num">tools/task</th><th class="num">warm (ms)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>naive-grep</strong></td><td class="num">180</td><td class="num">0.25</td><td class="num">0.07</td><td class="num">0.11</td><td class="num">0.35</td><td class="num">0.83</td><td class="num">22,704</td><td class="num">6.3</td><td class="num">2,456</td></tr>
+      <tr><td><strong>smart-grep</strong></td><td class="num">180</td><td class="num">0.34</td><td class="num">0.20</td><td class="num">0.20</td><td class="num">0.40</td><td class="num">0.83</td><td class="num">714</td><td class="num">3.2</td><td class="num">1,130</td></tr>
+      <tr><td><strong>sverklo v0.20.21</strong></td><td class="num">180</td><td class="num"><span class="best">0.58</span></td><td class="num"><span class="best">0.63</span></td><td class="num"><span class="best">0.27</span></td><td class="num"><span class="best">0.84</span></td><td class="num">0.83</td><td class="num">652</td><td class="num"><span class="best">1.0</span></td><td class="num"><span class="best">64</span></td></tr>
+      <tr><td><strong>jcodemunch v1.81.1</strong></td><td class="num">180</td><td class="num">0.29</td><td class="num">0.52</td><td class="num">0.01</td><td class="num">0.33</td><td class="num">0.34<sup>†</sup></td><td class="num">1,907</td><td class="num">1.2</td><td class="num">18</td></tr>
+      <tr><td><strong>gitnexus</strong></td><td class="num">180</td><td class="num">0.30</td><td class="num">0.35</td><td class="num">0.00</td><td class="num">0.27</td><td class="num">0.83</td><td class="num"><span class="best">630</span></td><td class="num">1.2</td><td class="num">718</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px"><sup>†</sup> jcodemunch P5 recall = 1.00, precision = 0.34, tokens = 10,172. The F1 is precision-bound (full recall + verbose list of candidates). With <code>max_results=100</code> the prior baseline scored lower; the refresh per <a href="https://github.com/sverklo/sverklo-bench/issues/3">sverklo-bench#3</a> reveals jcodemunch's actual P5 ceiling.</p>
 </div>
 
 <div class="headline" style="border-left:4px solid #4ade80;padding:18px 22px;background:rgba(74,222,128,0.05);margin:18px 0">

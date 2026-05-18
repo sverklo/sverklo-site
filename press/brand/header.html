@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>sverklo header — render + screenshot</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1816; /* neutral surround so the canvas edges are visible */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'JetBrains Mono', 'Monaco', ui-monospace, monospace;
+  }
+  .header {
+    /* Exactly 3:1 — X's header aspect ratio */
+    width: 1500px;
+    height: 500px;
+    background: #0E0D0B;
+    position: relative;
+    overflow: hidden;
+  }
+  svg { display: block; }
+  .notice {
+    position: fixed;
+    top: 16px; left: 16px;
+    color: #A39886;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 360px;
+  }
+  .notice strong { color: #EDE7D9; }
+</style>
+</head>
+<body>
+
+<div class="notice">
+  <strong>screenshot the dark area below at 1500×500.</strong><br>
+  cmd+shift+4 then space to capture the element on macOS,<br>
+  or use a 1500×500 area selection.<br>
+  the surrounding gray is intentional — so you can see the edges.
+</div>
+
+<div class="header">
+  <svg viewBox="0 0 1500 500" width="1500" height="500">
+    <defs>
+      <!-- Subtle radial vignette so the graph reads as "depth" -->
+      <radialGradient id="vignette" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#0E0D0B" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#0E0D0B" stop-opacity="0.85"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Graph rendered by JS below — gives us reproducible layout
+         every time, no AI quirks, exact brand colors. -->
+    <g id="graph"></g>
+
+    <rect x="0" y="0" width="1500" height="500" fill="url(#vignette)" pointer-events="none"/>
+  </svg>
+</div>
+
+<script>
+// Deterministic seed so the graph looks the same on every render.
+let seed = 42;
+function rand() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+
+const svg = document.getElementById('graph');
+const W = 1500, H = 500;
+
+// Cluster bias — left third stays empty (where the X profile-photo
+// circle overlaps), graph density grows toward the right.
+const nodes = [];
+const N = 70;
+for (let i = 0; i < N; i++) {
+  // x-bias: nodes prefer the right two-thirds.
+  // pow(rand(), 0.6) skews toward higher values → toward right.
+  const xBias = Math.pow(rand(), 0.6);
+  const x = 380 + xBias * 1080;
+  const y = 60 + rand() * 380;
+  const importance = rand();
+  nodes.push({ x, y, r: 3 + importance * 8, isHub: importance > 0.88 });
+}
+
+// Edges — each node connects to 1-3 nearest neighbors.
+const edges = [];
+for (let i = 0; i < nodes.length; i++) {
+  const neighbors = nodes
+    .map((n, j) => ({ j, d: Math.hypot(n.x - nodes[i].x, n.y - nodes[i].y) }))
+    .filter(n => n.j !== i)
+    .sort((a, b) => a.d - b.d)
+    .slice(0, 1 + Math.floor(rand() * 3));
+  for (const nb of neighbors) {
+    if (nb.d < 220) edges.push({ a: i, b: nb.j });
+  }
+}
+
+// Render edges first (so nodes sit on top)
+for (const e of edges) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', nodes[e.a].x);
+  line.setAttribute('y1', nodes[e.a].y);
+  line.setAttribute('x2', nodes[e.b].x);
+  line.setAttribute('y2', nodes[e.b].y);
+  line.setAttribute('stroke', '#403A30');
+  line.setAttribute('stroke-width', '0.7');
+  line.setAttribute('opacity', '0.7');
+  svg.appendChild(line);
+}
+
+// Render nodes
+for (const n of nodes) {
+  const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  c.setAttribute('cx', n.x);
+  c.setAttribute('cy', n.y);
+  c.setAttribute('r', n.r);
+  c.setAttribute('fill', n.isHub ? '#E85A2A' : '#EDE7D9');
+  c.setAttribute('opacity', n.isHub ? '1' : '0.75');
+  svg.appendChild(c);
+}
+</script>
+</body>
+</html>

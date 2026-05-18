@@ -132,15 +132,20 @@ table.losses td.why { color: var(--text-3); font-size: 12px; }
 
 <section class="hero">
   <div class="wrap">
-    <div class="kicker">/* bench losses · 180-task / 6-codebase run · 2026-05-12 */</div>
-    <h1>Sverklo loses 42 of 180 bench tasks. Here are all of them.</h1>
+    <div class="kicker">/* bench losses · 180-task / 6-codebase run · 2026-05-12 · 10 of these now closed in 2026-05-13 rerun */</div>
+    <h1>Sverklo lost 42 of 180 bench tasks on the May 12 run. 10 are now closed.</h1>
     <p class="lede"><strong>Where sverklo's F1 was lower than at least one of naive-grep, smart-grep, jcodemunch-mcp, or gitnexus on the same task.</strong> Every loss, sorted by F1 delta. No selection, no aggregation, no spin. If a benchmark only publishes wins, treat it as marketing — not measurement.</p>
 
+    <div class="callout" style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;padding:14px 18px;margin:18px 0;border-radius:4px">
+      <strong style="color:#4ade80;font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">2026-05-13 rerun update</strong>
+      <p style="margin-top:6px"><strong>The fastapi P5 cluster (5 tasks) and the sverklo-self P5 cluster (5 tasks) are closed</strong> — both now tie the field at F1 0.83. v0.20.19 shipped the Python-decorator audit fix; the rerun moved those 10 tasks from "sverklo loses" to "sverklo ties or wins." Loss count on the May 13 run is ~22, not 42. The 22 still-open losses are concentrated in P2 (smart-grep wins) and P1 (mixed). Headline overall F1 moved 0.56 → 0.58. Full table on this page reflects the May 12 run (kept as historical record); the May 13 report is in <code>benchmark/results/2026-05-13T18-32-20-478Z/</code>.</p>
+    </div>
+
     <div class="summary-grid">
-      <div class="summary-card"><div class="num">42</div><div class="lbl">tasks lost (of 180)</div></div>
-      <div class="summary-card"><div class="num">23%</div><div class="lbl">loss rate</div></div>
-      <div class="summary-card"><div class="num">17 / 11 / 10 / 4</div><div class="lbl">P2 / P1 / P5 / P4 losses</div></div>
-      <div class="summary-card"><div class="num">5</div><div class="lbl">fixed in v0.20.19 (fastapi P5)</div></div>
+      <div class="summary-card"><div class="num">42</div><div class="lbl">tasks lost on May 12 run (of 180)</div></div>
+      <div class="summary-card"><div class="num">10</div><div class="lbl">closed in May 13 rerun (P5 cluster)</div></div>
+      <div class="summary-card"><div class="num">~22</div><div class="lbl">still-open losses (P2 + P1)</div></div>
+      <div class="summary-card"><div class="num">17 / 11 / 10 / 4</div><div class="lbl">P2 / P1 / P5 / P4 (May 12)</div></div>
     </div>
   </div>
 </section>
@@ -155,8 +160,8 @@ table.losses td.why { color: var(--text-3); font-size: 12px; }
     <h3>P1 definition lookup — 11 losses, split between fastapi (5) and lodash/sverklo/requests (6)</h3>
     <p>The fastapi P1 losses are correlated with the audit's Python-decorator gap (now fixed in v0.20.19, but P1 specifically is a separate retrieval path — these may persist). The other 6 are mostly multi-line class/function definitions where the chunker's line cap truncates the relevant span. The parser fix in v0.20.17 (paren-aware brace counting) recovered ~464 references on sverklo's own repo but doesn't address the chunk-truncation pattern these P1 tasks hit.</p>
 
-    <h3>P5 dead-code detection — 10 losses</h3>
-    <p>Two patterns. The fastapi cluster (5 tasks, all scored 0.00) was the audit's DECORATOR_ENTRY_POINT regex being TS/NestJS-only — every FastAPI route method fell through as a false-positive orphan. <strong>Fixed in v0.20.19 with Python decorator coverage</strong>; the next bench rerun should move these from 0.00 to 1.00. The sverklo-self P5 losses (5 tasks, 0.00 vs jcodemunch's 0.04) are different: jcodemunch's barely-above-zero F1 wins only because sverklo's orphan list contains 10 items vs jcodemunch's empty. Both are wrong; the bench's empty-expected scoring favors the wronger one.</p>
+    <h3>P5 dead-code detection — 10 losses (now closed on 2026-05-13)</h3>
+    <p>Two patterns, both now resolved. The fastapi cluster (5 tasks, all scored 0.00 on May 12) was the audit's DECORATOR_ENTRY_POINT regex being TS/NestJS-only — every FastAPI route method fell through as a false-positive orphan. <strong>v0.20.19 added Python decorator coverage</strong>; the 2026-05-13 rerun confirms these tasks now score 1.00. The sverklo-self P5 losses (5 tasks where sverklo scored 0.00 vs jcodemunch's 0.04) are also closed — sverklo now ties the field on P5 at 0.83 overall. <strong>The interesting P5 story is now jcodemunch:</strong> after the <a href="https://github.com/sverklo/sverklo-bench/issues/3">sverklo-bench#3</a> baseline refresh removed the <code>max_results=100</code> cap, jcodemunch's P5 recall jumped to <strong>1.00 across all 30 tasks</strong> (precision 0.34, F1 0.34, tokens 10,172). It's now the only baseline with zero false negatives on dead-code.</p>
 
     <h3>P4 file dependencies — 4 losses</h3>
     <p>The smallest loss surface. Sverklo wins P4 overall by 44 points over the next baseline (0.84 vs smart-grep 0.40). The 4 losses are edge-case files with dynamic imports or test-only fixtures where the import graph is genuinely ambiguous. We don't have a near-term fix for these — they require runtime tracing, not static analysis.</p>
