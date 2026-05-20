@@ -262,6 +262,17 @@ embeddings:
   <li>De-emphasize scripts that <em>look</em> central but aren't: <code>{glob: "scripts/**", weight: 0.3}</code></li>
 </ul>
 
+<p><strong>Resolution when multiple globs match:</strong> <em>last match wins</em>. Sverklo walks <code>weights</code> top-to-bottom and the final matching entry sets the file's weight (the others are discarded — weights are not multiplied or stacked). Put broader rules first and more specific overrides after:</p>
+
+<pre>weights:
+  - glob: "tests/**"
+    weight: 0.8        # all tests, downweight
+  - glob: "tests/fixtures/**"
+    weight: 0.5        # fixtures specifically, even more
+</pre>
+
+<p>A file at <code>tests/fixtures/sample.json</code> matches both entries; the effective weight is <code>0.5</code> (the last one). If you reverse the order, <code>tests/fixtures/sample.json</code> ends up at <code>0.8</code> because <code>tests/**</code> would be the last match. Order matters.</p>
+
 <h3><code>search</code> &mdash; ranking budgets</h3>
 
 <table>
