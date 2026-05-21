@@ -18,12 +18,11 @@ import { join } from "node:path";
 // from cross-page navigation, even though the bench-loop story
 // (sverklo's strongest content) lives on /bench/. Both now first-class.
 const CANONICAL_NAV = `<nav class="top-nav">
-      <a href="/report/">reports</a>
-      <a href="/vs/">compare</a>
+      <a href="/install/">install</a>
+      <a href="/compare/">compare</a>
       <a href="/bench/">bench</a>
-      <a href="/benchmarks/">perf</a>
+      <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
-      <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>`;

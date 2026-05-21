@@ -592,6 +592,12 @@ nav.top-nav a:hover { color: var(--text); }
   padding: 64px 0;
   background: var(--bg);
 }
+.bench-loop .loop-eyebrow,
+.bench-loop .loop-h,
+.bench-loop .loop-tl,
+.bench-loop .loop-quote { grid-column: 1 / 13; }
+.bench-loop .loop-tl,
+.bench-loop .loop-quote { max-width: 75ch; }
 .bench-loop .loop-eyebrow {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   color: var(--text-3);
@@ -1839,7 +1845,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="brand mono">sverklo</div>
     <nav class="top-nav">
       <a href="/report/">reports</a>
-      <a href="/vs/">compare</a>
+      <a href="/compare/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/benchmarks/">perf</a>
       <a href="/research/">research</a>
@@ -1862,13 +1868,13 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <!-- ───────── HERO ───────── -->
 <section class="hero">
   <div class="grid">
-    <div class="label">/* local-first code intelligence ◦ no cloud upload ◦ 34× fewer tokens than grep ◦ MIT */</div>
+    <div class="label">/* local-first code intel ◦ the audit gap ◦ 34× fewer tokens than grep ◦ MIT */</div>
 
     <h1>Stop Claude Code from burning tokens on grep.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
 
     <div class="lede">
       <p><strong>1 tool call instead of 7-12.</strong> Claude Code, Cursor, and Windsurf hunt your codebase with grep loops that burn input tokens and still hallucinate function names. Sverklo answers in <strong>one MCP call</strong> against a real symbol graph — running locally on your machine. <a href="/bench/">180-task bench across 6 codebases</a>: <strong>35× fewer input tokens than grep</strong>, <strong>F1 0.58 — overall leader</strong> (smart-grep next at 0.34, P4 file-deps win 0.84 vs 0.40).</p>
-      <p>Local-first, MIT-licensed, no API keys, no cloud upload. The only code-intel MCP with a peer-reviewable benchmark — <em>the slice where sverklo loses to grep is on the same page as the wins</em>.</p>
+      <p>Local-first, MIT-licensed, no API keys, no cloud upload. The code-intel MCP that ships its bench — <em>the slice where sverklo loses to grep is on the same page as the wins</em>.</p>
     </div>
 
     <div class="hero-cta">
