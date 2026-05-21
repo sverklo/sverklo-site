@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sverklo vs Serena, GitNexus, Greptile — comparison</title>
+<meta name="description" content="Three local-first / hybrid code-intelligence options compared on six dimensions. Numbers, not opinions. Each row links to a deep-dive.">
+<link rel="canonical" href="https://sverklo.com/compare/">
+<link rel="stylesheet" href="/tokens.css">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:920px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  h1{font-size:30px;letter-spacing:-0.02em;margin:0 0 18px}
+  h2{font-size:21px;letter-spacing:-0.01em;margin:36px 0 14px}
+  p{margin:14px 0;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0;font-family:'JetBrains Mono',ui-monospace,monospace}
+  th{text-align:left;padding:12px 10px;border-bottom:2px solid var(--accent);color:var(--accent);font-size:12px;text-transform:uppercase;background:var(--bg-2)}
+  td{padding:10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+  td.fg{color:var(--fg)}
+  td.win{color:#5fb05f}
+  td.lose{color:#c08060}
+  .kicker{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:14px}
+  .note{font-size:14px;color:var(--muted);background:var(--bg-2);border-left:3px solid var(--accent);padding:14px 18px;margin:24px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-size:0.92em;font-family:'JetBrains Mono',ui-monospace,monospace}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Compare",
+      "item": "https://sverklo.com/compare/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<div class="kicker">Compare · code-intel servers</div>
+<h1>Sverklo vs Serena, GitNexus, Greptile</h1>
+
+<p>Six dimensions, four products. Numbers below are from sverklo-bench v2 (2026-05-20) using each project's public configuration. The "win" column is per-dimension. Sverklo doesn't win every column on purpose &mdash; the rows where competitors win are part of the point.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>Sverklo</th>
+      <th>Serena</th>
+      <th>GitNexus</th>
+      <th>Greptile</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="fg">License</td>
+      <td class="fg win">MIT</td>
+      <td class="fg">MIT</td>
+      <td>BSL (restricted commercial)</td>
+      <td>Closed source</td>
+    </tr>
+    <tr>
+      <td class="fg">Where the code runs</td>
+      <td class="fg win">Local-first, never leaves the machine</td>
+      <td class="fg">Local-first</td>
+      <td class="fg">Local + optional cloud</td>
+      <td>Cloud-only (uploads source)</td>
+    </tr>
+    <tr>
+      <td class="fg">Audit-gap detection (sverklo-bench v2)</td>
+      <td class="fg win">89%</td>
+      <td>62%</td>
+      <td>71%</td>
+      <td>78%</td>
+    </tr>
+    <tr>
+      <td class="fg">Languages indexed</td>
+      <td>4 (TS, JS, Python, Go)</td>
+      <td class="fg win">12 (incl. Rust, Java, C++)</td>
+      <td>8</td>
+      <td class="fg win">12+ via cloud parser</td>
+    </tr>
+    <tr>
+      <td class="fg">Install steps (zero-to-MCP)</td>
+      <td class="fg win">1 (<code>npm i -g sverklo &amp;&amp; sverklo init</code>)</td>
+      <td>3 (clone, build, configure)</td>
+      <td>4 (clone, build, license-key, configure)</td>
+      <td>2 (signup, install IDE plugin)</td>
+    </tr>
+    <tr>
+      <td class="fg">Cost</td>
+      <td class="fg win">Free, MIT</td>
+      <td class="fg win">Free, MIT</td>
+      <td>Free under BSL terms</td>
+      <td>$30/seat/month</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note"><strong>Methodology.</strong> Numbers come from <a href="https://github.com/sverklo/sverklo-bench">sverklo-bench v2</a> run against each project's default configuration on 2026-05-20. The "audit-gap" dimension is defined in the bench README. PRs to the bench are welcome from any of the four projects' maintainers &mdash; if you can reproduce different numbers, the bench updates.</div>
+
+<h2>Per-product deep dives</h2>
+
+<p>Each comparison links to a longer page with full bench-row reproduction commands, the specific use cases where the product wins, and the trade-offs.</p>
+
+<ul>
+  <li><a href="/vs/serena/">sverklo vs Serena</a> &mdash; both MIT, both local-first. Serena wins on language breadth.</li>
+  <li><a href="/vs/gitnexus/">sverklo vs GitNexus</a> &mdash; license + cloud-optional trade-offs. GitNexus's symbol graph is more academic.</li>
+  <li><a href="/vs/greptile/">sverklo vs Greptile</a> &mdash; the closed-vs-open axis. Greptile's PR-bench is sharper than ours on cross-file refactor catches.</li>
+</ul>
+
+<h2>The dimensions sverklo doesn't optimize for</h2>
+
+<p>If you need a language sverklo doesn't index (Rust, Java, C++, Ruby, Swift), pick Serena. If you want a fully managed service with no local install, pick Greptile. The MIT + local-first + zero-config combination is sverklo's wedge; everything else is conscious trade-off.</p>
+
+<h2>Want a row updated?</h2>
+
+<p>Open a PR on <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a> with a reproduction. If the number on this page is wrong, we'd rather know. <a href="/install/?ref=compare">Try sverklo</a>.</p>
+
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>
