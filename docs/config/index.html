@@ -299,6 +299,31 @@ embeddings:
     model: "nomic-embed-text"
 </pre>
 
+<h4>ONNX vs Ollama: performance tradeoff</h4>
+
+<p>ONNX is materially faster than Ollama for indexing on most projects. The reason is structural, not a sverklo integration bug:</p>
+
+<table>
+  <thead><tr><th>Aspect</th><th>ONNX (bundled)</th><th>Ollama</th></tr></thead>
+  <tbody>
+    <tr><td class="fg">Where it runs</td><td>In-process (same Node.js)</td><td>Separate process over HTTP</td></tr>
+    <tr><td class="fg">Per-call overhead</td><td>~0 (direct function call)</td><td>HTTP roundtrip per batch</td></tr>
+    <tr><td class="fg">Model loading</td><td>Once at startup</td><td>Loaded by Ollama; unloads after ~5 min idle</td></tr>
+    <tr><td class="fg">Batching</td><td>Yes, internal</td><td>Yes, 128 inputs per HTTP request (Ollama 0.4+ <code>/api/embed</code>)</td></tr>
+    <tr><td class="fg">Indexing speed (200-file project)</td><td>seconds</td><td>tens of seconds to minutes (model-dependent)</td></tr>
+  </tbody>
+</table>
+
+<p>Sverklo v0.23.1+ requests <code>keep_alive: "10m"</code> on every Ollama embedding call, so the model stays resident between batches. With that fix, the remaining gap is fundamental: in-process embeddings will always beat remote ones over HTTP.</p>
+
+<p><strong>When to pick which:</strong></p>
+<ul>
+  <li><strong>ONNX (default)</strong>: pick this unless you have a specific reason to use Ollama. Faster, zero-setup, ships with sverklo.</li>
+  <li><strong>Ollama</strong>: pick this if you want a model larger than the bundled one, or you want to share an embedding model across multiple local tools.</li>
+</ul>
+
+<p>If you're hitting unexpected slowness on Ollama: ensure you're on sverklo &ge; v0.23.1 (which sends <code>keep_alive</code>), and check whether your chosen model fits in available VRAM &mdash; Ollama silently swaps to CPU if not, which can be 10&ndash;100&times; slower per request.</p>
+
 <h2>Recipes</h2>
 
 <h3>Monorepo with one indexed package, rest excluded</h3>
