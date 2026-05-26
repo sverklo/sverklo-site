@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The fix that wasn't — Sverklo</title>
+<meta name="description" content="Our growth campaign Day 1 was supposed to be Saturday. Instead we shipped six npm versions in five days closing user-reported bugs. The most useful moment: when our own 'fix' shipped to npm and the user-visible failure still reproduced.">
+<link rel="canonical" href="https://sverklo.com/blog/the-fix-that-wasnt/">
+
+<meta property="og:title" content="The fix that wasn't">
+<meta property="og:description" content="Six npm versions in five days. The most useful moment: shipping a fix that wasn't real. What changed after — a new constitutional principle, validation against the built binary, not the source.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/blog/the-fix-that-wasnt/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-05-26">
+<meta property="article:author" content="Nikita Groshin">
+<meta property="article:section" content="Engineering">
+<meta property="article:tag" content="open-source maintenance">
+<meta property="article:tag" content="release engineering">
+<meta property="article:tag" content="testing discipline">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="constitution">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The fix that wasn't">
+<meta name="twitter:description" content="Six npm versions in five days closing user bugs. The most useful one: when our own fix shipped to npm and the failure still reproduced.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "The fix that wasn't",
+  "description": "Five days of public testing on sverklo's growth-campaign launch surfaced a class of failure we hadn't catalogued: shipping a fix while the test still passed against the broken code. We caught it because a user came back. Then we wrote a constitutional principle that requires validating against the built binary, not the source.",
+  "datePublished": "2026-05-26",
+  "dateModified": "2026-05-26",
+  "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
+  "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
+  "image": "https://sverklo.com/og.png",
+  "mainEntityOfPage": {"@type":"WebPage","@id":"https://sverklo.com/blog/the-fix-that-wasnt/"},
+  "articleSection": "Engineering",
+  "keywords": "validate the fix then ship, principle VI, sverklo constitution, public testing, regression test discipline, MCP code intelligence, false positive fix, release engineering"
+}
+</script>
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<!-- @tokens-injected — do not edit; run patch-nav.mjs -->
+<link rel="stylesheet" href="/tokens.css">
+<!-- @end-tokens -->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:17px;line-height:1.65;
+    padding:48px 20px;max-width:720px;margin:0 auto;
+  }
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-2)}
+  a:hover{background:var(--accent-bg)}
+  h1{font-size:34px;line-height:1.15;margin:0 0 12px;letter-spacing:-0.02em;font-weight:700}
+  h2{font-size:22px;line-height:1.25;margin:38px 0 14px;font-weight:600;letter-spacing:-0.01em}
+  h3{font-size:18px;line-height:1.3;margin:26px 0 10px;font-weight:600}
+  .meta{color:var(--text-2);font-size:14px;margin-bottom:32px;font-family:'JetBrains Mono',monospace}
+  p{margin:0 0 16px}
+  ul,ol{margin:0 0 16px;padding-left:24px}
+  li{margin-bottom:8px}
+  blockquote{border-left:3px solid var(--accent-2);padding:6px 18px;margin:18px 0;color:var(--text-2);background:var(--bg-2)}
+  code{background:var(--bg-2);padding:1px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:14px}
+  pre{background:var(--bg-2);padding:14px 18px;border-radius:4px;overflow-x:auto;margin:0 0 16px;font-size:13px;line-height:1.5}
+  pre code{background:transparent;padding:0;font-size:13px}
+  hr{border:none;border-top:1px solid var(--rule);margin:32px 0}
+  .footer-nav{margin-top:48px;padding-top:24px;border-top:1px solid var(--rule);font-size:14px;color:var(--text-2);font-family:'JetBrains Mono',monospace}
+  .footer-nav a{margin-right:14px}
+  table{border-collapse:collapse;margin:8px 0 20px;font-size:14px;width:100%}
+  th,td{border:1px solid var(--rule);padding:7px 11px;text-align:left;vertical-align:top}
+  th{background:var(--bg-2);font-weight:600}
+  td code{font-size:12px}
+
+/* @nav-injected — do not edit; run patch-nav.mjs */
+header.top.nav-canonical {
+  border-bottom: 1px solid #2A2620 !important;
+  padding: 16px 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  background: rgba(14, 13, 11, 0.92) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 100 !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  margin-top: 0 !important;
+}
+header.top.nav-canonical .nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 32px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+header.top.nav-canonical .brand {
+  grid-column: 1 / 4 !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #EDE7D9 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+header.top.nav-canonical .brand::before {
+  content: "\25CC ";
+  color: #E85A2A !important;
+}
+header.top.nav-canonical .top-nav {
+  grid-column: 5 / 10 !important;
+  display: flex !important;
+  gap: 32px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-nav a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+header.top.nav-canonical .top-nav a:hover { color: #EDE7D9 !important; }
+header.top.nav-canonical .top-cta {
+  grid-column: 11 / 13 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+  color: #A39886 !important;
+}
+header.top.nav-canonical .top-cta a {
+  color: #A39886 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
+@media (max-width: 900px) {
+  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
+  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
+}
+/* The sticky header escapes the body's max-width via negative side
+   margins, but it cannot escape body padding-top — pages with body
+   padding (benchmarks: 48px, research: similar) shoved the header
+   down by exactly that amount, leaving an empty black band above
+   the nav. Reset top padding when the canonical header is present
+   and restore equivalent spacing inside main. */
+body:has(header.top.nav-canonical) {
+  padding-top: 0 !important;
+}
+body:has(header.top.nav-canonical) > main,
+body:has(header.top.nav-canonical) > #main {
+  padding-top: 32px !important;
+}
+/* @end-nav */
+</style>
+<!-- @fonts-injected — do not edit; run patch-nav.mjs -->
+<!-- Fonts self-hosted via @font-face in /tokens.css (no Google Fonts beacon). -->
+<!-- @end-fonts -->
+<!-- @breadcrumb-injected — do not edit; run patch-nav.mjs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://sverklo.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://sverklo.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The Fix That Wasnt",
+      "item": "https://sverklo.com/blog/the-fix-that-wasnt/"
+    }
+  ]
+}
+</script>
+<!-- @end-breadcrumb -->
+</head>
+<body>
+
+<h1>The fix that wasn't</h1>
+<div class="meta">2026-05-26 · Nikita Groshin · ~10 min read</div>
+
+<p>Our growth campaign Day 1 was supposed to be Saturday. Instead we shipped six npm versions in five days closing user-reported bugs. <strong>The most useful moment was the one we got wrong</strong>: shipping a fix to npm, watching our own test pass, and then a user came back and the failure still reproduced.</p>
+
+<p>This post is the log. What broke, what we shipped, what we changed about how we ship after the false-positive caught us. If you maintain anything that other people run on Windows, the second half is the operationally useful part.</p>
+
+<h2>Five days, six versions</h2>
+
+<table>
+  <tr><th>Date</th><th>Version</th><th>Reason</th></tr>
+  <tr><td>2026-05-22</td><td>v0.24.0</td><td>cross-repo MCP search + dashboard error banner + git-branch in /api/status</td></tr>
+  <tr><td>2026-05-22</td><td>v0.25.0</td><td>five fixes for one Windows tester (<a href="https://github.com/sverklo/sverklo/issues/53">#53</a> MCP probe, <a href="https://github.com/sverklo/sverklo/issues/58">#58</a> reindex EBUSY, <a href="https://github.com/sverklo/sverklo/issues/59">#59</a> embedding provider wiring, <a href="https://github.com/sverklo/sverklo/issues/60">#60</a> coverage diagnostic, <a href="https://github.com/sverklo/sverklo/issues/61">#61</a> hybrid lane attribution)</td></tr>
+  <tr><td>2026-05-22</td><td>v0.25.1</td><td>dashboard.js had a literal <code>SyntaxError</code> from a May 14 template-literal split — silently broken for 8 days</td></tr>
+  <tr><td>2026-05-24</td><td>v0.25.2</td><td>v0.25.0 #59 didn't actually fix the user-visible failure — second pass</td></tr>
+  <tr><td>2026-05-24</td><td>v0.26.0</td><td><a href="https://github.com/sverklo/sverklo/issues/69">#69</a> provider-change detection: refuse to mix vector spaces</td></tr>
+  <tr><td>2026-05-25</td><td>v0.26.1, v0.27.0</td><td>four new community issues (<a href="https://github.com/sverklo/sverklo/issues/71">#71</a> tool-name double-prefix, <a href="https://github.com/sverklo/sverklo/issues/72">#72</a> <code>init --global</code>, <a href="https://github.com/sverklo/sverklo/issues/73">#73</a> <code>unregister --by-path</code>, <a href="https://github.com/sverklo/sverklo/issues/74">#74</a> registry timestamp) — two closed same-day</td></tr>
+</table>
+
+<p>None of this was the plan. The plan was a calibrated content launch — bench-v2 announce on r/mcp Saturday morning, an X thread, the comparison page going live. Instead we got a 48-hour stress test from one careful user and we kept finding things to fix.</p>
+
+<h2>The fix that wasn't</h2>
+
+<p>Day two of the campaign-that-wasn't, we shipped v0.25.0 with five fixes including #59 — Ollama embedding provider configured for 1024-dimensional vectors but the index stored 384-dimensional ones. The fix was a two-line wiring gap in the factory: <code>createEmbeddingProvider()</code> was called with no arguments, so the YAML config was a silent no-op. We patched it, wrote a regression test that asserted the indexer selected the Ollama provider when the config requested it, ran the test, watched it pass, shipped.</p>
+
+<p>Twelve hours later the user came back. <code>sverklo doctor</code> still reported the dim mismatch. He'd run <code>sverklo reindex --force --timing</code>, watched the embed phase take 151 seconds (so the configured provider really was being called — not a silent fallback), and the index still contained 384-dim vectors.</p>
+
+<p>The agent's test passed because it had answered the wrong question. "Did the indexer select the configured provider?" — yes. "Did the configured provider produce vectors of the configured dimension and store them?" — no. <code>OllamaProvider</code> claimed <code>dimensions = 1024</code> in its API contract because that's what the user's YAML said, but it never validated the actual response length from Ollama against that number. So if Ollama returned 384-dim vectors despite the config — which is what was happening — the provider faithfully wrote 384-dim vectors into the index while claiming to its caller that it was producing 1024-dim ones.</p>
+
+<p>The test had asserted on the wrong join.</p>
+
+<h2>What we changed</h2>
+
+<p>We sat down mid-firefight and amended <a href="https://github.com/sverklo/sverklo/blob/main/.specify/memory/constitution.md">the project constitution</a> with a sixth principle: <strong>Validate the Fix, Then Ship</strong>. The required sequence:</p>
+
+<ol>
+  <li><strong>Reproduce first</strong>: confirm the bug actually fails on the current code, on the user's reported platform when possible. "Looks like the bug" is not reproduction.</li>
+  <li><strong>Regression test before code</strong>: write a test that <em>fails on the unpatched code</em>. A test that passes against the broken code provides no protection.</li>
+  <li><strong>Patch then green test</strong>: apply the fix and confirm the regression test passes.</li>
+  <li><strong>Validate against the artifact, not the source</strong>: run the user's original reproduction against the built sverklo (post-<code>npm pack</code> + global install, or post-tag npm publish). A green source-tree test that hasn't been exercised against the actual binary doesn't count as "fixed."</li>
+  <li><strong>Close against a verified version</strong>: when closing the issue, reference a specific shipped version (<code>v0.X.Y</code> such that <code>npm view sverklo version</code> matches), not an unmerged branch or unbuilt commit.</li>
+</ol>
+
+<p>Step 4 was the change we hadn't internalized. We'd been validating against the source tree, and source-tree validation is necessary-but-insufficient: <code>vitest run</code> exercising a unit test doesn't tell you whether the published <code>npm install -g sverklo@0.25.2</code> binary actually does the right thing when the user runs their original command against it. We caught one false-positive because the user came back. The next false-positive doesn't have to come back.</p>
+
+<h3>What "validate against the artifact" looks like</h3>
+
+<p>For v0.25.2 (the real fix for #59), we installed the published binary globally on a fresh machine, configured a project with a deliberately-mismatched <code>embeddings.dimensions: 1024</code> in <code>.sverklo.yaml</code>, and ran a tiny mock Ollama server on a non-standard port that returned 384-dimensional vectors regardless of input. Then we ran <code>sverklo reindex --force</code> against that setup. The output:</p>
+
+<pre><code>$ sverklo reindex --force
+Clearing index at /tmp/sverklo-vi4-XXXX…
+Reindexing from scratch…
+Error: Ollama model 'fake-model' returned 384-dim vectors but the
+provider was configured for 1024-dim. Update embeddings.dimensions
+in .sverklo.yaml to 384, or switch to a model whose output matches
+the configured dimension. (sverklo/sverklo#66)
+    at OllamaProvider.embed (.../dist/src/indexer/embedding-providers.js:217:27)
+</code></pre>
+
+<p>That's the binary that <code>npm install</code> ships, exercising the actual failure path the user reported, throwing the actual error message we wrote — not a unit-test mock. Three more bugs (the fingerprintOf wiring in v0.26.0, the registry timestamp in v0.26.1, the <code>init --global</code> feature in v0.27.0) got the same treatment before being declared closed.</p>
+
+<h2>The eight-day silent SyntaxError</h2>
+
+<p>Adjacent failure, different lesson. On May 14 we extracted the dashboard's inline JavaScript out of a template literal in <code>dashboard-html.ts</code> into a standalone <code>dashboard.js</code> file (Tier 2.3 of a refactor cleanup). The extraction doubled all the single-quote escapes — what was <code>\'</code> inside the template literal got serialized as <code>\\'</code> in the standalone file, which is one literal backslash followed by an end-of-string in JavaScript, which is a <code>SyntaxError</code>.</p>
+
+<p>The whole file failed to parse. The whole dashboard was blank for 8 days. Nobody noticed, including us, until v0.24.0's error-banner code (also in dashboard.js) couldn't help — because the banner code was inside the same file that failed to parse.</p>
+
+<p>TypeScript build was green. The 600-some vitest tests were green. Nothing in CI ever loaded <code>dashboard.js</code> in a JavaScript parser because the test suite doesn't spin up a browser. So we shipped two minor versions on top of broken UI before a real user ran <code>sverklo ui .</code> and reported the SyntaxError.</p>
+
+<p>The fix took one PR. The <em>second</em> fix — making sure this class of bug can't ship silently again — added <code>scripts/lint-assets.mjs</code> to CI: it runs <code>node --check</code> on every <code>.js</code> file under <code>src/server/assets/</code> as part of the test job. One additional second of CI, one entire class of silent regression closed.</p>
+
+<h2>What it cost vs what it bought</h2>
+
+<p>Cost: five days that were supposed to be growth and were instead firefighting. Six npm releases that the launch plan didn't budget for. A new constitutional principle and a CI gate.</p>
+
+<p>What we bought:</p>
+
+<ul>
+  <li><strong>The cleanest base we've shipped</strong>. v0.27.0 has 711 tests on three operating systems, regression tests for every closed bug, and a CI parse-check on browser assets. We'd been planning to launch publicly on v0.23.1 — which had the silent embedding fallback, the false-success reindex, the SyntaxError dashboard, and the broken Windows MCP probe all latent. That launch would have been a disaster.</li>
+  <li><strong>A discipline we didn't have before</strong>. Principle VI is the kind of rule that's obvious in hindsight and hard to follow without ratifying. Three subsequent bug fixes (v0.25.2, v0.26.0, v0.27.0) used the artifact-validation step explicitly. None of them shipped a false-positive.</li>
+  <li><strong>A live tester who came back</strong>. The user who surfaced the original five bugs filed four new issues on Monday. That's a retention signal that doesn't show up in npm download counts.</li>
+</ul>
+
+<h2>What's next</h2>
+
+<p>The bench-v2 comparison still hasn't shipped publicly — that's the original campaign Day 1 content, blocked on running the bench against v0.27.0 numbers. Yesterday's community issues opened up the priority queue: <a href="https://github.com/sverklo/sverklo/issues/71">#71</a> (the MCP tool-name double-prefix — every doc and skill in the wild has the wrong name in it) is the v0.28.0 work in progress. <a href="https://github.com/sverklo/sverklo/issues/72">#72</a> (<code>init --global</code>) shipped in v0.27.0; <a href="https://github.com/sverklo/sverklo/issues/73">#73</a> and <a href="https://github.com/sverklo/sverklo/issues/74">#74</a> in v0.26.1, both with VI-compliant regression tests.</p>
+
+<p>If you maintain something that ships to npm and you don't have a "run the published binary against the user's original reproduction" step in your release flow, the operationally useful takeaway here is: add one. It's the cheapest insurance against the test-passes-but-bug-persists class of failure. The unit test asserts your model of the code. The artifact validation asserts the code.</p>
+
+<p>Sverklo is local-first MCP code intelligence — symbol graph, blast-radius, git-pinned memory. The <a href="https://github.com/sverklo/sverklo">repo</a> is MIT. The <a href="/bench/">public bench</a> is reproducible from the published binary. The <a href="https://github.com/sverklo/sverklo/blob/main/.specify/memory/constitution.md">constitution</a> is in the repo. Install with <code>npm install -g sverklo</code>; run <code>sverklo doctor</code> to check setup.</p>
+
+<hr>
+
+<p><em>Discussion: <a href="https://www.reddit.com/r/mcp/">r/mcp</a> · <a href="https://github.com/sverklo/sverklo/issues">GitHub issues</a> · <a href="https://twitter.com/sverklo">@sverklo</a> on X</em></p>
+
+<div class="footer-nav">
+  <a href="/">home</a>
+  <a href="/blog/">blog</a>
+  <a href="/bench/">bench</a>
+  <a href="/compare/">compare</a>
+  <a href="/docs/">docs</a>
+  <a href="https://github.com/sverklo/sverklo">github</a>
+</div>
+<!-- @version-script-injected — do not edit; run patch-nav.mjs -->
+<script>
+(async () => {
+  const el = document.getElementById('version-badge');
+  if (!el) return;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2000);
+    const r = await fetch('https://registry.npmjs.org/sverklo/latest', { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await r.json();
+    if (data && data.version) el.textContent = 'v' + data.version;
+  } catch { /* keep static value */ }
+})();
+</script>
+<!-- @end-version-script -->
+</body>
+</html>

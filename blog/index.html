@@ -367,9 +367,10 @@ body:has(header.top.nav-canonical) > #main {
   "@context": "https://schema.org",
   "@type": "ItemList",
   "name": "Sverklo Engineering Notes — All Posts",
-  "numberOfItems": 16,
+  "numberOfItems": 17,
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "url": "https://sverklo.com/blog/claude-code-troubleshooting-large-repos/", "name": "Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes" },
+    { "@type": "ListItem", "position": 1, "url": "https://sverklo.com/blog/the-fix-that-wasnt/", "name": "The fix that wasn't" },
+    { "@type": "ListItem", "position": 2, "url": "https://sverklo.com/blog/claude-code-troubleshooting-large-repos/", "name": "Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes" },
     { "@type": "ListItem", "position": 3, "url": "https://sverklo.com/blog/we-already-shipped-git-for-agent-memory/", "name": "We Already Shipped Git-for-Agent-Memory — Bi-Temporal Beats Branch-Snapshot" },
     { "@type": "ListItem", "position": 4, "url": "https://sverklo.com/blog/we-already-shipped-mcp-code-mode/", "name": "We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured" },
     { "@type": "ListItem", "position": 4, "url": "https://sverklo.com/blog/bench-as-feedback-loop/", "name": "The bench is a feedback loop on two axes" },
@@ -429,7 +430,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.23.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.27.0</a></div>
   </div>
 </header>
 
@@ -439,6 +440,17 @@ body:has(header.top.nav-canonical) > #main {
     <p class="page-tagline">Receipts, methodology, losses. We publish the benchmark, the competitors patch, we patch back. Hybrid code search, PageRank for source code, bi-temporal memory, and the parser bugs we found by running the bench on real codebases.</p>
 
     <div class="posts">
+
+      <a class="post" href="/blog/the-fix-that-wasnt/">
+        <div class="post-meta">
+          <span class="date">2026-05-26</span>
+          <span class="tag">release engineering</span>
+          <span class="tag">testing discipline</span>
+          <span class="tag">constitution</span>
+        </div>
+        <h2 class="post-title">The fix that wasn't</h2>
+        <p class="post-excerpt">Our growth campaign Day 1 was supposed to be Saturday. Instead we shipped six npm versions in five days closing user-reported bugs. The most useful moment: shipping a fix that wasn't real. What changed after — a new constitutional principle, validation against the built binary not the source, and a CI parse-check that closes the entire "silent SyntaxError in shipped JS" class. The eight-day silent dashboard regression and the 12-hour false-positive on #59 are both in the log.</p>
+      </a>
 
       <a class="post" href="/blog/bun-rust-audit-gap/">
         <div class="post-meta">

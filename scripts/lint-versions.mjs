@@ -42,6 +42,25 @@ const CURRENT = m[1];
 // substring of the line so patch-nav.mjs injecting new <head>/<style>
 // blocks doesn't shift line numbers and break the allowlist.
 const ALLOWED_HISTORICAL = [
+  // Post-launch retrospective: provenance for the v0.23.1 → v0.27.0
+  // sequence + the in-flight v0.28.0 work. The whole post is a release
+  // log; every version cited is historical. Allowlist all of them.
+  ...["v0.23.1", "v0.24.0", "v0.25.0", "v0.25.1", "v0.25.2", "v0.26.0", "v0.26.1", "v0.28.0"].map(
+    (version) => ({
+      file: "blog/the-fix-that-wasnt/index.html",
+      version,
+      snippet: version,
+      note: `retrospective: provenance for the ${version} release in the log`,
+    })
+  ),
+  // docs/config: factual claim that keep_alive was added in v0.23.1.
+  // Doc citation, not a UI badge.
+  {
+    file: "docs/config/index.html",
+    version: "v0.23.1",
+    snippet: "v0.23.1",
+    note: "docs/config: factual provenance — sverklo v0.23.1 added Ollama keep_alive",
+  },
   // Updates feed: factual statements about which version shipped which
   // change. Not UI fallbacks — provenance for the ship/fix entries.
   {
