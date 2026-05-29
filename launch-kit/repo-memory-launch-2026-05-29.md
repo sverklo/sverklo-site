@@ -25,6 +25,7 @@ Primary CTA:
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
 URLs:
@@ -54,9 +55,10 @@ Install:
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
-It writes MCP config, appends local instructions to AGENTS.md or CLAUDE.md, and runs a doctor check. Your code stays on your machine. The only first-run network call is the local ONNX embedding model download.
+It writes MCP config, appends local instructions to AGENTS.md or CLAUDE.md, and runs a doctor check. `sverklo prove` then shows central files, a real caller graph, and a prompt to paste into your agent. Your code stays on your machine. The only first-run network call is the local ONNX embedding model download.
 
 I also published the benchmark instead of only shipping a marketing page: 180 hand-verified retrieval tasks across 6 OSS codebases and 5 baselines. Sverklo leads overall F1 on that run, but the losses are visible too. Grep is still the right tool when you know the exact string; Sverklo is for relationship questions like "who calls this?", "what depends on this?", "what changed?", and "what decision did we make last time?"
 
@@ -88,9 +90,10 @@ Install is:
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
-It works with Claude Code and other MCP clients. No API keys; your code stays local.
+It works with Claude Code and other MCP clients. `sverklo prove` gives the first repo-specific proof before you trust the agent with edits. No API keys; your code stays local.
 
 I also ship the benchmark: 180 hand-verified tasks across 6 OSS codebases, with naive grep, smart grep, jcodemunch-mcp, and GitNexus as baselines. The page includes where Sverklo loses.
 
@@ -119,6 +122,7 @@ It is MIT and local-first. Install:
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
 The homepage has the demo and the benchmark: https://sverklo.com/
@@ -144,9 +148,10 @@ Install:
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
-MIT. No API keys. No code upload. First run downloads a local ONNX embedding model.
+MIT. No API keys. No code upload. `sverklo prove` gives you the first repo-specific caller-graph proof. First run downloads a local ONNX embedding model.
 
 Post 3:
 
@@ -196,9 +201,10 @@ It is MIT licensed, needs no API keys, and does not upload code. Install is:
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
-I also published a 180-task retrieval benchmark across 6 OSS repos, including the slices where Sverklo loses. Grep is still the right tool when you know the exact string. Sverklo is for relationship questions agents need before editing.
+I also published a 180-task retrieval benchmark across 6 OSS repos, including the slices where Sverklo loses. Grep is still the right tool when you know the exact string. Sverklo is for relationship questions agents need before editing; `sverklo prove` shows one on your repo immediately.
 
 Homepage: https://sverklo.com/
 GitHub: https://github.com/sverklo/sverklo
@@ -243,11 +249,12 @@ Hi {name}, {specific reason from their repo} made me wonder whether repo-memory 
 
 Would you run Sverklo on one nontrivial repo and tell me where the retrieval or memory model is wrong? I am looking for hard feedback, not promotion.
 
-It gives Claude Code and other MCP-capable coding agents local tools for semantic search, symbol refs, refactor blast radius, diff-aware review, and git-pinned memory. Install is two commands:
+It gives Claude Code and other MCP-capable coding agents local tools for semantic search, symbol refs, refactor blast radius, diff-aware review, and git-pinned memory. Install is:
 
 ```bash
 npm install -g sverklo
 cd your-project && sverklo init
+sverklo prove
 ```
 
 No API keys, no code upload, MIT.

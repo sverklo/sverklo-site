@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Install Sverklo MCP for Claude Code, Cursor, Codex CLI, and Windsurf</title>
-<meta name="description" content="Install Sverklo locally with npm, run sverklo init, and give your coding agent repo memory. MIT, local-first, no code upload.">
+<meta name="description" content="Install Sverklo locally with npm, run sverklo init, then run sverklo prove to see repo memory work on your code. MIT, local-first, no code upload.">
 <link rel="canonical" href="https://sverklo.com/install/">
 <link rel="stylesheet" href="/tokens.css">
 <!-- @tokens-injected — do not edit; run patch-nav.mjs -->
@@ -164,9 +164,9 @@ body:has(header.top.nav-canonical) > #main {
 
 <pre><code>npm install -g sverklo
 sverklo init      # in your project root
-sverklo doctor    # verify the MCP wiring</code></pre>
+sverklo prove     # see repo memory work on your code</code></pre>
 
-<p>That's it. <code>sverklo init</code> auto-detects Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, and GitHub Copilot CLI &mdash; whichever you have installed gets the right MCP config written automatically.</p>
+<p>That's it. <code>sverklo init</code> auto-detects Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, and GitHub Copilot CLI &mdash; whichever you have installed gets the right MCP config written automatically. <code>sverklo prove</code> prints central files, one real caller graph, and a prompt to paste into your agent.</p>
 
 <p>If <code>sverklo doctor</code> finds anything broken, it tells you exactly what to fix. <a href="https://github.com/sverklo/sverklo/issues">Open an issue</a> if it doesn't.</p>
 

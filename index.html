@@ -79,7 +79,7 @@
       "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo and run sverklo init in your project — it auto-writes the .mcp.json so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys."
+        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo, run sverklo init, then run sverklo prove to see central files and a real caller graph from your repo. Local-first, MIT-licensed, no API keys."
       }
     },
     {
@@ -159,7 +159,7 @@
       "name": "How do I install Sverklo in Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Restart Claude Code and the 37 sverklo tools appear in the /mcp list."
+        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Run sverklo prove to get a real repo-memory proof and a prompt to paste into Claude Code, then restart Claude Code and the sverklo tools appear in the /mcp list."
       }
     },
     {
@@ -1917,13 +1917,13 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="hero-cta">
-      <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init', this)" aria-label="Copy install and init commands">
+      <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
         <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
       </button>
       <a class="cta-secondary" href="#demo">watch 90s demo →</a>
       <a class="cta-secondary" href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">star on GitHub →</a>
     </div>
-    <p class="hero-cta-note">Then run <code>cd your-project &amp;&amp; sverklo init</code>. Takes about 2 minutes; no API keys, no code upload, first run downloads a local ONNX model.</p>
+    <p class="hero-cta-note">Then run <code>cd your-project &amp;&amp; sverklo init &amp;&amp; sverklo prove</code>. Takes about 2 minutes; no API keys, no code upload, first run downloads a local ONNX model.</p>
 
     <ul class="hero-meta" aria-label="At a glance">
       <li><span class="hm-num">3k</span><span class="hm-lbl">npm downloads / week</span></li>
@@ -1949,19 +1949,21 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <div class="terminal-body"><span class="comment"># install sverklo and set it up in your project</span>
 <span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
 <span class="prompt">$</span> <span class="cmd">cd your-project &amp;&amp; sverklo init</span>
+<span class="prompt">$</span> <span class="cmd">sverklo prove</span>
 
   <span class="ok">✓</span> <span class="dim">.mcp.json                   ← project-scoped MCP server</span>
   <span class="ok">✓</span> <span class="dim">.claude/settings.local.json ← auto-allow sverklo tools</span>
   <span class="ok">✓</span> <span class="dim">AGENTS.md / CLAUDE.md       ← prefer-sverklo instructions (auto-detected)</span>
+  <span class="ok">✓</span> <span class="dim">repo memory proof           ← central files + real caller graph</span>
 
-<span class="comment"># ask Claude anything — sverklo is preferred automatically</span>
-<span class="prompt">&gt;</span> <span class="cmd">how does the auth middleware work?</span>
+<span class="comment"># paste the proof prompt into Claude/Cursor/Codex</span>
+<span class="prompt">&gt;</span> <span class="cmd">Use sverklo impact on validateToken and tell me what would break if I changed its signature.</span>
 
-  <span class="tool">› search</span>   <span class="dim">query="authentication middleware"</span>
-  <span class="dim">─ src/middleware/auth.ts:42   validateToken()     score: 0.89</span>
-  <span class="dim">─ src/routes/auth.ts:18       requireAuth()       score: 0.84</span>
-  <span class="dim">─ src/lib/jwt.ts:12           verifyJWT()         score: 0.81</span>
-  <span class="ok">✓ 3 results in 23ms — 847 files searched, 2,431 tokens used</span>
+  <span class="tool">› impact</span>  <span class="dim">symbol="validateToken"</span>
+  <span class="dim">─ src/routes/auth.ts:18       requireAuth()       direct caller</span>
+  <span class="dim">─ src/middleware/auth.ts:42   authMiddleware()   direct caller</span>
+  <span class="dim">─ src/tests/auth.test.ts:31   login flow         test coverage</span>
+  <span class="ok">✓ caller graph in 23ms — signature change is not local</span>
 </div>
       </div>
 
@@ -2655,7 +2657,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <section class="quickstart" id="install">
   <div class="grid">
     <div class="kicker">/* install */</div>
-    <h2>three commands.<br>zero config.</h2>
+    <h2>install.<br>prove.<br>code.</h2>
 
     <div style="grid-column: 1 / 13; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 48px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
       <span style="color: var(--text-2); letter-spacing: 1px; font-size: 11px;">WORKS WITH</span>
@@ -2684,10 +2686,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="qs-step">
-      <div class="qs-num">03 — start coding</div>
-      <div class="qs-title">Open your agent</div>
-      <button type="button" class="qs-cmd" onclick="cp('claude', this)" aria-label="Copy: claude">claude<span class="copy">copy</span></button>
-      <div class="qs-note">First run downloads the embedding model (~90MB, ~30s). After that, instant.</div>
+      <div class="qs-num">03 — prove</div>
+      <div class="qs-title">See repo memory work</div>
+      <button type="button" class="qs-cmd" onclick="cp('sverklo prove', this)" aria-label="Copy: sverklo prove">sverklo prove<span class="copy">copy</span></button>
+      <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent.</div>
     </div>
   </div>
 </section>
@@ -2701,7 +2703,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="faq-list">
       <details open>
         <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
-        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code> and run <code>sverklo init</code> — it auto-writes the <code>.mcp.json</code> so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys.</p>
+        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code>, run <code>sverklo init</code>, then run <code>sverklo prove</code> to see central files and a real caller graph from your repo. Local-first, MIT-licensed, no API keys.</p>
       </details>
       <details>
         <summary>Why would I install another MCP server?</summary>
@@ -2725,7 +2727,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>How do I install Sverklo in Claude Code?</summary>
-        <p>Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 37 sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+        <p>Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Run <code style="color:var(--accent);">sverklo prove</code> to get a real repo-memory prompt, then restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
       </details>
       <details>
         <summary>What programming languages does Sverklo support?</summary>
@@ -2747,7 +2749,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <h2 class="final-cta-h">your agent is still guessing.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
       <p class="final-cta-sub">Give it repo memory: symbols, callers, diffs, blast radius, and decisions. Local-first, MIT, no API keys, no code upload.</p>
       <div class="hero-cta final-cta-row">
-        <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init', this)" aria-label="Copy install and init commands">
+        <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
           <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
         </button>
         <a class="cta-secondary" href="/playground/">try playground →</a>

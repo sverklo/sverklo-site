@@ -9,7 +9,7 @@ Sverklo gives AI coding agents semantic understanding of your codebase. Without 
 ## Key facts
 
 - License: MIT
-- Install: `npm install -g sverklo` then `sverklo init` in your project
+- Install: `npm install -g sverklo`, then `sverklo init` and `sverklo prove` in your project
 - Source: <https://github.com/sverklo/sverklo>
 - npm: <https://www.npmjs.com/package/sverklo>
 - Latest version: see <https://registry.npmjs.org/sverklo/latest>
