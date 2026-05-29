@@ -74,9 +74,10 @@ npm install -g sverklo
 cd your-project
 sverklo init
 sverklo prove
+sverklo prove --markdown
 ```
 
-`sverklo init` auto-detects which AI coding agents are installed (Claude Code, Cursor, Windsurf, Zed, Antigravity) and writes the right MCP config files. It also runs `sverklo doctor` to verify the MCP handshake. `sverklo prove` then prints central files, a real caller graph, and a prompt to paste into the agent. Restart the agent and the sverklo tools appear in its tool list (or fewer if `SVERKLO_PROFILE` is set).
+`sverklo init` auto-detects which AI coding agents are installed (Claude Code, Cursor, Windsurf, Zed, Antigravity) and writes the right MCP config files. It also runs `sverklo doctor` to verify the MCP handshake. `sverklo prove` then prints central files, a real caller graph, and a prompt to paste into the agent. `sverklo prove --markdown` emits a GitHub/Discord-ready proof receipt. Restart the agent and the sverklo tools appear in its tool list (or fewer if `SVERKLO_PROFILE` is set).
 
 ## Direct comparisons
 

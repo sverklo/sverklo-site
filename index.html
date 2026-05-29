@@ -37,7 +37,7 @@
   "description": "Repo memory for coding agents. Local-first MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Codex CLI, and Google Antigravity.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.28.2",
+  "softwareVersion": "0.28.3",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
@@ -79,7 +79,7 @@
       "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo, run sverklo init, then run sverklo prove to see central files and a real caller graph from your repo. Local-first, MIT-licensed, no API keys."
+        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo, run sverklo init, then run sverklo prove to see central files and a real caller graph from your repo. Use sverklo prove --markdown for a shareable proof receipt. Local-first, MIT-licensed, no API keys."
       }
     },
     {
@@ -159,7 +159,7 @@
       "name": "How do I install Sverklo in Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Run sverklo prove to get a real repo-memory proof and a prompt to paste into Claude Code, then restart Claude Code and the sverklo tools appear in the /mcp list."
+        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Run sverklo prove to get a real repo-memory proof and a prompt to paste into Claude Code. Run sverklo prove --markdown when you want a shareable receipt, then restart Claude Code and the sverklo tools appear in the /mcp list."
       }
     },
     {
@@ -1897,7 +1897,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.22.48-2.69-1.07-2.69-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.81.06 1.24.83 1.24.83.72 1.23 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 4.16c.68 0 1.36.09 2 .26 1.53-1.03 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.55.74.55 1.49v2.21c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>
         <span class="gh-stars-num" id="gh-stars-num">★</span>
       </a>
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block; margin-left: 12px;">v0.28.2</a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block; margin-left: 12px;">v0.28.3</a>
     </div>
   </div>
 </header>
@@ -1955,6 +1955,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   <span class="ok">✓</span> <span class="dim">.claude/settings.local.json ← auto-allow sverklo tools</span>
   <span class="ok">✓</span> <span class="dim">AGENTS.md / CLAUDE.md       ← prefer-sverklo instructions (auto-detected)</span>
   <span class="ok">✓</span> <span class="dim">repo memory proof           ← central files + real caller graph</span>
+  <span class="ok">✓</span> <span class="dim">markdown receipt            ← paste into GitHub, Discord, Reddit</span>
 
 <span class="comment"># paste the proof prompt into Claude/Cursor/Codex</span>
 <span class="prompt">&gt;</span> <span class="cmd">Use sverklo impact on validateToken and tell me what would break if I changed its signature.</span>
@@ -2689,7 +2690,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <div class="qs-num">03 — prove</div>
       <div class="qs-title">See repo memory work</div>
       <button type="button" class="qs-cmd" onclick="cp('sverklo prove', this)" aria-label="Copy: sverklo prove">sverklo prove<span class="copy">copy</span></button>
-      <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent.</div>
+      <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent. Add <code>--markdown</code> to share it.</div>
     </div>
   </div>
 </section>
@@ -2703,7 +2704,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="faq-list">
       <details open>
         <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
-        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code>, run <code>sverklo init</code>, then run <code>sverklo prove</code> to see central files and a real caller graph from your repo. Local-first, MIT-licensed, no API keys.</p>
+        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code>, run <code>sverklo init</code>, then run <code>sverklo prove</code> to see central files and a real caller graph from your repo. Use <code>sverklo prove --markdown</code> for a shareable proof receipt. Local-first, MIT-licensed, no API keys.</p>
       </details>
       <details>
         <summary>Why would I install another MCP server?</summary>
@@ -2727,7 +2728,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>How do I install Sverklo in Claude Code?</summary>
-        <p>Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Run <code style="color:var(--accent);">sverklo prove</code> to get a real repo-memory prompt, then restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+        <p>Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Run <code style="color:var(--accent);">sverklo prove</code> to get a real repo-memory prompt, add <code style="color:var(--accent);">--markdown</code> for a shareable receipt, then restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
       </details>
       <details>
         <summary>What programming languages does Sverklo support?</summary>

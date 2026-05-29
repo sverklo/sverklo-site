@@ -60,6 +60,8 @@ sverklo prove
 
 It writes MCP config, appends local instructions to AGENTS.md or CLAUDE.md, and runs a doctor check. `sverklo prove` then shows central files, a real caller graph, and a prompt to paste into your agent. Your code stays on your machine. The only first-run network call is the local ONNX embedding model download.
 
+If you want to share the result, run `sverklo prove --markdown` for a GitHub/Discord-ready proof receipt.
+
 I also published the benchmark instead of only shipping a marketing page: 180 hand-verified retrieval tasks across 6 OSS codebases and 5 baselines. Sverklo leads overall F1 on that run, but the losses are visible too. Grep is still the right tool when you know the exact string; Sverklo is for relationship questions like "who calls this?", "what depends on this?", "what changed?", and "what decision did we make last time?"
 
 Happy to answer hard questions, especially from people using MCP tools heavily.
@@ -94,6 +96,8 @@ sverklo prove
 ```
 
 It works with Claude Code and other MCP clients. `sverklo prove` gives the first repo-specific proof before you trust the agent with edits. No API keys; your code stays local.
+
+There is also `sverklo prove --markdown` if you want a shareable receipt from your own repo.
 
 I also ship the benchmark: 180 hand-verified tasks across 6 OSS codebases, with naive grep, smart grep, jcodemunch-mcp, and GitNexus as baselines. The page includes where Sverklo loses.
 
