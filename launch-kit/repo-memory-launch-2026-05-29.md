@@ -217,29 +217,21 @@ GitHub: https://github.com/sverklo/sverklo
 
 Title:
 
-Help choose the default MCP tool profile for sverklo init
+Show your repo-memory proof receipt
 
 Body:
 
-Sverklo v0.28.0 now advertises canonical short MCP tool names (`search`, `lookup`, `impact`, `review_diff`, etc.) instead of the old `sverklo_*` names.
+Live thread: https://github.com/sverklo/sverklo/discussions/79
 
-The full surface is 37 tools, but most users should not pay attention to all of them on every session. The current positioning is:
+Sverklo now has `sverklo prove --markdown`, a first-run command that prints a shareable proof receipt from a real repo: central files, one symbol, real callers, and a paste-ready prompt for your coding agent.
 
-- `core`: common repo-memory and code-intelligence path
-- `lean`: adds memory and review tools
-- `research`: broader exploration
-- `review`: PR-review focused
-- `full`: everything
+Challenge for users:
 
-Question for users: what tools do you actually expect to be present by default after `sverklo init`?
+- Run it on a repo you actually work in.
+- Paste the receipt into Discussion #79.
+- Tell us what is wrong, noisy, or surprisingly useful.
 
-The jobs I am optimizing for:
-
-- "Where is this behavior implemented?"
-- "Can I safely rename this symbol?"
-- "Review this branch before merge."
-- "Remember this project decision for next session."
-- "What files should the agent read first?"
+The thread is seeded with receipts from Sverklo, Express, Fastify, Zod, and Zustand so visitors see proof before installing.
 
 ## Direct Maintainer DM Template
 
