@@ -20,6 +20,7 @@ Primary links:
 Published:
 
 - Reddit r/mcp: https://www.reddit.com/r/mcp/comments/1tr8no2/run_this_mcp_repomemory_proof_on_your_project_and/
+- Hacker News: https://news.ycombinator.com/item?id=48326338
 
 ## Hacker News
 
