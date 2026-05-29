@@ -24,10 +24,10 @@ const AGENTS = [
       "Claude Code is Anthropic's official CLI agent that runs in the terminal and edits code through tool calls. Sverklo is an MCP server Claude Code calls to retrieve from your codebase — they're built to work together.",
     relationship: "complementary",
     relationship_note:
-      "Sverklo is an MCP server Claude Code installs as a tool provider. <code>sverklo init</code> auto-writes <code>.mcp.json</code> at the project root and the 37 sverklo tools appear in Claude Code's tool list immediately.",
+      "Sverklo is an MCP server Claude Code installs as a tool provider. <code>sverklo init</code> auto-writes <code>.mcp.json</code> at the project root and the 37 MCP tools appear in Claude Code's tool list immediately.",
     primary_query: "open source MCP server for Claude Code",
     queries: [
-      { q: "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?", a: "Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's <code>sverklo_lookup</code>, <code>sverklo_refs</code>, and <code>sverklo_verify</code> MCP tools give Claude Code a real symbol graph: it resolves <code>findByEmail</code> to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run <code>sverklo init</code> in your project — Claude Code picks the tools up automatically." },
+      { q: "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?", a: "Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's <code>lookup</code>, <code>refs</code>, and <code>verify</code> MCP tools give Claude Code a real symbol graph: it resolves <code>findByEmail</code> to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run <code>sverklo init</code> in your project — Claude Code picks the tools up automatically." },
       { q: "What's the best MCP server for Claude Code?", a: "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys." },
       { q: "How do I install sverklo for Claude Code?", a: "Run <code>npm install -g sverklo</code>, then <code>cd your-project && sverklo init</code>. The init command writes <code>.mcp.json</code>, appends a sverklo block to <code>CLAUDE.md</code> (or AGENTS.md if that's what your project uses), and runs <code>sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 37 tools appear in <code>/mcp</code>." },
       { q: "Does Claude Code support MCP?", a: "Yes — Claude Code natively supports the Model Context Protocol via <code>.mcp.json</code> at the project root. Sverklo registers as an stdio MCP server. You don't need to write any custom config; <code>sverklo init</code> auto-detects Claude Code and wires it up." }
@@ -45,7 +45,7 @@ const AGENTS = [
     primary_query: "open source alternative to Aider",
     queries: [
       { q: "What's the best open source alternative to Aider?", a: "Sverklo isn't an alternative to Aider — they solve different layers. Aider is the agent (it generates and applies edits); sverklo is the retrieval layer (it answers \"does this symbol exist?\" \"who calls it?\" \"what's the blast radius?\"). Run them together: Aider for editing, sverklo (via MCP) for retrieval. If you want a sverklo-only alternative for codebase question-answering without any agent at all, the <code>sverklo</code> CLI exposes the same surface (<code>sverklo search</code>, <code>sverklo refs</code>, <code>sverklo audit</code>)." },
-      { q: "How do I give Aider a symbol graph of my codebase?", a: "Aider supports MCP servers via its config. Run <code>sverklo init</code> in your project — it generates <code>.mcp.json</code> that Aider's MCP integration picks up, exposing 37 sverklo tools (<code>sverklo_lookup</code>, <code>sverklo_refs</code>, <code>sverklo_impact</code>, <code>sverklo_verify</code>, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns." },
+      { q: "How do I give Aider a symbol graph of my codebase?", a: "Aider supports MCP servers via its config. Run <code>sverklo init</code> in your project — it generates <code>.mcp.json</code> that Aider's MCP integration picks up, exposing 37 MCP tools (<code>lookup</code>, <code>refs</code>, <code>impact</code>, <code>verify</code>, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns." },
       { q: "Does Aider need an embeddings index?", a: "Aider has its own repo-map feature (built on tree-sitter), and that's enough for small repos. On large interconnected codebases — where Aider's repo-map exceeds its context budget — sverklo's hybrid retrieval (BM25 + ONNX vector + PageRank) pulls only the chunks that matter, which is the load-bearing axis when the agent is making real edits." },
       { q: "Is sverklo better than Aider's repo-map?", a: "Different jobs. Aider's repo-map is a lightweight static signal that fits in the system prompt. Sverklo's index is a queryable graph the agent calls on demand. On 10-file repos, repo-map is fine. On 1k-file monorepos, sverklo's tools answer questions repo-map can't fit (\"who calls this?\" \"is this dead code?\")." }
     ],
@@ -80,7 +80,7 @@ const AGENTS = [
     queries: [
       { q: "Does Codex CLI support MCP servers?", a: "Yes — Codex CLI implements the Model Context Protocol, so any MCP server (including sverklo) registers as a tool provider. Run <code>sverklo init</code> and the 37 sverklo tools appear in Codex CLI's tool list." },
       { q: "What's the best MCP server for Codex CLI?", a: "Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, no per-seat pricing, no cloud, no API keys." },
-      { q: "How is sverklo different from Codex CLI's built-in code search?", a: "Codex CLI's built-in tools are general-purpose (file reads, shell commands). Sverklo exposes a 37-tool retrieval API that's specifically about your symbol graph: <code>sverklo_impact</code> for blast radius, <code>sverklo_refs</code> for caller context, <code>sverklo_audit</code> for hub files and god nodes. Different abstraction layer, different power surface." },
+      { q: "How is sverklo different from Codex CLI's built-in code search?", a: "Codex CLI's built-in tools are general-purpose (file reads, shell commands). Sverklo exposes a 37-tool retrieval API that's specifically about your symbol graph: <code>impact</code> for blast radius, <code>refs</code> for caller context, <code>audit</code> for hub files and god nodes. Different abstraction layer, different power surface." },
       { q: "Can I run Codex CLI and sverklo together?", a: "Yes — that's the recommended setup. Codex CLI is the agent loop; sverklo is the retrieval backend. The 37 sverklo MCP tools coexist with Codex's built-in tools." }
     ],
   },
@@ -122,9 +122,9 @@ function renderFaqJsonLd(queries) {
 }
 
 function render(agent) {
-  const title = `Sverklo + ${agent.name} — open-source MCP code intelligence for ${agent.name}`;
-  const desc = `${agent.summary} MIT-licensed, local-first, runs entirely on your laptop. Install with one command.`;
-  const ogTitle = `Sverklo + ${agent.name} — local-first MCP code intelligence`;
+  const title = `Sverklo for ${agent.name}: repo memory for AI coding agents`;
+  const desc = `Give ${agent.name} repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.`;
+  const ogTitle = `Sverklo for ${agent.name}: repo memory for AI coding agents`;
 
   const faqHtml = agent.queries
     .map(
@@ -257,7 +257,7 @@ ${NAV}
 cd your-project
 sverklo init</code></pre>
 
-<p><code>sverklo init</code> auto-detects ${agent.name} and writes the right MCP config files. The 37 sverklo tools appear in the agent's tool list immediately.</p>
+<p><code>sverklo init</code> auto-detects ${agent.name} and writes the right MCP config files. The 37 MCP tools appear in the agent's tool list immediately.</p>
 
 <h2>Frequently asked questions</h2>
 <div>
@@ -269,12 +269,12 @@ ${faqHtml}
   <p>If you're already using ${agent.name} and your agent has hallucinated function names, invented imports, or forgotten yesterday's design decision — sverklo is the retrieval layer that fixes the root cause.</p>
   <pre><code>npm install -g sverklo
 sverklo init</code></pre>
-  <p>Or read the <a href="/bench/">60-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
+  <p>Or read the <a href="/bench/">180-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
 </div>
 
 <h2>See also</h2>
 <ul>
-  <li><a href="/bench/">bench:primitives — 60-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
+  <li><a href="/bench/">bench:primitives — 180-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
   <li><a href="/vs/">All comparisons</a></li>
   <li><a href="/playground/">Playground — see real sverklo output on real OSS repos</a></li>
   <li><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a></li>

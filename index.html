@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sverklo - Local-First Code Intelligence MCP for Repo Memory</title>
-<meta name="description" content="Open-source local-first code intelligence MCP for coding agents: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned repo memory.">
+<title>Sverklo - Repo Memory for Coding Agents</title>
+<meta name="description" content="Give your coding agent repo memory. Local-first MCP for Claude Code, Cursor, Windsurf, Codex CLI, and any MCP client: symbols, callers, diffs, blast radius, and git-pinned decisions before it edits.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Sverklo - Local-First Code Intelligence MCP for Repo Memory">
+<meta property="og:title" content="Sverklo - Repo Memory for Coding Agents">
 <meta property="og:description" content="Give your coding agent repo memory: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned decisions. Local-first, MIT, no code upload.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/">
@@ -21,7 +21,7 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sverklo - Local-First Code Intelligence MCP for Repo Memory">
+<meta name="twitter:title" content="Sverklo - Repo Memory for Coding Agents">
 <meta name="twitter:description" content="Give your coding agent repo memory: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned decisions. Local-first, MIT, no code upload.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
@@ -34,7 +34,7 @@
   "alternateName": "сверкло",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
-  "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity.",
+  "description": "Repo memory for coding agents. Local-first MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Codex CLI, and Google Antigravity.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
   "softwareVersion": "0.28.0",
@@ -1884,7 +1884,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="brand mono">sverklo</div>
     <nav class="top-nav">
       <a href="/report/">reports</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/benchmarks/">perf</a>
       <a href="/research/">research</a>
@@ -2508,7 +2508,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <section class="tools-section" id="tools">
   <div class="grid">
     <div style="grid-column: 1 / 13; font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--text-2); padding: 24px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
-      <span style="color: var(--accent); font-weight: 600;">36 MCP tools</span> for search, impact analysis, review, and memory — defaults to a 6-tool 'core' profile that covers 80% of sessions. <a href="https://github.com/sverklo/sverklo#tools" style="color: var(--accent);">Full reference on GitHub.</a>
+      <span style="color: var(--accent); font-weight: 600;">37 MCP tools</span> for search, impact analysis, review, and memory — defaults to a compact core profile for common code-intelligence sessions. <a href="https://github.com/sverklo/sverklo#tools" style="color: var(--accent);">Full reference on GitHub.</a>
     </div>
   </div>
 </section>
@@ -2673,7 +2673,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <div class="qs-num">01 — install</div>
       <div class="qs-title">Global npm install</div>
       <button type="button" class="qs-cmd" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">npm install -g sverklo<span class="copy">copy</span></button>
-      <div class="qs-note">Requires Node 20+. Works on macOS, Linux, Windows.</div>
+      <div class="qs-note">Requires Node 24+. Works on macOS, Linux, Windows.</div>
     </div>
 
     <div class="qs-step">

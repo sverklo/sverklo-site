@@ -28,11 +28,11 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.20.6",
+  "softwareVersion": "0.28.0",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
   "description": "Local-first MCP code-intelligence server with bi-temporal SHA-pinned agent memory. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents.",
-  "featureList": "Local-first indexing, 36 MCP tools, bi-temporal SHA-pinned memory, hybrid retrieval, blast-radius analysis, risk-scored PR review, profile-filtered tool surface (SVERKLO_PROFILE)",
+  "featureList": "Local-first indexing, 37 MCP tools, bi-temporal SHA-pinned memory, hybrid retrieval, blast-radius analysis, risk-scored PR review, compact default profile",
   "publisher": {"@type": "Organization", "name": "Sverklo", "url": "https://sverklo.com"}
 }
 </script>
@@ -48,7 +48,7 @@
       "name": "Is Sverklo a Memoir alternative?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo and Memoir overlap on the memory-for-AI-agents dimension and diverge everywhere else. Sverklo bundles bi-temporal SHA-pinned memory with hybrid code retrieval, blast-radius analysis, and PR review — 36 MCP tools, MIT-licensed, production (v0.20.6). Memoir is memory-only — Apache 2.0, alpha (v0.1.9), built on the ProllyTree Merkle B-tree. If you want memory plus retrieval bundled, sverklo is the alternative. If you want memory-only with sharper per-branch checkout ergonomics, Memoir is its own thing."
+        "text": "Sverklo and Memoir overlap on the memory-for-AI-agents dimension and diverge everywhere else. Sverklo bundles bi-temporal SHA-pinned memory with hybrid code retrieval, blast-radius analysis, and PR review — 37 MCP tools, MIT-licensed, production (v0.28.0). Memoir is memory-only — Apache 2.0, alpha (v0.1.9), built on the ProllyTree Merkle B-tree. If you want memory plus retrieval bundled, sverklo is the alternative. If you want memory-only with sharper per-branch checkout ergonomics, Memoir is its own thing."
       }
     },
     {
@@ -305,7 +305,7 @@ body:has(header.top.nav-canonical) > #main {
         <tr><td>Auto-capture hooks</td><td>No (manual <code>remember</code>)</td><td>SessionStart / UserPromptSubmit / Stop hooks</td></tr>
         <tr><td>Hybrid retrieval (BM25 + vector)</td><td>Yes — same pipeline that powers /mcp/ leaderboard</td><td>No (memory-only)</td></tr>
         <tr><td>Languages</td><td>10 first-class via tree-sitter, 14 via regex fallback</td><td>Memory store is language-agnostic</td></tr>
-        <tr><td>Public benchmark</td><td><a href="/mcp/">120-task / 5-baseline retrieval bench</a></td><td>None published</td></tr>
+        <tr><td>Public benchmark</td><td><a href="/mcp/">180-task / 5-baseline retrieval bench</a></td><td>None published</td></tr>
         <tr><td>Install</td><td><code>npm install -g sverklo &amp;&amp; sverklo init</code></td><td><code>pip install memoir-ai</code> or Claude Code plugin</td></tr>
         <tr><td>GitHub stars</td><td>—</td><td>239 (2026-05-09)</td></tr>
       </tbody>
@@ -317,7 +317,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>Public benchmark coverage</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 120 hand-verified tasks across 4 OSS codebases (express, lodash, requests, sverklo). Sverklo F1=0.60 leading; jcodemunch-mcp wins P1 def-lookup outright at 0.78. <strong>Memoir is not on the public bench yet</strong> — it's memory-only, so the existing P1/P2/P4/P5 retrieval categories don't apply directly. A memory-specific benchmark (recall persistence across context compaction, point-in-time correctness, branch isolation correctness) is a gap in the field that the maintainers of sverklo-bench would entertain — open an issue at <a href="https://github.com/sverklo/sverklo-bench/issues">sverklo/sverklo-bench</a> if you'd contribute task design.
+      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 180 hand-verified tasks across 6 OSS codebases (express, lodash, sverklo, requests, flask, fastapi). Sverklo F1=0.58 leading overall; P1 is 0.63, P4 is 0.84, and jcodemunch uniquely reaches P5 recall 1.00 with F1 0.34. <strong>Memoir is not on the public bench yet</strong> — it's memory-only, so the existing P1/P2/P4/P5 retrieval categories don't apply directly. A memory-specific benchmark (recall persistence across context compaction, point-in-time correctness, branch isolation correctness) is a gap in the field that the maintainers of sverklo-bench would entertain — open an issue at <a href="https://github.com/sverklo/sverklo-bench/issues">sverklo/sverklo-bench</a> if you'd contribute task design.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
       In the meantime, the comparison above is feature-shaped — describing what each tool exposes, not how each tool scores on a common eval. Treat the above as positioning, not measurement.

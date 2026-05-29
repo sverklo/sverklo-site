@@ -39,7 +39,7 @@ URLs:
 
 Title options:
 
-1. Show HN: Sverklo - local-first repo memory for coding agents
+1. Show HN: Sverklo - repo memory for coding agents
 2. Show HN: I built an MCP server that gives coding agents repo memory
 3. Sverklo: local-first code intelligence MCP for Claude Code and Cursor
 
@@ -70,9 +70,11 @@ Open-source local-first MCP server for repo memory + code intelligence
 
 Post:
 
+Disclosure: I maintain Sverklo.
+
 I have been building Sverklo, an MIT local-first MCP server for coding agents.
 
-The pitch is not "replace grep." Grep is still best when you know the exact string. Sverklo is for agent workflows where the model needs repo relationships before it edits:
+This is not meant to replace grep. Grep is still best when you know the exact string. Sverklo is for agent workflows where the model needs repo relationships before it edits:
 
 - semantic code search
 - symbol lookup and references
@@ -88,17 +90,17 @@ npm install -g sverklo
 cd your-project && sverklo init
 ```
 
-It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Antigravity, and any MCP client. No API keys; your code stays local.
+It works with Claude Code and other MCP clients. No API keys; your code stays local.
 
 I also ship the benchmark: 180 hand-verified tasks across 6 OSS codebases, with naive grep, smart grep, jcodemunch-mcp, and GitNexus as baselines. The page includes where Sverklo loses.
 
-Would love feedback from MCP users on the tool surface and default profile. The v0.28.0 release also removed the old double `sverklo_` tool-name prefix, so the visible tools are now `search`, `lookup`, `impact`, `review_diff`, etc.
+I am looking for feedback on which MCP tools should be in the default profile. The v0.28.0 release also removed the old double `sverklo_` tool-name prefix, so the visible tools are now `search`, `lookup`, `impact`, `review_diff`, etc.
 
 ## Reddit r/ClaudeAI
 
 Title:
 
-I built a local MCP server that gives Claude Code repo memory
+Claude Code users: what repo-memory MCP tools should be in the default profile?
 
 Post:
 
@@ -205,7 +207,7 @@ GitHub: https://github.com/sverklo/sverklo
 
 Title:
 
-What should the default Sverklo tool profile include?
+Help choose the default MCP tool profile for sverklo init
 
 Body:
 
@@ -237,11 +239,11 @@ Local repo-memory MCP for AI agents
 
 Message:
 
-Hi {name}, I maintain Sverklo, a local-first MCP server for coding agents.
+Hi {name}, {specific reason from their repo} made me wonder whether repo-memory tools would help there.
 
-I noticed {specific_repo_or_context}. Sverklo might be useful if you use Claude Code, Cursor, or another MCP-capable coding agent on larger repos. It gives the agent local tools for semantic search, symbol refs, refactor blast radius, diff-aware review, and git-pinned memory.
+Would you run Sverklo on one nontrivial repo and tell me where the retrieval or memory model is wrong? I am looking for hard feedback, not promotion.
 
-Install is two commands:
+It gives Claude Code and other MCP-capable coding agents local tools for semantic search, symbol refs, refactor blast radius, diff-aware review, and git-pinned memory. Install is two commands:
 
 ```bash
 npm install -g sverklo
@@ -250,7 +252,7 @@ cd your-project && sverklo init
 
 No API keys, no code upload, MIT.
 
-I am not asking you to promote it. I am trying to get feedback from maintainers who have real repo complexity. If you try it and it fails on your codebase, that would be especially useful to know.
+If this is not relevant, no worries. The most useful reply would be one specific correction, objection, or docs-fit opinion.
 
 Homepage: https://sverklo.com/
 Bench: https://sverklo.com/bench/

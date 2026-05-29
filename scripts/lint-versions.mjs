@@ -37,6 +37,7 @@ if (!m) {
   process.exit(2);
 }
 const CURRENT = m[1];
+const CURRENT_BARE = CURRENT.slice(1);
 
 // Body-copy historical references. Match by file + version + a unique
 // substring of the line so patch-nav.mjs injecting new <head>/<style>
@@ -348,6 +349,7 @@ const ALLOWED_HISTORICAL = [
 ];
 
 const VERSION_RE = /v0\.\d+\.\d+/g;
+const SOFTWARE_VERSION_RE = /"softwareVersion"\s*:\s*"(0\.\d+\.\d+)"/;
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -369,6 +371,17 @@ for (const file of walk(REPO_ROOT)) {
   const rel = relative(REPO_ROOT, file);
   const lines = readFileSync(file, "utf8").split("\n");
   for (let i = 0; i < lines.length; i++) {
+    const softwareVersion = lines[i].match(SOFTWARE_VERSION_RE);
+    if (softwareVersion && softwareVersion[1] !== CURRENT_BARE) {
+      findings.push({
+        file: rel,
+        line: i + 1,
+        version: softwareVersion[1],
+        snippet: lines[i].trim().slice(0, 140),
+      });
+      continue;
+    }
+
     const matches = lines[i].matchAll(VERSION_RE);
     for (const m of matches) {
       const ver = m[0];

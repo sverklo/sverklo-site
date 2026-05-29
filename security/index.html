@@ -214,7 +214,7 @@ footer a { color: var(--text-2); }
       <li><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">npmjs.com/package/sverklo</a> — published package, reproducible from the GitHub tag</li>
       <li><a href="https://github.com/sverklo/sverklo/tree/main/telemetry-endpoint" target="_blank" rel="noopener">telemetry-endpoint/</a> — the Cloudflare Worker that receives telemetry events. Open source, deployable to your own zone if you want a self-hosted relay</li>
       <li><a href="https://github.com/sverklo/sverklo/blob/main/TELEMETRY.md" target="_blank" rel="noopener">TELEMETRY.md</a> — the entire telemetry schema in one page</li>
-      <li><a href="https://github.com/sverklo/sverklo-bench" target="_blank" rel="noopener">sverklo-bench</a> — the 90-task public benchmark, reproducible from clone</li>
+      <li><a href="https://github.com/sverklo/sverklo-bench" target="_blank" rel="noopener">sverklo-bench</a> — the 180-task public benchmark, reproducible from clone</li>
     </ul>
     <div class="callout">
       <p><strong>The honest version of "no telemetry by default":</strong> sverklo prints a one-line prompt asking once whether you'd like to opt in. If you skip or say no, nothing happens — no network call, no buffered events, no later retries. The opt-in is a sentinel file at <code class="inline">~/.sverklo/telemetry.enabled</code>; the override is a sentinel file at <code class="inline">~/.sverklo/telemetry.disabled</code>. The disabled file always wins.</p>

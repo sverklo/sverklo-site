@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sverklo + Claude Code — open-source MCP code intelligence for Claude Code</title>
-<meta name="description" content="Claude Code is Anthropic's official CLI agent that runs in the terminal and edits code through tool calls. Sverklo is an MCP server Claude Code calls to retrieve from your codebase — they're built to work together. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<title>Sverklo for Claude Code: repo memory for AI coding agents</title>
+<meta name="description" content="Give Claude Code repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
 <link rel="canonical" href="https://sverklo.com/vs/claude-code/">
 
-<meta property="og:title" content="Sverklo + Claude Code — local-first MCP code intelligence">
-<meta property="og:description" content="Claude Code is Anthropic's official CLI agent that runs in the terminal and edits code through tool calls. Sverklo is an MCP server Claude Code calls to retrieve from your codebase — they're built to work together. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<meta property="og:title" content="Sverklo for Claude Code: repo memory for AI coding agents">
+<meta property="og:description" content="Give Claude Code repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/vs/claude-code/">
 <meta property="og:image" content="https://sverklo.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sverklo + Claude Code — local-first MCP code intelligence">
-<meta name="twitter:description" content="Claude Code is Anthropic's official CLI agent that runs in the terminal and edits code through tool calls. Sverklo is an MCP server Claude Code calls to retrieve from your codebase — they're built to work together. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<meta name="twitter:title" content="Sverklo for Claude Code: repo memory for AI coding agents">
+<meta name="twitter:description" content="Give Claude Code repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -31,7 +31,7 @@
       "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's sverklo_lookup, sverklo_refs, and sverklo_verify MCP tools give Claude Code a real symbol graph: it resolves findByEmail to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run sverklo init in your project — Claude Code picks the tools up automatically."
+        "text": "Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's lookup, refs, and verify MCP tools give Claude Code a real symbol graph: it resolves findByEmail to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run sverklo init in your project — Claude Code picks the tools up automatically."
       }
     },
     {
@@ -39,7 +39,7 @@
       "name": "What's the best MCP server for Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs — bundling all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys. Published 90-task benchmark with reproducible harness at sverklo.com/bench."
+        "text": "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys."
       }
     },
     {
@@ -273,7 +273,7 @@ body:has(header.top.nav-canonical) > #main {
     <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
       <a href="/install/">install</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
@@ -295,7 +295,7 @@ body:has(header.top.nav-canonical) > #main {
 </div>
 
 <div class="relationship">
-  <strong>Relationship:</strong> Sverklo is an MCP server Claude Code installs as a tool provider. <code>sverklo init</code> auto-writes <code>.mcp.json</code> at the project root and the 37 sverklo tools appear in Claude Code's tool list immediately.
+  <strong>Relationship:</strong> Sverklo is an MCP server Claude Code installs as a tool provider. <code>sverklo init</code> auto-writes <code>.mcp.json</code> at the project root and the 37 MCP tools appear in Claude Code's tool list immediately.
 </div>
 
 <h2>How they fit together</h2>
@@ -306,17 +306,17 @@ body:has(header.top.nav-canonical) > #main {
 cd your-project
 sverklo init</code></pre>
 
-<p><code>sverklo init</code> auto-detects Claude Code and writes the right MCP config files. The 37 sverklo tools appear in the agent's tool list immediately.</p>
+<p><code>sverklo init</code> auto-detects Claude Code and writes the right MCP config files. The 37 MCP tools appear in the agent's tool list immediately.</p>
 
 <h2>Frequently asked questions</h2>
 <div>
       <details>
         <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
-        <p>Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's <code>sverklo_lookup</code>, <code>sverklo_refs</code>, and <code>sverklo_verify</code> MCP tools give Claude Code a real symbol graph: it resolves <code>findByEmail</code> to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run <code>sverklo init</code> in your project — Claude Code picks the tools up automatically.</p>
+        <p>Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's <code>lookup</code>, <code>refs</code>, and <code>verify</code> MCP tools give Claude Code a real symbol graph: it resolves <code>findByEmail</code> to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run <code>sverklo init</code> in your project — Claude Code picks the tools up automatically.</p>
       </details>
       <details>
         <summary>What's the best MCP server for Claude Code?</summary>
-        <p>Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs — bundling all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys. Published 90-task benchmark with reproducible harness at <a href="/bench/">sverklo.com/bench</a>.</p>
+        <p>Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys.</p>
       </details>
       <details>
         <summary>How do I install sverklo for Claude Code?</summary>
@@ -333,12 +333,12 @@ sverklo init</code></pre>
   <p>If you're already using Claude Code and your agent has hallucinated function names, invented imports, or forgotten yesterday's design decision — sverklo is the retrieval layer that fixes the root cause.</p>
   <pre><code>npm install -g sverklo
 sverklo init</code></pre>
-  <p>Or read the <a href="/bench/">90-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
+  <p>Or read the <a href="/bench/">180-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
 </div>
 
 <h2>See also</h2>
 <ul>
-  <li><a href="/bench/">bench:primitives — 90-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
+  <li><a href="/bench/">bench:primitives — 180-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
   <li><a href="/vs/">All comparisons</a></li>
   <li><a href="/playground/">Playground — see real sverklo output on real OSS repos</a></li>
   <li><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a></li>

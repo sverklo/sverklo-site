@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Where Sverklo Loses — The 42 Tasks Out of 180 — Sverklo Bench</title>
-<meta name="description" content="Sverklo loses 42 of 180 bench tasks to at least one grep or MCP baseline. Every one of them, listed. No selection. P2 references (17 losses) are the biggest weakness; P5 fastapi (5 losses) is fixed in v0.20.19.">
+<title>Where Sverklo Loses — Open Losses Out of 180 — Sverklo Bench</title>
+<meta name="description" content="The May 12 run had 42 losses; the May 13 rerun closed 10 P5 losses. This page preserves the historical table and marks what remains open.">
 <link rel="canonical" href="https://sverklo.com/bench/losses/">
 
-<meta property="og:title" content="Where Sverklo Loses — All 42 Tasks Out of 180">
-<meta property="og:description" content="The 23% of our bench where sverklo loses to grep or another baseline. Every task, every delta, the category patterns, what we know and what we're fixing.">
+<meta property="og:title" content="Where Sverklo Loses — Open Losses Out of 180">
+<meta property="og:description" content="The May 12 run had 42 losses; the May 13 rerun closed 10 P5 losses. Historical table preserved; open losses marked.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/bench/losses/">
 <meta property="og:site_name" content="Sverklo">
 <meta property="og:image" content="https://sverklo.com/og.png">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Where Sverklo Loses — All 42 Tasks Out of 180">
-<meta name="twitter:description" content="The 23% of our bench where sverklo is worse than something else. Every task, every delta. No cherry-picking.">
+<meta name="twitter:title" content="Where Sverklo Loses — Open Losses Out of 180">
+<meta name="twitter:description" content="Historical loss table plus the May 13 closure note. No cherry-picking.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -26,7 +26,7 @@
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "Sverklo bench:primitives losses — 2026-05-12 run",
-  "description": "Every task where sverklo's F1 was lower than at least one other baseline on the 180-task 6-codebase retrieval bench. 42 of 180 tasks (23.3%). Published in full, no selection.",
+  "description": "Historical table of every May 12 task where sverklo's F1 was lower than at least one other baseline on the 180-task 6-codebase retrieval bench. The May 13 rerun closed 10 P5 losses; remaining open losses are marked.",
   "url": "https://sverklo.com/bench/losses/",
   "license": "https://opensource.org/licenses/MIT",
   "creator": {"@type": "Person", "name": "Nikita Groshin", "url": "https://github.com/nike-17"},
@@ -132,8 +132,8 @@ table.losses td.why { color: var(--text-3); font-size: 12px; }
 
 <section class="hero">
   <div class="wrap">
-    <div class="kicker">/* bench losses · 180-task / 6-codebase run · 2026-05-12 · 10 of these now closed in 2026-05-13 rerun */</div>
-    <h1>Sverklo lost 42 of 180 bench tasks on the May 12 run. 10 are now closed.</h1>
+    <div class="kicker">/* bench losses · 180-task / 6-codebase run · May 2026 · open loss ledger */</div>
+    <h1>Open benchmark loss ledger for the 180-task public run.</h1>
     <p class="lede"><strong>Where sverklo's F1 was lower than at least one of naive-grep, smart-grep, jcodemunch-mcp, or gitnexus on the same task.</strong> Every loss, sorted by F1 delta. No selection, no aggregation, no spin. If a benchmark only publishes wins, treat it as marketing — not measurement.</p>
 
     <div class="callout" style="background:rgba(74,222,128,0.06);border-left:3px solid #4ade80;padding:14px 18px;margin:18px 0;border-radius:4px">
@@ -142,7 +142,7 @@ table.losses td.why { color: var(--text-3); font-size: 12px; }
     </div>
 
     <div class="summary-grid">
-      <div class="summary-card"><div class="num">42</div><div class="lbl">tasks lost on May 12 run (of 180)</div></div>
+      <div class="summary-card"><div class="num">42</div><div class="lbl">historical May 12 losses (of 180)</div></div>
       <div class="summary-card"><div class="num">10</div><div class="lbl">closed in May 13 rerun (P5 cluster)</div></div>
       <div class="summary-card"><div class="num">~22</div><div class="lbl">still-open losses (P2 + P1)</div></div>
       <div class="summary-card"><div class="num">17 / 11 / 10 / 4</div><div class="lbl">P2 / P1 / P5 / P4 (May 12)</div></div>
@@ -246,9 +246,9 @@ table.losses td.why { color: var(--text-3); font-size: 12px; }
 
     <p>Three reasons it has to exist:</p>
     <ul>
-      <li><strong>It tells you what sverklo is bad at before you install.</strong> If your work is mostly grep-shaped, flat-namespace, single-symbol P2 reference queries, smart-grep wins 17 of those 60 tasks. That's a real signal — pick the right tool.</li>
+      <li><strong>It tells you what sverklo is bad at before you install.</strong> If your work is mostly grep-shaped, flat-namespace, single-symbol P2 reference queries, smart-grep wins a meaningful slice of those tasks. That's a real signal — pick the right tool.</li>
       <li><strong>It separates fixed-by-shipping from fundamental.</strong> The 5 fastapi P5 tasks scored 0.00 because of a Python-decorator gap in the audit's orphan detection. <a href="https://github.com/sverklo/sverklo/releases/tag/v0.20.19">v0.20.19</a> ships the fix. The next bench run will move those to 1.00. P2 smart-grep losses are different — they're architectural, not bugs.</li>
-      <li><strong>It is the only thing keeping the wins credible.</strong> "F1 0.56 leader on a 180-task bench" reads as marketing without this page. With this page, the wins are reviewable.</li>
+      <li><strong>It is the only thing keeping the wins credible.</strong> "F1 0.58 leader on a 180-task bench" reads as marketing without this page. With this page, the wins are reviewable.</li>
     </ul>
 
     <div class="callout">

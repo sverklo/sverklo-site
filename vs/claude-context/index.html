@@ -29,7 +29,7 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.20.5",
+  "softwareVersion": "0.28.0",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
@@ -37,7 +37,7 @@
     "priceCurrency": "USD"
   },
   "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
-  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
   "publisher": {
     "@type": "Organization",
     "name": "Sverklo",
@@ -568,7 +568,7 @@ body:has(header.top.nav-canonical) > #main {
     <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
       <a href="/install/">install</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
@@ -677,7 +677,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>Public benchmark coverage</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 120 hand-verified tasks across 4 OSS codebases (express 4.21.1, lodash 4.17.21, requests 2.32.3, sverklo). Sverklo F1=0.60 leading; jcodemunch-mcp wins P1 def-lookup outright at 0.78. <strong>Claude-Context (Zilliz) is not on the public bench yet</strong> — we'd add it cheerfully if a maintainer opens a PR adding the baseline. The methodology repo at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a> documents the contract; the auto-bench CI runs against the express slice and posts a results-table comment within ~10 minutes.
+      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 180 hand-verified tasks across 6 OSS codebases (sverklo, express 4.21.1, lodash 4.17.21, requests 2.32.3, flask 3.0.3, fastapi 0.115.0). Sverklo F1=0.58 leading; it leads P1, P2, and P4, while jcodemunch reaches P5 recall 1.00 with F1 0.34. <strong>Claude-Context (Zilliz) is not on the public bench yet</strong> — we'd add it cheerfully if a maintainer opens a PR adding the baseline. The methodology repo at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a> documents the contract; the auto-bench CI runs against the express slice and posts a results-table comment within ~10 minutes.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
       In the meantime, the comparison above is feature-shaped, not bench-shaped — we're describing what each tool exposes, not how each tool scores on a common eval. Treat the above as positioning, not measurement.

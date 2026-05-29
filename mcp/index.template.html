@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MCP code-intel index — Sverklo</title>
-<meta name="description" content="Sverklo's MCP code-intelligence index. Compares MCP servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, token economy, and tool-call count across 120 hand-verified tasks. Reproducible from a fresh clone. Sverklo on its own board, including the slices it loses.">
+<meta name="description" content="Sverklo's MCP code-intelligence index. Compares MCP servers and retrieval baselines on F1, token economy, and tool-call count across 180 hand-verified tasks and 6 OSS codebases. Reproducible from a fresh clone. Sverklo on its own board, including the slices it loses.">
 <link rel="canonical" href="https://sverklo.com/mcp/">
 
 <meta property="og:title" content="MCP code-intel index — Sverklo">
-<meta property="og:description" content="Sverklo tells you if the MCP server's code is rotting. Comparison across 120 tasks, 4 datasets, 5 baselines. Reproducible.">
+<meta property="og:description" content="Sverklo tells you if the MCP server's code is rotting. Comparison across 180 tasks, 6 datasets, 5 baselines. Reproducible.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/mcp/">
 <meta property="og:image" content="https://sverklo.com/og.png">
@@ -16,7 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MCP code-intel index — Sverklo">
-<meta name="twitter:description" content="Smithery tells you it installs. Sverklo tells you if the code is rotting.">
+<meta name="twitter:description" content="180-task MCP code-intelligence benchmark: retrieval F1, token economy, and tool-call count across 6 OSS codebases.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -28,7 +28,7 @@
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "Sverklo MCP code-intel index",
-  "description": "Public ranking of MCP code-intelligence servers (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, per-category breakdown, token economy, and tool-call count. 120 hand-verified tasks across four OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3).",
+  "description": "Public ranking of MCP code-intelligence servers and retrieval baselines (sverklo, jcodemunch-mcp, GitNexus, smart-grep, naive-grep) on retrieval F1, per-category breakdown, token economy, and tool-call count. 180 hand-verified tasks across six OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests 2.32.3, flask 3.0.3, fastapi 0.115.0).",
   "url": "https://sverklo.com/mcp/",
   "license": "https://opensource.org/licenses/MIT",
   "creator": { "@type": "Person", "name": "Nikita Groshin", "url": "https://github.com/nike-17" },
@@ -222,12 +222,6 @@ body:has(header.top.nav-canonical) > #main {
       "position": 2,
       "name": "MCP code-intel index",
       "item": "https://sverklo.com/mcp/"
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": "Index.template.html",
-      "item": "https://sverklo.com/mcp/index.template.html/"
     }
   ]
 }
@@ -274,14 +268,14 @@ body:has(header.top.nav-canonical) > #main {
 
 <h2>How to read this</h2>
 
-<p>Different baselines win different categories. Smart-grep beats sverklo on P2 reference finding (a tuned ripgrep is genuinely competitive on call-site lookups). Jcodemunch-mcp ties or beats sverklo on P1 definition lookup (their tree-sitter symbol indexing is sharp). Sverklo wins P4 file dependencies decisively (the symbol graph + PageRank is what graph-based retrieval is supposed to do). Naive grep is the floor.</p>
+<p>Different baselines win different categories. Smart-grep remains genuinely competitive on call-site lookups. Jcodemunch-mcp has the strongest P5 recall after the integration refresh. Sverklo leads the May 13 180-task run overall (F1 0.58), leads P1 definition lookup (0.63), and wins P4 file dependencies decisively (0.84) because the symbol graph + PageRank is what graph-shaped retrieval needs. Naive grep is the floor.</p>
 
 <p>The story isn't "sverklo beats everything." It's <em>different retrieval substrates have different strengths, and the load-bearing axis depends on what you're optimizing for</em>. For agents inside bounded context windows, the token economy is the load-bearing axis; for human-facing search, F1 wins. The page above lets you sort either way.</p>
 
 <h2>Methodology</h2>
 
 <ul>
-  <li><strong>120 hand-verified tasks</strong> across four OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests v2.32.3). 30 tasks per dataset distributed across P1 (10), P2 (10), P4 (5), P5 (5).</li>
+  <li><strong>180 hand-verified tasks</strong> across six OSS codebases (express 4.21.1, lodash 4.17.21, sverklo, requests 2.32.3, flask 3.0.3, fastapi 0.115.0). 30 tasks per dataset distributed across P1 (10), P2 (10), P4 (5), P5 (5).</li>
   <li><strong>Five baselines</strong>: naive-grep (the floor), smart-grep (tuned ripgrep), sverklo, jcodemunch-mcp, GitNexus.</li>
   <li><strong>Tolerances</strong>: P1 ±3 lines, P2 ±2 lines, P4/P5 set membership. Documented in <a href="https://github.com/sverklo/sverklo-bench">sverklo/sverklo-bench</a>.</li>
   <li><strong>Refresh cadence</strong>: quarterly. Maintainer-triggered via the <code>bench-refresh</code> workflow on the sverklo repo. No on-push auto-publish — keeps the ranking gameable only via discrete maintainer actions.</li>

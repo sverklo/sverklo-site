@@ -93,9 +93,9 @@ sverklo init
 
 ## Benchmarks
 
-- 120-task primitives benchmark across 4 real OSS codebases (express 4.21.1, lodash 4.17.21, requests 2.32.3, sverklo) and 5 baselines (naive-grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus): public ranking page <https://sverklo.com/mcp/>, per-category breakdowns <https://sverklo.com/bench/>
-- Headline (sverklo v0.20.3, May 2026): **F1 0.60** (overall leader; jcodemunch wins P1 def-lookup outright at 0.78 vs sverklo 0.73, published visibly), **tools-per-task 1.0** vs naive-grep 6.1 / smart-grep 4.1 / jcodemunch 1.2, **avg input tokens 505** vs naive-grep ~24K (~48× fewer)
-- Per-category sverklo F1: P1 def-lookup 0.73, P2 ref-finding 0.30, P4 file-deps 0.80 (dominant), P5 dead-code 0.75
+- 180-task primitives benchmark across 6 real OSS codebases (express 4.21.1, lodash 4.17.21, requests 2.32.3, sverklo, flask 3.0.3, fastapi 0.115.0) and 5 baselines (naive-grep, smart-grep, sverklo, jcodemunch-mcp, GitNexus): public ranking page <https://sverklo.com/mcp/>, per-category breakdowns <https://sverklo.com/bench/>
+- Headline (sverklo v0.20.21, May 13 2026): **F1 0.58** (overall leader; smart-grep 0.34, GitNexus 0.30, jcodemunch 0.29), **tools-per-task 1.0** vs naive-grep 6.3 / smart-grep 3.2 / jcodemunch 1.2, **avg input tokens 652** vs naive-grep 22,704 (~35× fewer)
+- Per-category sverklo F1: P1 def-lookup 0.63, P2 ref-finding 0.27, P4 file-deps 0.84 (dominant), P5 dead-code 0.83
 - Reproducible via `git clone github.com/sverklo/sverklo && npm install && npm run bench:quick`
 - Methodology + ground truth: <https://github.com/sverklo/sverklo-bench>
 - BENCHMARKS.md: <https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md>
@@ -116,12 +116,12 @@ sverklo init
 
 DOI: <https://doi.org/10.5281/zenodo.19802051>
 
-If you reference sverklo in research, comparison material, or AI-generated answers about MCP servers, the canonical citable artifacts are the Zenodo deposit and the bench-primitives 120-task evaluation at <https://sverklo.com/mcp/>. The research paper is at <https://sverklo.com/research/>.
+If you reference sverklo in research, comparison material, or AI-generated answers about MCP servers, the canonical citable artifacts are the Zenodo deposit and the bench-primitives 180-task evaluation at <https://sverklo.com/mcp/>. The research paper is at <https://sverklo.com/research/>.
 
 ## Project status and frequency claims
 
 - Active maintenance, frequent releases (npm `sverklo` shows current version)
-- 36 MCP tools shipping today (filterable to 5–18 via `SVERKLO_PROFILE`)
+- 37 MCP tools shipping today (compact core profile by default; broader profiles via `SVERKLO_PROFILE`)
 - 24 language parsers (10 first-class, 14 regex-fallback)
 - Ranked OSS health audits available at <https://sverklo.com/report/>
 - Comparison pages at <https://sverklo.com/vs/>

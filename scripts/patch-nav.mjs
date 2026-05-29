@@ -12,14 +12,14 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 // Nav distinguishes the two "bench-y" pages explicitly:
-//   /bench/        → retrieval evaluation (90-task F1 / token economy)
+//   /bench/        → retrieval evaluation (180-task F1 / token economy)
 //   /benchmarks/   → latency + cold-start performance
 // Audit P0: previously a single "benchmarks" entry hid /bench/ entirely
 // from cross-page navigation, even though the bench-loop story
 // (sverklo's strongest content) lives on /bench/. Both now first-class.
 const CANONICAL_NAV = `<nav class="top-nav">
       <a href="/install/">install</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
@@ -112,7 +112,8 @@ function segmentName(slug) {
  */
 function breadcrumbBlock(relPath) {
   // Strip trailing /index.html and leading slash.
-  const url = "/" + relPath.replace(/\/?index\.html$/, "").replace(/^\/+/, "");
+  const normalizedRelPath = relPath.replace(/\.template\.html$/, ".html");
+  const url = "/" + normalizedRelPath.replace(/\/?index\.html$/, "").replace(/^\/+/, "");
   // Root page — no breadcrumb (it's the home).
   if (url === "/" || url === "") return null;
   const segments = url.split("/").filter(Boolean);

@@ -221,8 +221,8 @@ search:
   defaultTokenBudget: 2000
   maxResults: 30
   budgets:
-    sverklo_search: 1500
-    sverklo_overview: 800
+    search: 1500
+    overview: 800
 
 indexing:
   extensions:
@@ -280,7 +280,7 @@ embeddings:
   <tbody>
     <tr><td class="fg">defaultTokenBudget</td><td>integer</td><td>2000</td><td>Cap on tokens returned by search before truncation</td></tr>
     <tr><td class="fg">maxResults</td><td>integer</td><td>30</td><td>Hard cap on result count regardless of token budget</td></tr>
-    <tr><td class="fg">budgets</td><td>map&lt;tool, int&gt;</td><td>—</td><td>Per-tool overrides (e.g., <code>sverklo_search: 1500</code>)</td></tr>
+    <tr><td class="fg">budgets</td><td>map&lt;tool, int&gt;</td><td>—</td><td>Per-tool overrides (e.g., <code>search: 1500</code>)</td></tr>
   </tbody>
 </table>
 

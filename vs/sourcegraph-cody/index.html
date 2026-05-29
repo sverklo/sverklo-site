@@ -29,7 +29,7 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.20.3",
+  "softwareVersion": "0.28.0",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
@@ -37,7 +37,7 @@
     "priceCurrency": "USD"
   },
   "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
-  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support",
+  "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support",
   "publisher": {
     "@type": "Organization",
     "name": "Sverklo",
@@ -568,7 +568,7 @@ body:has(header.top.nav-canonical) > #main {
     <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
       <a href="/install/">install</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
@@ -677,7 +677,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>By the bench numbers</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 18px;">
-      Sverklo publishes a reproducible 5-baseline retrieval benchmark on 120 hand-verified tasks. <a href="/mcp/">Full ranking page</a>. Cody is closed-source and isn't on the public bench, so we can only compare sverklo against the open baselines we do test:
+      Sverklo publishes a reproducible 5-baseline retrieval benchmark on 180 hand-verified tasks across 6 OSS codebases. <a href="/mcp/">Full ranking page</a>. Cody is closed-source and isn't on the public bench, so we can only compare sverklo against the open baselines we do test:
     </p>
     <div class="table-scroll" style="overflow-x:auto;margin:14px 0;">
       <table class="cmp">
@@ -694,33 +694,33 @@ body:has(header.top.nav-canonical) > #main {
         <tbody>
           <tr>
             <td><strong>sverklo</strong></td>
-            <td><strong>0.60</strong></td>
-            <td>0.73</td>
-            <td>0.30</td>
-            <td><strong>0.80</strong></td>
-            <td>505</td>
+            <td><strong>0.58</strong></td>
+            <td><strong>0.63</strong></td>
+            <td><strong>0.27</strong></td>
+            <td><strong>0.84</strong></td>
+            <td>652</td>
           </tr>
           <tr>
             <td>smart-grep</td>
-            <td>0.41</td>
-            <td>0.35</td>
-            <td>0.24</td>
-            <td>0.46</td>
-            <td>842</td>
+            <td>0.34</td>
+            <td>0.20</td>
+            <td>0.20</td>
+            <td>0.40</td>
+            <td>714</td>
           </tr>
           <tr>
             <td>jcodemunch-mcp</td>
-            <td>0.32</td>
-            <td><strong>0.78</strong></td>
-            <td>0.00</td>
-            <td>0.34</td>
-            <td>1,178</td>
+            <td>0.29</td>
+            <td>0.52</td>
+            <td>0.01</td>
+            <td>0.33</td>
+            <td>1,907</td>
           </tr>
         </tbody>
       </table>
     </div>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      Sverklo wins overall F1 and dominates file-dependency reasoning (P4 = 0.80) — the slice closest to "what's the blast radius of this change?" Jcodemunch wins definition lookup (P1 = 0.78) outright; we publish that loss visibly. Cody's symbol resolution is proprietary and not third-party reproducible, so the open-baseline numbers above are the only category-wide reference points.
+      Sverklo wins overall F1 and leads P1, P2, and file-dependency reasoning (P4 = 0.84) — the slice closest to "what's the blast radius of this change?" Cody's symbol resolution is proprietary and not third-party reproducible, so the open-baseline numbers above are the only category-wide reference points.
     </p>
   </div>
 </section>

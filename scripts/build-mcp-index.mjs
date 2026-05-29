@@ -30,6 +30,54 @@ const INDEX_URL = "https://t.sverklo.com/v1/index.json";
 
 const MARKER = "<!-- @mcp-index-data -->";
 
+const CANONICAL_INDEX_DATA = {
+  sha: "",
+  bench_run_id: "2026-05-13T18-32-20-478Z",
+  task_count: 180,
+  datasets: ["express", "lodash", "sverklo", "requests", "flask", "fastapi"],
+  byBaseline: {
+    "naive-grep": { avg_f1: 0.25, avg_input_tokens: 22704, avg_tool_calls: 6.3 },
+    "smart-grep": { avg_f1: 0.34, avg_input_tokens: 714, avg_tool_calls: 3.2 },
+    sverklo: { avg_f1: 0.58, avg_input_tokens: 652, avg_tool_calls: 1.0 },
+    jcodemunch: { avg_f1: 0.29, avg_input_tokens: 1907, avg_tool_calls: 1.2 },
+    gitnexus: { avg_f1: 0.30, avg_input_tokens: 630, avg_tool_calls: 1.2 },
+  },
+  byCategory: {
+    P1: {
+      "naive-grep": { avg_f1: 0.07 },
+      "smart-grep": { avg_f1: 0.20 },
+      sverklo: { avg_f1: 0.63 },
+      jcodemunch: { avg_f1: 0.52 },
+      gitnexus: { avg_f1: 0.35 },
+    },
+    P2: {
+      "naive-grep": { avg_f1: 0.11 },
+      "smart-grep": { avg_f1: 0.20 },
+      sverklo: { avg_f1: 0.27 },
+      jcodemunch: { avg_f1: 0.01 },
+      gitnexus: { avg_f1: 0.00 },
+    },
+    P4: {
+      "naive-grep": { avg_f1: 0.35 },
+      "smart-grep": { avg_f1: 0.40 },
+      sverklo: { avg_f1: 0.84 },
+      jcodemunch: { avg_f1: 0.33 },
+      gitnexus: { avg_f1: 0.27 },
+    },
+    P5: {
+      "naive-grep": { avg_f1: 0.83 },
+      "smart-grep": { avg_f1: 0.83 },
+      sverklo: { avg_f1: 0.83 },
+      jcodemunch: { avg_f1: 0.34 },
+      gitnexus: { avg_f1: 0.83 },
+    },
+  },
+  published_at: Date.UTC(2026, 4, 13, 18, 32, 20) / 1000,
+  raw_artifact_url: "https://github.com/sverklo/sverklo-bench",
+  reproducer_command:
+    "git clone https://github.com/sverklo/sverklo && cd sverklo && npm install && npm run build && npm run bench:quick",
+};
+
 // Map bench-baseline name → upstream {owner, repo} for fetching the
 // audit grade from t.sverklo.com/v1/badge/<owner>/<repo>.svg-adjacent
 // JSON. Built-in baselines (naive-grep, smart-grep) don't have a repo
@@ -148,11 +196,16 @@ ${auditCell}
 `;
   }
 
+  const sha = typeof data.sha === "string" && data.sha.length > 0 ? data.sha : null;
+  const source = sha
+    ? ` at sverklo
+  <a href="https://github.com/sverklo/sverklo/commit/${escape(sha.slice(0, 12))}"><code>${escape(sha.slice(0, 7))}</code></a>`
+    : "";
+
   html += `</tbody></table></div>
 <p class="meta-line">
   ${data.task_count || "?"} tasks across ${(data.datasets || []).length} datasets (${(data.datasets || []).map(escape).join(", ")}).
-  Run <code>${escape(data.bench_run_id || "—")}</code> at sverklo
-  <a href="https://github.com/sverklo/sverklo/commit/${escape((data.sha || "").slice(0, 12))}"><code>${escape((data.sha || "—").slice(0, 7))}</code></a>.
+  Run <code>${escape(data.bench_run_id || "—")}</code>${source}.
   Published <span title="${escape(fmtTimestamp(data.published_at))}">${escape(fmtTimestamp(data.published_at))}</span>.
 </p>
 <details class="reproducer">
@@ -184,13 +237,25 @@ async function main() {
     clearTimeout(timer);
     if (r.ok) {
       const data = await r.json();
+      if ((data.task_count || 0) < CANONICAL_INDEX_DATA.task_count) {
+        console.warn(
+          `[build-mcp-index] live index has ${data.task_count} tasks; using canonical ${CANONICAL_INDEX_DATA.task_count}-task May 13 run`
+        );
+        dataHtml = await buildTable(CANONICAL_INDEX_DATA);
+        publishedNote = ` (data: ${CANONICAL_INDEX_DATA.task_count} tasks, canonical May 13)`;
+        throw new Error("__canonical_index_used__");
+      }
       dataHtml = await buildTable(data);
       publishedNote = ` (data: ${data.task_count} tasks, sha ${(data.sha || "?").slice(0, 7)})`;
     } else {
       console.warn(`[build-mcp-index] index fetch returned HTTP ${r.status}; using placeholder`);
     }
   } catch (e) {
-    console.warn(`[build-mcp-index] index fetch failed: ${e.message}; using placeholder`);
+    if (e.message !== "__canonical_index_used__") {
+      console.warn(`[build-mcp-index] index fetch failed: ${e.message}; using canonical May 13 data`);
+      dataHtml = await buildTable(CANONICAL_INDEX_DATA);
+      publishedNote = ` (data: ${CANONICAL_INDEX_DATA.task_count} tasks, canonical May 13)`;
+    }
   }
 
   if (!template.includes(MARKER)) {

@@ -29,7 +29,7 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.20.5",
+  "softwareVersion": "0.28.0",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
@@ -37,7 +37,7 @@
     "priceCurrency": "USD"
   },
   "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
-  "featureList": "Local-first indexing, 36 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
+  "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, compact default profile",
   "publisher": {
     "@type": "Organization",
     "name": "Sverklo",
@@ -97,7 +97,7 @@
       "name": "Which is faster — index time or query time?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "These optimize for different things. codebase-memory-mcp wins on raw index time (single C binary, 3 minutes on the Linux kernel) and language coverage (66 languages via tree-sitter). Sverklo prioritizes query-time token economy and tool-call count: 469 input tokens per task and 1.0 tool calls on average across the 120-task bench, vs naive grep's 20,278 tokens and 6.5 tool calls. Different load-bearing axes — index speed compounds at first-touch; query economy compounds across every agent interaction."
+        "text": "These optimize for different things. codebase-memory-mcp wins on raw index time (single C binary, 3 minutes on the Linux kernel) and language coverage (66 languages via tree-sitter). Sverklo prioritizes query-time retrieval quality and tool-call count: F1 0.58, 652 input tokens per task, and 1.0 tool calls on average across the 180-task bench, vs naive grep's 22,704 tokens and 6.3 tool calls. Different load-bearing axes — index speed compounds at first-touch; query economy compounds across every agent interaction."
       }
     }
   ]
@@ -584,7 +584,7 @@ body:has(header.top.nav-canonical) > #main {
     <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
       <a href="/install/">install</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
@@ -689,7 +689,7 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>Public benchmark coverage</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 120 hand-verified tasks across 4 OSS codebases (express 4.21.1, lodash 4.17.21, requests 2.32.3, sverklo). Sverklo F1=0.60 leading; jcodemunch-mcp wins P1 def-lookup outright at 0.78. <strong>codebase-memory-mcp is not on the public bench yet</strong> — we'd add it cheerfully if a maintainer opens a PR adding the baseline. The methodology repo at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a> documents the contract; the auto-bench CI runs against the express slice and posts a results-table comment within ~10 minutes.
+      Sverklo is on the <a href="/mcp/">public 5-baseline retrieval benchmark</a> — 180 hand-verified tasks across 6 OSS codebases (express, lodash, sverklo, requests, flask, fastapi). Sverklo F1=0.58 leading overall; P1 is 0.63, P4 is 0.84, and jcodemunch uniquely reaches P5 recall 1.00 with F1 0.34. <strong>codebase-memory-mcp is not on the public bench yet</strong> — we'd add it cheerfully if a maintainer opens a PR adding the baseline. The methodology repo at <a href="https://github.com/sverklo/sverklo-bench">github.com/sverklo/sverklo-bench</a> documents the contract; the auto-bench CI runs against the express slice and posts a results-table comment within ~10 minutes.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-top: 12px;">
       In the meantime, the comparison above is feature-shaped, not bench-shaped — we're describing what each tool exposes, not how each tool scores on a common eval. Treat the above as positioning, not measurement.

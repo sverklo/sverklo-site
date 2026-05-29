@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sverklo + Aider — open-source MCP code intelligence for Aider</title>
-<meta name="description" content="Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<title>Sverklo for Aider: repo memory for AI coding agents</title>
+<meta name="description" content="Give Aider repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
 <link rel="canonical" href="https://sverklo.com/vs/aider/">
 
-<meta property="og:title" content="Sverklo + Aider — local-first MCP code intelligence">
-<meta property="og:description" content="Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<meta property="og:title" content="Sverklo for Aider: repo memory for AI coding agents">
+<meta property="og:description" content="Give Aider repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/vs/aider/">
 <meta property="og:image" content="https://sverklo.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sverklo + Aider — local-first MCP code intelligence">
-<meta name="twitter:description" content="Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns. MIT-licensed, local-first, runs entirely on your laptop. Install with one command.">
+<meta name="twitter:title" content="Sverklo for Aider: repo memory for AI coding agents">
+<meta name="twitter:description" content="Give Aider repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -39,7 +39,7 @@
       "name": "How do I give Aider a symbol graph of my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Aider supports MCP servers via its config. Run sverklo init in your project — it generates .mcp.json that Aider's MCP integration picks up, exposing 37 sverklo tools (sverklo_lookup, sverklo_refs, sverklo_impact, sverklo_verify, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns."
+        "text": "Aider supports MCP servers via its config. Run sverklo init in your project — it generates .mcp.json that Aider's MCP integration picks up, exposing 37 MCP tools (lookup, refs, impact, verify, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns."
       }
     },
     {
@@ -273,7 +273,7 @@ body:has(header.top.nav-canonical) > #main {
     <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
       <a href="/install/">install</a>
-      <a href="/compare/">compare</a>
+      <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
       <a href="/docs/config/">docs</a>
       <a href="/research/">research</a>
@@ -306,7 +306,7 @@ body:has(header.top.nav-canonical) > #main {
 cd your-project
 sverklo init</code></pre>
 
-<p><code>sverklo init</code> auto-detects Aider and writes the right MCP config files. The 37 sverklo tools appear in the agent's tool list immediately.</p>
+<p><code>sverklo init</code> auto-detects Aider and writes the right MCP config files. The 37 MCP tools appear in the agent's tool list immediately.</p>
 
 <h2>Frequently asked questions</h2>
 <div>
@@ -316,7 +316,7 @@ sverklo init</code></pre>
       </details>
       <details>
         <summary>How do I give Aider a symbol graph of my codebase?</summary>
-        <p>Aider supports MCP servers via its config. Run <code>sverklo init</code> in your project — it generates <code>.mcp.json</code> that Aider's MCP integration picks up, exposing 37 sverklo tools (<code>sverklo_lookup</code>, <code>sverklo_refs</code>, <code>sverklo_impact</code>, <code>sverklo_verify</code>, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns.</p>
+        <p>Aider supports MCP servers via its config. Run <code>sverklo init</code> in your project — it generates <code>.mcp.json</code> that Aider's MCP integration picks up, exposing 37 MCP tools (<code>lookup</code>, <code>refs</code>, <code>impact</code>, <code>verify</code>, etc.) to Aider. The agent now reasons about your real symbol graph instead of training-data patterns.</p>
       </details>
       <details>
         <summary>Does Aider need an embeddings index?</summary>
@@ -333,12 +333,12 @@ sverklo init</code></pre>
   <p>If you're already using Aider and your agent has hallucinated function names, invented imports, or forgotten yesterday's design decision — sverklo is the retrieval layer that fixes the root cause.</p>
   <pre><code>npm install -g sverklo
 sverklo init</code></pre>
-  <p>Or read the <a href="/bench/">90-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
+  <p>Or read the <a href="/bench/">180-task retrieval benchmark</a> first — we publish where sverklo wins <em>and</em> where it loses.</p>
 </div>
 
 <h2>See also</h2>
 <ul>
-  <li><a href="/bench/">bench:primitives — 90-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
+  <li><a href="/bench/">bench:primitives — 180-task retrieval evaluation</a> (where sverklo wins, where it loses)</li>
   <li><a href="/vs/">All comparisons</a></li>
   <li><a href="/playground/">Playground — see real sverklo output on real OSS repos</a></li>
   <li><a href="https://github.com/sverklo/sverklo">GitHub: sverklo/sverklo</a></li>

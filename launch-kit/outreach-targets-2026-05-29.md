@@ -8,11 +8,12 @@ Use only personalized, repo-specific messages. Do not bulk-send the template unc
 | --- | --- | --- |
 | Hacker News | Show HN, local-first MCP repo memory | https://news.ycombinator.com/submit |
 | r/mcp | MCP tool surface, v0.28 short tool names, benchmark | https://www.reddit.com/r/mcp/ |
-| r/ClaudeAI | Claude Code context loss and repo memory | https://www.reddit.com/r/ClaudeAI/ |
-| r/LocalLLaMA | Local-first code intelligence, no code upload | https://www.reddit.com/r/LocalLLaMA/ |
-| r/programming | Open-source local code intelligence with benchmark | https://www.reddit.com/r/programming/ |
+| r/ClaudeAI | Defer; ask for default-profile feedback from Claude Code users | https://www.reddit.com/r/ClaudeAI/ |
+| r/LocalLLaMA | Optional/deferred; only use the local embeddings + no-code-upload angle | https://www.reddit.com/r/LocalLLaMA/ |
 | X / Bluesky | Repo memory for coding agents thread | https://x.com/ / https://bsky.app/ |
 | LinkedIn | Maintainer/engineering-leader pitch | https://www.linkedin.com/ |
+
+Avoid r/programming for this launch; current AI-tool policy makes removal likely unless the post is deeply technical implementation content.
 
 ## Maintainer targets
 
