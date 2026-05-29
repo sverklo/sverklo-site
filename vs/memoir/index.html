@@ -301,8 +301,8 @@ body:has(header.top.nav-canonical) > #main {
         <tr><td>Point-in-time queries</td><td>Yes — any commit, any branch, any history depth</td><td>No — branch HEADs only. Source: <code>VersionedKvStore only supports branch checkout, not commit checkout</code></td></tr>
         <tr><td>Branch isolation on git checkout</td><td>Not by default (opt-in via filtering, planned)</td><td>Yes — biggest UX win</td></tr>
         <tr><td>Memory scope</td><td>Memory bundled with retrieval, impact, audit, review</td><td>Memory-only library</td></tr>
-        <tr><td>MCP server</td><td>Yes — 36 tools, profile-filterable to 5</td><td>Yes — memory tools only</td></tr>
-        <tr><td>Auto-capture hooks</td><td>No (manual <code>sverklo_remember</code>)</td><td>SessionStart / UserPromptSubmit / Stop hooks</td></tr>
+        <tr><td>MCP server</td><td>Yes — 37 tools, profile-filterable</td><td>Yes — memory tools only</td></tr>
+        <tr><td>Auto-capture hooks</td><td>No (manual <code>remember</code>)</td><td>SessionStart / UserPromptSubmit / Stop hooks</td></tr>
         <tr><td>Hybrid retrieval (BM25 + vector)</td><td>Yes — same pipeline that powers /mcp/ leaderboard</td><td>No (memory-only)</td></tr>
         <tr><td>Languages</td><td>10 first-class via tree-sitter, 14 via regex fallback</td><td>Memory store is language-agnostic</td></tr>
         <tr><td>Public benchmark</td><td><a href="/mcp/">120-task / 5-baseline retrieval bench</a></td><td>None published</td></tr>

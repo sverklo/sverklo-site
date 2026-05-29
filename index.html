@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stop Claude Code Burning Tokens on Grep — Sverklo MCP (34× fewer tokens)</title>
-<meta name="description" content="One MCP call instead of 7-12 grep loops. Sverklo gives Claude Code, Cursor, and Windsurf a real symbol graph — 34× fewer input tokens, F1 0.58 leader on a 180-task public bench across 6 codebases. Local, MIT, no cloud.">
+<title>Sverklo - Local-First Code Intelligence MCP for Repo Memory</title>
+<meta name="description" content="Open-source local-first code intelligence MCP for coding agents: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned repo memory.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Stop Claude Code Burning Tokens on Grep — Sverklo MCP">
-<meta property="og:description" content="1 MCP call instead of 7-12. 34× fewer input tokens than grep, F1 0.58 leader on a 180-task public bench across 6 codebases. Local-first code intelligence for Claude Code, Cursor, Windsurf. MIT.">
+<meta property="og:title" content="Sverklo - Local-First Code Intelligence MCP for Repo Memory">
+<meta property="og:description" content="Give your coding agent repo memory: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned decisions. Local-first, MIT, no code upload.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/">
 <meta property="og:site_name" content="Sverklo">
@@ -21,8 +21,8 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Stop Claude Code Burning Tokens on Grep — Sverklo MCP">
-<meta name="twitter:description" content="1 MCP call instead of 7-12. 34× fewer input tokens than grep, F1 0.58 leader on a 180-task public bench across 6 codebases. Local-first code intelligence for AI coding agents.">
+<meta name="twitter:title" content="Sverklo - Local-First Code Intelligence MCP for Repo Memory">
+<meta name="twitter:description" content="Give your coding agent repo memory: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned decisions. Local-first, MIT, no code upload.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -37,7 +37,7 @@
   "description": "Local-first code intelligence MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.20.15",
+  "softwareVersion": "0.28.0",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
@@ -48,7 +48,7 @@
     "Cross-repo impact analysis (trace changes across dependent repositories)",
     "Diff-aware PR review with risk scoring",
     "Bi-temporal memory tied to git SHA",
-    "6-tool default profile (36 tools available via SVERKLO_PROFILE=full)",
+    "Compact default profile with 37 MCP tools available in the full profile",
     "24 languages (10 first-class with structural parsing, 14 via regex fallback) + git-pinned bi-temporal memory with conflict detection",
     "Configurable PageRank weights via .sverklo.yaml",
     "Pluggable embedding models (ONNX default, Ollama for local models)",
@@ -56,7 +56,7 @@
     "CLI review with --ci --fail-on quality gate",
     "CLI audit with shareable HTML reports",
     "Interactive dependency graph visualization (D3.js force layout in sverklo ui)",
-    "Functional cluster detection via Label Propagation (sverklo_clusters)",
+    "Functional cluster detection via Label Propagation (clusters)",
     "Wiki generation from indexed codebase (sverklo wiki, no LLM required)",
     "Global registry — one MCP server serves all indexed repos, no per-project config needed",
     "Web dashboard with dependency graph visualization (sverklo ui)",
@@ -79,7 +79,7 @@
       "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: sverklo_lookup resolves a name to its definition with file:line, sverklo_refs proves whether a symbol exists with caller context, sverklo_verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo and run sverklo init in your project — it auto-writes the .mcp.json so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys."
+        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo and run sverklo init in your project — it auto-writes the .mcp.json so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys."
       }
     },
     {
@@ -95,7 +95,7 @@
       "name": "What is the best MCP server for code search?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It ships 36 MCP tools total — defaulting to a 6-tool 'core' profile that covers 80% of code-intel sessions — and runs entirely on your laptop with no API keys. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
+        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It ships 37 MCP tools total — defaulting to a compact 'core' profile that covers most code-intel sessions — and runs entirely on your laptop with no API keys. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
       }
     },
     {
@@ -111,7 +111,7 @@
       "name": "How do I give an AI coding agent persistent memory across sessions?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo's sverklo_remember and sverklo_recall ship a bi-temporal memory layer pinned to git SHAs. Every memory carries valid_from_sha and valid_until_sha; updating a memory inserts a new row and links the old one via superseded_by, so the timeline view can answer 'what did this team believe about the auth flow at commit abc123?' Recall is hybrid (FTS5 + cosine over an ONNX embedding) and runs entirely in embedded SQLite — no Zilliz, Milvus, or managed Postgres+pgvector required."
+        "text": "Sverklo's remember and recall ship a bi-temporal memory layer pinned to git SHAs. Every memory carries valid_from_sha and valid_until_sha; updating a memory inserts a new row and links the old one via superseded_by, so the timeline view can answer 'what did this team believe about the auth flow at commit abc123?' Recall is hybrid (FTS5 + cosine over an ONNX embedding) and runs entirely in embedded SQLite — no Zilliz, Milvus, or managed Postgres+pgvector required."
       }
     },
     {
@@ -151,7 +151,7 @@
       "name": "Is Sverklo free and open source?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo is MIT licensed and free forever. All 36 tools in the open-source release have no limits and opt-in telemetry that's off by default. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is 'Pro adds new things, never gates current things.' Anything in the OSS server today stays in the OSS server forever."
+        "text": "Yes. Sverklo is MIT licensed and free forever. All 37 tools in the open-source release have no limits and opt-in telemetry that's off by default. A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is 'Pro adds new things, never gates current things.' Anything in the OSS server today stays in the OSS server forever."
       }
     },
     {
@@ -272,7 +272,7 @@ header.top .grid {
   font-family: 'JetBrains Mono', monospace;
   font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   border: none;
 }
 .brand::before {
@@ -348,11 +348,11 @@ nav.top-nav a:hover { color: var(--text); }
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(36px, 5.2vw, 68px);
   line-height: 1.05;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 0;
-  max-width: 18ch;
+  max-width: 17ch;
 }
 .hero h1 .accent { color: var(--accent); }
 .hero h1 .cursor {
@@ -400,7 +400,7 @@ nav.top-nav a:hover { color: var(--text); }
   border: 2px solid var(--accent);
   padding: 16px 24px;
   cursor: pointer;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   position: relative;
   transition: background 0.15s, transform 0.05s;
 }
@@ -425,6 +425,20 @@ nav.top-nav a:hover { color: var(--text); }
   transition: color 0.15s, border-color 0.15s;
 }
 .cta-secondary:hover { color: var(--accent); border-color: var(--accent); }
+
+.hero-cta-note {
+  grid-column: 1 / 13;
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.hero-cta-note code {
+  color: var(--text-2);
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  padding: 2px 6px;
+}
 
 /* One-click editor install badges — borrowed from SocratiCode's pattern.
    Cursor and VS Code expose deep-link install URLs (cursor://, insiders.vscode.dev/redirect/);
@@ -492,7 +506,7 @@ nav.top-nav a:hover { color: var(--text); }
   font-size: 22px;
   font-weight: 700;
   color: var(--accent);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .hero-meta .hm-lbl {
   font-size: 12px;
@@ -1678,18 +1692,35 @@ footer .col-items a:hover { color: var(--accent); }
 /* ───────── RESPONSIVE ───────── */
 @media (max-width: 900px) {
   .grid { gap: 16px; padding: 0 20px; }
-  .brand { grid-column: 1 / 13; margin-bottom: 8px; }
+  header.top { padding: 10px 0; }
+  .brand { grid-column: 1 / 6; margin-bottom: 0; }
   nav.top-nav {
     grid-column: 1 / 13;
-    flex-wrap: wrap;
-    gap: 16px;
-    font-size: 13px;
-    padding-bottom: 8px;
+    order: 3;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 18px;
+    font-size: 12px;
+    padding-bottom: 0;
+    scrollbar-width: none;
   }
-  .top-cta { grid-column: 1 / 13; justify-self: start; }
-  .hero { padding: 64px 0 48px; }
+  nav.top-nav::-webkit-scrollbar { display: none; }
+  nav.top-nav a {
+    white-space: nowrap;
+    min-height: 30px;
+    padding: 4px 0;
+  }
+  .top-cta {
+    grid-column: 6 / 13;
+    justify-self: end;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .top-cta #version-badge { margin-left: 4px !important; }
+  .hero { padding: 44px 0 48px; }
   .hero h1 { grid-column: 1 / 13; font-size: 36px; line-height: 1.1; max-width: none; }
   .hero .lede { grid-column: 1 / 13; margin-top: 24px; max-width: none; }
+  .hero-cta { margin-top: 24px; gap: 16px; }
   .terminal-block { grid-column: 1 / 13; margin-top: 40px; }
   .terminal-body { padding: 16px; font-size: 12px; }
   .stat, .stat:nth-child(2), .stat:nth-child(3), .stat:nth-child(4) {
@@ -1706,6 +1737,14 @@ footer .col-items a:hover { color: var(--accent); }
   .tool-tag { text-align: left; }
   .qs-step { grid-column: 1 / 13; margin-bottom: 16px; }
   footer .col { grid-column: 1 / 7; margin-bottom: 24px; }
+}
+
+@media (max-width: 600px) {
+  nav.top-nav a:nth-child(n+6) { display: none; }
+  nav.top-nav {
+    overflow-x: visible;
+    gap: 14px;
+  }
 }
 
 /* @a11y-injected — do not edit; run patch-a11y.mjs */
@@ -1858,7 +1897,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.22.48-2.69-1.07-2.69-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.81.06 1.24.83 1.24.83.72 1.23 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 4.16c.68 0 1.36.09 2 .26 1.53-1.03 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.83 1.28.83 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.55.74.55 1.49v2.21c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>
         <span class="gh-stars-num" id="gh-stars-num">★</span>
       </a>
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block; margin-left: 12px;">v0.27.0</a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block; margin-left: 12px;">v0.28.0</a>
     </div>
   </div>
 </header>
@@ -1866,38 +1905,31 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <main id="main">
 
 <!-- ───────── HERO ───────── -->
-<section class="hero">
+<section class="hero" aria-labelledby="hero-title">
   <div class="grid">
-    <div class="label">/* local-first code intel ◦ the audit gap ◦ 34× fewer tokens than grep ◦ MIT */</div>
+    <div class="label">/* local-first repo memory ◦ symbol graph ◦ diff-aware review ◦ MIT */</div>
 
-    <h1>Stop Claude Code from burning tokens on grep.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
+    <h1 id="hero-title">Give your coding agent repo memory.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
 
     <div class="lede">
-      <p><strong>1 tool call instead of 7-12.</strong> Claude Code, Cursor, and Windsurf hunt your codebase with grep loops that burn input tokens and still hallucinate function names. Sverklo answers in <strong>one MCP call</strong> against a real symbol graph — running locally on your machine. <a href="/bench/">180-task bench across 6 codebases</a>: <strong>35× fewer input tokens than grep</strong>, <strong>F1 0.58 — overall leader</strong> (smart-grep next at 0.34, P4 file-deps win 0.84 vs 0.40).</p>
-      <p>Local-first, MIT-licensed, no API keys, no cloud upload. The code-intel MCP that ships its bench — <em>the slice where sverklo loses to grep is on the same page as the wins</em>.</p>
+      <p><strong>Sverklo is a local-first MCP server</strong> that gives Claude Code, Cursor, Windsurf, and Codex-style agents your repo's symbols, callers, diffs, blast radius, and git-pinned decisions before they edit.</p>
+      <p>Use grep when you know the exact string. Use Sverklo when the agent needs relationships: who calls this, what depends on it, what changed, and which project decisions still apply. Your code stays on your machine.</p>
     </div>
 
     <div class="hero-cta">
-      <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">
+      <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init', this)" aria-label="Copy install and init commands">
         <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
       </button>
-      <a class="cta-secondary" href="/bench/">view the bench →</a>
-      <a class="cta-secondary" href="/bench/losses/">see where sverklo loses →</a>
+      <a class="cta-secondary" href="#demo">watch 90s demo →</a>
+      <a class="cta-secondary" href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">star on GitHub →</a>
     </div>
-
-    <div class="install-badges" aria-label="One-click install in your editor">
-      <span class="install-badges-label">Already using one of these? One-click install:</span>
-      <a href="cursor://anysphere.cursor-deeplink/mcp/install?name=sverklo&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsInN2ZXJrbG8iXX0=" rel="noopener" onclick="event.preventDefault(); window.location.href = this.href;"><img src="https://img.shields.io/badge/Cursor-Install_MCP-F14C28?style=for-the-badge&amp;logo=cursor&amp;logoColor=white" alt="Install in Cursor"></a>
-      <a href="https://insiders.vscode.dev/redirect/mcp/install?name=sverklo&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22sverklo%22%5D%7D" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/VS_Code-Install_MCP-0098FF?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white" alt="Install in VS Code"></a>
-      <a href="https://insiders.vscode.dev/redirect/mcp/install?name=sverklo&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22sverklo%22%5D%7D&quality=insiders" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/VS_Code_Insiders-Install_MCP-24bfa5?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white" alt="Install in VS Code Insiders"></a>
-      <a href="https://github.com/sverklo/sverklo#claude-code" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Claude_Code-Setup_Guide-CC785C?style=for-the-badge" alt="Claude Code setup"></a>
-    </div>
+    <p class="hero-cta-note">Then run <code>cd your-project &amp;&amp; sverklo init</code>. Takes about 2 minutes; no API keys, no code upload, first run downloads a local ONNX model.</p>
 
     <ul class="hero-meta" aria-label="At a glance">
-      <li><span class="hm-num">6→36</span><span class="hm-lbl">MCP tools (default → full)</span></li>
-      <li><span class="hm-num">24</span><span class="hm-lbl">languages</span></li>
-      <li><span class="hm-num">7</span><span class="hm-lbl">AI agents</span></li>
-      <li><span class="hm-num">0</span><span class="hm-lbl">API keys</span></li>
+      <li><span class="hm-num">3k</span><span class="hm-lbl">npm downloads / week</span></li>
+      <li><span class="hm-num">180</span><span class="hm-lbl">public bench tasks</span></li>
+      <li><span class="hm-num">26ms</span><span class="hm-lbl">search p95</span></li>
+      <li><span class="hm-num">0</span><span class="hm-lbl">code upload</span></li>
       <li><span class="hm-num">MIT</span><span class="hm-lbl">licensed</span></li>
     </ul>
 
@@ -1925,7 +1957,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="comment"># ask Claude anything — sverklo is preferred automatically</span>
 <span class="prompt">&gt;</span> <span class="cmd">how does the auth middleware work?</span>
 
-  <span class="tool">› sverklo_search</span>   <span class="dim">query="authentication middleware"</span>
+  <span class="tool">› search</span>   <span class="dim">query="authentication middleware"</span>
   <span class="dim">─ src/middleware/auth.ts:42   validateToken()     score: 0.89</span>
   <span class="dim">─ src/routes/auth.ts:18       requireAuth()       score: 0.84</span>
   <span class="dim">─ src/lib/jwt.ts:12           verifyJWT()         score: 0.81</span>
@@ -1951,7 +1983,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="comment"># Cursor agent picks up sverklo on next session</span>
 <span class="prompt">&gt;</span> <span class="cmd">where do we handle stripe webhooks?</span>
 
-  <span class="tool">› sverklo_context</span>  <span class="dim">task="stripe webhook handling"</span>
+  <span class="tool">› context</span>  <span class="dim">task="stripe webhook handling"</span>
   <span class="dim">─ src/api/webhooks/stripe.ts:14  handleStripeEvent()  score: 0.92</span>
   <span class="dim">─ src/billing/events.ts:31       processCharge()      score: 0.78</span>
   <span class="ok">✓ bundle: 4 files, 2 memories — 1,840 tokens</span>
@@ -1970,10 +2002,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <span class="comment"># Gemini in Antigravity uses sverklo via MCP</span>
 <span class="prompt">&gt;</span> <span class="cmd">review my branch before I merge to main</span>
 
-  <span class="tool">› sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› review_diff</span>  <span class="dim">ref="main..HEAD"</span>
   <span class="warn">─ ◆ risk 52  src/api/billing.ts</span>
   <span class="dim">    2 removed symbols still referenced; 8 importers</span>
-  <span class="tool">› sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› test_map</span>     <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 5 covered · 1 uncovered (risk 78)</span>
   <span class="ok">verdict: BLOCKED — fix dangling refs in 3 files</span>
 </div>
@@ -2010,7 +2042,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
              loading="lazy"
              width="640" height="480">
         <span class="demo-play" aria-hidden="true">▶</span>
-        <span class="demo-meta">1:36 · sverklo init → audit → 6 MCP tools default (36 available) → Claude Code</span>
+        <span class="demo-meta">1:36 · sverklo init → audit → compact default profile (37 tools available) → Claude Code</span>
       </button>
     </div>
   </div>
@@ -2085,7 +2117,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <div class="versus-head">SVERKLO WINS</div>
         <ul>
           <li><span class="vs-mark vs-yes">✓</span> Exploratory questions ("how does the auth flow work?")</li>
-          <li><span class="vs-mark vs-yes">✓</span> Refactor blast radius (<code>sverklo_impact</code>)</li>
+          <li><span class="vs-mark vs-yes">✓</span> Refactor blast radius (<code>impact</code>)</li>
           <li><span class="vs-mark vs-yes">✓</span> Large interconnected codebases</li>
           <li><span class="vs-mark vs-yes">✓</span> Memory across sessions, tied to git SHAs</li>
           <li><span class="vs-mark vs-yes">✓</span> Project audits — god nodes, dead code</li>
@@ -2130,7 +2162,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         </div>
         <div class="terminal-body"><span class="prompt">&gt;</span> <span class="cmd">/sverklo:pre-merge</span>
 
-  <span class="tool">› sverklo_review_diff</span>  <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› review_diff</span>  <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 7 files changed (12 added, 3 removed, 4 modified)</span>
 
   <span class="warn">## ⚠️ Highest-risk files</span>
@@ -2139,11 +2171,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   <span class="dim">─ ◆ risk 52 (high)      src/api/billing.ts</span>
   <span class="dim">    2 removed symbols still referenced; 8 importers</span>
 
-  <span class="tool">› sverklo_test_map</span>     <span class="dim">ref="main..HEAD"</span>
+  <span class="tool">› test_map</span>     <span class="dim">ref="main..HEAD"</span>
   <span class="dim">─ 5 covered · 2 uncovered</span>
   <span class="warn">─ ◆ risk 78 src/auth/session.ts ← block merge</span>
 
-  <span class="tool">› sverklo_impact</span>       <span class="dim">symbol="oldValidateToken"</span>
+  <span class="tool">› impact</span>       <span class="dim">symbol="oldValidateToken"</span>
   <span class="dim">─ 4 dangling references in 3 files — must fix</span>
 
   <span class="ok">verdict: BLOCKED — 1 critical, 4 dangling refs</span>
@@ -2204,7 +2236,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="feature">
       <div class="feature-num">02</div>
       <h3>missing-test detection</h3>
-      <p><code style="color:var(--accent)">sverklo_test_map</code> walks the diff, the import graph, and filename conventions to flag changed code without matching tests — ranked by risk.</p>
+      <p><code style="color:var(--accent)">test_map</code> walks the diff, the import graph, and filename conventions to flag changed code without matching tests — ranked by risk.</p>
     </div>
     <div class="feature">
       <div class="feature-num">03</div>
@@ -2259,7 +2291,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <div class="stat-label" style="font-size:14px;color:var(--accent);margin-bottom:8px;">IMPACT ANALYSIS</div>
       <div class="stat-num" style="font-size:56px;color:var(--text);">&lt;1.2<span style="font-size:24px;color:var(--text-2);"> ms</span></div>
       <div class="stat-desc" style="font-size:13px;color:var(--text-2);margin-top:8px;">
-        <code style="color:var(--accent);">sverklo_impact render</code> on React's most-called symbol. Sub-millisecond on every repo we tested — it's an indexed SQL join, not a 200-grep-match scan.
+        <code style="color:var(--accent);">impact render</code> on React's most-called symbol. Sub-millisecond on every repo we tested — it's an indexed SQL join, not a 200-grep-match scan.
       </div>
     </div>
     <div class="stat">
@@ -2386,7 +2418,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <div class="terminal-body"><span class="comment"># tuesday — agent saves the decision</span>
 <span class="prompt">&gt;</span> <span class="cmd">we picked Prisma for the ORM because of better TypeScript types</span>
 
-  <span class="tool">› sverklo_remember</span>   <span class="dim">category="decision"</span>
+  <span class="tool">› remember</span>   <span class="dim">category="decision"</span>
   <span class="ok">✓ memory #42 saved · main@a3f29e1</span>
 
 <span class="comment"># thursday — new conversation, fresh context window</span>
@@ -2417,7 +2449,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
             <div><dt>confidence</dt><dd>1.0</dd></div>
           </dl>
           <div class="mem-card-foot" style="margin-top: 12px;">
-            <span style="color: var(--accent);">v0.17 →</span> <code style="background: var(--bg-3); padding: 1px 4px; border: 1px solid var(--rule);">sverklo_remember scope:"workspace"</code> writes once, surfaces across every repo in the workspace.
+            <span style="color: var(--accent);">v0.17 →</span> <code style="background: var(--bg-3); padding: 1px 4px; border: 1px solid var(--rule);">remember scope:"workspace"</code> writes once, surfaces across every repo in the workspace.
           </div>
         </div>
         <div class="mem-card mem-card-imported">
@@ -2669,7 +2701,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="faq-list">
       <details open>
         <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
-        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>sverklo_lookup</code> resolves a name to its definition with file:line, <code>sverklo_refs</code> proves whether a symbol exists with caller context, <code>sverklo_verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code> and run <code>sverklo init</code> — it auto-writes the <code>.mcp.json</code> so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys.</p>
+        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code> and run <code>sverklo init</code> — it auto-writes the <code>.mcp.json</code> so Claude Code starts using these tools immediately. Local-first, MIT-licensed, no API keys.</p>
       </details>
       <details>
         <summary>Why would I install another MCP server?</summary>
@@ -2689,7 +2721,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>Is Sverklo free and open source?</summary>
-        <p>Yes. MIT licensed and free forever. All 36 tools have no limits and opt-in telemetry that's off by default (<a href="/security/">see /security</a>). A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
+        <p>Yes. MIT licensed and free forever. All 37 tools have no limits and opt-in telemetry that's off by default (<a href="/security/">see /security</a>). A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
       </details>
       <details>
         <summary>How do I install Sverklo in Claude Code?</summary>
@@ -2713,9 +2745,9 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="final-cta-inner">
       <div class="final-cta-kicker">/* one command, MIT-licensed, stays on your laptop */</div>
       <h2 class="final-cta-h">your agent is still guessing.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
-      <p class="final-cta-sub">Give it a structural understanding of your codebase. Local-first, MIT, no API keys, no cloud.</p>
+      <p class="final-cta-sub">Give it repo memory: symbols, callers, diffs, blast radius, and decisions. Local-first, MIT, no API keys, no code upload.</p>
       <div class="hero-cta final-cta-row">
-        <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">
+        <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init', this)" aria-label="Copy install and init commands">
           <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
         </button>
         <a class="cta-secondary" href="/playground/">try playground →</a>

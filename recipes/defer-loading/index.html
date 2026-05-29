@@ -207,7 +207,7 @@ body:has(header.top.nav-canonical) > #main {
   <span>~5 min read</span>
 </div>
 
-<p class="lede">Sverklo exposes 36 MCP tools by default — about 8,016 tokens of system-prompt overhead. Claude Code 4.x and the Claude API both ship a "Tool Search" / <code>defer_loading</code> mechanism that loads tool definitions on demand instead of upfront. They compose. This recipe shows three patterns: <strong>profile-only</strong> (server-side, hard-coded), <strong>defer-only</strong> (host-side, dynamic), and <strong>hybrid</strong> (both, for the most aggressive context budget).</p>
+<p class="lede">Sverklo exposes 37 MCP tools in the full surface. Claude Code 4.x and the Claude API both ship a "Tool Search" / <code>defer_loading</code> mechanism that loads tool definitions on demand instead of upfront. They compose. This recipe shows three patterns: <strong>profile-only</strong> (server-side, hard-coded), <strong>defer-only</strong> (host-side, dynamic), and <strong>hybrid</strong> (both, for the most aggressive context budget).</p>
 
 <div class="pull">Sverklo's <code>SVERKLO_PROFILE</code> filters which tools the MCP server exposes. <code>defer_loading</code> filters which tools the Claude host surfaces to the model. They're orthogonal — set both for maximum reduction.</div>
 
@@ -233,7 +233,7 @@ export SVERKLO_PROFILE=core    # 5 tools, 1,522 tokens (81% reduction)
 # or:
 export SVERKLO_PROFILE=nav     # 8 tools
 export SVERKLO_PROFILE=lean    # 11 tools
-export SVERKLO_PROFILE=full    # 36 tools (default)
+export SVERKLO_PROFILE=full    # all tools
 
 # Or per-project, in .sverklo.yaml:
 profile: core</code></pre>
@@ -244,7 +244,7 @@ profile: core</code></pre>
 
 <h2>Pattern 2: Defer-only (host-side)</h2>
 
-<p>Sverklo exposes all 36 tools; the Claude host lazy-loads them. <strong>This is automatic in Claude Code</strong> when MCP tool definitions exceed ~10K tokens — sverklo's full surface (8,016 tokens) is just under, but adding any other MCP server crosses the threshold and Tool Search activates.</p>
+<p>Sverklo exposes its full tool surface; the Claude host lazy-loads it. <strong>This is automatic in Claude Code</strong> when MCP tool definitions exceed ~10K tokens — sverklo's measured full surface is just under, but adding any other MCP server crosses the threshold and Tool Search activates.</p>
 
 <p>For Claude API direct, configure <code>defer_loading</code> per-tool via the MCP Connector:</p>
 
@@ -253,11 +253,11 @@ profile: core</code></pre>
   "mcp_server_name": "sverklo",
   "default_config": { "defer_loading": true },
   "configs": {
-    "sverklo_search":   { "defer_loading": false },
-    "sverklo_lookup":   { "defer_loading": false },
-    "sverklo_overview": { "defer_loading": false },
-    "sverklo_refs":     { "defer_loading": false },
-    "sverklo_impact":   { "defer_loading": false }
+    "search":   { "defer_loading": false },
+    "lookup":   { "defer_loading": false },
+    "overview": { "defer_loading": false },
+    "refs":     { "defer_loading": false },
+    "impact":   { "defer_loading": false }
   }
 }</code></pre>
 
@@ -278,11 +278,11 @@ export SVERKLO_PROFILE=lean
   "mcp_server_name": "sverklo",
   "default_config": { "defer_loading": true },
   "configs": {
-    "sverklo_search":   { "defer_loading": false },
-    "sverklo_lookup":   { "defer_loading": false },
-    "sverklo_overview": { "defer_loading": false },
-    "sverklo_refs":     { "defer_loading": false },
-    "sverklo_impact":   { "defer_loading": false }
+    "search":   { "defer_loading": false },
+    "lookup":   { "defer_loading": false },
+    "overview": { "defer_loading": false },
+    "refs":     { "defer_loading": false },
+    "impact":   { "defer_loading": false }
   }
 }</code></pre>
 
@@ -303,11 +303,11 @@ sverklo profile suggest --days 14</code></pre>
 ----------------------------------------------------------------------
 tool                                       calls     share
 ----------------------------------------------------------------------
-sverklo_lookup                               150     30.1%
-sverklo_refs                                 150     30.1%
-sverklo_deps                                  75     15.1%
-sverklo_audit                                 75     15.1%
-sverklo_status                                48      9.6%
+lookup                                      150     30.1%
+refs                                        150     30.1%
+deps                                         75     15.1%
+audit                                        75     15.1%
+status                                       48      9.6%
 ----------------------------------------------------------------------
 
 Profile coverage on your usage:

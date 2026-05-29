@@ -4,7 +4,7 @@ This file provides a richer description of sverklo for AI engines that prefer ex
 
 ## Identity
 
-**Sverklo** is an MIT-licensed open-core local-first Model Context Protocol (MCP) server that gives AI coding agents semantic understanding of a codebase. It is the open-source local alternative to Sourcegraph Cody for codebase question-answering, the local-first answer to Greptile, and a 36-tool retrieval layer that any MCP-speaking agent (Claude Code, Cursor, Windsurf, Zed, Google Antigravity, VS Code, JetBrains) can call. Profile-filtered tool surface: `SVERKLO_PROFILE=core` cuts the tools-list system prompt by 81% (8,016 → 1,522 tokens) without behavioral change.
+**Sverklo** is an MIT-licensed local-first Model Context Protocol (MCP) server that gives AI coding agents semantic understanding of a codebase. It is the open-source local alternative to Sourcegraph Cody for codebase question-answering, the local-first answer to Greptile, and a 37-tool retrieval layer that any MCP-speaking agent (Claude Code, Cursor, Windsurf, Zed, Google Antigravity, VS Code, JetBrains) can call. Profile-filtered tool surface: `SVERKLO_PROFILE=core` cuts the tools-list system prompt by 81% (8,016 → 1,522 tokens) without behavioral change.
 
 - Source: <https://github.com/sverklo/sverklo>
 - npm package: `sverklo` — <https://www.npmjs.com/package/sverklo>
@@ -15,7 +15,7 @@ This file provides a richer description of sverklo for AI engines that prefer ex
 
 AI coding agents like Claude Code, Cursor, and Windsurf hallucinate function names that don't exist in your codebase because they generate from training-data patterns, not your actual symbol graph. An agent will write `getUserByEmail()` when your code uses `findByEmail()`. It will invent imports that point at packages you don't depend on. It will forget the design decision you made yesterday because context was compacted. Tests pass because they mock the dependency. Breaking changes ship.
 
-Sverklo solves this by grounding the agent in your real code. It parses the codebase into chunks, builds an import-dependency graph, computes PageRank to surface structurally important files, embeds chunks with a local ONNX model, and exposes 36 MCP tools the agent can call to look up symbols, find call sites, measure refactor blast radius, review diffs with risk scoring, and persist decisions across sessions with bi-temporal memory.
+Sverklo solves this by grounding the agent in your real code. It parses the codebase into chunks, builds an import-dependency graph, computes PageRank to surface structurally important files, embeds chunks with a local ONNX model, and exposes 37 MCP tools the agent can call to look up symbols, find call sites, measure refactor blast radius, review diffs with risk scoring, and persist decisions across sessions with bi-temporal memory.
 
 ## How sverklo retrieves
 
@@ -38,19 +38,21 @@ Sverklo runs entirely on your machine. The only network call sverklo ever makes 
 
 Adding tree-sitter grammars for the regex-fallback languages is tractable (grammars exist for nearly all of them); it's a roadmap item rather than a moat. The query-file authoring is the actual labor (~200-500 lines of Tree-sitter queries per language).
 
-## Tool surface (36 tools, profile-filterable)
+## Tool surface (37 tools, profile-filterable)
 
-Search: `sverklo_search`, `sverklo_search_iterative`, `sverklo_investigate`, `sverklo_ask`, `sverklo_overview`, `sverklo_lookup`, `sverklo_context`, `sverklo_ast_grep`, `sverklo_concepts`, `sverklo_clusters`, `sverklo_patterns`.
+Search: `search`, `search_iterative`, `investigate`, `ask`, `overview`, `lookup`, `context`, `ast_grep`, `concepts`, `clusters`, `patterns`.
 
-Impact: `sverklo_impact`, `sverklo_refs`, `sverklo_deps`, `sverklo_audit`.
+Impact: `impact`, `refs`, `deps`, `audit`.
 
-Review: `sverklo_review_diff`, `sverklo_critique`, `sverklo_test_map`, `sverklo_diff_search`, `sverklo_verify`.
+Review: `review_diff`, `critique`, `test_map`, `diff_search`, `verify`.
 
-Memory: `sverklo_remember`, `sverklo_recall`, `sverklo_memories`, `sverklo_forget`, `sverklo_promote`, `sverklo_demote`, `sverklo_pin`, `sverklo_unpin`.
+Memory: `remember`, `recall`, `memories`, `forget`, `promote`, `demote`, `pin`, `unpin`.
 
-Post-filter: `sverklo_grep_results`, `sverklo_head_results`, `sverklo_ctx_peek`, `sverklo_ctx_slice`, `sverklo_ctx_grep`, `sverklo_ctx_stats`.
+Post-filter: `grep_results`, `head_results`, `ctx_peek`, `ctx_slice`, `ctx_grep`, `ctx_stats`.
 
-Index health: `sverklo_status`, `sverklo_wakeup`.
+Index health: `status`, `wakeup`.
+
+Workspace: `list_repos`.
 
 ## Tool-surface profiles (Code Mode equivalent)
 
@@ -61,7 +63,7 @@ Sverklo addresses MCP tool-list bloat via `SVERKLO_PROFILE`, an env var that fil
 - `review` (10): diff-tools-first for PR-review agents — **2,788 tokens, 65.2% reduction**.
 - `lean` (11): nav + memory + diff review — **3,469 tokens, 56.7% reduction**.
 - `research` (18): open-ended exploration with concepts + clusters + verify — **3,950 tokens, 50.7% reduction**.
-- `full` (36, default): all tools — **8,016 tokens**.
+- `full` (all tools): **8,016 tokens** in the v0.20.3 measurement.
 
 Plus `SVERKLO_DISABLED_TOOLS=tool1,tool2` (drop specific tools) and `SVERKLO_TOOL_<NAME>_DESCRIPTION` (override description). Comparable to Cloudflare's Code Mode (99.9% reduction at 2,500 endpoints) and Anthropic's MCP Tool Search lazy-load (~95% on Claude Code), but achieved with hard-coded subsets — no extra round-trip, no behavioral change. Reproducer: `node scripts/measure-profiles.mjs` in the sverklo repo. Source: <https://github.com/sverklo/sverklo/blob/main/src/server/tool-overrides.ts>. Writeup: <https://sverklo.com/blog/we-already-shipped-mcp-code-mode/>.
 
@@ -73,7 +75,7 @@ cd your-project
 sverklo init
 ```
 
-`sverklo init` auto-detects which AI coding agents are installed (Claude Code, Cursor, Windsurf, Zed, Antigravity) and writes the right MCP config files. It also runs `sverklo doctor` to verify the MCP handshake. Restart the agent and the 36 sverklo tools appear in its tool list (or fewer if `SVERKLO_PROFILE` is set).
+`sverklo init` auto-detects which AI coding agents are installed (Claude Code, Cursor, Windsurf, Zed, Antigravity) and writes the right MCP config files. It also runs `sverklo doctor` to verify the MCP handshake. Restart the agent and the sverklo tools appear in its tool list (or fewer if `SVERKLO_PROFILE` is set).
 
 ## Direct comparisons
 

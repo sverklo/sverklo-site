@@ -254,6 +254,14 @@ const ALLOWED_HISTORICAL = [
     snippet: "v0.20.15",
     note: "tool-search post: factual reference to v0.20.15 doctor-probe upgrade",
   },
+  // blog/the-fix-that-wasnt: post-launch retrospective mentions the exact
+  // release train that produced the artifact-validation rule.
+  {
+    file: "blog/the-fix-that-wasnt/index.html",
+    version: "v0.27.0",
+    snippet: "v0.27.0",
+    note: "post-launch retrospective: historical references to v0.27.0 in release timeline and validation narrative",
+  },
   // index.html: bench-loop narrative mentions v0.20.2
   {
     file: "index.html",
