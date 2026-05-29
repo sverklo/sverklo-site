@@ -60,17 +60,17 @@ sverklo prove
 
 It writes MCP config, appends local instructions to AGENTS.md or CLAUDE.md, and runs a doctor check. `sverklo prove` then shows central files, a real caller graph, and a prompt to paste into your agent. Your code stays on your machine. The only first-run network call is the local ONNX embedding model download.
 
-If you want to share the result, run `sverklo prove --markdown` for a GitHub/Discord-ready proof receipt.
+If you want to share the result, run `sverklo prove --markdown` for a GitHub/Discord-ready proof receipt. I seeded a public receipt thread with Sverklo, Express, Fastify, Zod, and Zustand examples: https://github.com/sverklo/sverklo/discussions/79
 
 I also published the benchmark instead of only shipping a marketing page: 180 hand-verified retrieval tasks across 6 OSS codebases and 5 baselines. Sverklo leads overall F1 on that run, but the losses are visible too. Grep is still the right tool when you know the exact string; Sverklo is for relationship questions like "who calls this?", "what depends on this?", "what changed?", and "what decision did we make last time?"
 
-Happy to answer hard questions, especially from people using MCP tools heavily.
+Happy to answer hard questions, especially from people using MCP tools heavily. The most useful feedback would be a receipt from a real repo plus one thing the graph got wrong.
 
 ## Reddit r/mcp
 
 Title:
 
-Open-source local-first MCP server for repo memory + code intelligence
+Run this MCP repo-memory proof on your project and tell me what it gets wrong
 
 Post:
 
@@ -97,17 +97,19 @@ sverklo prove
 
 It works with Claude Code and other MCP clients. `sverklo prove` gives the first repo-specific proof before you trust the agent with edits. No API keys; your code stays local.
 
-There is also `sverklo prove --markdown` if you want a shareable receipt from your own repo.
+There is also `sverklo prove --markdown` if you want a shareable receipt from your own repo. I opened a public thread seeded with Sverklo, Express, Fastify, Zod, and Zustand receipts:
+
+https://github.com/sverklo/sverklo/discussions/79
 
 I also ship the benchmark: 180 hand-verified tasks across 6 OSS codebases, with naive grep, smart grep, jcodemunch-mcp, and GitNexus as baselines. The page includes where Sverklo loses.
 
-I am looking for feedback on which MCP tools should be in the default profile. The v0.28.0 release also removed the old double `sverklo_` tool-name prefix, so the visible tools are now `search`, `lookup`, `impact`, `review_diff`, etc.
+I am looking for hard feedback: run the proof on a real repo and tell me what it gets wrong, noisy, or surprisingly right.
 
 ## Reddit r/ClaudeAI
 
 Title:
 
-Claude Code users: what repo-memory MCP tools should be in the default profile?
+Claude Code users: can you run this repo-memory proof on one real project?
 
 Post:
 
@@ -131,7 +133,17 @@ sverklo prove
 
 The homepage has the demo and the benchmark: https://sverklo.com/
 
-I am particularly looking for feedback from Claude Code users on what the default tool profile should include. The full surface is 37 tools, but the default profile stays compact.
+If you want a shareable receipt, run:
+
+```bash
+sverklo prove --markdown
+```
+
+I seeded a public thread with receipts from Sverklo, Express, Fastify, Zod, and Zustand:
+
+https://github.com/sverklo/sverklo/discussions/79
+
+I am particularly looking for feedback from Claude Code users: what does the graph get wrong, noisy, or surprisingly useful on a real project?
 
 ## X / Bluesky Thread
 
@@ -186,6 +198,20 @@ If your agent has ever invented `getUserByEmail()` when your repo actually uses 
 
 https://sverklo.com/
 
+Post 6:
+
+I seeded a public proof thread with receipts from Sverklo, Express, Fastify, Zod, and Zustand.
+
+Run this on a repo you actually work in:
+
+```bash
+sverklo prove --markdown
+```
+
+Paste the receipt and tell me what it gets wrong:
+
+https://github.com/sverklo/sverklo/discussions/79
+
 ## LinkedIn
 
 I have been working on Sverklo, an open-source local-first MCP server for AI coding agents.
@@ -209,6 +235,10 @@ sverklo prove
 ```
 
 I also published a 180-task retrieval benchmark across 6 OSS repos, including the slices where Sverklo loses. Grep is still the right tool when you know the exact string. Sverklo is for relationship questions agents need before editing; `sverklo prove` shows one on your repo immediately.
+
+There is now a public proof thread seeded with receipts from Sverklo, Express, Fastify, Zod, and Zustand. If you try it on a real project, I would value the receipt and one concrete thing the graph got wrong, noisy, or surprisingly useful:
+
+https://github.com/sverklo/sverklo/discussions/79
 
 Homepage: https://sverklo.com/
 GitHub: https://github.com/sverklo/sverklo
