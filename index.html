@@ -753,6 +753,105 @@ nav.top-nav a:hover { color: var(--text); }
   .proof-cell:nth-last-child(-n+2) { border-bottom: none; }
 }
 
+/* ───────── PROOF WALL — public repo receipts ───────── */
+.proof-wall {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+.proof-wall .kicker {
+  grid-column: 1 / 13;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.proof-wall .kicker::before { content: "// "; color: var(--accent); }
+.proof-wall h2 {
+  grid-column: 1 / 8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin: 0 0 24px;
+}
+.proof-wall .proof-wall-copy {
+  grid-column: 9 / 13;
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.65;
+  padding-top: 8px;
+}
+.receipt-grid {
+  grid-column: 1 / 13;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 40px;
+}
+.receipt-card {
+  background: var(--bg-2);
+  padding: 22px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.receipt-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.receipt-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.receipt-card p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin: 0 0 22px;
+}
+.receipt-card a {
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+.receipt-card a::before {
+  content: "view receipt ";
+  color: var(--text-3);
+}
+.proof-wall-cta {
+  grid-column: 1 / 13;
+  margin-top: 32px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+@media (max-width: 1100px) {
+  .receipt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .proof-wall h2,
+  .proof-wall .proof-wall-copy { grid-column: 1 / 13; }
+}
+@media (max-width: 620px) {
+  .receipt-grid { grid-template-columns: 1fr; }
+}
+
 /* ───────── VERSUS BLOCK — sverklo wins / grep wins ───────── */
 .versus {
   padding: 80px 0;
@@ -1886,6 +1985,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <a href="/report/">reports</a>
       <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
+      <a href="#proof-wall">proof</a>
       <a href="/benchmarks/">perf</a>
       <a href="/research/">research</a>
       <a href="/playground/">playground</a>
@@ -1917,14 +2017,14 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="hero-cta">
-      <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
+      <button type="button" class="cta-primary" data-track="install-copy-hero" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
         <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
       </button>
-      <a class="cta-secondary" href="#demo">watch 90s demo →</a>
-      <a class="cta-secondary" href="https://github.com/sverklo/sverklo/discussions/79" target="_blank" rel="noopener">share your proof →</a>
-      <a class="cta-secondary" href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">star on GitHub →</a>
+      <a class="cta-secondary" href="#demo" data-track-click="demo-hero">watch 90s demo →</a>
+      <a class="cta-secondary" href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero">share your proof →</a>
+      <a class="cta-secondary" href="https://github.com/sverklo/sverklo?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=github_star" target="_blank" rel="noopener" data-track-click="github-star-hero">star on GitHub →</a>
     </div>
-    <p class="hero-cta-note">Run the copied commands, then use the markdown receipt and paste it into <a href="https://github.com/sverklo/sverklo/discussions/79" target="_blank" rel="noopener">the proof thread</a>. Takes about 2 minutes; no API keys, no code upload, first run downloads a local ONNX model.</p>
+    <p class="hero-cta-note">Run the copied commands, then use the markdown receipt and paste it into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. Takes about 2 minutes; no API keys, no code upload, first run downloads a local ONNX model.</p>
 
     <ul class="hero-meta" aria-label="At a glance">
       <li><span class="hm-num">3k</span><span class="hm-lbl">npm downloads / week</span></li>
@@ -2052,6 +2152,69 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   </div>
 </section>
 
+<!-- ───────── PROOF WALL ───────── -->
+<section class="proof-wall" id="proof-wall" aria-labelledby="proof-wall-title">
+  <div class="grid">
+    <div class="kicker">public receipts from real repos</div>
+    <h2 id="proof-wall-title">Don't trust the claim. Run the proof.</h2>
+    <div class="proof-wall-copy">
+      <p><code style="color:var(--accent);">sverklo prove --markdown</code> prints a shareable receipt from the current repo: central files, one real symbol, real callers, and the exact prompt to paste into your coding agent.</p>
+      <p>We seeded the thread with five repos so people can inspect the shape before installing.</p>
+    </div>
+
+    <div class="receipt-grid" aria-label="Public proof receipts">
+      <article class="receipt-card">
+        <div>
+          <div class="receipt-name">Sverklo</div>
+          <div class="receipt-meta">self-hosted proof</div>
+          <p>TypeScript MCP server, CLI, benchmark harness, telemetry worker, and site worktree in one receipt.</p>
+        </div>
+        <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=sverklo_receipt" target="_blank" rel="noopener" data-track-click="receipt-sverklo">#79</a>
+      </article>
+      <article class="receipt-card">
+        <div>
+          <div class="receipt-name">Express</div>
+          <div class="receipt-meta">server framework</div>
+          <p>Middleware-heavy JavaScript repo: real entry points, core symbols, and caller relationships.</p>
+        </div>
+        <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=express_receipt" target="_blank" rel="noopener" data-track-click="receipt-express">#79</a>
+      </article>
+      <article class="receipt-card">
+        <div>
+          <div class="receipt-name">Fastify</div>
+          <div class="receipt-meta">plugin graph</div>
+          <p>Large Node framework with plugin and route structure that rewards graph-aware retrieval.</p>
+        </div>
+        <a href="https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17107989" target="_blank" rel="noopener" data-track-click="receipt-fastify">comment</a>
+      </article>
+      <article class="receipt-card">
+        <div>
+          <div class="receipt-name">Zod</div>
+          <div class="receipt-meta">type system</div>
+          <p>TypeScript validation library where symbol precision matters more than keyword matching.</p>
+        </div>
+        <a href="https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17107989" target="_blank" rel="noopener" data-track-click="receipt-zod">comment</a>
+      </article>
+      <article class="receipt-card">
+        <div>
+          <div class="receipt-name">Zustand</div>
+          <div class="receipt-meta">small but sharp</div>
+          <p>Compact state library showing whether the proof remains useful when the repo is not huge.</p>
+        </div>
+        <a href="https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17107989" target="_blank" rel="noopener" data-track-click="receipt-zustand">comment</a>
+      </article>
+    </div>
+
+    <div class="proof-wall-cta">
+      <button type="button" class="cta-primary" data-track="install-copy-proof-wall" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove --markdown', this)" aria-label="Copy install, init, and markdown proof commands">
+        <span class="prompt-mark">$</span> sverklo prove --markdown<span class="copy">copy</span>
+      </button>
+      <a class="cta-secondary" href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=submit_receipt" target="_blank" rel="noopener" data-track-click="proof-thread-proof-wall">paste your receipt →</a>
+      <a class="cta-secondary" href="/bench/?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=benchmark" data-track-click="benchmark-proof-wall">see benchmark →</a>
+    </div>
+  </div>
+</section>
+
 <!-- ───────── BENCH LOOP TIMELINE ───────── -->
 <section class="bench-loop" aria-label="Bench-as-feedback-loop timeline">
   <div class="grid">
@@ -2103,11 +2266,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
   </div>
   <div class="proof-foot">
-    <a href="/benchmarks/" class="cta-secondary">methodology + reproducer →</a>
+    <a href="/benchmarks/?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=methodology" class="cta-secondary" data-track-click="methodology-proof-strip">methodology + reproducer →</a>
     <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
-    <a href="https://github.com/sverklo/sverklo/tree/main/benchmark/src/swe" class="cta-secondary" target="_blank" rel="noopener"><code style="background: var(--bg-3); padding: 1px 6px; border: 1px solid var(--rule); margin-right: 4px;">npm run bench:swe</code>cross-repo recall, v0.17</a>
+    <a href="https://github.com/sverklo/sverklo/tree/main/benchmark/src/swe?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=bench_reproducer" class="cta-secondary" target="_blank" rel="noopener" data-track-click="bench-reproducer-proof-strip"><code style="background: var(--bg-3); padding: 1px 6px; border: 1px solid var(--rule); margin-right: 4px;">npm run bench:swe</code>cross-repo recall, v0.17</a>
     <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
-    <a href="/research/" class="cta-secondary">preprint · Zenodo · CC BY 4.0 →</a>
+    <a href="/research/?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=preprint" class="cta-secondary" data-track-click="research-proof-strip">preprint · Zenodo · CC BY 4.0 →</a>
   </div>
 </section>
 
@@ -2676,21 +2839,21 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="qs-step">
       <div class="qs-num">01 — install</div>
       <div class="qs-title">Global npm install</div>
-      <button type="button" class="qs-cmd" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">npm install -g sverklo<span class="copy">copy</span></button>
+      <button type="button" class="qs-cmd" data-track="install-copy-quickstart" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">npm install -g sverklo<span class="copy">copy</span></button>
       <div class="qs-note">Requires Node 24+. Works on macOS, Linux, Windows.</div>
     </div>
 
     <div class="qs-step">
       <div class="qs-num">02 — setup</div>
       <div class="qs-title">Initialize in your project</div>
-      <button type="button" class="qs-cmd" onclick="cp('sverklo init', this)" aria-label="Copy: sverklo init">sverklo init<span class="copy">copy</span></button>
+      <button type="button" class="qs-cmd" data-track="init-copy-quickstart" onclick="cp('sverklo init', this)" aria-label="Copy: sverklo init">sverklo init<span class="copy">copy</span></button>
       <div class="qs-note">Creates .mcp.json, .claude/settings.local.json, and AGENTS.md (or CLAUDE.md if that's what your project uses). Auto-detects Antigravity. Idempotent.</div>
     </div>
 
     <div class="qs-step">
       <div class="qs-num">03 — prove</div>
       <div class="qs-title">See repo memory work</div>
-      <button type="button" class="qs-cmd" onclick="cp('sverklo prove', this)" aria-label="Copy: sverklo prove">sverklo prove<span class="copy">copy</span></button>
+      <button type="button" class="qs-cmd" data-track="prove-copy-quickstart" onclick="cp('sverklo prove', this)" aria-label="Copy: sverklo prove">sverklo prove<span class="copy">copy</span></button>
       <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent. Add <code>--markdown</code> to share it.</div>
     </div>
   </div>
@@ -2751,10 +2914,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <h2 class="final-cta-h">your agent is still guessing.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
       <p class="final-cta-sub">Give it repo memory: symbols, callers, diffs, blast radius, and decisions. Local-first, MIT, no API keys, no code upload.</p>
       <div class="hero-cta final-cta-row">
-        <button type="button" class="cta-primary" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
+        <button type="button" class="cta-primary" data-track="install-copy-final" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
           <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
         </button>
-        <a class="cta-secondary" href="/playground/">try playground →</a>
+        <a class="cta-secondary" href="/playground/?utm_source=sverklo_site&utm_medium=final_cta&utm_campaign=playground" data-track-click="playground-final">try playground →</a>
       </div>
     </div>
   </div>
@@ -2853,7 +3016,46 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+function deviceClass() {
+  if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean") {
+    return navigator.userAgentData.mobile ? "mobile" : "desktop";
+  }
+  if (!window.innerWidth) return "unknown";
+  if (window.innerWidth < 600) return "mobile";
+  if (window.innerWidth < 1024) return "tablet";
+  return "desktop";
+}
+
+function trackIntent(name) {
+  try {
+    if (!name || navigator.doNotTrack === "1" || window.doNotTrack === "1") return;
+    var safe = String(name).replace(/[^a-z0-9-]/gi, "").slice(0, 48);
+    if (!safe) return;
+    var body = {
+      page: "/launch-kit",
+      referrer: document.referrer || "",
+      utm_source: "site_intent",
+      utm_medium: "cta",
+      utm_campaign: safe,
+      device: deviceClass(),
+    };
+    var blob = new Blob([JSON.stringify(body)], { type: "text/plain" });
+    var url = "https://t.sverklo.com/v1/pageview";
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, blob);
+    } else {
+      fetch(url, { method: "POST", body: JSON.stringify(body), keepalive: true, headers: { "content-type": "text/plain" } }).catch(function () {});
+    }
+  } catch (e) { /* intent tracking must never affect navigation */ }
+}
+
+document.addEventListener('click', function(e) {
+  var el = e.target && e.target.closest ? e.target.closest('[data-track-click]') : null;
+  if (el) trackIntent(el.dataset.trackClick);
+}, true);
+
 function cp(text, el) {
+  if (el && el.dataset && el.dataset.track) trackIntent(el.dataset.track);
   const ta = document.createElement('textarea');
   ta.value = text;
   ta.style.position = 'fixed';
