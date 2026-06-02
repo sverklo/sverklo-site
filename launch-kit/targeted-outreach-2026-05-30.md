@@ -12,6 +12,8 @@ cd your-project && sverklo init
 sverklo prove --markdown
 ```
 
+Proof-first reuse rule: personalize every note, label the current proof thread as maintainer-seeded, and invite corrections. Do not imply third-party validation until an external receipt is logged.
+
 Links:
 
 - Homepage: https://sverklo.com/?utm_source=outreach&utm_medium=dm&utm_campaign=proof_receipts
@@ -94,14 +96,14 @@ Possible story angle: Sverklo is trying to make "repo memory" a concrete, testab
 
 The launch proof is not just a landing page. It includes:
 
-- public proof receipts from Sverklo, Express, Fastify, Zod, and Zustand
+- maintainer-seeded proof examples from Sverklo, Express, Fastify, Zod, and Zustand
 - a 180-task retrieval benchmark
 - explicit cases where grep is still the right tool
 
 Proof wall: https://sverklo.com/#proof-wall
 Benchmark: https://sverklo.com/bench/
 
-Happy to provide a short maintainer quote or a repo-specific receipt.
+Happy to provide a short maintainer quote or a repo-specific receipt. Caveat: the current receipt thread is seeded until external users post their own receipts or corrections.
 
 ## Daily Follow-Up Loop
 

@@ -10,6 +10,8 @@ cd your-project && sverklo init
 sverklo prove --markdown
 ```
 
+Proof-first reuse rule: describe the receipt thread as maintainer-seeded until an external user receipt exists. The primary ask is to run a proof receipt on a real repo and share what is wrong or useful, not to chase stars or generic awareness.
+
 Primary links:
 
 - Homepage: https://sverklo.com/
@@ -49,7 +51,7 @@ sverklo prove
 
 `sverklo init` writes MCP config, appends local instructions to `AGENTS.md` or `CLAUDE.md`, and runs a doctor check. `sverklo prove` then shows central files, a real caller graph, and a prompt to paste into your agent. Your code stays on your machine. The only first-run network call is the local ONNX embedding model download.
 
-If you want to share the result, run `sverklo prove --markdown` for a GitHub-ready proof receipt. I seeded a public receipt thread with Sverklo, Express, Fastify, Zod, and Zustand examples:
+If you want to share the result, run `sverklo prove --markdown` for a GitHub-ready proof receipt. I seeded a public receipt thread with maintainer-produced Sverklo, Express, Fastify, Zod, and Zustand examples:
 
 https://github.com/sverklo/sverklo/discussions/79
 
@@ -88,7 +90,7 @@ sverklo prove
 
 It works with Claude Code and other MCP clients. `sverklo prove` gives the first repo-specific proof before you trust the agent with edits. No API keys; your code stays local.
 
-There is also `sverklo prove --markdown` if you want a shareable receipt from your own repo. I opened a public thread seeded with Sverklo, Express, Fastify, Zod, and Zustand receipts:
+There is also `sverklo prove --markdown` if you want a shareable receipt from your own repo. I opened a public thread seeded with maintainer-produced Sverklo, Express, Fastify, Zod, and Zustand receipts:
 
 https://github.com/sverklo/sverklo/discussions/79
 
@@ -132,7 +134,7 @@ If you want a shareable receipt, run:
 sverklo prove --markdown
 ```
 
-I seeded a public thread with receipts from Sverklo, Express, Fastify, Zod, and Zustand:
+I seeded a public thread with maintainer-produced receipts from Sverklo, Express, Fastify, Zod, and Zustand:
 
 https://github.com/sverklo/sverklo/discussions/79
 
@@ -193,7 +195,7 @@ https://sverklo.com/
 
 Post 6:
 
-I seeded a public proof thread with receipts from Sverklo, Express, Fastify, Zod, and Zustand.
+I seeded a public proof thread with maintainer-produced receipts from Sverklo, Express, Fastify, Zod, and Zustand.
 
 Run this on a repo you actually work in:
 
@@ -249,7 +251,7 @@ https://sverklo.com/bench/
 
 Post 5:
 
-I seeded a proof thread with Sverklo, Express, Fastify, Zod, and Zustand receipts.
+I seeded a proof thread with maintainer-produced Sverklo, Express, Fastify, Zod, and Zustand receipts.
 
 Run this on a real repo:
 
@@ -285,7 +287,7 @@ sverklo prove
 
 I also published a 180-task retrieval benchmark across 6 OSS repos, including the slices where Sverklo loses. Grep is still the right tool when you know the exact string. Sverklo is for relationship questions agents need before editing; `sverklo prove` shows one on your repo immediately.
 
-There is now a public proof thread seeded with receipts from Sverklo, Express, Fastify, Zod, and Zustand. If you try it on a real project, I would value the receipt and one concrete thing the graph got wrong, noisy, or surprisingly useful:
+There is now a public proof thread seeded with maintainer-produced receipts from Sverklo, Express, Fastify, Zod, and Zustand. If you try it on a real project, I would value the receipt and one concrete thing the graph got wrong, noisy, or surprisingly useful:
 
 https://github.com/sverklo/sverklo/discussions/79
 
@@ -306,7 +308,7 @@ sverklo prove --markdown
 
 It prints a shareable receipt: central files, one real symbol, real callers, and a prompt to paste into your coding agent.
 
-I seeded a thread with receipts from Sverklo, Express, Fastify, Zod, and Zustand:
+I seeded a thread with maintainer-produced receipts from Sverklo, Express, Fastify, Zod, and Zustand:
 
 https://github.com/sverklo/sverklo/discussions/79
 

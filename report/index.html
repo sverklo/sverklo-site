@@ -355,13 +355,16 @@ body:has(header.top.nav-canonical) > #main {
     <p class="lede">
       We audited 47 popular open-source repos. Here's how they score.
     </p>
+    <p class="lede">
+      Source label: public audit examples, not external proof receipts. Use these to inspect `sverklo audit` output shape; use `sverklo prove --markdown` for repo-memory receipts.
+    </p>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
     <h2>Example report</h2>
-    <p>Here's a real health report from running <code class="mono">sverklo audit</code> on webpack — where structural issues actually surface.</p>
+    <p>Here's a real health report from running <code class="mono">sverklo audit</code> on webpack — where structural issues actually surface. Caveat: this is a maintainer-produced audit example, not third-party validation.</p>
 
     <a href="/report/webpack/webpack/" style="border: none; display: block;">
     <div class="report-card" style="cursor: pointer; transition: border-color 0.15s;">

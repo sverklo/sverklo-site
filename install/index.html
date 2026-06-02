@@ -157,17 +157,17 @@ body:has(header.top.nav-canonical) > #main {
 </head>
 <body>
 
-<div class="kicker">Install · 90 seconds</div>
-<h1>Install sverklo</h1>
+<div class="kicker">Install · proof receipt · 90 seconds</div>
+<h1>Run Sverklo proof on a real repo</h1>
 
-<p>Requires Node 24 or newer. MIT, zero config, your code never leaves the machine.</p>
+<p>Requires Node 24 or newer. MIT, no API keys, no code upload. First run downloads the local ONNX embedding model; after that indexing, search, audit, and memories stay on your machine.</p>
 
 <pre><code>npm install -g sverklo
 sverklo init      # in your project root
 sverklo prove     # see repo memory work on your code
 sverklo prove --markdown  # share the proof</code></pre>
 
-<p>That's it. <code>sverklo init</code> auto-detects Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, and GitHub Copilot CLI &mdash; whichever you have installed gets the right MCP config written automatically. <code>sverklo prove</code> prints central files, one real caller graph, and a prompt to paste into your agent. Add <code>--markdown</code> or <code>--receipt</code> when you want a GitHub/Discord-ready artifact, then <a href="https://github.com/sverklo/sverklo/discussions/79">share it in the proof thread</a>.</p>
+<p>That's it. <code>sverklo init</code> auto-detects Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, and GitHub Copilot CLI &mdash; whichever you have installed gets the right MCP config written automatically. <code>sverklo prove --markdown</code> prints central files, one real caller graph, and a prompt to paste into your agent. Share the receipt in <a href="https://github.com/sverklo/sverklo/discussions/79">the proof thread</a>, or share the part it gets wrong.</p>
 
 <p>If <code>sverklo doctor</code> finds anything broken, it tells you exactly what to fix. <a href="https://github.com/sverklo/sverklo/issues">Open an issue</a> if it doesn't.</p>
 

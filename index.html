@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sverklo - Repo Memory for Coding Agents</title>
-<meta name="description" content="Give your coding agent repo memory. Local-first MCP for Claude Code, Cursor, Windsurf, Codex CLI, and any MCP client: symbols, callers, diffs, blast radius, and git-pinned decisions before it edits.">
+<title>Sverklo - Run Repo-Memory Proof Before Your Agent Edits</title>
+<meta name="description" content="Run a proof receipt on a real repo before your coding agent edits. Sverklo is a local-first MCP server with public benchmarks, seeded receipts, visible caveats, and no code upload.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Sverklo - Repo Memory for Coding Agents">
-<meta property="og:description" content="Give your coding agent repo memory: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned decisions. Local-first, MIT, no code upload.">
+<meta property="og:title" content="Sverklo - Run Repo-Memory Proof Before Your Agent Edits">
+<meta property="og:description" content="Same task, same coding agent, better repo evidence. Run a proof receipt, inspect the benchmark, and keep the caveats visible. Local-first, MIT, no code upload.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/">
 <meta property="og:site_name" content="Sverklo">
@@ -21,8 +21,8 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sverklo - Repo Memory for Coding Agents">
-<meta name="twitter:description" content="Give your coding agent repo memory: semantic search, symbol graph lookup, refactor blast-radius, diff-aware review, and git-pinned decisions. Local-first, MIT, no code upload.">
+<meta name="twitter:title" content="Sverklo - Run Repo-Memory Proof Before Your Agent Edits">
+<meta name="twitter:description" content="Run a proof receipt on a real repo, inspect the 180-task benchmark, and keep the grep caveats visible. Local-first MCP, MIT, no code upload.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -34,7 +34,7 @@
   "alternateName": "сверкло",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
-  "description": "Repo memory for coding agents. Local-first MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Codex CLI, and Google Antigravity.",
+  "description": "Proof-first repo memory for coding agents. Local-first MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Run a receipt on a real repo before asking the agent to edit.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
   "softwareVersion": "0.28.3",
@@ -92,7 +92,7 @@
     },
     {
       "@type": "Question",
-      "name": "What is the best MCP server for code search?",
+      "name": "How does Sverklo handle MCP code search?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It ships 37 MCP tools total — defaulting to a compact 'core' profile that covers most code-intel sessions — and runs entirely on your laptop with no API keys. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
@@ -100,7 +100,7 @@
     },
     {
       "@type": "Question",
-      "name": "What is the best open source alternative to Sourcegraph Cody?",
+      "name": "How does Sverklo compare with Sourcegraph Cody?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Sverklo is the open-source local-first alternative to Sourcegraph Cody for codebase question-answering. Cody is source-available with an enterprise deployment model and per-developer pricing; Sverklo is MIT-licensed, single-machine, and free. Same retrieval surface (hybrid BM25 + vector + PageRank), different deployment model. Sverklo doesn't try to be a hosted IDE plugin — it's a 37-tool MCP retrieval layer that any AI coding agent can call."
@@ -116,10 +116,10 @@
     },
     {
       "@type": "Question",
-      "name": "What is the best local-first MCP server for code intelligence?",
+      "name": "What local-first code-intelligence evidence does Sverklo publish?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo. MIT-licensed, ships hybrid retrieval (BM25 + ONNX embeddings + PageRank), symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs in one zero-config install. Runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup. Numbers reproducible on the published 180-task bench at sverklo.com/bench."
+        "text": "Sverklo is MIT-licensed and ships hybrid retrieval (BM25 + ONNX embeddings + PageRank), symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs in one zero-config install. It runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup. Numbers are reproducible on the published 180-task bench at sverklo.com/bench."
       }
     },
     {
@@ -135,7 +135,7 @@
       "name": "Does Sverklo work offline?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. The only network call Sverklo ever makes is downloading the ONNX embedding model on first run (~90MB, cached locally). After that you can disconnect from the internet and everything continues to work — indexing, search, embeddings, memory, dashboard. No telemetry. No cloud calls. Your code never leaves your laptop."
+        "text": "Yes after the first-run model download. Sverklo downloads the ONNX embedding model once (~90MB, cached locally). After that you can disconnect from the internet and indexing, search, embeddings, memory, and dashboard continue to work locally. Telemetry is opt-in and off by default. Your code never leaves your laptop."
       }
     },
     {
@@ -766,6 +766,85 @@ nav.top-nav a:hover { color: var(--text); }
     padding: 24px 0 24px;
   }
   .proof-cell:nth-last-child(-n+2) { border-bottom: none; }
+}
+
+/* ───────── SAME-TASK COMPARISON — proof before feature inventory ───────── */
+.same-task {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.same-task .kicker {
+  grid-column: 1 / 13;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.same-task .kicker::before { content: "// "; color: var(--accent); }
+.same-task h2 {
+  grid-column: 1 / 8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: 0;
+  margin: 0;
+}
+.same-task .comparison-note {
+  grid-column: 9 / 13;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-2);
+  padding-top: 8px;
+}
+.comparison-grid {
+  grid-column: 1 / 13;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 40px;
+}
+.comparison-card {
+  background: var(--bg);
+  padding: 22px;
+  min-height: 210px;
+}
+.comparison-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.comparison-card p {
+  margin: 0;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-size: 13px;
+}
+.comparison-card strong { color: var(--text); font-weight: 500; }
+.comparison-caveat {
+  grid-column: 1 / 13;
+  margin-top: 22px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.comparison-caveat strong { color: var(--accent); font-weight: 600; }
+@media (max-width: 1100px) {
+  .comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .same-task h2,
+  .same-task .comparison-note { grid-column: 1 / 13; }
+}
+@media (max-width: 620px) {
+  .comparison-grid { grid-template-columns: 1fr; }
 }
 
 /* ───────── PROOF WALL — public repo receipts ───────── */
@@ -2069,29 +2148,29 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <!-- ───────── HERO ───────── -->
 <section class="hero" aria-labelledby="hero-title">
   <div class="grid">
-    <div class="label">/* local-first repo memory ◦ symbol graph ◦ diff-aware review ◦ MIT */</div>
+    <div class="label">/* proof receipt ◦ public benchmark ◦ visible losses ◦ local-first MIT */</div>
 
-    <h1 id="hero-title">Give your coding agent repo memory.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
+    <h1 id="hero-title">Run the proof before your coding agent edits.<span class="cursor" aria-hidden="true">&nbsp;</span></h1>
 
     <div class="lede">
-      <p><strong>Sverklo is a local-first MCP server</strong> that gives Claude Code, Cursor, Windsurf, and Codex-style agents your repo's symbols, callers, diffs, blast radius, and git-pinned decisions before they edit.</p>
-      <p>Use grep when you know the exact string. Use Sverklo when the agent needs relationships: who calls this, what depends on it, what changed, and which project decisions still apply. Your code stays on your machine.</p>
+      <p><strong>Same task, same coding agent, better repo evidence.</strong> Sverklo gives Claude Code, Cursor, Windsurf, and Codex-style agents your repo's files, symbols, callers, tests, dependencies, diffs, and git-pinned decisions before they edit.</p>
+      <p>Inspect the public 180-task benchmark, then run a receipt on a real repo. MIT, no API keys, no code upload; first run downloads a local ONNX model. Caveat: grep still wins exact strings.</p>
     </div>
 
     <div class="hero-cta">
-      <button type="button" class="cta-primary" data-track="install-copy-hero" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
-        <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
+      <button type="button" class="cta-primary" data-track="install-copy-hero" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove --markdown', this)" aria-label="Copy install, init, and markdown proof commands">
+        <span class="prompt-mark">$</span> sverklo prove --markdown<span class="copy">copy</span>
       </button>
-      <a class="cta-secondary" href="#demo" data-track-click="demo-hero">watch 90s demo →</a>
-      <a class="cta-secondary" href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero">share your proof →</a>
-      <a class="cta-secondary" href="https://github.com/sverklo/sverklo?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=github_star" target="_blank" rel="noopener" data-track-click="github-star-hero">star on GitHub →</a>
+      <a class="cta-secondary" href="#same-task" data-track-click="same-task-hero">compare same task →</a>
+      <a class="cta-secondary" href="#proof-wall" data-track-click="proof-wall-hero">inspect receipts →</a>
+      <a class="cta-secondary" href="/bench/?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=benchmark" data-track-click="benchmark-hero">read benchmark →</a>
     </div>
-    <p class="hero-cta-note">Run the copied commands, then use the markdown receipt and paste it into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. Takes about 2 minutes; no API keys, no code upload, first run downloads a local ONNX model.</p>
+    <p class="hero-cta-note">Run the copied commands, then paste the markdown receipt into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. Takes about 2 minutes; MIT, no API keys, no code upload, first run downloads a local ONNX model.</p>
 
     <ul class="hero-meta" aria-label="At a glance">
-      <li><span class="hm-num">3k</span><span class="hm-lbl">npm downloads / week</span></li>
-      <li><span class="hm-num">180</span><span class="hm-lbl">public bench tasks</span></li>
-      <li><span class="hm-num">26ms</span><span class="hm-lbl">search p95</span></li>
+      <li><span class="hm-num">180</span><span class="hm-lbl">hand-verified retrieval tasks</span></li>
+      <li><span class="hm-num">6</span><span class="hm-lbl">OSS codebases in the bench</span></li>
+      <li><span class="hm-num">5</span><span class="hm-lbl">baselines, including grep</span></li>
       <li><span class="hm-num">0</span><span class="hm-lbl">code upload</span></li>
       <li><span class="hm-num">MIT</span><span class="hm-lbl">licensed</span></li>
     </ul>
@@ -2194,6 +2273,40 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   </div>
 </section>
 
+<!-- ───────── SAME-TASK COMPARISON ───────── -->
+<section class="same-task" id="same-task" aria-labelledby="same-task-title">
+  <div class="grid">
+    <div class="kicker">same task, same agent</div>
+    <h2 id="same-task-title">What changes when the agent gets repo evidence first?</h2>
+    <p class="comparison-note">The comparison is intentionally plain: ask the same coding agent to change an auth helper. Baseline tools make it search and guess. Sverklo hands it the repo relationships before the edit.</p>
+
+    <div class="comparison-grid" aria-label="Same-task baseline versus Sverklo-assisted comparison">
+      <article class="comparison-card">
+        <div class="comparison-label">Task</div>
+        <p><strong>Change an auth helper signature</strong> without breaking callers, tests, or prior project decisions.</p>
+      </article>
+      <article class="comparison-card">
+        <div class="comparison-label">Baseline path</div>
+        <p>The agent greps likely names, reads a few files, and may miss indirect callers or stale decisions after context compaction.</p>
+      </article>
+      <article class="comparison-card">
+        <div class="comparison-label">Sverklo path</div>
+        <p><code style="color:var(--accent);">impact</code>, <code style="color:var(--accent);">refs</code>, <code style="color:var(--accent);">test_map</code>, and <code style="color:var(--accent);">recall</code> show real callers, covered tests, dependencies, and git-pinned decisions.</p>
+      </article>
+      <article class="comparison-card">
+        <div class="comparison-label">Evidence changed</div>
+        <p>Files, symbols, callers, tests, dependencies, diffs, and decisions appear before the model writes code.</p>
+      </article>
+      <article class="comparison-card">
+        <div class="comparison-label">Outcome + caveat</div>
+        <p>Fewer blind edits on relationship-heavy tasks. If you already know the exact string or the repo is tiny, grep is still the sharper first move.</p>
+      </article>
+    </div>
+
+    <p class="comparison-caveat"><strong>Proof source:</strong> public 180-task retrieval benchmark plus maintainer-seeded receipts. External same-task receipts are still the top proof gap.</p>
+  </div>
+</section>
+
 <!-- ───────── DEMO VIDEO ───────── -->
 <section class="demo-section" id="demo" aria-label="90-second demo">
   <div class="grid">
@@ -2217,18 +2330,18 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <!-- ───────── PROOF WALL ───────── -->
 <section class="proof-wall" id="proof-wall" aria-labelledby="proof-wall-title">
   <div class="grid">
-    <div class="kicker">public receipts from real repos</div>
+    <div class="kicker">seeded receipts from real repos</div>
     <h2 id="proof-wall-title">Don't trust the claim. Run the proof.</h2>
     <div class="proof-wall-copy">
       <p><code style="color:var(--accent);">sverklo prove --markdown</code> prints a shareable receipt from the current repo: central files, one real symbol, real callers, and the exact prompt to paste into your coding agent.</p>
-      <p>We seeded the thread with five repos so people can inspect the shape before installing.</p>
+      <p>These examples are maintainer-seeded so you can inspect the shape before installing. They are not third-party validation; external receipts and corrections are the current ask.</p>
     </div>
 
     <div class="receipt-grid" aria-label="Public proof receipts">
       <article class="receipt-card">
         <div>
           <div class="receipt-name">Sverklo</div>
-          <div class="receipt-meta">self-hosted proof</div>
+          <div class="receipt-meta">maintainer-seeded example</div>
           <p>TypeScript MCP server, CLI, benchmark harness, telemetry worker, and site worktree in one receipt.</p>
         </div>
         <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=sverklo_receipt" target="_blank" rel="noopener" data-track-click="receipt-sverklo">#79</a>
@@ -2236,7 +2349,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <article class="receipt-card">
         <div>
           <div class="receipt-name">Express</div>
-          <div class="receipt-meta">server framework</div>
+          <div class="receipt-meta">maintainer-seeded example</div>
           <p>Middleware-heavy JavaScript repo: real entry points, core symbols, and caller relationships.</p>
         </div>
         <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=express_receipt" target="_blank" rel="noopener" data-track-click="receipt-express">#79</a>
@@ -2244,7 +2357,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <article class="receipt-card">
         <div>
           <div class="receipt-name">Fastify</div>
-          <div class="receipt-meta">plugin graph</div>
+          <div class="receipt-meta">maintainer-seeded example</div>
           <p>Large Node framework with plugin and route structure that rewards graph-aware retrieval.</p>
         </div>
         <a href="https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17107989" target="_blank" rel="noopener" data-track-click="receipt-fastify">comment</a>
@@ -2252,7 +2365,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <article class="receipt-card">
         <div>
           <div class="receipt-name">Zod</div>
-          <div class="receipt-meta">type system</div>
+          <div class="receipt-meta">maintainer-seeded example</div>
           <p>TypeScript validation library where symbol precision matters more than keyword matching.</p>
         </div>
         <a href="https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17107989" target="_blank" rel="noopener" data-track-click="receipt-zod">comment</a>
@@ -2260,7 +2373,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <article class="receipt-card">
         <div>
           <div class="receipt-name">Zustand</div>
-          <div class="receipt-meta">small but sharp</div>
+          <div class="receipt-meta">maintainer-seeded example</div>
           <p>Compact state library showing whether the proof remains useful when the repo is not huge.</p>
         </div>
         <a href="https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17107989" target="_blank" rel="noopener" data-track-click="receipt-zustand">comment</a>
@@ -2278,7 +2391,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 </section>
 
 <!-- ───────── BENCH LOOP TIMELINE ───────── -->
-<section class="bench-loop" aria-label="Bench-as-feedback-loop timeline">
+<section class="bench-loop" id="proof-loop" aria-label="Bench-as-feedback-loop timeline">
   <div class="grid">
     <p class="loop-eyebrow">/* what happened when we published the bench */</p>
     <h2 class="loop-h">A public benchmark, two competitors, fixes shipped on both sides in 36 hours.</h2>
@@ -2293,7 +2406,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </li>
       <li>
         <span class="loop-date">May 4</span>
-        <span class="loop-evt">Adding lodash to the bench exposed the symmetric blind spot in sverklo's parser. <a href="https://github.com/sverklo/sverklo/releases/tag/v0.20.2">sverklo v0.20.2</a> ships the fix. Sverklo P1 <strong>0.30 → 0.73</strong>; overall F1 <strong>0.45 → 0.56</strong> (now leader).</span>
+        <span class="loop-evt">Adding lodash to the bench exposed the symmetric blind spot in sverklo's parser. <a href="https://github.com/sverklo/sverklo/releases/tag/v0.20.2">sverklo v0.20.2</a> ships the fix. Sverklo P1 <strong>0.30 → 0.73</strong>; overall F1 <strong>0.45 → 0.56</strong> on that run.</span>
       </li>
     </ol>
     <blockquote class="loop-quote">
@@ -2304,33 +2417,33 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 </section>
 
 <!-- ───────── PROOF STRIP ───────── -->
-<section class="proof-strip" aria-label="Benchmark numbers">
+<section class="proof-strip" id="benchmark-proof" aria-label="Benchmark proof numbers">
   <div class="grid proof-grid">
     <div class="proof-cell">
-      <div class="proof-num">26<span class="proof-unit">ms</span></div>
-      <div class="proof-lbl">search p95</div>
-      <div class="proof-sub">react · 4 368 files indexed</div>
+      <div class="proof-num">180</div>
+      <div class="proof-lbl">hand-verified tasks</div>
+      <div class="proof-sub">6 OSS codebases · 5 baselines</div>
     </div>
     <div class="proof-cell">
-      <div class="proof-num">&lt;1.2<span class="proof-unit">ms</span></div>
-      <div class="proof-lbl">impact analysis</div>
-      <div class="proof-sub">indexed graph join, no scan</div>
+      <div class="proof-num">0.58</div>
+      <div class="proof-lbl">overall F1</div>
+      <div class="proof-sub">canonical May 13 bench run</div>
     </div>
     <div class="proof-cell">
-      <div class="proof-num">+29<span class="proof-unit">%</span></div>
-      <div class="proof-lbl">F1 vs Claude alone</div>
-      <div class="proof-sub">on real merge requests</div>
+      <div class="proof-num">35<span class="proof-unit">×</span></div>
+      <div class="proof-lbl">fewer input tokens</div>
+      <div class="proof-sub">vs naive grep on that bench</div>
     </div>
     <div class="proof-cell">
-      <div class="proof-num">2-4<span class="proof-unit">×</span></div>
-      <div class="proof-lbl">fewer tokens</div>
-      <div class="proof-sub">per agent review pass</div>
+      <div class="proof-num">losses</div>
+      <div class="proof-lbl">published too</div>
+      <div class="proof-sub">grep and baselines still win slices</div>
     </div>
   </div>
   <div class="proof-foot">
-    <a href="/benchmarks/?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=methodology" class="cta-secondary" data-track-click="methodology-proof-strip">methodology + reproducer →</a>
+    <a href="/bench/?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=methodology" class="cta-secondary" data-track-click="methodology-proof-strip">methodology + losses →</a>
     <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
-    <a href="https://github.com/sverklo/sverklo/tree/main/benchmark/src/swe?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=bench_reproducer" class="cta-secondary" target="_blank" rel="noopener" data-track-click="bench-reproducer-proof-strip"><code style="background: var(--bg-3); padding: 1px 6px; border: 1px solid var(--rule); margin-right: 4px;">npm run bench:swe</code>cross-repo recall, v0.17</a>
+    <a href="https://github.com/sverklo/sverklo-bench?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=bench_reproducer" class="cta-secondary" target="_blank" rel="noopener" data-track-click="bench-reproducer-proof-strip"><code style="background: var(--bg-3); padding: 1px 6px; border: 1px solid var(--rule); margin-right: 4px;">sverklo-bench</code>ground truth + reproducer</a>
     <span style="margin: 0 14px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 12px;">·</span>
     <a href="/research/?utm_source=sverklo_site&utm_medium=proof_strip&utm_campaign=preprint" class="cta-secondary" data-track-click="research-proof-strip">preprint · Zenodo · CC BY 4.0 →</a>
   </div>
@@ -2539,14 +2652,14 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 </section>
 
 <!-- ───────── HOW ───────── -->
-<section class="two-col">
+<section class="two-col" id="repo-evidence">
   <div class="grid">
-    <div class="kicker">/* how it works */</div>
+    <div class="kicker">/* repo evidence graph */</div>
     <h2>indexed.<br>ranked.<br>remembered.</h2>
     <div class="sidebar">
-      Sverklo parses your codebase into structural chunks, embeds them with a local ONNX model, and builds a dependency graph. Every query runs through <strong>BM25 text search + vector similarity + PageRank ranking</strong>, fused via Reciprocal Rank Fusion.
+      Sverklo parses your codebase into files, symbols, callers, tests, dependencies, diffs, and decisions before the agent edits. Every query runs through <strong>BM25 text search + vector similarity + PageRank ranking</strong>, fused via Reciprocal Rank Fusion.
       <br><br>
-      Memories are linked to git commits. Stale memories are detected automatically.
+      Memories are linked to git commits, so stale decisions are detected automatically instead of silently reused after compaction.
       <br><br>
       Everything runs locally. No API keys. No cloud.
     </div>
@@ -2555,15 +2668,15 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="pipeline" aria-label="Sverklo retrieval pipeline">
       <div class="pipe-stage">
         <div class="pipe-box">
-          <div class="pipe-label">01 · query</div>
-          <div class="pipe-text">"how does the auth middleware work?"</div>
+          <div class="pipe-label">01 · task</div>
+          <div class="pipe-text">"change this auth helper safely"</div>
         </div>
       </div>
       <div class="pipe-arrow" aria-hidden="true">→</div>
       <div class="pipe-stage">
         <div class="pipe-box">
-          <div class="pipe-label">02 · retrieve</div>
-          <div class="pipe-text">BM25 + ONNX vectors<br><span class="pipe-dim">+ filename / path channels</span></div>
+          <div class="pipe-label">02 · evidence</div>
+          <div class="pipe-text">files · symbols · callers<br><span class="pipe-dim">tests · deps · decisions</span></div>
         </div>
       </div>
       <div class="pipe-arrow" aria-hidden="true">→</div>
@@ -2576,8 +2689,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <div class="pipe-arrow" aria-hidden="true">→</div>
       <div class="pipe-stage">
         <div class="pipe-box pipe-out">
-          <div class="pipe-label">04 · output</div>
-          <div class="pipe-text">3 chunks · 23&nbsp;ms · 2.4k tokens</div>
+          <div class="pipe-label">04 · agent prompt</div>
+          <div class="pipe-text">edit plan with caveats<br><span class="pipe-dim">not a blind context dump</span></div>
         </div>
       </div>
     </div>
@@ -2712,8 +2825,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
     <div class="feature" style="grid-column: span 6; padding-top: 48px;">
       <div class="feature-num">·</div>
-      <h3>bi-temporal (unique to sverklo)</h3>
-      <p>Every memory has <code style="color:var(--accent)">valid_from_sha</code> and <code style="color:var(--accent)">valid_until_sha</code>. Memories are never deleted, only superseded — so you can query "what we believed at commit X". Zep does this for conversations; sverklo is the only one doing it for code.</p>
+      <h3>bi-temporal git memory</h3>
+      <p>Every memory has <code style="color:var(--accent)">valid_from_sha</code> and <code style="color:var(--accent)">valid_until_sha</code>. Memories are never deleted, only superseded — so you can query "what we believed at commit X" and see when code drift made that advice stale.</p>
     </div>
     <div class="feature" style="grid-column: span 6; padding-top: 48px;">
       <div class="feature-num">·</div>
@@ -2745,10 +2858,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <!-- ───────── COMPARISON ───────── -->
 <section class="tools-section" id="compare">
   <div class="grid">
-    <div class="kicker">/* vs the competition */</div>
-    <h2>only one tool<br>has everything.</h2>
+    <div class="kicker">/* comparison matrix */</div>
+    <h2>what Sverklo bundles<br>in one local MCP server.</h2>
     <div class="desc">
-      The code intelligence and memory space is fragmented. Each competitor gives up at least two of these dimensions. Sverklo is the only tool with all of them.
+      Use this as a starting matrix, not a winner-takes-all claim. Some tools optimize for hosted review, some for editor-native search, and some for memory only. Sverklo's lane is local repo evidence for agents before they edit.
     </div>
 
     <div class="cmp-wrap">
@@ -2873,7 +2986,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div style="grid-column: 1 / 13; margin-top: 32px; padding: 24px; background: var(--bg-2); border-left: 2px solid var(--accent); font-size: 14px; color: var(--text-2); line-height: 1.7;">
       <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Different lanes:</strong> Most "AI memory" tools (mempalace, claude-mem, Mem0, Zep) are built to remember <em>conversations</em>. Sverklo is built to understand <em>code</em>. We index 24 languages (10 first-class with structural parsing, 14 via regex fallback), build a symbol-level dependency graph, and run hybrid BM25 + vector + PageRank search — then bolt a bi-temporal memory layer on top that's tied to git commits, not wall-clock time.
       <br><br>
-      <strong style="color: var(--accent);">The wedge:</strong> Sverklo is the only tool that knows what the code looked like when you made that decision — and warns you when the code has drifted since. If you want conversation memory, use mempalace. If you want your agent to actually understand a codebase, use sverklo.
+      <strong style="color: var(--accent);">The wedge:</strong> Sverklo ties code evidence and memory to git state, then warns when the code has drifted since a decision. If you want conversation memory, use mempalace. If you want local repo evidence before agent edits, run a Sverklo proof receipt.
       <br><br>
       <strong style="color: var(--text); font-family: 'JetBrains Mono', monospace;">Want a deeper dive?</strong> <a href="/vs/" style="color: var(--accent);">See side-by-side comparisons →</a> against Serena, GitNexus, codebase-memory-mcp, Cursor @codebase, and Sourcegraph Cody.
     </div>
@@ -2914,9 +3027,9 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
     <div class="qs-step">
       <div class="qs-num">03 — prove</div>
-      <div class="qs-title">See repo memory work</div>
-      <button type="button" class="qs-cmd" data-track="prove-copy-quickstart" onclick="cp('sverklo prove', this)" aria-label="Copy: sverklo prove">sverklo prove<span class="copy">copy</span></button>
-      <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent. Add <code>--markdown</code> to share it.</div>
+      <div class="qs-title">Print a shareable proof receipt</div>
+      <button type="button" class="qs-cmd" data-track="prove-copy-quickstart" onclick="cp('sverklo prove --markdown', this)" aria-label="Copy: sverklo prove --markdown">sverklo prove --markdown<span class="copy">copy</span></button>
+      <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent. Share the receipt or the part it gets wrong.</div>
     </div>
   </div>
 </section>
@@ -2942,7 +3055,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>Does Sverklo work offline?</summary>
-        <p>Yes. The only network call Sverklo ever makes is downloading the ONNX embedding model on first run (~90MB, cached locally). After that you can disconnect from the internet and everything continues to work — indexing, search, embeddings, memory, dashboard. No telemetry. No cloud calls. Your code never leaves your laptop.</p>
+        <p>Yes after the first-run model download. Sverklo downloads the ONNX embedding model once (~90MB, cached locally). After that you can disconnect from the internet and indexing, search, embeddings, memory, and dashboard continue to work locally. Telemetry is opt-in and off by default. Your code never leaves your laptop.</p>
       </details>
       <details>
         <summary>Which AI coding agents does Sverklo support?</summary>
@@ -2950,7 +3063,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>Is Sverklo free and open source?</summary>
-        <p>Yes. MIT licensed and free forever. All 37 tools have no limits and opt-in telemetry that's off by default (<a href="/security/">see /security</a>). A future Sverklo Pro tier will add smart auto-capture and larger embedding models, and Sverklo Team will add shared team memory — but the rule is "Pro adds new things, never gates current things." Anything in the OSS server today stays in the OSS server forever.</p>
+        <p>Yes. The current server is MIT licensed. All 37 tools in the current OSS server have no usage limits and opt-in telemetry is off by default (<a href="/security/">see /security</a>). A future Sverklo Pro tier may add smart auto-capture and larger embedding models, and Sverklo Team may add shared team memory; current OSS functionality should not be gated by those tiers.</p>
       </details>
       <details>
         <summary>How do I install Sverklo in Claude Code?</summary>
@@ -2972,14 +3085,14 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <section class="final-cta" aria-label="Get started with sverklo">
   <div class="grid">
     <div class="final-cta-inner">
-      <div class="final-cta-kicker">/* one command, MIT-licensed, stays on your laptop */</div>
-      <h2 class="final-cta-h">your agent is still guessing.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
-      <p class="final-cta-sub">Give it repo memory: symbols, callers, diffs, blast radius, and decisions. Local-first, MIT, no API keys, no code upload.</p>
+      <div class="final-cta-kicker">/* one proof receipt, MIT-licensed, stays on your laptop */</div>
+      <h2 class="final-cta-h">prove it on your repo.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
+      <p class="final-cta-sub">Run the receipt, inspect the callers/tests/decisions it finds, and share the part that is wrong or useful. Local-first, MIT, no API keys, no code upload.</p>
       <div class="hero-cta final-cta-row">
-        <button type="button" class="cta-primary" data-track="install-copy-final" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove', this)" aria-label="Copy install, init, and prove commands">
-          <span class="prompt-mark">$</span> npm install -g sverklo<span class="copy">copy</span>
+        <button type="button" class="cta-primary" data-track="install-copy-final" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove --markdown', this)" aria-label="Copy install, init, and markdown proof commands">
+          <span class="prompt-mark">$</span> sverklo prove --markdown<span class="copy">copy</span>
         </button>
-        <a class="cta-secondary" href="/playground/?utm_source=sverklo_site&utm_medium=final_cta&utm_campaign=playground" data-track-click="playground-final">try playground →</a>
+        <a class="cta-secondary" href="#proof-wall" data-track-click="proof-wall-final">inspect receipts →</a>
       </div>
     </div>
   </div>

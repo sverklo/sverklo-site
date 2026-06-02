@@ -257,7 +257,7 @@ body:has(header.top.nav-canonical) > #main {
 <main id="main">
 
 <h1>Sverklo performance benchmarks</h1>
-<p class="subtitle">Search latency, impact-analysis time, cold-start, and DB size on five real OSS codebases. Pure performance numbers — for retrieval F1 and token economy, see the <a href="/bench/">90-task retrieval bench</a>.</p>
+<p class="subtitle">Search latency, impact-analysis time, cold-start, and DB size on five real OSS codebases. Pure performance numbers — for retrieval F1, same-task evidence, token economy, and loss cases, see the <a href="/bench/">180-task retrieval bench</a>.</p>
 <div class="meta">
   Last updated: April 2026 · Sverklo <span id="bench-version-inline">v0.20.2</span> ·<a href="https://github.com/sverklo/sverklo/blob/main/BENCHMARKS.md">Full methodology</a>
   <script>
@@ -275,6 +275,8 @@ body:has(header.top.nav-canonical) > #main {
     })();
   </script>
 </div>
+
+<p><strong>Proof caveat:</strong> this route proves latency and indexing tradeoffs, not agent correctness. Use it with the homepage comparison as supporting evidence only: the user-facing proof remains same agent, same task, better repo evidence before the edit.</p>
 
 <h2>Latency Results</h2>
 <p>Five real open-source codebases. All measurements on Apple Silicon, Node 22. Reproducible: <code>npm run bench</code> in the sverklo repo.</p>
