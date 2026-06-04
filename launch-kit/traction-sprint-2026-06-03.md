@@ -10,6 +10,14 @@ Current bottleneck:
 - The public proof thread is still maintainer-seeded.
 - `sverklo@0.29.1` now has a lower-risk first-run path, so the outreach ask can be smaller.
 
+Token Savior-inspired messaging lessons to borrow without copying claims:
+
+- Lead with one default path, not a menu. Sverklo's default is the no-write proof command below.
+- Make the proof falsifiable. Ask for receipts, corrections, and "grep was better here" examples.
+- Use quantified claims only where Sverklo has its own evidence: benchmark pages, receipt output, npm/GitHub metrics, and public discussion replies.
+- Keep setup promise simple: prove first, preview writes, then wire the agent.
+- Turn adoption into instrumentation: every outreach reply should become a receipt, issue, benchmark case, setup-friction note, or discarded channel.
+
 Primary CTA:
 
 ```bash
