@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Install Sverklo MCP for Claude Code, Cursor, Codex CLI, and Windsurf</title>
-<meta name="description" content="Install Sverklo locally with npm, run sverklo init, then run sverklo prove to see repo memory work on your code. MIT, local-first, no code upload.">
+<meta name="description" content="Run a no-write Sverklo proof receipt from your repo before writing MCP config. Then preview setup with sverklo init --dry-run. MIT, local-first, no code upload.">
 <link rel="canonical" href="https://sverklo.com/install/">
 <link rel="stylesheet" href="/tokens.css">
 <!-- @tokens-injected — do not edit; run patch-nav.mjs -->
@@ -157,19 +157,20 @@ body:has(header.top.nav-canonical) > #main {
 </head>
 <body>
 
-<div class="kicker">Install · proof receipt · 90 seconds</div>
-<h1>Run Sverklo proof on a real repo</h1>
+<div class="kicker">No-write proof · setup preview · agent wiring</div>
+<h1>Run Sverklo proof before writing config</h1>
 
-<p>Requires Node 24 or newer. MIT, no API keys, no code upload. First run downloads the local ONNX embedding model; after that indexing, search, audit, and memories stay on your machine.</p>
+<p>Requires Node 24 or newer. MIT, no API keys, no code upload. Start with a no-write proof receipt from a real repo; first run may cache the local ONNX model and index under <code>~/.sverklo</code>. Project files, MCP config, and agent instruction files are not written until you run <code>sverklo init</code>.</p>
 
-<pre><code>npm install -g sverklo
-sverklo init      # in your project root
-sverklo prove     # see repo memory work on your code
-sverklo prove --markdown  # share the proof</code></pre>
+<pre><code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown
+npm install -g sverklo
+sverklo init --dry-run
+sverklo init
+sverklo doctor --agent claude</code></pre>
 
-<p>That's it. <code>sverklo init</code> auto-detects Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, and GitHub Copilot CLI &mdash; whichever you have installed gets the right MCP config written automatically. <code>sverklo prove --markdown</code> prints central files, one real caller graph, and a prompt to paste into your agent. Share the receipt in <a href="https://github.com/sverklo/sverklo/discussions/79">the proof thread</a>, or share the part it gets wrong.</p>
+<p>The first command prints central files, one real caller graph, why that proof was selected, and a prompt to paste into your agent without writing project config. If the receipt looks useful, <code>sverklo init --dry-run</code> previews setup targets and <code>sverklo init</code> writes the MCP config for Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, or GitHub Copilot CLI. Share the receipt in <a href="https://github.com/sverklo/sverklo/discussions/79">the proof thread</a>, or share the part it gets wrong.</p>
 
-<p>If <code>sverklo doctor</code> finds anything broken, it tells you exactly what to fix. <a href="https://github.com/sverklo/sverklo/issues">Open an issue</a> if it doesn't.</p>
+<p>Use <code>sverklo doctor --agent cursor</code>, <code>--agent codex</code>, <code>--agent windsurf</code>, or another supported agent name if you are not using Claude Code. <a href="https://github.com/sverklo/sverklo/issues">Open an issue</a> if doctor does not explain the fix.</p>
 
 <div class="ref" id="ref-note">
   <span id="ref-display"></span>

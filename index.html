@@ -37,7 +37,7 @@
   "description": "Proof-first repo memory for coding agents. Local-first MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Run a receipt on a real repo before asking the agent to edit.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.28.3",
+  "softwareVersion": "0.29.1",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
@@ -79,7 +79,7 @@
       "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Install with npm install -g sverklo, run sverklo init, then run sverklo prove to see central files and a real caller graph from your repo. Use sverklo prove --markdown for a shareable proof receipt. Local-first, MIT-licensed, no API keys."
+        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown to see central files and a real caller graph from your repo before writing MCP config. Local-first, MIT-licensed, no API keys."
       }
     },
     {
@@ -159,7 +159,7 @@
       "name": "How do I install Sverklo in Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Run npm install -g sverklo, then cd to your project and run sverklo init. That writes .mcp.json at your project root, appends sverklo instructions to your CLAUDE.md, and runs sverklo doctor to verify the MCP handshake. Run sverklo prove to get a real repo-memory proof and a prompt to paste into Claude Code. Run sverklo prove --markdown when you want a shareable receipt, then restart Claude Code and the sverklo tools appear in the /mcp list."
+        "text": "Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown from your project first. It prints central files, one real caller graph, why that proof was selected, and a prompt to paste into Claude Code without writing project files or MCP config. If the proof looks useful, run npm install -g sverklo, sverklo init --dry-run, then sverklo init. Restart Claude Code and the sverklo tools appear in the /mcp list."
       }
     },
     {
@@ -1756,17 +1756,20 @@ nav.top-nav a:hover { color: var(--text); }
 .qs-cmd {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
+  line-height: 1.45;
   padding: 12px 14px;
   background: var(--bg);
   border: 1px solid var(--rule);
   color: var(--text);
   cursor: pointer;
   display: flex;
+  gap: 10px;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   transition: border-color 0.15s;
   width: 100%;
   text-align: left;
+  overflow-wrap: anywhere;
 }
 .qs-cmd:hover { border-color: var(--accent); }
 .qs-cmd::before { content: "$ "; color: var(--accent); }
@@ -1774,6 +1777,7 @@ nav.top-nav a:hover { color: var(--text); }
   color: var(--text-3);
   margin-left: 12px;
   font-size: 11px;
+  flex: 0 0 auto;
 }
 .qs-note {
   font-size: 13px;
@@ -2138,7 +2142,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <span class="gh-stars-label">github</span>
         <span class="gh-stars-num" id="gh-stars-num">--</span>
       </a>
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block;">v0.28.3</a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block;">v0.29.1</a>
     </div>
   </div>
 </header>
@@ -2158,14 +2162,14 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="hero-cta">
-      <button type="button" class="cta-primary" data-track="install-copy-hero" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove --markdown', this)" aria-label="Copy install, init, and markdown proof commands">
-        <span class="prompt-mark">$</span> sverklo prove --markdown<span class="copy">copy</span>
+      <button type="button" class="cta-primary" data-track="proof-copy-hero" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy no-write guided proof command">
+        <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
       </button>
       <a class="cta-secondary" href="#same-task" data-track-click="same-task-hero">compare same task →</a>
       <a class="cta-secondary" href="#proof-wall" data-track-click="proof-wall-hero">inspect receipts →</a>
       <a class="cta-secondary" href="/bench/?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=benchmark" data-track-click="benchmark-hero">read benchmark →</a>
     </div>
-    <p class="hero-cta-note">Run the copied commands, then paste the markdown receipt into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. Takes about 2 minutes; MIT, no API keys, no code upload, first run downloads a local ONNX model.</p>
+    <p class="hero-cta-note">Run the copied command from a real repo, then paste the markdown receipt into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. No project files or MCP config are written; first run may cache the local ONNX model/index under <code>~/.sverklo</code>.</p>
 
     <ul class="hero-meta" aria-label="At a glance">
       <li><span class="hm-num">180</span><span class="hm-lbl">hand-verified retrieval tasks</span></li>
@@ -2188,14 +2192,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </div>
 
       <div class="term-pane active" role="tabpanel" id="pane-claude" aria-labelledby="tab-claude" data-pane="claude">
-        <div class="terminal-body"><span class="comment"># install sverklo and set it up in your project</span>
-<span class="prompt">$</span> <span class="cmd">npm install -g sverklo</span>
-<span class="prompt">$</span> <span class="cmd">cd your-project &amp;&amp; sverklo init</span>
-<span class="prompt">$</span> <span class="cmd">sverklo prove</span>
+        <div class="terminal-body"><span class="comment"># prove first; no project files or MCP config written</span>
+<span class="prompt">$</span> <span class="cmd">npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</span>
 
-  <span class="ok">✓</span> <span class="dim">.mcp.json                   ← project-scoped MCP server</span>
-  <span class="ok">✓</span> <span class="dim">.claude/settings.local.json ← auto-allow sverklo tools</span>
-  <span class="ok">✓</span> <span class="dim">AGENTS.md / CLAUDE.md       ← prefer-sverklo instructions (auto-detected)</span>
+  <span class="ok">✓</span> <span class="dim">trial mode                  ← no project files or MCP config written</span>
+  <span class="ok">✓</span> <span class="dim">guided selection            ← why this symbol was picked</span>
   <span class="ok">✓</span> <span class="dim">repo memory proof           ← central files + real caller graph</span>
   <span class="ok">✓</span> <span class="dim">markdown receipt            ← paste into GitHub, Discord, Reddit</span>
 
@@ -2381,8 +2382,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="proof-wall-cta">
-      <button type="button" class="cta-primary" data-track="install-copy-proof-wall" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove --markdown', this)" aria-label="Copy install, init, and markdown proof commands">
-        <span class="prompt-mark">$</span> sverklo prove --markdown<span class="copy">copy</span>
+      <button type="button" class="cta-primary" data-track="proof-copy-proof-wall" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy no-write guided proof command">
+        <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
       </button>
       <a class="cta-secondary" href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=submit_receipt" target="_blank" rel="noopener" data-track-click="proof-thread-proof-wall">paste your receipt →</a>
       <a class="cta-secondary" href="/bench/?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=benchmark" data-track-click="benchmark-proof-wall">see benchmark →</a>
@@ -3012,24 +3013,24 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="qs-step">
-      <div class="qs-num">01 — install</div>
-      <div class="qs-title">Global npm install</div>
-      <button type="button" class="qs-cmd" data-track="install-copy-quickstart" onclick="cp('npm install -g sverklo', this)" aria-label="Copy: npm install -g sverklo">npm install -g sverklo<span class="copy">copy</span></button>
-      <div class="qs-note">Requires Node 24+. Works on macOS, Linux, Windows.</div>
+      <div class="qs-num">01 — prove</div>
+      <div class="qs-title">Run a no-write proof receipt</div>
+      <button type="button" class="qs-cmd" data-track="proof-copy-quickstart" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy: npm exec no-write guided proof command">npm exec --yes --package=sverklo@latest -- sverklo<br>prove --no-write --guided --markdown<span class="copy">copy</span></button>
+      <div class="qs-note">Requires Node 24+. Does not write project files, MCP config, or agent instructions.</div>
     </div>
 
     <div class="qs-step">
-      <div class="qs-num">02 — setup</div>
-      <div class="qs-title">Initialize in your project</div>
-      <button type="button" class="qs-cmd" data-track="init-copy-quickstart" onclick="cp('sverklo init', this)" aria-label="Copy: sverklo init">sverklo init<span class="copy">copy</span></button>
-      <div class="qs-note">Creates .mcp.json, .claude/settings.local.json, and AGENTS.md (or CLAUDE.md if that's what your project uses). Auto-detects Antigravity. Idempotent.</div>
+      <div class="qs-num">02 — preview</div>
+      <div class="qs-title">Inspect setup writes first</div>
+      <button type="button" class="qs-cmd" data-track="dry-run-copy-quickstart" onclick="cp('npm install -g sverklo\nsverklo init --dry-run', this)" aria-label="Copy: npm install and init dry-run commands">npm install -g sverklo<br>sverklo init --dry-run<span class="copy">copy</span></button>
+      <div class="qs-note">Shows the exact project and home-directory config files before changing anything.</div>
     </div>
 
     <div class="qs-step">
-      <div class="qs-num">03 — prove</div>
-      <div class="qs-title">Print a shareable proof receipt</div>
-      <button type="button" class="qs-cmd" data-track="prove-copy-quickstart" onclick="cp('sverklo prove --markdown', this)" aria-label="Copy: sverklo prove --markdown">sverklo prove --markdown<span class="copy">copy</span></button>
-      <div class="qs-note">Prints central files, one real symbol with callers, and a prompt to paste into your agent. Share the receipt or the part it gets wrong.</div>
+      <div class="qs-num">03 — wire</div>
+      <div class="qs-title">Initialize only after proof looks useful</div>
+      <button type="button" class="qs-cmd" data-track="init-copy-quickstart" onclick="cp('sverklo init\nsverklo doctor --agent claude', this)" aria-label="Copy: sverklo init and doctor commands">sverklo init<br>sverklo doctor --agent claude<span class="copy">copy</span></button>
+      <div class="qs-note">Writes MCP config, agent instructions, and setup checks. Use a different agent name for Cursor, Codex, Windsurf, VS Code, Zed, or Antigravity.</div>
     </div>
   </div>
 </section>
@@ -3043,7 +3044,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="faq-list">
       <details open>
         <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
-        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Install with <code>npm install -g sverklo</code>, run <code>sverklo init</code>, then run <code>sverklo prove</code> to see central files and a real caller graph from your repo. Use <code>sverklo prove --markdown</code> for a shareable proof receipt. Local-first, MIT-licensed, no API keys.</p>
+        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Run <code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code> to see central files and a real caller graph before writing MCP config. Local-first, MIT-licensed, no API keys.</p>
       </details>
       <details>
         <summary>Why would I install another MCP server?</summary>
@@ -3067,7 +3068,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>How do I install Sverklo in Claude Code?</summary>
-        <p>Run <code style="color:var(--accent);">npm install -g sverklo</code>, then <code style="color:var(--accent);">cd</code> to your project and run <code style="color:var(--accent);">sverklo init</code>. That writes <code style="color:var(--accent);">.mcp.json</code> at your project root, appends sverklo instructions to your <code style="color:var(--accent);">CLAUDE.md</code>, and runs <code style="color:var(--accent);">sverklo doctor</code> to verify the MCP handshake. Run <code style="color:var(--accent);">sverklo prove</code> to get a real repo-memory prompt, add <code style="color:var(--accent);">--markdown</code> for a shareable receipt, then restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+        <p>Run <code style="color:var(--accent);">npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code> from your project first. It prints a real repo-memory receipt without writing project files or MCP config. If the proof looks useful, run <code style="color:var(--accent);">npm install -g sverklo</code>, <code style="color:var(--accent);">sverklo init --dry-run</code>, then <code style="color:var(--accent);">sverklo init</code>. Restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
       </details>
       <details>
         <summary>What programming languages does Sverklo support?</summary>
@@ -3089,8 +3090,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <h2 class="final-cta-h">prove it on your repo.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
       <p class="final-cta-sub">Run the receipt, inspect the callers/tests/decisions it finds, and share the part that is wrong or useful. Local-first, MIT, no API keys, no code upload.</p>
       <div class="hero-cta final-cta-row">
-        <button type="button" class="cta-primary" data-track="install-copy-final" onclick="cp('npm install -g sverklo\ncd your-project && sverklo init\nsverklo prove --markdown', this)" aria-label="Copy install, init, and markdown proof commands">
-          <span class="prompt-mark">$</span> sverklo prove --markdown<span class="copy">copy</span>
+        <button type="button" class="cta-primary" data-track="proof-copy-final" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy no-write guided proof command">
+          <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
         </button>
         <a class="cta-secondary" href="#proof-wall" data-track-click="proof-wall-final">inspect receipts →</a>
       </div>
