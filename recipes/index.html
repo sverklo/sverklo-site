@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sverklo recipes — drop-in code intelligence for programmatic agents</title>
-<meta name="description" content="Short, copy-pasteable recipes for wiring sverklo as an MCP server into specific agent stacks (Cursor SDK, Claude Code, Windsurf, Zed, custom MCP clients).">
+<title>Sverklo recipes - drop-in code intelligence for coding agents</title>
+<meta name="description" content="Short, copy-pasteable recipes for wiring sverklo as an MCP server into Codex CLI, Cursor SDK, Claude Code, Windsurf, Zed, custom MCP clients, and other agent stacks.">
 <link rel="canonical" href="https://sverklo.com/recipes/">
-<meta property="og:title" content="Sverklo recipes — drop-in code intelligence for programmatic agents">
+<meta property="og:title" content="Sverklo recipes - drop-in code intelligence for coding agents">
 <meta property="og:description" content="Short, copy-pasteable recipes for wiring sverklo into specific agent stacks.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/recipes/">
@@ -48,11 +48,12 @@
   <div class="nav-grid">
     <a class="brand" href="/">sverklo</a>
     <nav class="top-nav">
-      <a href="/report/">reports</a>
+      <a href="/install/">install</a>
+      <a href="/proof/">proof</a>
+      <a href="/repo-memory-mcp/">repo memory</a>
       <a href="/vs/">compare</a>
-      <a href="/benchmarks/">benchmarks</a>
+      <a href="/bench/">bench</a>
       <a href="/research/">research</a>
-      <a href="/playground/">playground</a>
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
@@ -62,7 +63,13 @@
 
 <main class="wrap">
 <h1>Recipes</h1>
-<p class="lede">Short, copy-pasteable integrations for wiring sverklo as an MCP server into specific agent stacks. One file, one shell command, one verifiable behaviour.</p>
+<p class="lede">Short, copy-pasteable integrations for wiring sverklo as an MCP server into specific agent stacks. One command, one trust boundary, one verifiable behavior.</p>
+
+<div class="recipe">
+  <a href="/recipes/codex-cli/">codex-cli →</a>
+  <p class="summary">Proof-first setup for OpenAI Codex CLI. Run the no-write receipt, preview <code>~/.codex/config.toml</code>, then verify with <code>sverklo doctor --agent codex</code>.</p>
+  <p class="meta">2026-06-05 · codex cli · mcp · no-write proof</p>
+</div>
 
 <div class="recipe">
   <a href="/recipes/custom-mcp-client/">custom-mcp-client →</a>

@@ -16,6 +16,23 @@ npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --m
   https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17188158
 - Opened a curator-list submission PR for `JackyST0/awesome-agent-skills`:
   https://github.com/JackyST0/awesome-agent-skills/pull/51
+- Opened a curator-list submission PR for `punkpeye/awesome-mcp-servers`:
+  https://github.com/punkpeye/awesome-mcp-servers/pull/7433
+- Opened a curator-list submission PR for `TensorBlock/awesome-mcp-servers`:
+  https://github.com/TensorBlock/awesome-mcp-servers/pull/653
+- Opened a curator-list submission PR for `MobinX/awesome-mcp-list`:
+  https://github.com/MobinX/awesome-mcp-list/pull/299
+- Opened a curator-list submission PR for `jqueryscript/awesome-claude-code`:
+  https://github.com/jqueryscript/awesome-claude-code/pull/358
+- Branch-pushed `wong2/awesome-mcp-servers`, but GitHub blocked API PR creation for the account:
+  https://github.com/nike-17/awesome-mcp-servers/tree/add-sverklo-20260605
+- Branch-pushed `appcypher/awesome-mcp-servers`, but GitHub blocked API PR creation for the account:
+  https://github.com/nike-17/awesome-mcp-servers-appcypher/tree/add-sverklo-20260605
+- Skipped programmatic submission to `hesreallyhim/awesome-claude-code` because its templates explicitly require manual GitHub UI issue-form submission and forbid PR/CLI/programmatic recommendations.
+- Published local site assets for adoption/citation clarity:
+  - https://sverklo.com/proof/
+  - https://sverklo.com/repo-memory-mcp/
+  - https://sverklo.com/recipes/codex-cli/
 
 ## Safety Rule
 
@@ -118,5 +135,24 @@ If it is a correction, I will turn it into a product issue and link back unless 
 | Public third-party artifacts | 5 | 0 confirmed |
 | Corrections or grep-better examples | 3 | 0 confirmed |
 | Setup-friction reports | 3 | 0 confirmed |
-| Curator submission PRs | 3 | 1 opened |
+| Curator submission PRs | 5 opened, 2 branch-pushed/blocked | 5 opened, 2 branch-pushed/blocked |
 | Broad paid ads | 0 | 0 |
+
+## Agent-Team Diagnosis
+
+Adoption is currently a distribution plus external-proof problem, with product activation still the fastest diagnostic lever. Weighting from the 2026-06-05 agent team:
+
+- Distribution: 55%.
+- Activation / product proof quality: 30%.
+- Messaging consistency: 15%.
+
+Do not run paid ads yet. The next hard signal is whether 20 personalized proof asks produce at least 2 attempted runs. If people run proof and receipts are weak/noisy, fix product proof selection. If people do not run it, fix distribution and category clarity.
+
+## 7-Day Operating Rule
+
+1. Keep Discussion #79 as the proof center.
+2. Build a 30-person proof list with repo-specific reasons.
+3. Send no more than 7 personalized asks per day.
+4. Ask for a receipt, correction, grep-better case, or setup-friction report.
+5. Do not create another broad launch post until at least two external outcomes exist.
+6. Use Reddit comment-first, disclosed, proof-first; never ask for stars, votes, DMs, or support.

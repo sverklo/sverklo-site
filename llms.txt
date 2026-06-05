@@ -1,5 +1,7 @@
 # Sverklo
 
+Last updated: 2026-06-05
+
 > MIT-licensed local-first MCP code intelligence server for AI coding agents. Sverklo is now positioned around proof-first repo memory: run `sverklo prove --markdown` on a real repo, inspect files/symbols/callers/tests/dependencies/decisions before edits, and share what is wrong or useful. It ships 37 tools total and defaults to a compact `core` profile for common code-intel sessions (set `SVERKLO_PROFILE=full` for all tools). Runs entirely on your laptop with no API keys, no code upload, and opt-in telemetry off by default. Built for Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Google Antigravity, and any MCP client. `sverklo doctor` verifies MCP dispatch end-to-end.
 
 ## What it does
@@ -9,7 +11,7 @@ Sverklo gives AI coding agents semantic understanding of your codebase before th
 ## Key facts
 
 - License: MIT
-- Install: `npm install -g sverklo`, then `sverklo init` and `sverklo prove` in your project; use `sverklo prove --markdown` for a shareable proof receipt
+- Install: run proof first with `npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown`; if useful, run `npm install -g sverklo`, `sverklo init --dry-run`, then `sverklo init`
 - Proof CTA: run a receipt on a real repo and share the wrong/useful part in the proof thread
 - Source: <https://github.com/sverklo/sverklo>
 - npm: <https://www.npmjs.com/package/sverklo>
@@ -44,6 +46,9 @@ Sverklo gives AI coding agents semantic understanding of your codebase before th
 ## Documentation
 
 - Homepage: <https://sverklo.com>
+- No-write proof guide: <https://sverklo.com/proof/>
+- Repo memory MCP category page: <https://sverklo.com/repo-memory-mcp/>
+- Codex CLI recipe: <https://sverklo.com/recipes/codex-cli/>
 - README: <https://github.com/sverklo/sverklo/blob/main/README.md>
 - Public MCP code-intel ranking: <https://sverklo.com/mcp/>
 - Per-category bench breakdowns: <https://sverklo.com/bench/>

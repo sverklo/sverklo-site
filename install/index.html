@@ -6,6 +6,43 @@
 <title>Install Sverklo MCP for Claude Code, Cursor, Codex CLI, and Windsurf</title>
 <meta name="description" content="Run a no-write Sverklo proof receipt from your repo before writing MCP config. Then preview setup with sverklo init --dry-run. MIT, local-first, no code upload.">
 <link rel="canonical" href="https://sverklo.com/install/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Install Sverklo for Claude Code, Cursor, Codex CLI, and Windsurf",
+  "description": "Run a no-write proof receipt, preview setup writes, then initialize Sverklo MCP config for supported coding agents.",
+  "datePublished": "2026-06-05",
+  "dateModified": "2026-06-05",
+  "tool": [
+    {"@type": "HowToTool", "name": "Node.js 24+"},
+    {"@type": "HowToTool", "name": "npm"},
+    {"@type": "HowToTool", "name": "Sverklo"}
+  ],
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Run a no-write proof receipt",
+      "text": "From a repo root, run: npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Install the CLI",
+      "text": "Run npm install -g sverklo."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Preview setup writes",
+      "text": "Run sverklo init --dry-run to inspect the project and home-directory files Sverklo would update."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Initialize and verify",
+      "text": "Run sverklo init, then sverklo doctor --agent claude, cursor, codex, windsurf, vscode, zed, or antigravity."
+    }
+  ]
+}
+</script>
 <link rel="stylesheet" href="/tokens.css">
 <!-- @tokens-injected — do not edit; run patch-nav.mjs -->
 <link rel="stylesheet" href="/tokens.css">
@@ -160,7 +197,7 @@ body:has(header.top.nav-canonical) > #main {
 <div class="kicker">No-write proof · setup preview · agent wiring</div>
 <h1>Run Sverklo proof before writing config</h1>
 
-<p>Requires Node 24 or newer. MIT, no API keys, no code upload. Start with a no-write proof receipt from a real repo; first run may cache the local ONNX model and index under <code>~/.sverklo</code>. Project files, MCP config, and agent instruction files are not written until you run <code>sverklo init</code>.</p>
+<p>Requires Node 24 or newer. MIT, no API keys, no code upload. Start with a <a href="/proof/">no-write proof receipt</a> from a real repo; first run may cache the local ONNX model and index under <code>~/.sverklo</code>. Project files, MCP config, and agent instruction files are not written until you run <code>sverklo init</code>.</p>
 
 <pre><code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown
 npm install -g sverklo
@@ -169,6 +206,8 @@ sverklo init
 sverklo doctor --agent claude</code></pre>
 
 <p>The first command prints central files, one real caller graph, why that proof was selected, and a prompt to paste into your agent without writing project config. If the receipt looks useful, <code>sverklo init --dry-run</code> previews setup targets and <code>sverklo init</code> writes the MCP config for Claude Code, Cursor, Windsurf, Zed, Antigravity, OpenAI Codex CLI, or GitHub Copilot CLI. Share the receipt in <a href="https://github.com/sverklo/sverklo/discussions/79">the proof thread</a>, or share the part it gets wrong.</p>
+
+<p>Need the concept first? Read <a href="/repo-memory-mcp/">Repo Memory MCP for AI Coding Agents</a>. Using Codex? Follow the <a href="/recipes/codex-cli/">Codex CLI recipe</a>.</p>
 
 <p>Use <code>sverklo doctor --agent cursor</code>, <code>--agent codex</code>, <code>--agent windsurf</code>, or another supported agent name if you are not using Claude Code. <a href="https://github.com/sverklo/sverklo/issues">Open an issue</a> if doctor does not explain the fix.</p>
 

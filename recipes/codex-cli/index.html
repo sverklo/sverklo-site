@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use Sverklo with OpenAI Codex CLI - Sverklo Recipe</title>
+<meta name="description" content="Proof-first recipe for using Sverklo repo memory with OpenAI Codex CLI. Run a no-write receipt, preview setup, write Codex MCP config, and verify with doctor.">
+<link rel="canonical" href="https://sverklo.com/recipes/codex-cli/">
+<meta property="og:title" content="Use Sverklo with OpenAI Codex CLI">
+<meta property="og:description" content="Run repo-memory proof first, then let sverklo init wire Codex CLI MCP config.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sverklo.com/recipes/codex-cli/">
+<meta property="og:site_name" content="Sverklo">
+<meta property="og:image" content="https://sverklo.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Use Sverklo with OpenAI Codex CLI">
+<meta name="twitter:description" content="Proof-first Codex CLI setup for Sverklo repo memory.">
+<meta name="twitter:image" content="https://sverklo.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Use Sverklo with OpenAI Codex CLI",
+  "description": "Run Sverklo proof first, then preview and apply Codex CLI MCP setup.",
+  "datePublished": "2026-06-05",
+  "dateModified": "2026-06-05",
+  "tool": [
+    {"@type": "HowToTool", "name": "OpenAI Codex CLI"},
+    {"@type": "HowToTool", "name": "Node.js 24+"},
+    {"@type": "HowToTool", "name": "Sverklo"}
+  ],
+  "step": [
+    {"@type": "HowToStep", "name": "Run no-write proof", "text": "Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown from the repo root."},
+    {"@type": "HowToStep", "name": "Install Sverklo", "text": "Run npm install -g sverklo."},
+    {"@type": "HowToStep", "name": "Preview setup", "text": "Run sverklo init --dry-run to see whether Codex CLI config will be written."},
+    {"@type": "HowToStep", "name": "Write setup", "text": "Run sverklo init. When ~/.codex exists, Sverklo writes the Codex MCP server block to ~/.codex/config.toml."},
+    {"@type": "HowToStep", "name": "Verify", "text": "Run sverklo doctor --agent codex and use the suggested prompt in Codex CLI."}
+  ]
+}
+</script>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="stylesheet" href="/tokens.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font-family:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.65;overflow-x:hidden}
+  a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:2px}
+  a:hover{text-decoration-color:var(--accent)}
+  .top{border-bottom:1px solid var(--rule);padding:14px 0;position:sticky;top:0;background:rgba(14,13,11,.94);z-index:20}
+  .nav-grid{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:22px;font-family:'JetBrains Mono',monospace;font-size:13px;min-width:0}
+  .brand{color:var(--accent);text-decoration:none;border:0;font-weight:700}
+  .brand::before{content:"\25CC ";color:var(--accent)}
+  .top-nav{display:flex;gap:18px;flex-wrap:wrap;min-width:0;max-width:100%}
+  .top-nav a{color:var(--text-2);text-decoration:none;border:0}
+  .top-nav a:hover{color:var(--text)}
+  .top-cta{margin-left:auto}
+  .top-cta a{color:var(--text-3);text-decoration:none;border:1px solid var(--rule);padding:4px 10px;border-radius:4px;font-size:12px}
+  main{width:100%;max-width:760px;margin:0 auto;padding:56px 24px;min-width:0}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-family:'JetBrains Mono',monospace;font-size:clamp(32px,5vw,50px);line-height:1.1;letter-spacing:0;margin-bottom:18px;color:var(--fg);overflow-wrap:anywhere;word-break:break-word}
+  .lede{font-size:18px;line-height:1.55;color:var(--fg);max-width:64ch;margin-bottom:34px}
+  h2{font-size:23px;margin:38px 0 14px;color:var(--fg)}
+  p{margin:14px 0;color:var(--muted)}
+  ol,ul{margin:14px 0 14px 22px;color:var(--muted)}
+  li{margin:7px 0}
+  code{background:var(--bg-2);padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.9em;color:var(--fg)}
+  pre{background:var(--bg-2);padding:18px 20px;border-radius:6px;overflow-x:auto;margin:20px 0;border-left:3px solid var(--accent);font-size:14px;line-height:1.55;max-width:100%;white-space:pre-wrap;word-break:break-word}
+  pre code{white-space:pre-wrap;word-break:break-word}
+  .panel{border:1px solid var(--border);background:var(--bg-2);border-radius:6px;padding:20px;margin:24px 0;min-width:0}
+  @media(max-width:720px){.nav-grid{width:354px;max-width:calc(100vw - 36px);padding:0;margin-left:18px;margin-right:18px;align-items:flex-start;flex-direction:column;overflow:hidden}.top-nav{width:100%;gap:12px 16px}.top-cta{margin-left:0}main{width:354px;max-width:calc(100vw - 36px);margin-left:18px;margin-right:18px;padding:36px 0}h1{font-size:30px}.lede{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="nav-grid">
+    <a class="brand" href="/">sverklo</a>
+    <nav class="top-nav">
+      <a href="/install/">install</a>
+      <a href="/proof/">proof</a>
+      <a href="/repo-memory-mcp/">repo memory</a>
+      <a href="/recipes/">recipes</a>
+      <a href="/bench/">bench</a>
+      <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
+    </nav>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener">v0.29.1</a></div>
+  </div>
+</header>
+<main>
+<p class="kicker">Recipe · OpenAI Codex CLI</p>
+<h1>Use Sverklo repo memory with Codex CLI.</h1>
+<p class="lede">Start by proving Sverklo can find useful repo evidence. Then let <code>sverklo init</code> wire the Codex CLI MCP server config and verify the setup with <code>doctor --agent codex</code>.</p>
+
+<h2>1. Run proof without setup writes</h2>
+<pre><code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code></pre>
+<p>This should print central files, one selected symbol, callers, and a paste-ready prompt. It does not write project files, MCP config, or agent instructions. First run may cache the local ONNX model and index under <code>~/.sverklo</code>.</p>
+
+<h2>2. Install and preview</h2>
+<pre><code>npm install -g sverklo
+sverklo init --dry-run</code></pre>
+<p>The dry run previews setup targets. For Codex CLI, Sverklo looks for <code>~/.codex/</code> and previews the MCP server block that will be merged into <code>~/.codex/config.toml</code>.</p>
+
+<h2>3. Apply and verify</h2>
+<pre><code>sverklo init
+sverklo doctor --agent codex</code></pre>
+<p>Re-running <code>sverklo init</code> from a different project rewires the per-machine Codex entry to that project. <code>doctor --agent codex</code> gives a focused prompt for checking that Codex can call Sverklo before you ask it to edit.</p>
+
+<div class="panel">
+  <p><strong>Starter Codex prompt:</strong></p>
+  <pre><code>Use sverklo impact on the symbol I am about to change, then tell me the caller/test blast radius before editing.</code></pre>
+</div>
+
+<h2>When to stop</h2>
+<p>If the proof receipt picks nonsense, do not continue setup. Share the receipt or the failure mode in <a href="https://github.com/sverklo/sverklo/discussions/79" target="_blank" rel="noopener">the public proof thread</a>. That is more valuable than a silent install.</p>
+
+<p>Related: <a href="/proof/">no-write proof guide</a>, <a href="/repo-memory-mcp/">repo memory MCP</a>, <a href="/install/">install Sverklo</a>.</p>
+</main>
+</body>
+</html>

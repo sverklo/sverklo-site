@@ -39,7 +39,7 @@
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
   "softwareVersion": "0.29.1",
   "license": "https://opensource.org/licenses/MIT",
-  "author": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://www.npmjs.com/package/sverklo"]},
+  "author": {"@type":"Organization","@id":"https://sverklo.com/#organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://github.com/sverklo/sverklo","https://www.npmjs.com/package/sverklo","https://doi.org/10.5281/zenodo.19802051"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
   "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
   "featureList": [
@@ -2131,7 +2131,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <a href="/report/">reports</a>
       <a href="/vs/">compare</a>
       <a href="/bench/">bench</a>
-      <a href="#proof-wall">proof</a>
+      <a href="/proof/">proof</a>
+      <a href="/repo-memory-mcp/">repo memory</a>
       <a href="/benchmarks/">perf</a>
       <a href="/research/">research</a>
       <a href="/playground/">playground</a>
@@ -2166,10 +2167,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
       </button>
       <a class="cta-secondary" href="#same-task" data-track-click="same-task-hero">compare same task →</a>
-      <a class="cta-secondary" href="#proof-wall" data-track-click="proof-wall-hero">inspect receipts →</a>
+      <a class="cta-secondary" href="/proof/" data-track-click="proof-guide-hero">proof guide →</a>
+      <a class="cta-secondary" href="/repo-memory-mcp/" data-track-click="repo-memory-hero">repo memory →</a>
       <a class="cta-secondary" href="/bench/?utm_source=sverklo_site&utm_medium=hero_cta&utm_campaign=benchmark" data-track-click="benchmark-hero">read benchmark →</a>
     </div>
-    <p class="hero-cta-note">Run the copied command from a real repo, then paste the markdown receipt into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. No project files or MCP config are written; first run may cache the local ONNX model/index under <code>~/.sverklo</code>.</p>
+    <p class="hero-cta-note">Run the copied command from a real repo, follow the <a href="/proof/" data-track-click="proof-guide-hero-note">proof guide</a>, then paste the markdown receipt into <a href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=hero_note&utm_campaign=proof_receipts" target="_blank" rel="noopener" data-track-click="proof-thread-hero-note">the proof thread</a>. No project files or MCP config are written; first run may cache the local ONNX model/index under <code>~/.sverklo</code>.</p>
 
     <ul class="hero-meta" aria-label="At a glance">
       <li><span class="hm-num">180</span><span class="hm-lbl">hand-verified retrieval tasks</span></li>
@@ -3016,7 +3018,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <div class="qs-num">01 — prove</div>
       <div class="qs-title">Run a no-write proof receipt</div>
       <button type="button" class="qs-cmd" data-track="proof-copy-quickstart" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy: npm exec no-write guided proof command">npm exec --yes --package=sverklo@latest -- sverklo<br>prove --no-write --guided --markdown<span class="copy">copy</span></button>
-      <div class="qs-note">Requires Node 24+. Does not write project files, MCP config, or agent instructions.</div>
+      <div class="qs-note">Requires Node 24+. Does not write project files, MCP config, or agent instructions. <a href="/proof/" style="color:var(--accent);">Read the proof guide.</a></div>
     </div>
 
     <div class="qs-step">
