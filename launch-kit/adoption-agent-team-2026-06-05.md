@@ -67,6 +67,7 @@ Useful outcomes:
 - `TensorBlock/awesome-mcp-servers`: https://github.com/TensorBlock/awesome-mcp-servers/pull/653
 - `MobinX/awesome-mcp-list`: https://github.com/MobinX/awesome-mcp-list/pull/299
 - `jqueryscript/awesome-claude-code`: https://github.com/jqueryscript/awesome-claude-code/pull/358
+- `YuzeHao2023/Awesome-MCP-Servers`: https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/284
 
 ## Branch-Pushed But PR-Blocked
 

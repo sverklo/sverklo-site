@@ -24,6 +24,8 @@ npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --m
   https://github.com/MobinX/awesome-mcp-list/pull/299
 - Opened a curator-list submission PR for `jqueryscript/awesome-claude-code`:
   https://github.com/jqueryscript/awesome-claude-code/pull/358
+- Opened a curator-list submission PR for `YuzeHao2023/Awesome-MCP-Servers`:
+  https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/284
 - Branch-pushed `wong2/awesome-mcp-servers`, but GitHub blocked API PR creation for the account:
   https://github.com/nike-17/awesome-mcp-servers/tree/add-sverklo-20260605
 - Branch-pushed `appcypher/awesome-mcp-servers`, but GitHub blocked API PR creation for the account:
@@ -135,7 +137,7 @@ If it is a correction, I will turn it into a product issue and link back unless 
 | Public third-party artifacts | 5 | 0 confirmed |
 | Corrections or grep-better examples | 3 | 0 confirmed |
 | Setup-friction reports | 3 | 0 confirmed |
-| Curator submission PRs | 5 opened, 2 branch-pushed/blocked | 5 opened, 2 branch-pushed/blocked |
+| Curator submission PRs | 6 opened, 2 branch-pushed/blocked | 6 opened, 2 branch-pushed/blocked |
 | Broad paid ads | 0 | 0 |
 
 ## Agent-Team Diagnosis
