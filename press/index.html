@@ -144,9 +144,21 @@ header.top.nav-canonical .top-cta a {
 }
 header.top.nav-canonical .top-cta a:hover { color: #E85A2A !important; }
 @media (max-width: 900px) {
-  header.top.nav-canonical .nav-grid { gap: 16px !important; padding: 0 20px !important; }
+  header.top.nav-canonical .nav-grid {
+    width: 354px !important;
+    max-width: calc(100vw - 36px) !important;
+    margin-left: 18px !important;
+    margin-right: 18px !important;
+    padding: 0 !important;
+    gap: 16px !important;
+  }
   header.top.nav-canonical .brand { grid-column: 1 / 13 !important; margin-bottom: 8px !important; }
-  header.top.nav-canonical .top-nav { grid-column: 1 / 13 !important; gap: 18px !important; }
+  header.top.nav-canonical .top-nav {
+    grid-column: 1 / 13 !important;
+    gap: 12px 18px !important;
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+  }
   header.top.nav-canonical .top-cta { grid-column: 1 / 13 !important; justify-content: flex-start !important; }
 }
 /* The sticky header escapes the body's max-width via negative side
