@@ -14,6 +14,8 @@ npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --m
 
 - Replied to Will-Ostrick in Discussion #79 after they said they would try Sverklo on a small repo:
   https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17188158
+- Opened a curator-list submission PR for `JackyST0/awesome-agent-skills`:
+  https://github.com/JackyST0/awesome-agent-skills/pull/51
 
 ## Safety Rule
 
@@ -116,4 +118,5 @@ If it is a correction, I will turn it into a product issue and link back unless 
 | Public third-party artifacts | 5 | 0 confirmed |
 | Corrections or grep-better examples | 3 | 0 confirmed |
 | Setup-friction reports | 3 | 0 confirmed |
+| Curator submission PRs | 3 | 1 opened |
 | Broad paid ads | 0 | 0 |
