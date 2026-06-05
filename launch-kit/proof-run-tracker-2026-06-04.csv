@@ -1,0 +1,21 @@
+target,repo_url,owner_type,channel,status,last_touch,outcome,next_action
+czlonkowski/n8n-mcp,https://github.com/czlonkowski/n8n-mcp,user,operator-approved DM or discussion,drafted,2026-06-04,,Find existing public discussion/contact; do not open generic issue
+steipete/claude-code-mcp,https://github.com/steipete/claude-code-mcp,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask for receipt/noisy-symbol critique
+rohitg00/awesome-claude-code-toolkit,https://github.com/rohitg00/awesome-claude-code-toolkit,user,curator submission path,drafted,2026-06-04,,Ask for correction-first review before listing
+ccplugins/awesome-claude-code-plugins,https://github.com/ccplugins/awesome-claude-code-plugins,organization,curator submission path,drafted,2026-06-04,,Find listing criteria and ask for proof/correction
+zilliztech/claude-context,https://github.com/zilliztech/claude-context,organization,public comparison/maintainer contact,drafted,2026-06-04,,Ask for duplicate-vs-distinct critique
+oraios/serena,https://github.com/oraios/serena,organization,public comparison/maintainer contact,drafted,2026-06-04,,Ask for grep-better or overlap correction
+addyosmani/agent-skills,https://github.com/addyosmani/agent-skills,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask whether proof receipt fits skill workflow
+ghuntley/how-to-build-a-coding-agent,https://github.com/ghuntley/how-to-build-a-coding-agent,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask for activation-flow critique
+GLips/Figma-Context-MCP,https://github.com/GLips/Figma-Context-MCP,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask whether proof separates real impact from examples/docs
+grab/cursor-talk-to-figma-mcp,https://github.com/grab/cursor-talk-to-figma-mcp,organization,operator-approved maintainer contact,drafted,2026-06-04,,Ask for no-write proof run and noise report
+tech-leads-club/agent-skills,https://github.com/tech-leads-club/agent-skills,organization,registry submission path,drafted,2026-06-04,,Ask whether no-write proof is enough validation
+databricks-solutions/ai-dev-kit,https://github.com/databricks-solutions/ai-dev-kit,organization,operator-approved maintainer contact,drafted,2026-06-04,,Ask for setup-friction feedback
+ciembor/agent-rules-books,https://github.com/ciembor/agent-rules-books,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask for AGENTS.md trust-boundary wording correction
+f/agentlytics,https://github.com/f/agentlytics,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask which activation metric should be tracked
+agent-sh/agentsys,https://github.com/agent-sh/agentsys,organization,operator-approved maintainer contact,drafted,2026-06-04,,Ask for proof run and false-positive report
+chenhg5/cc-connect,https://github.com/chenhg5/cc-connect,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask whether proof picks integration center
+iamzhihuix/skills-manage,https://github.com/iamzhihuix/skills-manage,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask for init dry-run and doctor agent friction
+FrancyJGLisboa/agent-skill-creator,https://github.com/FrancyJGLisboa/agent-skill-creator,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask for generated-skill repo proof
+rohitg00/skillkit,https://github.com/rohitg00/skillkit,user,operator-approved DM or discussion,drafted,2026-06-04,,Ask for receipt or wrong-abstraction critique
+JackyST0/awesome-agent-skills,https://github.com/JackyST0/awesome-agent-skills,user,curator submission path,drafted,2026-06-04,,Ask listing criteria and one proof/correction first
