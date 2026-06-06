@@ -248,11 +248,16 @@ body:has(header.top.nav-canonical) > #main {
 <pre><code>npm install -g sverklo
 sverklo init --dry-run</code></pre>
 <p>The dry run previews setup targets. For Codex CLI, Sverklo looks for <code>~/.codex/</code> and previews the MCP server block that will be merged into <code>~/.codex/config.toml</code>.</p>
+<p>The Codex CLI config shape is:</p>
+<pre><code>[mcp_servers.sverklo]
+command = "sverklo"
+args = ["/absolute/path/to/your-project"]</code></pre>
+<p><code>sverklo init</code> writes this block when <code>~/.codex/</code> exists. Re-running init from another repo rewires the path.</p>
 
 <h2>3. Apply and verify</h2>
 <pre><code>sverklo init
 sverklo doctor --agent codex</code></pre>
-<p>Re-running <code>sverklo init</code> from a different project rewires the per-machine Codex entry to that project. <code>doctor --agent codex</code> gives a focused prompt for checking that Codex can call Sverklo before you ask it to edit.</p>
+<p><code>doctor --agent codex</code> gives a focused prompt for checking that Codex can call Sverklo before you ask it to edit.</p>
 
 <div class="panel">
   <p><strong>Starter Codex prompt:</strong></p>

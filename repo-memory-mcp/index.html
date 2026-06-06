@@ -25,6 +25,7 @@
       "@id": "https://sverklo.com/#software",
       "name": "Sverklo",
       "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Code intelligence MCP server",
       "operatingSystem": "macOS, Linux, Windows",
       "softwareVersion": "0.29.1",
       "url": "https://sverklo.com/",
@@ -35,7 +36,16 @@
         "https://www.npmjs.com/package/sverklo",
         "https://doi.org/10.5281/zenodo.19802051"
       ],
-      "description": "Local-first repo memory and code intelligence MCP for AI coding agents."
+      "description": "Local-first repo memory and code intelligence MCP for AI coding agents.",
+      "featureList": [
+        "symbol lookup",
+        "caller graph",
+        "blast-radius analysis",
+        "diff-aware review",
+        "git-pinned memory",
+        "local ONNX embeddings"
+      ],
+      "keywords": "repo memory MCP, code intelligence MCP, local-first MCP, Claude Code, Cursor, Windsurf, Codex CLI"
     },
     {
       "@type": "TechArticle",
@@ -145,7 +155,8 @@
 </div>
 
 <h2>What repo memory means</h2>
-<p>Chat memory remembers what happened in a conversation. Repo memory is different: it is retrieved from the codebase and tied to the current git state, so an agent can verify what actually exists before it edits.</p>
+<p>Repo memory MCP means repo-specific evidence an AI coding agent can retrieve before it edits: symbol definitions, callers, tests, dependencies, diffs, and git-pinned decisions. Sverklo is the local-first MCP server for that workflow.</p>
+<p>Chat memory remembers what happened in a conversation. Repo memory is retrieved from the codebase and tied to the current git state, so an agent can verify what actually exists before it edits.</p>
 
 <div class="grid">
   <div class="tile"><strong>Symbols</strong><span><code>lookup</code> resolves names to definitions with file and line evidence.</span></div>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Run a No-Write Sverklo Proof Receipt Before Setup</title>
-<meta name="description" content="Run a no-write Sverklo proof receipt from a real repo before writing MCP config. It prints central files, a real symbol, callers, and a paste-ready agent prompt.">
+<title>Sverklo prove --no-write: test MCP repo memory before install</title>
+<meta name="description" content="Run a no-write Sverklo proof receipt from a real repo before installing MCP config. See central files, one symbol, callers, tests, and a paste-ready agent prompt.">
 <link rel="canonical" href="https://sverklo.com/proof/">
 <meta property="og:title" content="Run a No-Write Sverklo Proof Receipt">
 <meta property="og:description" content="Test repo-memory evidence before setup. No project files or MCP config are written.">
@@ -37,7 +37,7 @@
         {
           "@type": "HowToStep",
           "name": "Inspect the receipt",
-          "text": "Check whether the central files, selected symbol, callers, and generated agent prompt match real repo structure."
+          "text": "Check whether the central files, selected symbol, callers, related tests or dependencies, and generated agent prompt match real repo structure."
         },
         {
           "@type": "HowToStep",
@@ -59,6 +59,11 @@
           "@type": "Question",
           "name": "What should I share after a proof run?",
           "acceptedAnswer": {"@type": "Answer", "text": "Share one receipt, one correction, one case where grep was better, or one setup-friction report. Negative receipts are useful because they expose product gaps."}
+        },
+        {
+          "@type": "Question",
+          "name": "Can I run Sverklo on a private repo?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. The proof command runs locally. It does not upload code or require API keys. The first run may download and cache the local ONNX model under ~/.sverklo."}
         }
       ]
     }
@@ -122,6 +127,7 @@
   <span class="label">Command</span>
   <pre><code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code></pre>
   <p>Requires Node 24 or newer. First run may cache the local ONNX model and index under <code>~/.sverklo</code>. The command should not write project files or MCP config.</p>
+  <p>A useful receipt should prove at least one real relationship: a central file, a selected symbol, a caller, a related test or dependency, and the exact prompt to paste into Claude Code, Cursor, Windsurf, or Codex CLI.</p>
 </div>
 
 <h2>What to check</h2>
