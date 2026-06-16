@@ -78,14 +78,24 @@ Secondary ask:
 
 - [x] Update GitHub topics toward high-intent discovery.
 - [x] Add current proof-sprint comment to Discussion #79.
-- [ ] Add proof-run issue template.
-- [ ] Build 50-person outreach wave list.
-- [ ] Create directory listing pack.
-- [ ] Create 40-prompt AI citation baseline.
+- [x] Add proof-run issue template.
+- [x] Build 50-person outreach wave list.
+- [x] Create directory listing pack.
+- [x] Create 40-prompt AI citation baseline.
 - [ ] Send 10 personalized maintainer asks.
 - [ ] Send 10 coding-agent power-user asks.
-- [ ] Follow up on open directory PRs.
+- [x] Follow up on `JackyST0/awesome-agent-skills` requested changes.
+- [ ] Follow up on remaining open directory PRs.
 - [ ] Resolve or escalate Glama quality/claim blocker.
+
+## Execution Log
+
+- 2026-06-16: GitHub topics updated toward high-intent discovery terms: `codex-cli`, `coding-agents`, `agent-memory`, `repo-memory`, MCP, Claude Code, Cursor, Windsurf, and code intelligence.
+- 2026-06-16: Proof-sprint kickoff added to Discussion #79: https://github.com/sverklo/sverklo/discussions/79#discussioncomment-17324042
+- 2026-06-16: Public sprint tracker opened: https://github.com/sverklo/sverklo/issues/85
+- 2026-06-16: Proof-run feedback issue template added in `sverklo/sverklo`: https://github.com/sverklo/sverklo/blob/main/.github/ISSUE_TEMPLATE/proof-run-feedback.yml
+- 2026-06-16: Launch-kit assets added in `sverklo-site`: outreach wave, directory listing pack, citation prompts, and community drafts.
+- 2026-06-16: `JackyST0/awesome-agent-skills` PR #51 updated after requested changes and maintainer notified: https://github.com/JackyST0/awesome-agent-skills/pull/51#issuecomment-4719663113
 
 ## Stop Doing
 
