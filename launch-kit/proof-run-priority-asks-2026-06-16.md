@@ -28,6 +28,8 @@ Why: closest peer for MCP coding-agent semantic retrieval, editing, and memory w
 
 Channel: GitHub Discussions or Discord if exposed by the repo.
 
+Status: posted to Serena Show and tell on 2026-06-17: https://github.com/oraios/serena/discussions/1587
+
 Draft:
 
 > Serena is probably the sharpest comparison point for Sverklo. Would you be open to running this no-write proof command in a repo you know well and posting either the receipt or a correction where Sverklo's graph/memory claims are weak? I am specifically looking for wrong/noisy proof, not stars.
@@ -69,6 +71,8 @@ Link: https://github.com/yamadashy/repomix
 Why: strong audience for repo-context quality and a useful baseline against graph/memory proof.
 
 Channel: Discord or GitHub Discussions if exposed.
+
+Status: posted to Repomix Show and tell on 2026-06-17: https://github.com/yamadashy/repomix/discussions/1654
 
 Draft:
 
@@ -140,6 +144,8 @@ Why: clean baseline for prompt-friendly repository context.
 
 Channel: Discord or Discussions if exposed.
 
+Status: posted to Gitingest Show and tell on 2026-06-17: https://github.com/coderamp-labs/gitingest/discussions/588
+
 Draft:
 
 > Gitingest is a clean baseline for repo context. Could you run Sverklo's no-write proof command on a repo you know and tell us whether the receipt finds anything useful beyond a digest, or where it is just noise?
@@ -159,4 +165,3 @@ Draft:
 > You have written skeptically and concretely about coding-agent context and MCP costs. If you have 5 minutes, could you run Sverklo's no-write proof command and share the first correction, overclaim, or setup-friction report? We are collecting proof/corrections, not asking for stars.
 
 Risk: very high inbound volume. Only use if the message is exceptionally short and directly relevant to something current.
-
