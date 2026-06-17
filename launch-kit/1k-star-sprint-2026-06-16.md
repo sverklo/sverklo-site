@@ -96,6 +96,7 @@ Secondary ask:
 - 2026-06-16: Proof-run feedback issue template added in `sverklo/sverklo`: https://github.com/sverklo/sverklo/blob/main/.github/ISSUE_TEMPLATE/proof-run-feedback.yml
 - 2026-06-16: Launch-kit assets added in `sverklo-site`: outreach wave, directory listing pack, citation prompts, and community drafts.
 - 2026-06-16: `JackyST0/awesome-agent-skills` PR #51 updated after requested changes and maintainer notified: https://github.com/JackyST0/awesome-agent-skills/pull/51#issuecomment-4719663113
+- 2026-06-16: Founder-account proof-sprint X post published from `@marazmo`: https://x.com/i/status/2067074910103769285. Follow-up X reads are currently rate-limited in Wonda cookie mode, so direct replies are paused until the limit clears.
 
 ## Stop Doing
 
