@@ -4,6 +4,48 @@ Date: 2026-06-16
 
 Rule: do not cross-post the same text. Adapt each post to the community and disclose affiliation.
 
+## Manual Posting Queue
+
+Use in this order:
+
+1. MCP Discord or accepted MCP community channel: safest first feedback surface.
+2. Reddit `r/mcp`: post once, only after participating or confirming rules still allow maintainer feedback asks.
+3. Hacker News Show HN: hold until there are at least 15 external receipts/corrections.
+
+Do not ask for stars in any first post. The only ask is a no-write proof run, correction, grep-better case, or setup-friction report.
+
+## MCP Discord
+
+Use in `#showcase`, a server-author feedback channel, or the closest accepted MCP project channel.
+
+````markdown
+Disclosure: I maintain Sverklo.
+
+I am looking for correction/proof-run feedback from MCP server authors, not promotion.
+
+Sverklo is a local-first repo-memory MCP for coding agents. The part I am trying to validate is the no-write proof flow: before someone installs MCP config, can it show a fair slice of their repo: central files, one real symbol, callers, and a prompt their agent can use?
+
+From a repo root:
+
+```bash
+npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown
+```
+
+Useful feedback is mostly negative:
+
+- wrong/noisy central files
+- bad symbol choice
+- callers that are technically references but not meaningful impact
+- generated/test/example files dominating the proof
+- setup friction around npm/model cache/runtime
+- cases where ripgrep is simply the better tool
+
+Proof thread for receipts/corrections:
+https://github.com/sverklo/sverklo/discussions/79
+````
+
+Moderation risk: low to medium if posted once in the right channel and handled as a feedback thread. Avoid reposting across multiple channels.
+
 ## Hacker News Show HN
 
 Use only after 15+ external proof receipts/corrections.
