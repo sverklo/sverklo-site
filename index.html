@@ -455,6 +455,35 @@ nav.top-nav a:hover { color: var(--text); }
   padding: 2px 6px;
 }
 
+.fit-strip {
+  padding: 44px 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+.fit-strip .fit-card {
+  grid-column: span 6;
+  border: 1px solid var(--rule);
+  background: var(--bg-2);
+  padding: 24px 26px;
+}
+.fit-card h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.fit-card p {
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0;
+}
+@media (max-width: 760px) {
+  .fit-strip .fit-card { grid-column: 1 / 13; }
+}
+
 /* One-click editor install badges — borrowed from SocratiCode's pattern.
    Cursor and VS Code expose deep-link install URLs (cursor://, insiders.vscode.dev/redirect/);
    clicking the badge opens the host with sverklo's MCP config pre-filled. */
@@ -2273,6 +2302,19 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="fit-strip" aria-labelledby="fit-title">
+  <div class="grid">
+    <article class="fit-card">
+      <h2 id="fit-title">Use Sverklo when relationships matter.</h2>
+      <p>Your agent needs callers, dependencies, tests, diff risk, or prior repo decisions before editing. Start with the no-write proof command before installing MCP config.</p>
+    </article>
+    <article class="fit-card">
+      <h2>Use grep/ripgrep when the string is known.</h2>
+      <p>If the repo is tiny, the change is one file, or you know the exact string, grep is the sharper first move. Use the project test runner to verify behavior.</p>
+    </article>
   </div>
 </section>
 

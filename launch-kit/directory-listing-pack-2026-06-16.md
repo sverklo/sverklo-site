@@ -16,7 +16,7 @@ Use this for MCP directories, awesome lists, newsletters, and AI-coding tool dir
 
 ## One-Line Listing
 
-Sverklo is a local-first repo-memory MCP for coding agents: hybrid code search, symbol impact, diff review, and git-pinned decisions for Claude Code, Cursor, Windsurf, and Codex CLI.
+Sverklo is a local-first repo-memory MCP for coding agents: run a no-write proof receipt before relationship-heavy edits in Claude Code, Cursor, Windsurf, and Codex CLI.
 
 ## 160-Character Description
 
@@ -24,7 +24,7 @@ Local-first repo-memory MCP for coding agents: code search, symbol impact, diff 
 
 ## 300-Character Description
 
-Sverklo is a local-first repo-memory MCP for coding agents. It gives Claude Code, Cursor, Windsurf, Codex CLI, and other MCP clients hybrid code search, symbol impact analysis, diff-aware review, and git-pinned decisions. MIT licensed, no API keys, no code upload.
+Sverklo is a local-first repo-memory MCP for coding agents. Best for relationship-heavy edits: symbols, callers, dependencies, diff review, and git-pinned decisions before code changes. Start with a no-write proof receipt; use grep/ripgrep for exact strings. MIT, no API keys, no code upload.
 
 ## 800-Character Description
 

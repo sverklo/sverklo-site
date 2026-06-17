@@ -26,7 +26,7 @@
       "name": "Run a no-write Sverklo repo-memory proof receipt",
       "description": "Run Sverklo from a real repo without writing project files or MCP config, then inspect the generated receipt before setup.",
       "datePublished": "2026-06-05",
-      "dateModified": "2026-06-05",
+      "dateModified": "2026-06-16",
       "tool": [{"@type": "HowToTool", "name": "Node.js 24+"}, {"@type": "HowToTool", "name": "npm"}],
       "step": [
         {
@@ -129,6 +129,12 @@
   <p>Requires Node 24 or newer. First run may cache the local ONNX model and index under <code>~/.sverklo</code>. The command should not write project files or MCP config.</p>
   <p>A useful receipt should prove at least one real relationship: a central file, a selected symbol, a caller, a related test or dependency, and the exact prompt to paste into Claude Code, Cursor, Windsurf, or Codex CLI.</p>
 </div>
+
+<h2>When to use it</h2>
+<p>Use Sverklo when your agent needs relationships before editing: callers, dependencies, tests, diff risk, or prior repo decisions.</p>
+
+<h2>When not to use it</h2>
+<p>Use grep/ripgrep when you know the exact string, the repo is tiny, or the change is one file. Use your build and test runner to verify behavior.</p>
 
 <h2>What to check</h2>
 <ol>

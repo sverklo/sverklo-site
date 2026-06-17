@@ -23,7 +23,7 @@
   "name": "Use Sverklo with OpenAI Codex CLI",
   "description": "Run Sverklo proof first, then preview and apply Codex CLI MCP setup.",
   "datePublished": "2026-06-05",
-  "dateModified": "2026-06-05",
+  "dateModified": "2026-06-16",
   "tool": [
     {"@type": "HowToTool", "name": "OpenAI Codex CLI"},
     {"@type": "HowToTool", "name": "Node.js 24+"},
@@ -35,6 +35,30 @@
     {"@type": "HowToStep", "name": "Preview setup", "text": "Run sverklo init --dry-run to see whether Codex CLI config will be written."},
     {"@type": "HowToStep", "name": "Write setup", "text": "Run sverklo init. When ~/.codex exists, Sverklo writes the Codex MCP server block to ~/.codex/config.toml."},
     {"@type": "HowToStep", "name": "Verify", "text": "Run sverklo doctor --agent codex and use the suggested prompt in Codex CLI."}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "When should I use Sverklo instead of grep with Codex CLI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use Sverklo when Codex needs repo relationships before editing: symbols, callers, dependencies, tests, diffs, or git-pinned decisions. Use grep/ripgrep for exact strings."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Sverklo replace Codex CLI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Codex CLI is the coding agent. Sverklo is the local MCP retrieval layer Codex can call before it edits."
+      }
+    }
   ]
 }
 </script>
@@ -243,6 +267,7 @@ body:has(header.top.nav-canonical) > #main {
 <h2>1. Run proof without setup writes</h2>
 <pre><code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code></pre>
 <p>This should print central files, one selected symbol, callers, and a paste-ready prompt. It does not write project files, MCP config, or agent instructions. First run may cache the local ONNX model and index under <code>~/.sverklo</code>.</p>
+<p>Use Sverklo when Codex needs repo relationships before editing: callers, dependencies, tests, diff risk, or prior decisions. Use grep/ripgrep when you know the exact string or the change is one file.</p>
 
 <h2>2. Install and preview</h2>
 <pre><code>npm install -g sverklo

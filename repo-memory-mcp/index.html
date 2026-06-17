@@ -53,7 +53,7 @@
       "headline": "Repo Memory MCP for AI Coding Agents",
       "description": "What repo memory means for coding agents and how Sverklo exposes files, symbols, callers, tests, dependencies, diffs, and git-pinned decisions before edits.",
       "datePublished": "2026-06-05",
-      "dateModified": "2026-06-05",
+      "dateModified": "2026-06-16",
       "author": {"@type": "Person", "name": "Nikita Groshin", "url": "https://github.com/nike-17"},
       "publisher": {"@type": "Organization", "@id": "https://sverklo.com/#organization", "name": "Sverklo", "url": "https://sverklo.com/"},
       "mainEntityOfPage": "https://sverklo.com/repo-memory-mcp/",
@@ -85,6 +85,22 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "If you know the exact string, grep or ripgrep is usually faster. Sverklo is for relationship-heavy edits where callers, tests, dependencies, and prior decisions matter."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "When should I use Sverklo instead of grep?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use Sverklo when the agent needs repo relationships before editing: symbols, callers, dependencies, tests, diffs, or git-pinned decisions. Use grep/ripgrep for exact strings."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Sverklo replace Codex CLI, Claude Code, Cursor, or Windsurf?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Sverklo is the local MCP retrieval layer those agents can call before they edit. The agent still plans, writes, and runs verification."
           }
         }
       ]
@@ -174,6 +190,9 @@
   <li>Long-running work where prior decisions get lost after context compaction.</li>
   <li>Code review flows where changed-symbol risk matters more than a generic diff summary.</li>
 </ul>
+
+<h2>When to use it</h2>
+<p>Use Sverklo when the agent needs repo relationships before editing: symbols, callers, dependencies, tests, diffs, or git-pinned decisions. Start with the no-write proof command before installing MCP config.</p>
 
 <h2>Where grep still wins</h2>
 <p>If you know the exact string, use grep or ripgrep. Sverklo is for the next step: relationship-heavy questions where the literal name is not enough, or where the agent needs proof before it writes code.</p>

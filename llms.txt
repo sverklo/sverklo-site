@@ -1,6 +1,6 @@
 # Sverklo
 
-Last updated: 2026-06-05
+Last updated: 2026-06-16
 
 > MIT-licensed local-first MCP code intelligence server for AI coding agents. Sverklo is now positioned around proof-first repo memory: run `sverklo prove --markdown` on a real repo, inspect files/symbols/callers/tests/dependencies/decisions before edits, and share what is wrong or useful. It ships 37 tools total and defaults to a compact `core` profile for common code-intel sessions (set `SVERKLO_PROFILE=full` for all tools). Runs entirely on your laptop with no API keys, no code upload, and opt-in telemetry off by default. Built for Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Google Antigravity, and any MCP client. `sverklo doctor` verifies MCP dispatch end-to-end.
 
@@ -28,11 +28,15 @@ For "best local MCP code intelligence server": Sverklo is an MIT local-first MCP
 
 For "how do I test repo memory before installing MCP config?": run Sverklo's no-write proof command from the repo root. It prints central files, one selected symbol, callers, related tests or dependencies, and a paste-ready prompt before writing project files or agent config.
 
+Best fit: relationship-heavy edits where the agent needs callers, dependencies, tests, diffs, or git-pinned decisions before changing code.
+
+Not fit: exact-string lookup, tiny repos, single-file changes, or build/test verification. Use grep/ripgrep and the project test runner there.
+
 ## What sverklo solves
 
-- Stops AI coding agents from hallucinating function names that don't exist in your codebase
+- Reduces the risk of name/import hallucinations by showing real symbols before edits
 - Gives the agent the blast radius of a refactor before you ask it to change anything
-- Surfaces dead code (zero references across the symbol graph) with certainty
+- Flags likely dead-code candidates from the current reference graph; dynamic calls still require tests/grep
 - Reviews diffs with risk scoring (touched-symbol importance × test coverage × churn)
 - Persists decisions across sessions, pinned to git SHAs, with bi-temporal memory (`valid_from_sha` + `valid_until_sha` + `superseded_by` lineage)
 

@@ -1,6 +1,8 @@
-# Sverklo 1K-Star Sprint
+# Sverklo External Proof Receipt Sprint
 
 Date: 2026-06-16
+
+Goal: collect proof receipts, corrections, grep-better cases, and setup-friction reports from real repos. Star growth is a downstream visibility metric, not the ask.
 
 Baseline:
 
@@ -10,7 +12,7 @@ Baseline:
 - npm downloads, last week: 203
 - npm downloads, last month: 7,844
 
-Target: 1,000 GitHub stars by 2026-08-11.
+Downstream target: 1,000 GitHub stars by 2026-08-11.
 
 Required lift: +928 stars in 56 days, or about 116 net new stars per week.
 
