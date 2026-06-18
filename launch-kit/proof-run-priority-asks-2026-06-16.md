@@ -102,6 +102,8 @@ Why: multi-agent file selection, planning, editing, and review makes a strong pr
 
 Channel: community contact if available; avoid issues unless invited.
 
+Status: posted to Codebuff Show and tell on 2026-06-17: https://github.com/CodebuffAI/codebuff/discussions/803
+
 Draft:
 
 > Codebuff's multi-agent file-selection flow is a useful benchmark for Sverklo. Could you run the no-write proof command on a repo where Codebuff already performs well and send the first correction or bad receipt you see?
