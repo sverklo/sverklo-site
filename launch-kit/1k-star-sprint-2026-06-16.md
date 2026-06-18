@@ -101,6 +101,7 @@ Secondary ask:
 - 2026-06-16: Founder-account proof-sprint X post published from `@marazmo`: https://x.com/i/status/2067074910103769285. Follow-up X reads are currently rate-limited in Wonda cookie mode, so direct replies are paused until the limit clears.
 - 2026-06-17: Star-source analysis added: https://github.com/sverklo/sverklo-site/blob/main/launch-kit/star-source-analysis-2026-06-17.md. Conclusion: the 72 stars correlate with benchmark/loss/comparison/product-release artifacts, not generic outreach. Double down on measurable proof artifacts.
 - 2026-06-17: Star-source analysis X thread published from `@marazmo`: https://x.com/i/status/2067499040238190908. Wonda reply posting failed on the fourth post with an empty tweet-result response, so the verified thread has three posts.
+- 2026-06-18: Reddit posting pack added: https://github.com/sverklo/sverklo-site/blob/main/launch-kit/reddit-posting-pack-2026-06-18.md. Post first to `r/mcp` with `showcase`; hold `r/ClaudeCode` for a 24-48 hour gap or after a useful response. Do not automate Reddit posting.
 
 ## Stop Doing
 
