@@ -100,6 +100,7 @@ Secondary ask:
 - 2026-06-16: `JackyST0/awesome-agent-skills` PR #51 updated after requested changes and maintainer notified: https://github.com/JackyST0/awesome-agent-skills/pull/51#issuecomment-4719663113
 - 2026-06-16: Founder-account proof-sprint X post published from `@marazmo`: https://x.com/i/status/2067074910103769285. Follow-up X reads are currently rate-limited in Wonda cookie mode, so direct replies are paused until the limit clears.
 - 2026-06-17: Star-source analysis added: https://github.com/sverklo/sverklo-site/blob/main/launch-kit/star-source-analysis-2026-06-17.md. Conclusion: the 72 stars correlate with benchmark/loss/comparison/product-release artifacts, not generic outreach. Double down on measurable proof artifacts.
+- 2026-06-17: Star-source analysis X thread published from `@marazmo`: https://x.com/i/status/2067499040238190908. Wonda reply posting failed on the fourth post with an empty tweet-result response, so the verified thread has three posts.
 
 ## Stop Doing
 
