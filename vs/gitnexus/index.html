@@ -29,14 +29,14 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + embeddings + PageRank) for AI coding agents. MIT licensed, with bundled local ONNX embeddings by default; explicitly configured remote embedding providers may receive code chunks.",
   "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, compact default profile",
   "publisher": {
     "@type": "Organization",
@@ -97,7 +97,7 @@
       "name": "What's the best MCP server for code intelligence on a commercial project?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "For commercial use, Sverklo (MIT, local-first, 37 MCP tools) is the most defensible choice among the local-first code-intelligence MCP servers. It works with Claude Code, Cursor, Windsurf, and Zed, ships zero-config, and your code never leaves the machine."
+        "text": "For commercial use, Sverklo (MIT, local-first, 37 MCP tools) is the most defensible choice among the local-first code-intelligence MCP servers. It works with Claude Code, Cursor, Windsurf, and Zed, ships zero-config, and defaults to bundled local embeddings. An explicitly configured remote embedding provider may receive code chunks."
       }
     }
   ]
@@ -603,7 +603,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -754,7 +754,7 @@ body:has(header.top.nav-canonical) > #main {
           <li>Your CI/CD pipeline needs automated PR review with quality gates</li>
           <li>You want memory that persists across sessions and tracks git state</li>
           <li>You prefer pure-JS installs with no native binary dependencies</li>
-          <li>Privacy matters: no telemetry, no cloud, no API keys</li>
+          <li>Privacy matters: bundled local embeddings and telemetry off by default; do not configure a remote provider when code must stay local</li>
           <li>You work across 24 languages</li>
         </ul>
       </div>

@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sverklo for Claude Code: repo memory for AI coding agents</title>
-<meta name="description" content="Give Claude Code repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta name="description" content="Give Claude Code repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 <link rel="canonical" href="https://sverklo.com/vs/claude-code/">
 
 <meta property="og:title" content="Sverklo for Claude Code: repo memory for AI coding agents">
-<meta property="og:description" content="Give Claude Code repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta property="og:description" content="Give Claude Code repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/vs/claude-code/">
 <meta property="og:image" content="https://sverklo.com/og.png">
@@ -16,7 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sverklo for Claude Code: repo memory for AI coding agents">
-<meta name="twitter:description" content="Give Claude Code repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta name="twitter:description" content="Give Claude Code repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -39,7 +39,7 @@
       "name": "What's the best MCP server for Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys."
+        "text": "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, with embedded SQLite and bundled local ONNX embeddings by default. No API key is needed for the default provider; an explicitly configured remote embedding provider may receive code chunks."
       }
     },
     {
@@ -292,7 +292,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -302,7 +302,7 @@ body:has(header.top.nav-canonical) > #main {
 <p class="subtitle">Claude Code is Anthropic's official CLI agent that runs in the terminal and edits code through tool calls. Sverklo is an MCP server Claude Code calls to retrieve from your codebase — they're built to work together.</p>
 <div class="meta">
   Claude Code: <a href="https://claude.ai/code" target="_blank" rel="noopener">https://claude.ai/code</a> ·
-  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, runs on your laptop ·
+  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, bundled local embeddings by default ·
   Install: <code>npm install -g sverklo &amp;&amp; sverklo init</code>
 </div>
 
@@ -328,7 +328,7 @@ sverklo init</code></pre>
       </details>
       <details>
         <summary>What's the best MCP server for Claude Code?</summary>
-        <p>Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys.</p>
+        <p>Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, with embedded SQLite and bundled local ONNX embeddings by default. No API key is needed for the default provider; an explicitly configured remote embedding provider may receive code chunks.</p>
       </details>
       <details>
         <summary>How do I install sverklo for Claude Code?</summary>

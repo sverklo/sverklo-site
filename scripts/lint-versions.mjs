@@ -91,20 +91,13 @@ const ALLOWED_HISTORICAL = [
     snippet: "v0.1.9",
     note: "memoir comparison post: third-party (Memoir) version, not sverklo",
   },
-  // Sverklo's current production version (v0.20.6 as of 2026-05-09)
-  // referenced as a factual provenance claim on the new comparison
-  // pages. Not a UI fallback — the badge fetches live from npm.
+  // Historical publication-time claim in the May 9 comparison post.
+  // Not a UI fallback or an active current-version claim.
   {
     file: "blog/we-already-shipped-git-for-agent-memory/index.html",
     version: "v0.20.6",
     snippet: "Production (v0.20.6)",
-    note: "memoir comparison post: factual claim about sverklo current version",
-  },
-  {
-    file: "vs/memoir/index.html",
-    version: "v0.20.6",
-    snippet: "0.20.6",
-    note: "memoir comparison page: factual claim about sverklo current version (multiple lines)",
+    note: "memoir comparison post: publication-time Sverklo version on 2026-05-09",
   },
   // Research paper citations: which sverklo version produced the
   // numbers in the paper. NOT a UI fallback — a factual claim.

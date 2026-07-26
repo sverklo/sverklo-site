@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Why Claude Code Burns So Many Tokens (Field Study: 14,200 Tokens to Find One Function) — Sverklo</title>
-<meta name="description" content="Claude Code burning tokens? One week of instrumented sessions across 312 tasks shows grep is 41% of input-token spend. Real numbers, the noisy-grep cascade, and how to cut Claude Code costs ~60% with hybrid retrieval.">
+<title>Why Claude Code Burns So Many Tokens — An Exploratory Maintainer Study | Sverklo</title>
+<meta name="description" content="A maintainer-run exploratory study of private Claude Code tasks examines noisy grep cascades, context cost, and when relationship-aware retrieval may help. The observations are not independently reproducible or generalizable.">
 <link rel="canonical" href="https://sverklo.com/blog/14200-tokens-to-find-one-function/">
 
-<meta property="og:title" content="Why Claude Code Burns So Many Tokens — Field Study (14,200 to Find One Function)">
-<meta property="og:description" content="One week of instrumented Claude Code. Grep is 41% of spend. Sessions with &gt;8K-token grep results hallucinate 31% of the time vs 4% under 2K. The fix and how to measure your own.">
+<meta property="og:title" content="Why Claude Code Burns So Many Tokens — An Exploratory Maintainer Study">
+<meta property="og:description" content="Private-task observations about noisy grep cascades and relationship-aware retrieval. Maintainer-run, exploratory, and not independently reproducible or generalizable.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/blog/14200-tokens-to-find-one-function/">
 <meta property="og:site_name" content="Sverklo">
@@ -24,18 +24,18 @@
 <meta property="article:tag" content="cost analysis">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Why Claude Code Burns So Many Tokens — 14,200 to Find One Function">
-<meta name="twitter:description" content="Instrumented one week of Claude Code. Grep is 41% of spend; large-grep sessions hallucinate 31% of the time. Numbers + fix.">
+<meta name="twitter:title" content="Why Claude Code Burns So Many Tokens — An Exploratory Maintainer Study">
+<meta name="twitter:description" content="Private-task observations about noisy grep cascades and relationship-aware retrieval. Maintainer-run and not independently reproducible or generalizable.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "Why Claude Code Burns So Many Tokens (Field Study: 14,200 Tokens to Find One Function)",
-  "description": "Field study of one week of Claude Code sessions across 312 tasks. Grep accounts for 41% of input tokens; large-grep sessions hallucinate 31% of the time vs 4% under 2K. The fix is hybrid retrieval exposed as MCP tools — measurable ~60% token reduction.",
+  "headline": "Why Claude Code Burns So Many Tokens — An Exploratory Maintainer Study",
+  "description": "A maintainer-run exploratory study of private Claude Code tasks examines noisy grep cascades, context cost, and relationship-aware retrieval. The observations are not independently reproducible or generalizable.",
   "datePublished": "2026-05-03",
-  "dateModified": "2026-05-08",
+  "dateModified": "2026-07-24",
   "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
   "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
   "image": "https://sverklo.com/og.png",
@@ -55,7 +55,7 @@
       "name": "Why does Claude Code burn so many tokens?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "In a one-week instrumented field study of 312 Claude Code tasks, grep alone accounted for 41% of input tokens. The agent runs a noisy grep, gets 200 lines back, then runs three more greps to disambiguate — each result re-fed into context. The dominant cost is not the model itself; it's the cascade of low-precision tool calls feeding raw text into the conversation."
+        "text": "Broad text searches can consume substantial context when they return many low-precision matches and trigger follow-up searches. The effect depends on the repository, task, query, and model, so measure your own sessions before drawing conclusions."
       }
     },
     {
@@ -63,7 +63,7 @@
       "name": "How do I reduce Claude Code token usage?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Three steps: (1) measure first — instrument your sessions to see where tokens actually go, our open `sverklo receipt` command does this on session logs; (2) replace grep with a structured retriever that returns ranked symbols instead of raw lines; (3) cap tool results at 2K tokens — sessions with grep results over 8K hallucinate 31% of the time vs 4% under 2K, the noise itself causes wrong answers downstream."
+        "text": "Measure first with session instrumentation, keep tool results bounded, and match the retrieval method to the question. Use grep/ripgrep for exact strings and tiny repos; use relationship-aware retrieval when the agent needs callers, dependencies, tests, diff risk, or prior decisions."
       }
     },
     {
@@ -71,7 +71,7 @@
       "name": "Is Claude Code expensive on large repos?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes — and the cost grows non-linearly with repo size, because grep results scale with file count. A typical 200-file repo session in our study consumed 14,200 input tokens to locate a single function. The cost per task on Claude Sonnet at current pricing was about $0.04 — small individually, but compounded across hundreds of agent invocations per day. Hybrid retrieval (BM25 + embeddings + PageRank) cuts this ~60% in our bench."
+        "text": "Exploratory retrieval can become expensive on large repos when broad searches return many matches and lead to repeated reads. Cost varies by repository, task, model, and workflow; measure your own sessions rather than assuming a universal reduction."
       }
     },
     {
@@ -79,7 +79,7 @@
       "name": "Does grep waste tokens for AI agents?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Empirically, yes. Grep returns every textual match including comments, test files, generated code, and binary noise. The agent has to read all of it to identify the relevant hit. A structured symbol index (tree-sitter parsed, ranked by PageRank) returns the canonical definition with ~95% fewer tokens. Grep is fine when you know the exact string and the corpus is small; for AI-agent retrieval over a large repo it is the leading source of context bloat."
+        "text": "Grep can waste context when a broad query returns many irrelevant textual matches, but it remains the sharper tool for exact strings and tiny repos. Ranked structural retrieval is intended for relationship-heavy questions such as callers, dependencies, tests, and change impact."
       }
     }
   ]
@@ -260,7 +260,7 @@ body:has(header.top.nav-canonical) > #main {
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "14200 Tokens To Find One Function",
+      "name": "Why Claude Code Burns So Many Tokens",
       "item": "https://sverklo.com/blog/14200-tokens-to-find-one-function/"
     }
   ]
@@ -284,18 +284,18 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
 <main id="main">
 
-<h1>Why Claude Code Burns So Many Tokens — A Field Study (14,200 Tokens to Find One Function)</h1>
-<p class="subtitle">I logged every tool call my Claude Code agent made on a 200-file repo for a week. Grep alone cost me $47. Here's the data, and what I changed.</p>
+<h1>Why Claude Code Burns So Many Tokens — An Exploratory Maintainer Study</h1>
+<p class="subtitle">I instrumented a week of my own Claude Code sessions on private repos. These are exploratory maintainer observations, not an independent benchmark.</p>
 <div class="meta">May 2026 · Nikita Groshin · ~2,000 words</div>
 
 <div style="background:var(--bg-2);border-left:3px solid var(--accent);padding:16px 20px;margin:24px 0;font-size:14px;line-height:1.6;color:var(--text-2);">
-  <strong style="color:var(--text);">Update — 2026-05-13:</strong> The "P1 jcodemunch 0.65 vs sverklo 0.45" claim in section below is from the original 312-session field study (May 2026, 90-task bench). The bench has since expanded to <strong>180 tasks across 6 codebases</strong> (express, lodash, sverklo, requests, flask, fastapi) and re-ran on 2026-05-12. Updated numbers: <strong>sverklo P1 is now 0.63 (leader)</strong>, jcodemunch 0.52, gitnexus 0.37, smart-grep 0.22. The field-study narrative below is preserved as the original observation; the canonical current numbers live on <a href="/mcp/">/mcp/</a> and the full task-by-task losses on <a href="/bench/losses/">/bench/losses/</a>.
+  <strong style="color:var(--text);">Study boundary — maintainer-run private tasks:</strong> The session corpus and logs are private, so the exact observations below are not independently reproducible and should not be generalized to other repositories, tasks, or models. They are preserved as exploratory observations. For reproducible evidence, use the public <a href="/mcp/">180-task benchmark</a> and its <a href="/bench/losses/">task-by-task losses</a>.
 </div>
 
 <h2>The setup</h2>
@@ -351,7 +351,7 @@ Output tokens: 14,184</code></pre>
 
 <p>You can see the chain in the data. Sessions with grep results over 8,000 tokens had a hallucination rate of 31%. Sessions with grep results under 2,000 tokens: 4%. The correlation is <code>r = 0.74</code>.</p>
 
-<h2>Why grep isn't the right tool</h2>
+<h2>Why broad grep is not enough for relationship-heavy tasks</h2>
 
 <p>Grep matches identifiers lexically. It does three things wrong on code:</p>
 
@@ -361,11 +361,11 @@ Output tokens: 14,184</code></pre>
 <li><strong>No structure.</strong> Grep can't tell you which functions transitively call <code>logRequest</code>. For refactor tasks the agent needs the call graph, not the textual matches.</li>
 </ol>
 
-<p>The honest fix is hybrid retrieval: BM25 for exact identifiers, embeddings for concepts, PageRank on the call graph for ranking, all combined and exposed as ranked results. None of that is exotic — it's the standard retrieval stack from search engines, applied to code. But no AI coding agent ships with it built in. You have to add it.</p>
+<p>For relationship-heavy questions, one option is hybrid retrieval: BM25 for exact identifiers, embeddings for concepts, PageRank on the call graph for ranking, all combined and exposed as ranked results. Grep/ripgrep remains the sharper first move for exact strings and tiny repos.</p>
 
 <h2>What I changed</h2>
 
-<p>I installed <a href="https://github.com/sverklo/sverklo">Sverklo</a>, a local-first MCP server that gives Claude Code 37 extra retrieval tools. (Disclosure: I wrote it. The data above is on real private repos; you can reproduce it on your own.)</p>
+<p>I installed <a href="https://github.com/sverklo/sverklo">Sverklo</a>, a local-first MCP server that gives Claude Code 37 extra retrieval tools. (Disclosure: I wrote it. The exact private-task observations above cannot be independently reproduced; use the measurement workflow below to test your own sessions.)</p>
 
 <p>The exact change in my Claude Code config:</p>
 
@@ -408,7 +408,7 @@ Output tokens: 14,184</code></pre>
 <li><strong>Definition lookup.</strong> <a href="https://github.com/jgravelle/jcodemunch-mcp">jcodemunch-mcp</a> beats sverklo on definition lookup (P1) at 0.65 F1 vs 0.45. Their tree-sitter indexing is sharper than mine. I have something to learn from them.</li>
 </ul>
 
-<p>If your workflow is dominated by P1/P2, your token savings will be real but smaller than mine. If it's dominated by exploration ("what does this repo do?", "what handles X?", "what calls Y transitively?"), the ratio above is roughly what you should expect.</p>
+<p>If your workflow is dominated by exact lookup or reference finding, use grep/ripgrep or the sharper baseline for that task. For relationship-heavy exploration ("what does this repo do?", "what handles X?", "what calls Y transitively?"), measure your own sessions rather than assuming the private-task ratio above will transfer.</p>
 
 <h2>How to measure your own session</h2>
 
@@ -447,17 +447,17 @@ Top tool consumers
 
 <h2>The deeper point</h2>
 
-<p>The cost of running an AI coding agent is not the model's per-token rate. It's the search inefficiency baked into the agent's tool surface. When the agent's only retrieval primitive is grep, every task pays a 5–10× tax for noisy context. The model's prior fills the gaps with confident-sounding fabrication. Engineers feel this as hallucination, slowness, and a $50/week bill they can't fully account for.</p>
+<p>The exploratory sessions above suggest that broad grep-only exploration can add a substantial context tax when the task depends on relationships rather than exact strings. That observation does not apply universally: exact searches and tiny repos remain grep/ripgrep territory, and other workflows need their own measurement.</p>
 
 <p>The fix isn't a smarter model. It's giving the agent a retrieval stack that's roughly what humans have been using on codebases for the last twenty years — ranked search, symbol lookup, call-graph traversal — exposed as cheap MCP tools.</p>
 
 <p>That's the whole post. Run <code>sverklo receipt</code> on your own week and tell me if the numbers match.</p>
 
 <div class="callout">
-  <strong>Reproduce the bench:</strong> all numbers in this post that come from the sverklo bench are reproducible via <code>npm run bench</code> in <a href="https://github.com/sverklo/sverklo">the repo</a>. 60 tasks, 5 baselines, raw data at <a href="/bench/">sverklo.com/bench</a>. If you find a number wrong, open an issue.
+  <strong>Evidence boundary:</strong> public benchmark claims are reproducible from <a href="https://github.com/sverklo/sverklo">the repo</a> and documented at <a href="/bench/">sverklo.com/bench</a>. The maintainer-run private-task observations in this article are not independently reproducible or generalizable.
 </div>
 
-<p style="margin-top:32px;color:var(--muted);font-size:13px">Updated: May 3, 2026 · MIT-licensed prose, reuse with attribution. Related: <a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating function names</a> · <a href="/blog/practical-guide-mcp-code-intelligence/">A Practical Guide to MCP Servers for Code Intelligence</a>.</p>
+<p style="margin-top:32px;color:var(--muted);font-size:13px">Updated: July 24, 2026 · MIT-licensed prose, reuse with attribution. Related: <a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating function names</a> · <a href="/blog/practical-guide-mcp-code-intelligence/">A Practical Guide to MCP Servers for Code Intelligence</a>.</p>
 
 </main>
 

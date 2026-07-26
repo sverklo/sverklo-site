@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sverklo for Codex CLI: repo memory for AI coding agents</title>
-<meta name="description" content="Give Codex CLI repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta name="description" content="Give Codex CLI repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 <link rel="canonical" href="https://sverklo.com/vs/codex-cli/">
 
 <meta property="og:title" content="Sverklo for Codex CLI: repo memory for AI coding agents">
-<meta property="og:description" content="Give Codex CLI repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta property="og:description" content="Give Codex CLI repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/vs/codex-cli/">
 <meta property="og:image" content="https://sverklo.com/og.png">
@@ -16,7 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sverklo for Codex CLI: repo memory for AI coding agents">
-<meta name="twitter:description" content="Give Codex CLI repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta name="twitter:description" content="Give Codex CLI repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -39,7 +39,7 @@
       "name": "What's the best MCP server for Codex CLI?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, no per-seat pricing, no cloud, no API keys."
+        "text": "Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, and no per-seat pricing. The bundled local provider needs no API key; an explicitly configured remote embedding provider may receive code chunks."
       }
     },
     {
@@ -292,7 +292,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -302,7 +302,7 @@ body:has(header.top.nav-canonical) > #main {
 <p class="subtitle">Codex CLI is OpenAI's open-source command-line coding agent that runs locally and edits code through tool calls. Sverklo is an MCP server Codex CLI can register as a tool provider — the same way it works with Claude Code.</p>
 <div class="meta">
   Codex CLI: <a href="https://github.com/openai/codex" target="_blank" rel="noopener">https://github.com/openai/codex</a> ·
-  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, runs on your laptop ·
+  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, bundled local embeddings by default ·
   Install: <code>npm install -g sverklo &amp;&amp; sverklo init</code>
 </div>
 
@@ -328,7 +328,7 @@ sverklo init</code></pre>
       </details>
       <details>
         <summary>What's the best MCP server for Codex CLI?</summary>
-        <p>Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, no per-seat pricing, no cloud, no API keys.</p>
+        <p>Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, and no per-seat pricing. The bundled local provider needs no API key; an explicitly configured remote embedding provider may receive code chunks.</p>
       </details>
       <details>
         <summary>How is sverklo different from Codex CLI's built-in code search?</summary>

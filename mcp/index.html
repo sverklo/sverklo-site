@@ -388,7 +388,7 @@ body:has(header.top.nav-canonical) > #main {
 
 <h2>Embed sverklo audit in your CI</h2>
 
-<p>If you maintain an MCP server (or any code-intel project), you can add the sverklo audit to your own CI in two lines. The audit runs on the GitHub Actions runner — your code never leaves the workflow:</p>
+<p>If you maintain an MCP server (or any code-intel project), you can add the sverklo audit to your own CI in two lines. The bundled provider runs on the GitHub Actions runner by default; explicitly configuring a remote embedding provider changes that boundary:</p>
 
 <pre><code>- uses: sverklo/sverklo@main
   with:

@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sverklo - Run Repo-Memory Proof Before Your Agent Edits</title>
-<meta name="description" content="Run a proof receipt on a real repo before your coding agent edits. Sverklo is a local-first MCP server with public benchmarks, seeded receipts, visible caveats, and no code upload.">
+<meta name="description" content="Run a proof receipt on a real repo before your coding agent edits. Sverklo runs locally by default, keeps telemetry off by default, and documents the boundary for optional remote embedding providers.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/">
 
 <!-- Open Graph -->
 <meta property="og:title" content="Sverklo - Run Repo-Memory Proof Before Your Agent Edits">
-<meta property="og:description" content="Same task, same coding agent, better repo evidence. Run a proof receipt, inspect the benchmark, and keep the caveats visible. Local-first, MIT, no code upload.">
+<meta property="og:description" content="Same task, same coding agent, better repo evidence. Local by default; telemetry is off by default. An explicitly configured remote embedding provider may receive code chunks.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sverklo.com/">
 <meta property="og:site_name" content="Sverklo">
@@ -22,7 +22,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sverklo - Run Repo-Memory Proof Before Your Agent Edits">
-<meta name="twitter:description" content="Run a proof receipt on a real repo, inspect the 180-task benchmark, and keep the grep caveats visible. Local-first MCP, MIT, no code upload.">
+<meta name="twitter:description" content="Run a proof receipt on a real repo and inspect the 180-task benchmark. Local by default; optional remote embedding providers may receive code chunks.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -37,7 +37,7 @@
   "description": "Proof-first repo memory for coding agents. Local-first MCP server with hybrid semantic search, symbol-level impact analysis, diff-aware PR review with risk scoring, and bi-temporal memory tied to git state. Run a receipt on a real repo before asking the agent to edit.",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "author": {"@type":"Organization","@id":"https://sverklo.com/#organization","name":"Sverklo","url":"https://sverklo.com","sameAs":["https://github.com/sverklo","https://github.com/sverklo/sverklo","https://www.npmjs.com/package/sverklo","https://doi.org/10.5281/zenodo.19802051"]},
   "citation": "https://doi.org/10.5281/zenodo.19802051",
@@ -62,7 +62,7 @@
     "Web dashboard with dependency graph visualization (sverklo ui)",
     "File watcher for incremental reindex",
     "Token budget improvements with per-tool config",
-    "Local-first — no API keys, no cloud, opt-in telemetry off by default (9 documented fields)",
+    "Local by default with bundled ONNX; explicitly configured remote embedding providers may receive code chunks; telemetry off by default",
     "Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Antigravity"
   ]
 }
@@ -79,7 +79,7 @@
       "name": "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown to see central files and a real caller graph from your repo before writing MCP config. Local-first, MIT-licensed, no API keys."
+        "text": "Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write getUserByEmail() when your code uses findByEmail(), invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this by exposing a 37-tool MCP retrieval layer the agent calls before writing code: lookup resolves a name to its definition with file:line, refs proves whether a symbol exists with caller context, verify lets the agent re-check that a quoted span is still present at the cited git SHA. Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown to see central files and a real caller graph from your repo before writing MCP config. The bundled ONNX provider is local and needs no API key; an explicitly configured remote embedding provider may receive code chunks."
       }
     },
     {
@@ -95,7 +95,7 @@
       "name": "How does Sverklo handle MCP code search?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It ships 37 MCP tools total — defaulting to a compact 'core' profile that covers most code-intel sessions — and runs entirely on your laptop with no API keys. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
+        "text": "Sverklo is a local-first MCP server that combines hybrid code search (BM25 + embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory in one tool. It ships 37 MCP tools total — defaulting to a compact 'core' profile that covers most code-intel sessions. The bundled ONNX provider runs on your laptop without an API key; if you explicitly configure a remote embedding provider, code chunks may be sent to that provider. Works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity."
       }
     },
     {
@@ -111,7 +111,7 @@
       "name": "How do I give an AI coding agent persistent memory across sessions?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo's remember and recall ship a bi-temporal memory layer pinned to git SHAs. Every memory carries valid_from_sha and valid_until_sha; updating a memory inserts a new row and links the old one via superseded_by, so the timeline view can answer 'what did this team believe about the auth flow at commit abc123?' Recall is hybrid (FTS5 + cosine over an ONNX embedding) and runs entirely in embedded SQLite — no Zilliz, Milvus, or managed Postgres+pgvector required."
+        "text": "Sverklo's remember and recall ship a bi-temporal memory layer pinned to git SHAs. Every memory carries valid_from_sha and valid_until_sha; updating a memory inserts a new row and links the old one via superseded_by, so the timeline view can answer 'what did this team believe about the auth flow at commit abc123?' Memory records and vectors are stored in embedded SQLite, and the default ONNX provider embeds locally — no Zilliz, Milvus, or managed Postgres+pgvector is required."
       }
     },
     {
@@ -119,7 +119,7 @@
       "name": "What local-first code-intelligence evidence does Sverklo publish?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is MIT-licensed and ships hybrid retrieval (BM25 + ONNX embeddings + PageRank), symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs in one zero-config install. It runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup. Numbers are reproducible on the published 180-task bench at sverklo.com/bench."
+        "text": "Sverklo is MIT-licensed and ships hybrid retrieval (BM25 + embeddings + PageRank), symbol-graph impact analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs in one zero-config install. By default it runs on a laptop with embedded SQLite and a bundled ONNX model, with no API key required. If you explicitly configure a remote embedding provider, code chunks may be sent to that provider. Numbers are reproducible on the published 180-task bench at sverklo.com/bench."
       }
     },
     {
@@ -127,7 +127,7 @@
       "name": "How is Sverklo different from Claude Context or Cursor's built-in indexing?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo runs entirely on your laptop with SQLite and ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers."
+        "text": "Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo defaults to embedded SQLite and bundled local ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers. A remote embedding provider is optional and must be explicitly configured."
       }
     },
     {
@@ -135,7 +135,7 @@
       "name": "Does Sverklo work offline?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes after the first-run model download. Sverklo downloads the ONNX embedding model once (~90MB, cached locally). After that you can disconnect from the internet and indexing, search, embeddings, memory, and dashboard continue to work locally. Telemetry is opt-in and off by default. Your code never leaves your laptop."
+        "text": "Yes, when you use the default bundled ONNX provider. After the first-run model download (~90MB, cached locally), indexing, search, embeddings, memory, and the dashboard can run offline. An explicitly configured remote embedding provider requires its endpoint and may receive code chunks. Telemetry is opt-in and off by default."
       }
     },
     {
@@ -159,7 +159,7 @@
       "name": "How do I install Sverklo in Claude Code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown from your project first. It prints central files, one real caller graph, why that proof was selected, and a prompt to paste into Claude Code without writing project files or MCP config. If the proof looks useful, run npm install -g sverklo, sverklo init --dry-run, then sverklo init. Restart Claude Code and the sverklo tools appear in the /mcp list."
+        "text": "Run npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown from your project first. It prints central files, one real caller graph, why that proof was selected, and a prompt to paste into Claude Code without writing project files or MCP config. It may cache the local model/index under ~/.sverklo, but it does not mutate your project. If the proof looks useful, run npm install -g sverklo, sverklo init --dry-run, then sverklo init. Restart Claude Code and the sverklo tools appear in the /mcp list."
       }
     },
     {
@@ -418,10 +418,15 @@ nav.top-nav a:hover { color: var(--text); }
   letter-spacing: 0;
   position: relative;
   transition: background 0.15s, transform 0.05s;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  text-align: left;
 }
 .cta-primary:hover { background: var(--bg-3); }
 .cta-primary:active { transform: translateY(1px); }
-.cta-primary .prompt-mark { color: var(--accent); margin-right: 12px; }
+.cta-primary .prompt-mark { color: var(--accent); margin-right: 12px; flex: 0 0 auto; }
+.cta-primary .command-label { min-width: 0; overflow-wrap: anywhere; }
 .cta-primary .copy {
   font-size: 11px;
   font-weight: 500;
@@ -429,6 +434,7 @@ nav.top-nav a:hover { color: var(--text); }
   margin-left: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  flex: 0 0 auto;
 }
 .cta-secondary {
   font-family: 'JetBrains Mono', monospace;
@@ -1999,6 +2005,8 @@ footer .col-items a:hover { color: var(--accent); }
 }
 
 @media (max-width: 600px) {
+  .cta-primary { width: 100%; }
+  .cta-primary .command-label { flex: 1 1 auto; }
   header.top .grid { grid-template-columns: minmax(0, 1fr); }
   .brand {
     grid-column: 1;
@@ -2172,7 +2180,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
         <span class="gh-stars-label">github</span>
         <span class="gh-stars-num" id="gh-stars-num">--</span>
       </a>
-      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block;">v0.29.1</a>
+      <a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge" style="min-width: 54px; display: inline-block;">v0.29.3</a>
     </div>
   </div>
 </header>
@@ -2188,12 +2196,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
     <div class="lede">
       <p><strong>Same task, same coding agent, better repo evidence.</strong> Sverklo gives Claude Code, Cursor, Windsurf, and Codex-style agents your repo's files, symbols, callers, tests, dependencies, diffs, and git-pinned decisions before they edit.</p>
-      <p>Inspect the public 180-task benchmark, then run a receipt on a real repo. MIT, no API keys, no code upload; first run downloads a local ONNX model. Caveat: grep still wins exact strings.</p>
+      <p>Inspect the public 180-task benchmark, then run a receipt on a real repo. MIT, local by default, telemetry off by default; an explicitly configured remote embedding provider may receive code chunks. Caveat: grep still wins exact strings.</p>
     </div>
 
     <div class="hero-cta">
-      <button type="button" class="cta-primary" data-track="proof-copy-hero" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy no-write guided proof command">
-        <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
+      <button type="button" class="cta-primary" data-track="proof-copy-hero" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy full npm exec guided proof command">
+        <span class="prompt-mark">$</span><span class="command-label">npm exec … sverklo prove --no-write --guided --markdown</span><span class="copy">copy</span>
       </button>
       <a class="cta-secondary" href="#same-task" data-track-click="same-task-hero">compare same task →</a>
       <a class="cta-secondary" href="/proof/" data-track-click="proof-guide-hero">proof guide →</a>
@@ -2426,8 +2434,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     </div>
 
     <div class="proof-wall-cta">
-      <button type="button" class="cta-primary" data-track="proof-copy-proof-wall" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy no-write guided proof command">
-        <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
+      <button type="button" class="cta-primary" data-track="proof-copy-proof-wall" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy full npm exec guided proof command">
+        <span class="prompt-mark">$</span><span class="command-label">npm exec … sverklo prove --no-write --guided --markdown</span><span class="copy">copy</span>
       </button>
       <a class="cta-secondary" href="https://github.com/sverklo/sverklo/discussions/79?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=submit_receipt" target="_blank" rel="noopener" data-track-click="proof-thread-proof-wall">paste your receipt →</a>
       <a class="cta-secondary" href="/bench/?utm_source=sverklo_site&utm_medium=proof_wall&utm_campaign=benchmark" data-track-click="benchmark-proof-wall">see benchmark →</a>
@@ -2706,7 +2714,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       <br><br>
       Memories are linked to git commits, so stale decisions are detected automatically instead of silently reused after compaction.
       <br><br>
-      Everything runs locally. No API keys. No cloud.
+      By default, the bundled ONNX provider runs locally with no API key. If you explicitly configure a remote embedding provider, code chunks may be sent to that provider. Telemetry is off by default.
     </div>
 
     <!-- Pipeline diagram: query → retrieve → rank → output -->
@@ -2743,7 +2751,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="feature">
       <div class="feature-num">01</div>
       <h3>hybrid search</h3>
-      <p>BM25 for precision, semantic embeddings for recall, PageRank for structural importance — fused via RRF. Faster and more accurate than grep.</p>
+      <p>BM25 for precision, semantic embeddings for recall, PageRank for structural importance — fused via RRF. Built for relationship-heavy questions; use grep/ripgrep for exact strings or tiny repos.</p>
     </div>
     <div class="feature">
       <div class="feature-num">02</div>
@@ -3088,19 +3096,19 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     <div class="faq-list">
       <details open>
         <summary>How do I stop Claude Code from hallucinating function names that don't exist in my codebase?</summary>
-        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Run <code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code> to see central files and a real caller graph before writing MCP config. Local-first, MIT-licensed, no API keys.</p>
+        <p>Claude Code hallucinates function names because it generates from training-data patterns rather than your actual symbol graph. It will write <code>getUserByEmail()</code> when your code uses <code>findByEmail()</code>, invent imports for packages you don't depend on, and forget yesterday's design decision because context was compacted. Sverklo solves this with a 37-tool MCP retrieval layer the agent calls before writing code: <code>lookup</code> resolves a name to its definition with file:line, <code>refs</code> proves whether a symbol exists with caller context, <code>verify</code> lets the agent re-check that a quoted span is still present at the cited git SHA. Run <code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code> to see central files and a real caller graph before writing MCP config. The bundled ONNX provider is local and needs no API key; an explicitly configured remote embedding provider may receive code chunks.</p>
       </details>
       <details>
         <summary>Why would I install another MCP server?</summary>
-        <p>Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + ONNX embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory — all running on your laptop with no API keys. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 37 new tools alongside whatever else you run.</p>
+        <p>Most MCP servers are single-purpose wrappers around an API. Sverklo is local-first code intelligence: hybrid search (BM25 + embeddings + PageRank), symbol-level impact analysis, diff-aware PR review, and bi-temporal memory. The default bundled ONNX provider runs on your laptop with no API key. If you explicitly configure a remote embedding provider, code chunks may be sent to that provider. It works with Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, and Google Antigravity, so if you already have an MCP client, sverklo just appears as 37 new tools alongside whatever else you run.</p>
       </details>
       <details>
         <summary>How is Sverklo different from Cursor's @codebase or Claude Context?</summary>
-        <p>Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo runs entirely on your laptop with SQLite and ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers.</p>
+        <p>Cursor's @codebase indexing is cloud-based and tied to the Cursor editor. Claude Context (Zilliz) requires a Milvus database. Sverklo defaults to embedded SQLite and bundled local ONNX embeddings, works across every major AI coding agent via the MCP protocol, and adds symbol-level impact analysis and bi-temporal memory that neither offers. A remote embedding provider is optional and must be explicitly configured.</p>
       </details>
       <details>
         <summary>Does Sverklo work offline?</summary>
-        <p>Yes after the first-run model download. Sverklo downloads the ONNX embedding model once (~90MB, cached locally). After that you can disconnect from the internet and indexing, search, embeddings, memory, and dashboard continue to work locally. Telemetry is opt-in and off by default. Your code never leaves your laptop.</p>
+        <p>Yes, when you use the default bundled ONNX provider. After the first-run model download (~90MB, cached locally), indexing, search, embeddings, memory, and the dashboard can run offline. An explicitly configured remote embedding provider requires its endpoint and may receive code chunks. Telemetry is opt-in and off by default.</p>
       </details>
       <details>
         <summary>Which AI coding agents does Sverklo support?</summary>
@@ -3112,7 +3120,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
       </details>
       <details>
         <summary>How do I install Sverklo in Claude Code?</summary>
-        <p>Run <code style="color:var(--accent);">npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code> from your project first. It prints a real repo-memory receipt without writing project files or MCP config. If the proof looks useful, run <code style="color:var(--accent);">npm install -g sverklo</code>, <code style="color:var(--accent);">sverklo init --dry-run</code>, then <code style="color:var(--accent);">sverklo init</code>. Restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
+        <p>Run <code style="color:var(--accent);">npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown</code> from your project first. It prints a real repo-memory receipt without writing project files or MCP config. It may cache the local model/index under <code>~/.sverklo</code>, but it does not mutate your project. If the proof looks useful, run <code style="color:var(--accent);">npm install -g sverklo</code>, <code style="color:var(--accent);">sverklo init --dry-run</code>, then <code style="color:var(--accent);">sverklo init</code>. Restart Claude Code and the sverklo tools appear in the <code style="color:var(--accent);">/mcp</code> list.</p>
       </details>
       <details>
         <summary>What programming languages does Sverklo support?</summary>
@@ -3130,12 +3138,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 <section class="final-cta" aria-label="Get started with sverklo">
   <div class="grid">
     <div class="final-cta-inner">
-      <div class="final-cta-kicker">/* one proof receipt, MIT-licensed, stays on your laptop */</div>
+      <div class="final-cta-kicker">/* one proof receipt · local by default · MIT-licensed */</div>
       <h2 class="final-cta-h">prove it on your repo.<span class="cursor" aria-hidden="true">&nbsp;</span></h2>
-      <p class="final-cta-sub">Run the receipt, inspect the callers/tests/decisions it finds, and share the part that is wrong or useful. Local-first, MIT, no API keys, no code upload.</p>
+      <p class="final-cta-sub">Run the receipt, inspect the callers/tests/decisions it finds, and share the part that is wrong or useful. The bundled provider is local; an explicitly configured remote embedding provider may receive code chunks. Telemetry is off by default.</p>
       <div class="hero-cta final-cta-row">
-        <button type="button" class="cta-primary" data-track="proof-copy-final" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy no-write guided proof command">
-          <span class="prompt-mark">$</span> prove --no-write --guided<span class="copy">copy</span>
+        <button type="button" class="cta-primary" data-track="proof-copy-final" onclick="cp('npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown', this)" aria-label="Copy full npm exec guided proof command">
+          <span class="prompt-mark">$</span><span class="command-label">npm exec … sverklo prove --no-write --guided --markdown</span><span class="copy">copy</span>
         </button>
         <a class="cta-secondary" href="#proof-wall" data-track-click="proof-wall-final">inspect receipts →</a>
       </div>

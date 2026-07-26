@@ -33,7 +33,7 @@ const CANONICAL_NAV = `<nav class="top-nav">
 // release so subpages don't drift back to a stale fallback when npm
 // is offline. The canonical truth is on npm; this is just a placeholder
 // that gets shown for ~50ms before the fetch resolves.
-const VERSION_FALLBACK = "v0.29.1";
+const VERSION_FALLBACK = "v0.29.3";
 
 // Canonical design tokens. Loaded before page-local styles so the
 // per-page `:root { ... }` blocks override only when they want to.
@@ -94,6 +94,8 @@ const SEGMENT_NAMES = {
   "codex-cli": "vs Codex CLI",
   "matrix": "Comparison matrix",
   "cursor-sdk": "Cursor SDK recipe",
+  "14200-tokens-to-find-one-function": "Why Claude Code Burns So Many Tokens",
+  "stopped-claude-code-hallucinating": "Exploratory Private-Repo Hallucination Report",
 };
 
 function segmentName(slug) {

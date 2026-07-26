@@ -35,7 +35,7 @@
   "headline": "Claude Code Troubleshooting on Large Repos — 6 Failure Modes and Fixes",
   "description": "Definitive troubleshooting guide for Claude Code on codebases >100 files. Covers context loss, hallucinated function names, files-not-found, grep-cascade token bloat, stale memory across sessions, and tool-choice failure. Each failure mode gets a concrete fix and links to the relevant deep-dive.",
   "datePublished": "2026-05-09",
-  "dateModified": "2026-05-09",
+  "dateModified": "2026-07-24",
   "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
   "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
   "image": "https://sverklo.com/og.png",
@@ -71,7 +71,7 @@
       "name": "Why does Claude Code burn so many tokens on a 200-file repo?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "In a one-week instrumented field study of 312 Claude Code tasks, grep alone accounted for 41% of input-token spend. The agent runs a noisy grep, gets 200 lines back, then runs three more greps to disambiguate. The dominant cost is the cascade of low-precision tool calls feeding raw text into the conversation. Replace grep with a typed symbol lookup that returns ranked results and the cost drops ~60%."
+        "text": "Broad grep searches can consume substantial context when they return many low-precision matches and trigger follow-up reads. Maintainer-run observations from private tasks suggest that relationship-aware retrieval may reduce that cost, but the private sample is not independently reproducible or generalizable. Use grep or ripgrep for exact strings and tiny repos, and measure your own sessions."
       }
     },
     {
@@ -95,7 +95,7 @@
       "name": "Why does Claude Code's context window fill up on large repos?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Three sources, in descending order: tool-call results (especially noisy grep output), accumulated conversation history, and the system prompt's tool definitions. A 200-file repo with grep-heavy retrieval can consume 14,200 tokens to find one function. The fix stack: typed retrieval (cuts grep cost ~95%), profile-filtered tool surface (cuts system-prompt overhead ~80%), and bi-temporal memory (lets compaction be lossless instead of destructive). Each addresses a different bucket of the bloat."
+        "text": "Three common sources are tool-call results, accumulated conversation history, and the system prompt's tool definitions. Bound search output, use exact grep or ripgrep when the identifier is known, consider relationship-aware retrieval for callers and change impact, and persist important decisions outside the conversation. Measure each source in your own sessions rather than assuming a universal reduction."
       }
     }
   ]
@@ -299,13 +299,16 @@ body:has(header.top.nav-canonical) > #main {
 
 <div class="meta-bar">
   <span>2026-05-09</span>
+  <span>updated 2026-07-24</span>
   <span>~12 min read</span>
   <span>by Nikita Groshin</span>
 </div>
 
+<div class="pull"><strong>Evidence boundary:</strong> Exact token and hallucination figures below are exploratory maintainer observations from private tasks. The private logs are not independently reproducible, and the ratios should not be generalized to other repositories, tasks, or models. Public benchmark results are labeled separately.</div>
+
 <p class="lede">Claude Code is the strongest agentic coding tool I've used. On a 30-file project it's near-magical. On a 4,000-file repo it falls into specific, repeatable failure modes — files it can't find, function names it invents, tool calls it cascades, decisions it forgets, context windows it exhausts. Each failure has a name, a cause, and a fix. Six of them, in order of how often I've watched them happen, with the data behind each and links to the deeper writeups where they exist.</p>
 
-<div class="pull">If you only read one section: <a href="#token-blowout">grep accounts for 41% of Claude Code's input-token spend</a>. The single highest-leverage fix is replacing grep cascades with a typed symbol lookup. Everything else is downstream.</div>
+<div class="pull">If you only read one section: broad grep cascades consumed substantial context in the private maintainer sample. For relationship-heavy questions, test a typed symbol lookup; for exact strings and tiny repos, grep/ripgrep remains the sharper baseline.</div>
 
 <div class="toc">
   <div class="toc-title">In this guide</div>
@@ -358,16 +361,16 @@ body:has(header.top.nav-canonical) > #main {
 <ol>
   <li><strong>Install a code-intelligence MCP server.</strong> Sverklo, jcodemunch-mcp, serena, Claude-Context — pick one. The agent gets a <code>lookup</code> tool that verifies identifiers against a tree-sitter-parsed symbol table before writing them. Measurable effect: <strong>37% fewer hallucinated imports</strong> on our bench.</li>
   <li><strong>Keep your CLAUDE.md concrete.</strong> Real paths, real identifiers, real conventions — not abstractions. Rules survive compaction better than examples; examples survive better than abstract guidance.</li>
-  <li><strong>Cap tool results at 2K tokens.</strong> Sessions with grep results over 8K tokens hallucinate <strong>31% of the time vs 4% under 2K</strong>. The noise itself causes wrong answers downstream.</li>
+  <li><strong>Cap tool results.</strong> In the exploratory private maintainer sample, larger grep outputs coincided with more invented identifiers. The sample is not independently reproducible or generalizable, so choose a limit by measuring your own sessions.</li>
 </ol>
 
-<p>Deep dive: <a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating function names on a 4,000-file repo</a>.</p>
+<p>Deep dive: <a href="/blog/stopped-claude-code-hallucinating/">How I reduced Claude Code function-name hallucinations — an exploratory private-repo report</a>.</p>
 
 <h2 id="token-blowout">3. Claude Code burns tokens on grep cascades</h2>
 
-<p class="symptom">14,200 input tokens consumed to locate one function</p>
+<p class="symptom">One private observed task consumed 14,200 input tokens to locate one function</p>
 
-<p>You ask Claude Code to find where <code>parseConfig</code> is defined. It runs <code>grep -r "parseConfig"</code>. The grep returns 80 lines (definitions, calls, comments, test mocks). The agent runs three more greps to disambiguate. Each result re-feeds into context. By the time it produces an answer it has consumed 14,200 input tokens — about $0.04 on Claude Sonnet at current pricing. Multiply by 200 invocations a day across an engineering team and the math gets loud.</p>
+<p>In one private maintainer task, Claude Code tried to find where <code>parseConfig</code> was defined. It ran <code>grep -r "parseConfig"</code>, received definitions, calls, comments, and test mocks, then ran three more searches to disambiguate. Each result re-entered context; the observed task consumed 14,200 input tokens. That is an exploratory observation, not a transferable cost estimate.</p>
 
 <p>This is the single most common failure mode and the one with the largest measurable impact:</p>
 
@@ -382,11 +385,11 @@ body:has(header.top.nav-canonical) > #main {
   </tbody>
 </table>
 
-<p style="font-size:13px;color:var(--text-3);margin-top:6px">Sample: 312 Claude Code tasks across one week, 200-file TypeScript repo. Full methodology + raw data in the field study.</p>
+<p style="font-size:13px;color:var(--text-3);margin-top:6px">Boundary: maintainer-run exploratory sample of 312 private Claude Code tasks across one week. The logs are private, so these figures are not independently reproducible or generalizable. See the linked study for the measurement workflow and public-evidence boundary.</p>
 
 <h3>The fix: typed retrieval instead of grep cascades</h3>
 
-<p>Replace grep with a structured symbol lookup that returns ranked results scoped by symbol type. Sverklo's hybrid retrieval (BM25 over chunk content + cosine similarity over ONNX embeddings + PageRank-weighted file ranking) returns the canonical definition with ~95% fewer tokens than grep.</p>
+<p>For relationship-heavy questions, a structured symbol lookup can return ranked results scoped by symbol type. In the private observed task below, Sverklo's hybrid retrieval returned a much smaller result than the grep cascade; that task-specific difference is not a general reduction claim. Use grep/ripgrep for exact strings and measure the comparison on your own repo.</p>
 
 <p>The single tool call that replaces a grep cascade:</p>
 
@@ -400,7 +403,7 @@ sverklo_lookup({ symbol: "parseConfig" })</code></pre>
 
 <p>On the public bench, sverklo's tools-per-task is <strong>1.0</strong>; naive grep is <strong>6.1</strong>. Same task, ~6× fewer tool calls.</p>
 
-<p>Deep dive: <a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — A Field Study</a>.</p>
+<p>Deep dive: <a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — An Exploratory Maintainer Study</a>.</p>
 
 <h2 id="forgets-decisions">4. Claude Code forgets yesterday's design decisions</h2>
 
@@ -470,20 +473,20 @@ sverklo_recall "ORM choice" --at-sha abc123  # what we believed at commit abc</c
     <tr><th>Source</th><th>Default cost</th><th>After fix</th></tr>
   </thead>
   <tbody>
-    <tr><td>Grep cascades (per task)</td><td>~14,200 tokens</td><td>~500 tokens (typed retrieval)</td></tr>
+    <tr><td>Grep cascades (private observed task)</td><td>~14,200 tokens</td><td>~500 tokens (typed retrieval)</td></tr>
     <tr><td>Tool-list system prompt (per turn)</td><td>~8,016 tokens</td><td>~1,522 tokens (<code>SVERKLO_PROFILE=core</code>)</td></tr>
     <tr><td>Memory across sessions</td><td>Lost on compaction</td><td>Recoverable via bi-temporal recall</td></tr>
-    <tr><td>Hallucinated identifiers (per task)</td><td>31% rate above 8K</td><td>4% rate under 2K</td></tr>
+    <tr><td>Hallucinated identifiers (private sample)</td><td>31% rate above 8K</td><td>4% rate under 2K</td></tr>
   </tbody>
 </table>
 
-<p>Combined, a typical session that hit the context-window soft limit at ~hour 2 lasts ~hour 5+ on the same context budget. The cost is one MCP server install and a profile env var.</p>
+<p>In the maintainer workflow described here, the combined changes appeared to extend usable sessions before the context-window soft limit. Treat that as a workflow-specific observation and measure the effect in your own environment.</p>
 
 <h2>What this guide is and isn't</h2>
 
-<p>This is a troubleshooting pillar — six of the most common failure modes Claude Code hits on real repos, with the data behind each and concrete fixes. The deep-dives are linked from each section; each one has its own measurement methodology and reproducer.</p>
+<p>This is a troubleshooting pillar — six failure modes observed on real repos, with concrete fixes to test. The deep-dives are linked from each section; reproducible public evidence and private exploratory observations are labeled separately.</p>
 
-<p>This is <em>not</em> a sverklo pitch. The fixes work with any code-intelligence MCP server (jcodemunch-mcp, serena, GitNexus, Claude-Context, sverklo). Sverklo is the one I maintain and have the most numbers for, so the examples lean that way; the patterns generalize. The <a href="/mcp/">public 5-baseline benchmark</a> shows where each tool wins and loses, including the slices where sverklo loses to others.</p>
+<p>This is <em>not</em> a sverklo pitch. The fixes can be tested with any code-intelligence MCP server (jcodemunch-mcp, serena, GitNexus, Claude-Context, sverklo). Sverklo is the one I maintain and have the most observations for, so the examples lean that way; do not transfer the private ratios without measuring your own workflow. The <a href="/mcp/">public 5-baseline benchmark</a> shows where each tool wins and loses, including the slices where sverklo loses to others.</p>
 
 <div class="cta-box">
   <h3>Try the fix stack</h3>
@@ -499,7 +502,7 @@ SVERKLO_PROFILE=core sverklo init
 <h2>References</h2>
 <ul>
   <li><a href="/blog/14200-tokens-to-find-one-function/">Why Claude Code Burns So Many Tokens — Field Study</a> (2026-05-03)</li>
-  <li><a href="/blog/stopped-claude-code-hallucinating/">How I stopped Claude Code from hallucinating on a 4,000-file repo</a> (2026-04-09)</li>
+  <li><a href="/blog/stopped-claude-code-hallucinating/">How I reduced Claude Code function-name hallucinations — an exploratory private-repo report</a> (2026-04-09)</li>
   <li><a href="/blog/claude-code-context-loss/">Why Claude Code Hallucinates Function Names That Don't Exist</a> (2026-04-09)</li>
   <li><a href="/blog/bi-temporal-memory-for-ai-agents/">Bi-temporal memory for AI coding agents</a> (2026-04-19)</li>
   <li><a href="/blog/we-already-shipped-mcp-code-mode/">We Already Shipped MCP Code Mode — Sverklo's Tool Surface, Measured</a> (2026-05-08)</li>

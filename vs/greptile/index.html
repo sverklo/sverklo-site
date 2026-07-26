@@ -11,7 +11,7 @@
 
 <!-- Open Graph -->
 <meta property="og:title" content="Sverklo vs Greptile — Local-First Code Intelligence vs Hosted PR Review">
-<meta property="og:description" content="Greptile is a hosted PR review bot ($30/dev/mo). Sverklo is a local-first MCP server (MIT, free) that gives Claude Code, Cursor, and Windsurf the same symbol graph and risk scoring — without sending your code to anyone's cloud.">
+<meta property="og:description" content="Greptile is a hosted PR review bot. Sverklo is a local-first MCP server with bundled local embeddings by default; a remote embedding provider is optional and explicit.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/vs/greptile/">
 <meta property="og:site_name" content="Sverklo">
@@ -29,14 +29,14 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + embeddings + PageRank) for AI coding agents. MIT licensed, with bundled local ONNX embeddings by default; explicitly configured remote embedding providers may receive code chunks.",
   "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support",
   "publisher": {
     "@type": "Organization",
@@ -57,7 +57,7 @@
       "name": "Is Sverklo a free Greptile alternative?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo is MIT licensed and free for all use, including commercial projects. Greptile is a hosted SaaS that charges roughly $30 per developer per month for its PR review bot. Sverklo runs entirely on your machine — no per-seat pricing, no enterprise contract, no API keys."
+        "text": "Yes. Sverklo is MIT licensed and free for all use, including commercial projects. Greptile's hosted Pro plan is priced at $30 per seat per month, with a separate free Starter plan for one active developer. Sverklo has no per-seat pricing and defaults to bundled local embeddings with no API key. An explicitly configured remote embedding provider may receive code chunks."
       }
     },
     {
@@ -65,7 +65,7 @@
       "name": "Does my code get sent to Greptile or Sverklo's cloud?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo never sends your code anywhere — indexing, search, and review all run locally with embedded SQLite and an ONNX embedding model. Greptile uploads your repository to its own infrastructure to power its hosted bot. If your code can't leave the machine for compliance or contract reasons, Greptile is not an option."
+        "text": "Sverklo defaults to embedded SQLite and the bundled local ONNX provider. If you explicitly configure a remote embedding provider, code chunks may be sent to that provider. Greptile's hosted bot processes repository data in Greptile's infrastructure; Greptile also offers self-hosted deployment. If your code must stay local, use Sverklo's bundled provider and do not configure a remote one."
       }
     },
     {
@@ -73,7 +73,7 @@
       "name": "Can Sverklo replace Greptile's PR review bot?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo's `sverklo review` command produces a risk-scored diff review (touched-symbol importance × test coverage × churn) and ships as a GitHub Action that posts a sticky comment on every PR. Greptile's bot also adds inline review comments anchored to specific lines. If inline review comments matter to you, you can run sverklo's CI output and Greptile in parallel — sverklo grounds the review in real call-graph data without any cloud dependency."
+        "text": "Sverklo's `sverklo review` command produces a risk-scored diff review (touched-symbol importance × test coverage × churn) and ships as a GitHub Action that posts a sticky comment on every PR. Greptile's bot also adds inline review comments anchored to specific lines. If inline review comments matter to you, you can run sverklo's CI output and Greptile in parallel. Sverklo defaults to bundled local embeddings; a remote embedding provider is optional and explicit."
       }
     },
     {
@@ -89,7 +89,7 @@
       "name": "What is the best open-source alternative to Greptile?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is one MIT-licensed local-first alternative to Greptile, with a published 180-task benchmark and reproducible eval harness. It works with Claude Code, Cursor, Windsurf, and Zed via MCP, ships zero-config, and the code never leaves the machine. Other open-source options worth comparing include Sourcegraph Cody (source-available, paid for teams) and Serena (MIT, LSP-backed but config-heavy)."
+        "text": "Sverklo is one MIT-licensed local-first alternative to Greptile, with a published 180-task benchmark and reproducible eval harness. It works with Claude Code, Cursor, Windsurf, and Zed via MCP, ships zero-config, and defaults to bundled local embeddings. An explicitly configured remote embedding provider may receive code chunks. Other open-source options worth comparing include Sourcegraph Cody (source-available, paid for teams) and Serena (MIT, LSP-backed but config-heavy)."
       }
     },
     {
@@ -97,7 +97,7 @@
       "name": "Are there local-first alternatives to Greptile for AI coding agents?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Sverklo is a local-first MCP server that runs entirely on your machine and gives Claude Code, Cursor, Windsurf, and Zed the same kind of full-codebase context that Greptile provides — without uploading your repo to anyone's cloud. It ships with a published peer-reviewable benchmark (180 tasks across six OSS codebases, 5 baselines, reproducible from a fresh clone)."
+        "text": "Yes. Sverklo is a local-first MCP server that gives Claude Code, Cursor, Windsurf, and Zed full-codebase context. Its bundled ONNX provider runs on your machine by default; if you explicitly configure a remote embedding provider, code chunks may be sent to that provider. It ships with a published peer-reviewable benchmark (180 tasks across six OSS codebases, 5 baselines, reproducible from a fresh clone)."
       }
     }
   ]
@@ -603,7 +603,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -612,7 +612,7 @@ body:has(header.top.nav-canonical) > #main {
     <div class="kicker">/* comparison */</div>
     <h1>Sverklo vs <span class="accent">Greptile</span></h1>
     <p class="lede">
-      Greptile is a hosted PR-review bot — a comment-on-every-PR product that uploads your repository to its own cloud and charges roughly $30 per developer per month. Sverklo is a local-first MCP server (MIT, free) that gives <em>your AI agent</em> the same symbol graph and risk scoring at edit time, not just at review time, with zero bytes of code leaving the machine.
+      Greptile is a hosted PR-review bot — a comment-on-every-PR product whose hosted deployment processes repository data in Greptile's infrastructure. Its Pro plan is $30 per seat per month, and it also offers a free individual Starter plan and self-hosted deployment. Sverklo is a local-first MCP server (MIT, free) that gives <em>your AI agent</em> the same symbol graph and risk scoring at edit time, not just at review time. Its bundled ONNX provider is local by default; an explicitly configured remote embedding provider may receive code chunks.
       <strong>This page explains what each does best, where they differ, and when to use them together.</strong>
     </p>
     <p class="lede" style="font-size:14px;color:var(--muted);margin-top:18px">
@@ -646,8 +646,8 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
         <tr>
           <td>Where your code lives</td>
-          <td>100% on your machine — never uploaded</td>
-          <td>Uploaded and stored in Greptile's cloud</td>
+          <td>Bundled local provider by default; remote provider only if configured</td>
+          <td>Hosted deployment processes repo data in Greptile infrastructure; self-hosting is also available</td>
         </tr>
         <tr>
           <td>Surface to the AI agent</td>
@@ -681,7 +681,7 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
         <tr>
           <td>Privacy</td>
-          <td>100% local, no telemetry, no API keys, MIT</td>
+          <td>Local by default, telemetry off by default, no API key for bundled provider, MIT</td>
           <td>SOC 2 hosted, but your code lives in Greptile's infrastructure</td>
         </tr>
         <tr>
@@ -793,13 +793,13 @@ body:has(header.top.nav-canonical) > #main {
   <div class="wrap">
     <h2>Different jobs, different surfaces</h2>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
-      Greptile is a <strong style="color: var(--text);">PR-review bot</strong>: a hosted comment-on-every-diff product that reads your repo from its own cloud and posts inline reviews after a PR opens. It's a great fit for teams who want a managed reviewer with no install, accept the SaaS price, and are comfortable uploading their code.
+      Greptile is a <strong style="color: var(--text);">PR-review bot</strong>: its hosted deployment reads repository data in Greptile's infrastructure and posts inline reviews after a PR opens; self-hosting is also available. It's a good fit for teams who want a managed reviewer with no install and are comfortable with that hosted boundary.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch; margin-bottom: 20px;">
       Sverklo is an <strong style="color: var(--text);">agent-grounding layer</strong>: a local MCP server that gives Claude Code, Cursor, and Windsurf a real symbol graph the moment the agent starts reasoning — at edit time, search time, and review time. The PR is just one of many surfaces; the engine runs continuously inside your editor. Same intelligence, different point in the loop.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      They're not mutually exclusive. Run sverklo locally to ground your agent and gate your CI; let Greptile post the inline PR comments your team's reviewer flow expects. Or pick sverklo if uploading the codebase isn't an option.
+      They're not mutually exclusive. Run Sverklo locally to ground your agent and gate your CI; let Greptile post the inline PR comments your team's reviewer flow expects. Or use Sverklo's bundled provider when your code must remain local.
     </p>
   </div>
 </section>

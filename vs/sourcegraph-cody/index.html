@@ -29,14 +29,14 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + embeddings + PageRank) for AI coding agents. MIT licensed, with bundled local ONNX embeddings by default; explicitly configured remote embedding providers may receive code chunks.",
   "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support",
   "publisher": {
     "@type": "Organization",
@@ -65,7 +65,7 @@
       "name": "What is a good Sourcegraph Cody alternative for individual developers?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo is a free, MIT-licensed code intelligence MCP server built for individual developers. It provides symbol-level dependency graphs, semantic code search, blast-radius analysis, diff-aware PR review, and git-pinned memory. It runs locally with no cloud dependency and works with any MCP client including Claude Code, Windsurf, and Zed."
+        "text": "Sverklo is a free, MIT-licensed code intelligence MCP server built for individual developers. It provides symbol-level dependency graphs, semantic code search, blast-radius analysis, diff-aware PR review, and git-pinned memory. It defaults to bundled local embeddings and works with any MCP client including Claude Code, Windsurf, and Zed. An explicitly configured remote embedding provider may receive code chunks."
       }
     },
     {
@@ -587,7 +587,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -632,7 +632,7 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
         <tr>
           <td>Data privacy</td>
-          <td>Code never leaves your machine</td>
+          <td>Bundled local provider by default; remote provider only if configured</td>
           <td>Code indexed on Sourcegraph's cloud</td>
         </tr>
         <tr>
@@ -747,7 +747,7 @@ body:has(header.top.nav-canonical) > #main {
         <ul>
           <li>You are an individual developer or on a small team</li>
           <li>You lost access to Cody when the free tier was killed</li>
-          <li>Your code must stay on your machine (no cloud indexing)</li>
+          <li>Your code must stay on your machine: use the bundled provider and do not configure a remote embedding provider</li>
           <li>You want blast-radius analysis and diff-aware PR review</li>
           <li>You use Claude Code, Windsurf, Zed, or any MCP client</li>
           <li>You need memory that persists across sessions and tracks git state</li>
@@ -775,7 +775,7 @@ body:has(header.top.nav-canonical) > #main {
       In July 2025, Sourcegraph <strong style="color: var(--text);">discontinued Cody Free and Cody Pro</strong>, moving entirely to an enterprise model at $59/user/month. Individual developers, open-source contributors, and small teams lost access to Cody's code search and AI-assisted coding features.
     </p>
     <p style="color: var(--text-2); line-height: 1.7; max-width: 72ch;">
-      Sverklo takes the opposite approach. It is <strong style="color: var(--text);">MIT licensed and free forever</strong>, with no cloud dependency and no tiered pricing. The trade-off: Sverklo works on a single repo at a time and does not match Sourcegraph's scale for searching across thousands of repositories. If you need that scale, Cody Enterprise is the right tool. For everything else, Sverklo delivers code intelligence without asking for a credit card.
+      Sverklo takes the opposite approach. It is <strong style="color: var(--text);">MIT licensed and free forever</strong>, with bundled local embeddings by default and no tiered pricing. A remote embedding provider is optional and must be explicitly configured. The trade-off: Sverklo works on a single repo at a time and does not match Sourcegraph's scale for searching across thousands of repositories. If you need that scale, Cody Enterprise is the right tool. For everything else, Sverklo delivers code intelligence without asking for a credit card.
     </p>
   </div>
 </section>

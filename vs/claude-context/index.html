@@ -29,14 +29,14 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + embeddings + PageRank) for AI coding agents. MIT licensed, with bundled local ONNX embeddings by default; explicitly configured remote embedding providers may receive code chunks.",
   "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
   "publisher": {
     "@type": "Organization",
@@ -57,7 +57,7 @@
       "name": "How is Sverklo different from claude-context?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Both are MCP servers for codebase Q&A, but they take opposite architectural bets. claude-context is vector-only and stores embeddings in Zilliz Cloud or a self-hosted Milvus cluster — strong at semantic recall, but it doesn't ship a symbol graph and the user is responsible for either paying Zilliz or operating Milvus. Sverklo is a single npm install with embedded SQLite — it ships a symbol graph with PageRank, blast-radius analysis, bi-temporal git-pinned memory, and 37 MCP tools, all running locally with no external service."
+        "text": "Both are MCP servers for codebase Q&A, but they take opposite architectural bets. claude-context is vector-only and stores embeddings in Zilliz Cloud or a self-hosted Milvus cluster — strong at semantic recall, but it doesn't ship a symbol graph and the user is responsible for either paying Zilliz or operating Milvus. Sverklo is a single npm install with embedded SQLite — it ships a symbol graph with PageRank, blast-radius analysis, bi-temporal git-pinned memory, and 37 MCP tools. Its bundled ONNX provider runs locally by default; a remote embedding provider is optional."
       }
     },
     {
@@ -65,7 +65,7 @@
       "name": "Do I need a Zilliz account to use Sverklo?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Sverklo runs entirely on your machine using embedded SQLite plus an ONNX embedding model. There is no cloud account, no API key, no managed cluster, and no per-vector pricing. claude-context, by contrast, is designed around Zilliz Cloud's free tier or your own Milvus deployment."
+        "text": "No managed vector database is required. Sverklo stores its index in embedded SQLite and defaults to a bundled local ONNX model with no API key or per-vector pricing. If you explicitly configure a remote embedding provider, code chunks may be sent to that provider. claude-context, by contrast, is designed around Zilliz Cloud's free tier or your own Milvus deployment."
       }
     },
     {
@@ -587,7 +587,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -627,7 +627,7 @@ body:has(header.top.nav-canonical) > #main {
         </tr>
         <tr>
           <td>Where your code lives</td>
-          <td>100% local — never uploaded</td>
+          <td>Bundled local provider by default; remote provider only if configured</td>
           <td>Embeddings + chunks live in Zilliz/Milvus</td>
         </tr>
         <tr>

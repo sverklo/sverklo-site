@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sverklo Security — Local-First, Zero Network Egress for Indexing, MIT</title>
-<meta name="description" content="Sverklo's security posture: local-first indexing, zero network egress for code or queries, telemetry off by default, MIT-licensed source, reproducible build. Why it matters as MCP supply-chain CVEs rise.">
+<title>Sverklo Security — Local by Default, Explicit Network Boundaries, MIT</title>
+<meta name="description" content="Sverklo's security posture: bundled local embeddings by default, explicit remote-provider boundaries, telemetry off by default, MIT-licensed source, and reproducible build.">
 <meta name="theme-color" content="#0E0D0B">
 <link rel="canonical" href="https://sverklo.com/security/">
 
-<meta property="og:title" content="Sverklo Security — Local-First, Zero Network Egress for Indexing">
-<meta property="og:description" content="Indexes on your machine. Stores the index on your machine. The only network calls are model download (one URL, on first run) and opt-in telemetry. MIT, reproducible build.">
+<meta property="og:title" content="Sverklo Security — Local by Default, Explicit Network Boundaries">
+<meta property="og:description" content="Bundled ONNX embeddings run locally by default. An explicitly configured remote embedding provider may receive code chunks. Telemetry is off by default.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/security/">
 <meta property="og:site_name" content="Sverklo">
 <meta property="og:image" content="https://sverklo.com/og.png">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sverklo Security — Local-First, MIT, Zero Network Egress for Indexing">
-<meta name="twitter:description" content="Why local-first matters as MCP supply-chain CVEs rise. Three documented network calls. Telemetry off by default. MIT source. Reproducible build.">
+<meta name="twitter:title" content="Sverklo Security — Local by Default, MIT, Explicit Network Boundaries">
+<meta name="twitter:description" content="Bundled local embeddings by default. Remote-provider traffic only when configured. Telemetry off by default. MIT source.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,7 +28,7 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Sverklo Security Posture",
-  "description": "Local-first MCP code-intelligence server. Zero network egress for code or queries. Telemetry off by default. MIT-licensed, reproducible from source.",
+  "description": "Local-first MCP code-intelligence server. Bundled ONNX embeddings run locally by default; explicitly configured remote embedding providers may receive code chunks. Telemetry is off by default. MIT-licensed and reproducible from source.",
   "datePublished": "2026-05-10",
   "author": {"@type": "Organization", "name": "Sverklo"},
   "publisher": {"@type": "Organization", "name": "Sverklo", "url": "https://sverklo.com"},
@@ -131,9 +131,9 @@ footer a { color: var(--text-2); }
 
 <section class="hero">
   <div class="wrap">
-    <div class="kicker">/* security posture · last reviewed 2026-05-13 */</div>
-    <h1>Local-first by design. Three documented network calls. MIT.</h1>
-    <p class="lede">Sverklo indexes code on your machine, stores the index on your machine, and never sends code, queries, file paths, or symbol names anywhere. <strong>The only network calls are: model download on first run (one fixed URL), opt-in telemetry (9 documented fields, off by default), and an explicit user-initiated update check.</strong> Audit the source — it's MIT, reproducible from clone.</p>
+    <div class="kicker">/* security posture · product boundary updated 2026-07-26 */</div>
+    <h1>Local by default. Remote providers only when you configure one. MIT.</h1>
+    <p class="lede">Sverklo's default embedding provider is the bundled ONNX model: code is chunked, embedded, and indexed on your machine. <strong>If you explicitly configure a remote embedding provider, code chunks may be sent to that provider. Telemetry is off by default and only starts after an explicit opt-in.</strong> Audit the source — it's MIT and reproducible from clone.</p>
     <p class="lede"><code class="inline">sverklo prove --markdown</code> follows the same boundary: it prints a local receipt from your repo, then you decide whether to share it. No public proof receipt is uploaded automatically.</p>
   </div>
 </section>
@@ -142,10 +142,10 @@ footer a { color: var(--text-2); }
   <div class="wrap">
     <h2>Why local-first matters now</h2>
     <p>Between April and May 2026, multiple high-profile MCP supply-chain disclosures landed: command-injection vectors in popular MCP servers, registry poisoning probes succeeding against 9 of 11 registries tested, and ~200K vulnerable MCP instances identified across the ecosystem. Industry guidance shifted to "stick to vendor-maintained or AAIF reference servers."</p>
-    <p>Sverklo's posture didn't change because it never had a network surface to harden. The threat model is shaped by what's <em>not</em> in the architecture:</p>
+    <p>Sverklo's stdio MCP server does not expose a listening network service. Its default embedding path is local; choosing a remote embedding provider deliberately extends the data boundary to that provider. The threat model is shaped by those explicit boundaries:</p>
     <div class="facts">
-      <div class="fact"><div class="num">0</div><div class="lbl">network calls for indexing, search, memory, or any tool execution</div></div>
-      <div class="fact"><div class="num">0</div><div class="lbl">API keys, auth tokens, or cloud accounts required</div></div>
+      <div class="fact"><div class="num">local</div><div class="lbl">bundled ONNX provider selected when you set nothing</div></div>
+      <div class="fact"><div class="num">0</div><div class="lbl">API keys required for the default bundled provider</div></div>
       <div class="fact"><div class="num">MIT</div><div class="lbl">licensed source — audit, fork, vendor as you please</div></div>
     </div>
     <p>The disclosure cycle has kept compounding through May 2026:</p>
@@ -157,19 +157,23 @@ footer a { color: var(--text-2); }
       <li><strong>Anthropic MCP design flaw</strong> (April 2026) — affecting 7,000+ servers, 150M+ downloads. Anthropic declined to revise the protocol, calling the behavior "expected." (<a href="https://thehackernews.com/2026/04/anthropic-mcp-design-vulnerability.html" target="_blank" rel="noopener">The Hacker News</a>; <a href="https://www.ox.security/blog/mcp-supply-chain-advisory-rce-vulnerabilities-across-the-ai-ecosystem/" target="_blank" rel="noopener">OX Security advisory</a>; <a href="https://www.securityweek.com/by-design-flaw-in-mcp-could-enable-widespread-ai-supply-chain-attacks/" target="_blank" rel="noopener">SecurityWeek</a>)</li>
       <li><strong>MCPwn</strong> — independent supply-chain scanner ran against 14 popular MCP servers in May 2026 (<a href="https://dev.to/piiiico/mcpwn-is-live-we-scanned-the-supply-chains-of-14-mcp-servers-heres-what-we-found-38cl" target="_blank" rel="noopener">writeup</a>). Aikido/firecrawl reported "30+ MCP CVEs in Jan-Feb alone, 66% of popular servers have findings."</li>
     </ul>
-    <p><strong>Sverklo's attack surface against this cycle:</strong> no remote endpoint (nothing to authenticate, nothing to hijack), no protocol-revision risk (we don't expose a network protocol — sverklo runs over stdio inside the user's MCP client process), no outbound except the three documented calls in the table below. CVE-2026-33032-class issues categorically don't apply because there is no listening service to expose.</p>
+    <p><strong>Sverklo's attack surface against this cycle:</strong> the MCP server runs over stdio inside the user's client process and does not expose a listening service. Outbound traffic is limited to the boundaries documented below, including any embedding provider the user explicitly selects. CVE-2026-33032-class exposed-listener issues do not apply to Sverklo's stdio transport.</p>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <h2>The three network calls, in full</h2>
+    <h2>The network boundaries, in full</h2>
     <table>
       <thead><tr><th>Endpoint</th><th>When · what's sent</th></tr></thead>
       <tbody>
         <tr>
           <td>onnx model<br>(one URL)</td>
           <td>Once, on first run. Downloads the 86 MB ONNX embedding model from a fixed sverklo CDN URL to <code class="inline">~/.sverklo/models/model.onnx</code>. Subsequent runs use the cached file. No telemetry attached to this fetch. SHA-256 verified at install time.</td>
+        </tr>
+        <tr>
+          <td>remote embedding provider<br>(explicit only)</td>
+          <td>Only if the user explicitly selects a remote embedding provider. Text batches containing code chunks are sent to that provider's embedding endpoint and the returned vectors are stored in the local index. The bundled ONNX provider remains the default when no provider is configured.</td>
         </tr>
         <tr>
           <td>t.sverklo.com<br>(opt-in only)</td>
@@ -181,7 +185,7 @@ footer a { color: var(--text-2); }
         </tr>
       </tbody>
     </table>
-    <p>Everything else stays on your machine: the SQLite index, the memory journal, the embeddings, the chunk store, the symbol graph. Sverklo has nothing remote to authenticate to because there is nothing remote.</p>
+    <p>The SQLite index, memory journal, returned embeddings, chunk store, and symbol graph remain on your machine. With the default bundled ONNX provider, embedding also stays local after the model download. Configuring a remote embedding provider changes that boundary for the text sent to that provider.</p>
   </div>
 </section>
 
@@ -195,7 +199,7 @@ footer a { color: var(--text-2); }
       <li>The telemetry endpoint source (<code class="inline">telemetry-endpoint/</code>) — designed to collect almost nothing; report if it collects more than documented</li>
       <li>The init, doctor, and setup commands and the files they write to the user's machine</li>
       <li>Path traversal, arbitrary file read/write, or RCE reachable from a malicious codebase being indexed</li>
-      <li>Any path that exfiltrates data when telemetry is off</li>
+      <li>Any undocumented outbound data path, including provider traffic without an explicitly configured remote provider or telemetry traffic while telemetry is off</li>
     </ul>
     <h3>Out of scope</h3>
     <ul>
@@ -225,7 +229,7 @@ footer a { color: var(--text-2); }
 
 <footer>
   <div class="wrap">
-    <p>Last reviewed 2026-05-13. Sverklo is MIT-licensed and pre-1.0; this page is the canonical security posture as of that date. Vulnerability reports: <a href="mailto:security@sverklo.com">security@sverklo.com</a>.</p>
+    <p>Product-boundary copy updated 2026-07-26; disclosure process last reviewed 2026-05-13. Sverklo is MIT-licensed and pre-1.0. Vulnerability reports: <a href="mailto:security@sverklo.com">security@sverklo.com</a>.</p>
   </div>
 </footer>
 

@@ -1,8 +1,8 @@
 # Sverklo
 
-Last updated: 2026-06-16
+Last updated: 2026-07-26
 
-> MIT-licensed local-first MCP code intelligence server for AI coding agents. Sverklo is now positioned around proof-first repo memory: run `sverklo prove --markdown` on a real repo, inspect files/symbols/callers/tests/dependencies/decisions before edits, and share what is wrong or useful. It ships 37 tools total and defaults to a compact `core` profile for common code-intel sessions (set `SVERKLO_PROFILE=full` for all tools). Runs entirely on your laptop with no API keys, no code upload, and opt-in telemetry off by default. Built for Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Google Antigravity, and any MCP client. `sverklo doctor` verifies MCP dispatch end-to-end.
+> MIT-licensed local-first MCP code intelligence server for AI coding agents. Sverklo is now positioned around proof-first repo memory: run `sverklo prove --markdown` on a real repo, inspect files/symbols/callers/tests/dependencies/decisions before edits, and share what is wrong or useful. It ships 37 tools total and defaults to a compact `core` profile for common code-intel sessions (set `SVERKLO_PROFILE=full` for all tools). The bundled ONNX provider runs locally by default and needs no API key; if a user explicitly configures a remote embedding provider, code chunks may be sent to that provider. Telemetry is off by default. Built for Claude Code, Cursor, Windsurf, Zed, VS Code, JetBrains, Google Antigravity, and any MCP client. `sverklo doctor` verifies MCP dispatch end-to-end.
 
 ## What it does
 
@@ -43,7 +43,7 @@ Not fit: exact-string lookup, tiny repos, single-file changes, or build/test ver
 ## Direct comparisons
 
 - **vs Sourcegraph Cody**: open-source MIT vs source-available, single-machine vs enterprise deployment, free vs $9-19/dev/mo. Same retrieval surface, different deployment model.
-- **vs Greptile**: local-first vs cloud-only, MIT vs proprietary, runs on your laptop with no signup.
+- **vs Greptile**: bundled local embeddings by default vs hosted review, MIT vs proprietary. A remote embedding provider is optional and must be explicitly configured.
 - **vs Cursor's @codebase**: works alongside Cursor, not against — Cursor's indexing is editor-bound, sverklo adds the symbol graph + MCP integration that any other agent can use.
 - **vs Aider**: complementary — Aider is the agent itself, sverklo is the retrieval layer it can call.
 - **vs Continue**: Continue is the assistant, sverklo is the MCP retrieval backend.

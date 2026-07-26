@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How I stopped Claude Code from hallucinating function names on a 4,000-file repo — Sverklo</title>
-<meta name="description" content="My Claude Code agent kept inventing function names that looked plausible but didn't exist. Adding a local MCP server with a real symbol graph and ranked code search cut hallucinations to roughly zero. Bench numbers, the cases where it doesn't help, and what to try first.">
+<title>How I Reduced Claude Code Function-Name Hallucinations — An Exploratory Private-Repo Report | Sverklo</title>
+<meta name="description" content="A maintainer-run exploratory report from three attempts on one private repo examines whether a local symbol graph and ranked code search can reduce invented function names. The observation is not independently reproducible or generalizable.">
 <link rel="canonical" href="https://sverklo.com/blog/stopped-claude-code-hallucinating/">
 
-<meta property="og:title" content="How I stopped Claude Code from hallucinating function names on a 4,000-file repo">
-<meta property="og:description" content="Hallucination on AI coding agents isn't a model problem — it's a retrieval problem. Bench numbers, four kinds of failure, and the local MCP fix.">
+<meta property="og:title" content="How I Reduced Claude Code Function-Name Hallucinations — An Exploratory Report">
+<meta property="og:description" content="Maintainer-run observations from three attempts on one private repo. Exploratory, not independently reproducible or generalizable.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/blog/stopped-claude-code-hallucinating/">
 <meta property="og:site_name" content="Sverklo">
@@ -25,18 +25,18 @@
 <meta property="article:tag" content="retrieval">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="How I stopped Claude Code from hallucinating function names on a 4,000-file repo">
-<meta name="twitter:description" content="Hallucination is a retrieval problem, not a model problem. Bench numbers, four failure modes, the local MCP fix.">
+<meta name="twitter:title" content="How I Reduced Claude Code Function-Name Hallucinations — An Exploratory Report">
+<meta name="twitter:description" content="Maintainer-run observations from three attempts on one private repo. Not independently reproducible or generalizable.">
 <meta name="twitter:image" content="https://sverklo.com/og.png">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "How I stopped Claude Code from hallucinating function names on a 4,000-file repo",
-  "description": "AI coding agent hallucination is a retrieval problem. With a local MCP server giving the agent a real symbol graph and ranked code search, hallucination rate dropped from 31% (on large-grep sessions) to 2%. Bench numbers, failure modes, and the cases where it doesn't help.",
+  "headline": "How I Reduced Claude Code Function-Name Hallucinations — An Exploratory Private-Repo Report",
+  "description": "A maintainer-run exploratory report from three attempts on one private repo examines whether a local symbol graph and ranked code search can reduce invented function names. The observation is not independently reproducible or generalizable.",
   "datePublished": "2026-05-03",
-  "dateModified": "2026-05-03",
+  "dateModified": "2026-07-24",
   "author": {"@type":"Person","name":"Nikita Groshin","url":"https://github.com/nike-17"},
   "publisher": {"@type":"Organization","name":"Sverklo","url":"https://sverklo.com"},
   "image": "https://sverklo.com/og.png",
@@ -221,7 +221,7 @@ body:has(header.top.nav-canonical) > #main {
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Stopped Claude Code Hallucinating",
+      "name": "Exploratory Private-Repo Hallucination Report",
       "item": "https://sverklo.com/blog/stopped-claude-code-hallucinating/"
     }
   ]
@@ -245,17 +245,19 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
 <main id="main">
 
-<h1>How I stopped Claude Code from hallucinating function names on a 4,000-file repo (with a local MCP server)</h1>
-<p class="subtitle">My agent kept inventing function names that looked plausible but didn't exist. The fix wasn't a smarter model — it was a real symbol graph exposed as MCP tools.</p>
-<div class="meta">May 2026 · Nikita Groshin · ~2,000 words</div>
+<h1>How I reduced Claude Code function-name hallucinations on a 4,000-file repo</h1>
+<p class="subtitle">An exploratory maintainer report from one private repo using a real symbol graph exposed as MCP tools.</p>
+<div class="meta">May 2026 · Updated July 24, 2026 · Nikita Groshin · ~2,000 words</div>
 
-<p><strong>TL;DR:</strong> My Claude Code agent kept inventing function names that looked plausible but didn't exist (<code>getUserByEmail</code>, <code>parseConfigFile</code>, <code>validateInput</code> — all fake in my codebase). Adding a local MCP server that gives the agent a real symbol graph and ranked code search cut hallucinations to roughly zero on the same repo. Below: the bug, the cause, the fix, the bench numbers, and the cases where it still doesn't help.</p>
+<div class="callout"><strong>Evidence boundary:</strong> The “roughly zero” observation below is maintainer-run, based on three attempts on one private repo, and is not independently reproducible or generalizable. Public benchmark results are separate and linked where cited.</div>
+
+<p><strong>TL;DR:</strong> My Claude Code agent kept inventing function names that looked plausible but didn't exist (<code>getUserByEmail</code>, <code>parseConfigFile</code>, <code>validateInput</code> — all fake in my codebase). In three maintainer-run attempts on one private repo, adding a local MCP server with a real symbol graph and ranked code search coincided with no observed hallucinations. Treat that as an exploratory self-observation, not independent or generalizable evidence. Below: the bug, the cause, the change, the separate public bench numbers, and the cases where it still doesn't help.</p>
 
 <h2>The bug</h2>
 
@@ -305,7 +307,7 @@ export function withAuth(handler: Handler) {
 <pre><code>npm install -g sverklo
 cd your-project &amp;&amp; sverklo init</code></pre>
 
-<p><code>sverklo init</code> auto-detects your AI coding agent (Claude Code, Cursor, Windsurf, Zed) and writes the right MCP config. It indexes your repo with tree-sitter, builds a call graph, computes a PageRank-ranked symbol importance score, and generates ONNX embeddings — all locally. Your code never leaves the machine.</p>
+<p><code>sverklo init</code> auto-detects your AI coding agent (Claude Code, Cursor, Windsurf, Zed) and writes the right MCP config. It indexes your repo with tree-sitter, builds a call graph, computes a PageRank-ranked symbol importance score, and defaults to bundled local ONNX embeddings. If you explicitly configure a remote embedding provider, code chunks may be sent to that provider.</p>
 
 <p>The agent now has 37 extra tools alongside grep:</p>
 
@@ -389,7 +391,7 @@ sverklo init</code></pre>
 <p>That's it. That's the whole post.</p>
 
 <div class="callout">
-<strong>Repo:</strong> <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a> (MIT, ⭐ if it saved you a hallucination)<br>
+<strong>Repo:</strong> <a href="https://github.com/sverklo/sverklo">github.com/sverklo/sverklo</a> (MIT)<br>
 <strong>Bench:</strong> <a href="/bench/">sverklo.com/bench</a> — 60 tasks, 5 baselines, reproducible<br>
 <strong>Paper:</strong> <a href="https://doi.org/10.5281/zenodo.19802051">doi.org/10.5281/zenodo.19802051</a> — peer-reviewable methodology, CC-BY 4.0<br>
 <strong>Demo (90 sec):</strong> <a href="https://www.youtube.com/watch?v=OX7aEgdlqhQ">youtube.com/watch?v=OX7aEgdlqhQ</a>

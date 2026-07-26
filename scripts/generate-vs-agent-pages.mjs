@@ -28,7 +28,7 @@ const AGENTS = [
     primary_query: "open source MCP server for Claude Code",
     queries: [
       { q: "How do I stop Claude Code from hallucinating function names that don't exist in my codebase?", a: "Claude Code generates from training-data patterns when it doesn't have authoritative retrieval against your repo. Sverklo's <code>lookup</code>, <code>refs</code>, and <code>verify</code> MCP tools give Claude Code a real symbol graph: it resolves <code>findByEmail</code> to its definition with file:line, proves whether a quoted span still exists at the cited git SHA, and never lets the agent invent a function name that isn't in the codebase. Run <code>sverklo init</code> in your project — Claude Code picks the tools up automatically." },
-      { q: "What's the best MCP server for Claude Code?", a: "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, runs locally with embedded SQLite + ONNX, no API keys." },
+      { q: "What's the best MCP server for Claude Code?", a: "Sverklo ships 37 MCP tools across hybrid code search, symbol-graph blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory pinned to git SHAs. It's the only MCP server that bundles all four surfaces in one zero-config install. MIT-licensed, with embedded SQLite and bundled local ONNX embeddings by default. No API key is needed for the default provider; an explicitly configured remote embedding provider may receive code chunks." },
       { q: "How do I install sverklo for Claude Code?", a: "Run <code>npm install -g sverklo</code>, then <code>cd your-project && sverklo init</code>. The init command writes <code>.mcp.json</code>, appends a sverklo block to <code>CLAUDE.md</code> (or AGENTS.md if that's what your project uses), and runs <code>sverklo doctor</code> to verify the MCP handshake. Restart Claude Code and the 37 tools appear in <code>/mcp</code>." },
       { q: "Does Claude Code support MCP?", a: "Yes — Claude Code natively supports the Model Context Protocol via <code>.mcp.json</code> at the project root. Sverklo registers as an stdio MCP server. You don't need to write any custom config; <code>sverklo init</code> auto-detects Claude Code and wires it up." }
     ],
@@ -61,8 +61,8 @@ const AGENTS = [
       "Continue is the assistant UI; sverklo is its retrieval engine. Wire sverklo into Continue's MCP config and the assistant's @codebase-style queries route through sverklo's symbol graph instead of relying on Continue's built-in indexing.",
     primary_query: "Continue.dev MCP code intelligence",
     queries: [
-      { q: "What's the best MCP server for Continue.dev?", a: "Sverklo. Continue supports MCP servers as context providers; sverklo registers as one and exposes 37 tools the assistant can call. Symbol-graph lookup, blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory — all running locally with no API keys." },
-      { q: "How do I add a symbol graph to Continue?", a: "Run <code>sverklo init</code> in your project. The command writes the MCP config that Continue picks up; the sverklo tools become available to the assistant alongside Continue's built-in retrieval. No cloud, no API keys, no separate index to maintain." },
+      { q: "What's the best MCP server for Continue.dev?", a: "Sverklo. Continue supports MCP servers as context providers; sverklo registers as one and exposes 37 tools the assistant can call. Symbol-graph lookup, blast-radius analysis, diff-aware risk-scored review, and bi-temporal memory run locally with the default bundled ONNX provider. An explicitly configured remote embedding provider may receive code chunks." },
+      { q: "How do I add a symbol graph to Continue?", a: "Run <code>sverklo init</code> in your project. The command writes the MCP config that Continue picks up; the sverklo tools become available to the assistant alongside Continue's built-in retrieval. The default provider needs no API key and stores the index locally; a remote embedding provider is optional and must be explicitly configured." },
       { q: "Is sverklo a replacement for Continue?", a: "No — they're complementary. Continue is the assistant + UI in your editor. Sverklo is the retrieval backend it can call. Use both: Continue for editing, sverklo for grounding." },
       { q: "Can sverklo replace Continue's @codebase indexing?", a: "Sverklo's hybrid retrieval (BM25 + ONNX + PageRank) is more sophisticated than Continue's default indexing — it builds a symbol graph and computes PageRank on imports. If your codebase is large enough that @codebase misses what you need, route through sverklo via MCP instead." }
     ],
@@ -79,7 +79,7 @@ const AGENTS = [
     primary_query: "MCP server for Codex CLI",
     queries: [
       { q: "Does Codex CLI support MCP servers?", a: "Yes — Codex CLI implements the Model Context Protocol, so any MCP server (including sverklo) registers as a tool provider. Run <code>sverklo init</code> and the 37 sverklo tools appear in Codex CLI's tool list." },
-      { q: "What's the best MCP server for Codex CLI?", a: "Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, no per-seat pricing, no cloud, no API keys." },
+      { q: "What's the best MCP server for Codex CLI?", a: "Sverklo. Same hybrid retrieval, blast-radius, diff-review, and bi-temporal memory surface as on Claude Code or Cursor. Local-first, MIT-licensed, and no per-seat pricing. The bundled local provider needs no API key; an explicitly configured remote embedding provider may receive code chunks." },
       { q: "How is sverklo different from Codex CLI's built-in code search?", a: "Codex CLI's built-in tools are general-purpose (file reads, shell commands). Sverklo exposes a 37-tool retrieval API that's specifically about your symbol graph: <code>impact</code> for blast radius, <code>refs</code> for caller context, <code>audit</code> for hub files and god nodes. Different abstraction layer, different power surface." },
       { q: "Can I run Codex CLI and sverklo together?", a: "Yes — that's the recommended setup. Codex CLI is the agent loop; sverklo is the retrieval backend. The 37 sverklo MCP tools coexist with Codex's built-in tools." }
     ],
@@ -98,7 +98,7 @@ const NAV = `<header class="top nav-canonical">
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.18.2</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.2</a></div>
   </div>
 </header>`;
 
@@ -123,7 +123,7 @@ function renderFaqJsonLd(queries) {
 
 function render(agent) {
   const title = `Sverklo for ${agent.name}: repo memory for AI coding agents`;
-  const desc = `Give ${agent.name} repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.`;
+  const desc = `Give ${agent.name} repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.`;
   const ogTitle = `Sverklo for ${agent.name}: repo memory for AI coding agents`;
 
   const faqHtml = agent.queries
@@ -241,7 +241,7 @@ ${NAV}
 <p class="subtitle">${agent.summary}</p>
 <div class="meta">
   ${agent.name}: <a href="${agent.homepage}" target="_blank" rel="noopener">${agent.homepage}</a> ·
-  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, runs on your laptop ·
+  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, bundled local embeddings by default ·
   Install: <code>npm install -g sverklo &amp;&amp; sverklo init</code>
 </div>
 

@@ -20,15 +20,15 @@ Sverklo is a local-first repo-memory MCP for coding agents: run a no-write proof
 
 ## 160-Character Description
 
-Local-first repo-memory MCP for coding agents: code search, symbol impact, diff review, and git-pinned decisions. MIT, no code upload.
+Local-by-default repo-memory MCP for coding agents. MIT; remote embeddings only if explicitly configured; telemetry off by default.
 
 ## 300-Character Description
 
-Sverklo is a local-first repo-memory MCP for coding agents. Best for relationship-heavy edits: symbols, callers, dependencies, diff review, and git-pinned decisions before code changes. Start with a no-write proof receipt; use grep/ripgrep for exact strings. MIT, no API keys, no code upload.
+Sverklo is a local-first repo-memory MCP for coding agents. Best for relationship-heavy edits: symbols, callers, dependencies, diff review, and git-pinned decisions before code changes. Start with a no-write proof receipt; use grep/ripgrep for exact strings. The bundled provider is local; remote embeddings are explicit.
 
 ## 800-Character Description
 
-Sverklo is a local-first repo-memory and code-intelligence MCP for coding agents. It indexes your repo locally and exposes 37 tools for hybrid BM25/vector search, symbol lookup, references, dependency graphs, blast-radius impact analysis, diff-aware review, test mapping, and git-pinned memory. It works with Claude Code, Cursor, Windsurf, Codex CLI, and other MCP clients. The safest first run is a no-write proof receipt: `npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown`. Sverklo is MIT licensed, requires no API key, and does not upload code. Network use is limited to first-run model download unless telemetry is explicitly enabled.
+Sverklo is a local-first repo-memory and code-intelligence MCP for coding agents. It exposes 37 tools for hybrid BM25/vector search, symbol lookup, references, dependency graphs, blast-radius impact analysis, diff-aware review, test mapping, and git-pinned memory. It works with Claude Code, Cursor, Windsurf, Codex CLI, and other MCP clients. Start with a no-write proof receipt: `npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown`. The bundled ONNX provider runs locally and needs no API key. If a user explicitly configures a remote embedding provider, code chunks may be sent to that provider. Telemetry is off by default.
 
 ## Install Snippets
 
@@ -83,11 +83,11 @@ Avoid if a directory has better options:
 
 Use:
 
-- Local-first: index and search run on the user's machine.
-- No code upload: Sverklo does not upload source code to a hosted service.
-- No API key required.
+- Local by default: the bundled ONNX provider indexes and embeds on the user's machine.
+- Remote-provider boundary: if a user explicitly configures a remote embedding provider, code chunks may be sent to that provider.
+- No API key is required for the bundled provider.
 - Grep is better when you know the exact string; Sverklo is for relationships before edits.
-- Telemetry is opt-in and documented.
+- Telemetry is opt-in, documented, and off by default.
 
 Avoid:
 
@@ -100,12 +100,12 @@ Avoid:
 ## Directory Submission Checklist
 
 - [ ] Listing uses no-write proof command first.
-- [ ] Listing says MIT, no API key, no code upload.
+- [ ] Listing says MIT, bundled provider local/no API key, remote embedding provider explicit, and telemetry off by default.
 - [ ] Listing links to proof thread and benchmark/proof page.
 - [ ] Listing categorizes under code intelligence/developer tools.
 - [ ] Listing includes Claude Code, Cursor, Windsurf, and Codex CLI.
 - [ ] Listing does not claim Sverklo replaces grep.
-- [ ] Listing includes current version: 0.29.1.
+- [ ] Listing includes current version: 0.29.2.
 
 ## Follow-Up Note For Curators
 

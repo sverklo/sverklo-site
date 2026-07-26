@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Install Sverklo MCP for Claude Code, Cursor, Codex CLI, and Windsurf</title>
-<meta name="description" content="Run a no-write Sverklo proof receipt from your repo before writing MCP config. Then preview setup with sverklo init --dry-run. MIT, local-first, no code upload.">
+<meta name="description" content="Run a no-write Sverklo proof receipt before writing MCP config. Local by default; explicitly configured remote embedding providers may receive code chunks.">
 <link rel="canonical" href="https://sverklo.com/install/">
 <script type="application/ld+json">
 {
@@ -209,7 +209,7 @@ body:has(header.top.nav-canonical) > #main {
 <div class="kicker">No-write proof · setup preview · agent wiring</div>
 <h1>Run Sverklo proof before writing config</h1>
 
-<p>Requires Node 24 or newer. MIT, no API keys, no code upload. Start with a <a href="/proof/">no-write proof receipt</a> from a real repo; first run may cache the local ONNX model and index under <code>~/.sverklo</code>. Project files, MCP config, and agent instruction files are not written until you run <code>sverklo init</code>.</p>
+<p>Requires Node 24 or newer. MIT. The bundled ONNX provider runs locally and needs no API key; if you explicitly configure a remote embedding provider, code chunks may be sent to that provider. Telemetry is off by default. Start with a <a href="/proof/">no-write proof receipt</a> from a real repo; first run may cache the local model and index under <code>~/.sverklo</code>. Project files, MCP config, and agent instruction files are not written until you run <code>sverklo init</code>.</p>
 
 <pre><code>npm exec --yes --package=sverklo@latest -- sverklo prove --no-write --guided --markdown
 npm install -g sverklo

@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sverklo for Aider: repo memory for AI coding agents</title>
-<meta name="description" content="Give Aider repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta name="description" content="Give Aider repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 <link rel="canonical" href="https://sverklo.com/vs/aider/">
 
 <meta property="og:title" content="Sverklo for Aider: repo memory for AI coding agents">
-<meta property="og:description" content="Give Aider repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta property="og:description" content="Give Aider repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://sverklo.com/vs/aider/">
 <meta property="og:image" content="https://sverklo.com/og.png">
@@ -16,7 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sverklo for Aider: repo memory for AI coding agents">
-<meta name="twitter:description" content="Give Aider repo memory with Sverklo: local MCP symbol lookup, refs, blast radius, diff review, and git-pinned decisions. MIT, no code upload.">
+<meta name="twitter:description" content="Give Aider repo memory with Sverklo: local by default, with telemetry off by default. Explicitly configured remote embedding providers may receive code chunks. MIT.">
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -292,7 +292,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -302,7 +302,7 @@ body:has(header.top.nav-canonical) > #main {
 <p class="subtitle">Aider is a Python-based CLI AI pair programmer that edits code in your local repo. Sverklo is the retrieval layer Aider can call via MCP to ground its edits in real symbol-graph data instead of training-data patterns.</p>
 <div class="meta">
   Aider: <a href="https://aider.chat" target="_blank" rel="noopener">https://aider.chat</a> ·
-  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, runs on your laptop ·
+  Sverklo: MIT-licensed, local-first, MCP-native, 37 tools, bundled local embeddings by default ·
   Install: <code>npm install -g sverklo &amp;&amp; sverklo init</code>
 </div>
 

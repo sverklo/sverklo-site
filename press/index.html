@@ -214,7 +214,7 @@ body:has(header.top.nav-canonical) > #main {
 
 <h2>One-line description</h2>
 <blockquote>
-Sverklo is a local-first Model Context Protocol (MCP) server that gives AI coding agents — Claude Code, Cursor, Windsurf, Zed, Codex CLI — semantic understanding of a codebase, so the agent stops inventing function names that don't exist. MIT-licensed, 37 retrieval tools, runs entirely on a developer's laptop with no cloud, no API keys, no telemetry by default.
+Sverklo is a local-first Model Context Protocol (MCP) server that gives AI coding agents — Claude Code, Cursor, Windsurf, Zed, Codex CLI — semantic understanding of a codebase, so the agent stops inventing function names that don't exist. MIT-licensed, 37 retrieval tools, bundled local ONNX embeddings by default, and telemetry off by default. If a user explicitly configures a remote embedding provider, code chunks may be sent to that provider.
 </blockquote>
 
 <h2>Hero numbers</h2>
@@ -289,7 +289,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
     <tr><td>35× fewer tokens than naive grep on 180-task bench</td><td>bench:primitives v2 (sverklo v0.20.21, 2026-05-13 run), reproducible via <code>npm run bench:quick</code>. Raw: 652 tokens (sverklo) vs 22,704 tokens (naive-grep). <em>Note: prior "43×" claim was from the older 90-task / 4-codebase run; the 180-task / 6-codebase number is the current canonical.</em></td></tr>
     <tr><td>F1 = 0.58 on 180-task bench (overall leader)</td><td><a href="/bench/">/bench/</a> — sverklo leads smart-grep at 0.34, gitnexus at 0.30, jcodemunch at 0.29; jcodemunch now the only baseline with P5 recall = 1.00 after the sverklo-bench#3 baseline refresh.</td></tr>
     <tr><td>MIT licensed</td><td><a href="https://github.com/sverklo/sverklo/blob/main/LICENSE">LICENSE</a></td></tr>
-    <tr><td>Local-first / no cloud</td><td>Network calls inspected: only ONNX model download on first run, then offline. <a href="https://github.com/sverklo/sverklo/blob/main/TELEMETRY.md">TELEMETRY.md</a></td></tr>
+    <tr><td>Local-first by default</td><td>The bundled ONNX provider runs locally after its first model download. An explicitly configured remote embedding provider may receive code chunks. Telemetry is off by default. <a href="https://github.com/sverklo/sverklo/blob/main/TELEMETRY.md">TELEMETRY.md</a></td></tr>
     <tr><td>~90 MB embedding model</td><td>all-MiniLM-L6-v2 ONNX, downloaded from HuggingFace, cached at <code>~/.sverklo/models/</code></td></tr>
     <tr><td>Bi-temporal memory schema</td><td>migration in <a href="https://github.com/sverklo/sverklo/blob/main/src/storage/memory-store.ts">src/storage/memory-store.ts</a></td></tr>
   </tbody>
@@ -307,7 +307,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
   </div>
   <div class="card">
     <h3>On the local-first deployment model</h3>
-    <p>"The whole reason this matters is privacy and operational simplicity. Sverklo runs on a laptop with embedded SQLite and a local ONNX model. No cloud, no API keys, no signup. For enterprises with compliance constraints that block cloud retrieval — finance, healthcare, defence — that's the load-bearing property, not the feature list." — Nikita Groshin</p>
+    <p>"The whole reason this matters is privacy and operational simplicity. Sverklo defaults to embedded SQLite and a bundled local ONNX model, with telemetry off by default. Teams with strict data boundaries can keep that default and avoid configuring a remote embedding provider. For enterprises with compliance constraints that block cloud retrieval — finance, healthcare, defence — that controllable boundary is the load-bearing property, not the feature list." — Nikita Groshin</p>
   </div>
   <div class="card">
     <h3>On open-source business model</h3>
@@ -324,7 +324,7 @@ Sverklo is a local-first Model Context Protocol (MCP) server that gives AI codin
 <p>Solo project, no VC, no investors. Maintained by Nikita Groshin. The plan is to land traction first and decide on company structure later — there's no monetisation pressure today.</p>
 
 <h3>Why MIT and not source-available?</h3>
-<p>Source-available licenses (Polyform, BSL, Elastic License) work for hosted services where the maintainer captures the cloud revenue. Sverklo is local-first; there's no cloud to monetize. MIT is the honest license for the deployment model.</p>
+<p>Source-available licenses (Polyform, BSL, Elastic License) work for hosted services where the maintainer captures the cloud revenue. Sverklo's default deployment is local software rather than a hosted code-intelligence service. MIT is the honest license for that deployment model.</p>
 
 <h3>How does it compare to Cursor's @codebase / Sourcegraph Cody / Greptile?</h3>
 <p>Detailed comparisons at <a href="/vs/">sverklo.com/vs/</a> — including the slices where each tool wins. Headline: Cursor's @codebase is cloud + editor-bound; Cody is enterprise-priced source-available; Greptile is hosted PR-review. Sverklo is local-first MIT, MCP-native (works with every agent), and bundles retrieval + impact + review + memory in one install.</p>

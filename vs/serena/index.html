@@ -29,14 +29,14 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents. MIT licensed, runs entirely on your machine, free for all use.",
+  "description": "Local-first MCP code-intelligence server. Hybrid retrieval (BM25 + embeddings + PageRank) for AI coding agents. MIT licensed, with bundled local ONNX embeddings by default; explicitly configured remote embedding providers may receive code chunks.",
   "featureList": "Local-first indexing, 37 MCP tools, hybrid retrieval, blast-radius analysis, risk-scored PR review, bi-temporal git-pinned memory, Claude Code/Cursor/Windsurf/Zed support, profile-filtered tool surface (SVERKLO_PROFILE=core 81% reduction)",
   "publisher": {
     "@type": "Organization",
@@ -603,7 +603,7 @@ body:has(header.top.nav-canonical) > #main {
       <a href="/blog/">blog</a>
       <a href="https://github.com/sverklo/sverklo" target="_blank" rel="noopener">github</a>
     </nav>
-    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.1</a></div>
+    <div class="top-cta"><a href="https://www.npmjs.com/package/sverklo" target="_blank" rel="noopener" id="version-badge">v0.29.3</a></div>
   </div>
 </header>
 
@@ -639,11 +639,6 @@ body:has(header.top.nav-canonical) > #main {
           <td>License</td>
           <td><span class="tag-mit">MIT</span> Free for all use</td>
           <td><span class="tag-mit">MIT</span> Free for all use</td>
-        </tr>
-        <tr>
-          <td>GitHub stars</td>
-          <td>Growing</td>
-          <td>23k</td>
         </tr>
         <tr>
           <td>Setup</td>

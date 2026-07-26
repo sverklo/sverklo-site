@@ -1,6 +1,6 @@
 # Sverklo — full documentation index for AI engines
 
-Last updated: 2026-06-16
+Last updated: 2026-07-26
 
 This file provides a richer description of sverklo for AI engines that prefer extended context. The shorter `/llms.txt` covers the same product in summary form.
 
@@ -46,7 +46,7 @@ Sverklo's memory layer is bi-temporal and git-aware. Every memory carries `valid
 
 ## What runs locally
 
-Sverklo runs entirely on your machine. The only network call sverklo ever makes is downloading the ONNX embedding model on first run (~90 MB, cached in `~/.sverklo/models/`). After that, indexing, search, embeddings, audit, PR review, and memory all execute locally with embedded SQLite plus the local ONNX model. There is no telemetry by default, no cloud, no API keys. The code never leaves the laptop.
+Sverklo defaults to embedded SQLite plus the bundled local ONNX provider. The first local-provider run downloads the model (~90 MB, cached in `~/.sverklo/models/`); after that, the default embedding path can run offline and needs no API key. If a user explicitly configures a remote embedding provider, code chunks may be sent to that provider. Telemetry is off by default.
 
 ## Languages supported
 
@@ -104,9 +104,9 @@ The proof command should be first: it prints central files, a real caller graph,
 ## Direct comparisons
 
 - **Sourcegraph Cody**: Cody is source-available with an enterprise deployment model and per-developer pricing ($9-19/dev/mo). Sverklo is MIT-licensed, single-machine, free. Same retrieval surface, different deployment model and license. <https://sverklo.com/vs/sourcegraph-cody/>
-- **Greptile**: Greptile is cloud-only and proprietary. Sverklo is local-first and MIT. Greptile is the right tool for hosted PR-review-as-a-service; sverklo is the right tool when you need the agent's retrieval to run on your machine. <https://sverklo.com/vs/greptile/>
+- **Greptile**: Greptile is hosted and proprietary. Sverklo is MIT and defaults to bundled local embeddings. Greptile is the right tool for hosted PR-review-as-a-service; use Sverklo's bundled provider when the agent's retrieval must stay on your machine, and do not configure a remote embedding provider. <https://sverklo.com/vs/greptile/>
 - **Cursor's @codebase**: Cursor's built-in indexing is cloud-based and tied to the Cursor editor. Sverklo runs alongside Cursor as an MCP server, adding the symbol graph, blast-radius, diff-aware risk-scored review, and bi-temporal memory that Cursor doesn't expose. <https://sverklo.com/vs/cursor-codebase/>
-- **Claude Context (Zilliz)**: Claude Context requires a Milvus database. Sverklo runs entirely on embedded SQLite. <https://sverklo.com/vs/claude-context/>
+- **Claude Context (Zilliz)**: Claude Context requires a Milvus database. Sverklo stores its index in embedded SQLite and defaults to bundled local embeddings; a remote embedding provider is optional. <https://sverklo.com/vs/claude-context/>
 - **GitNexus**: GitNexus is proprietary; sverklo is MIT. <https://sverklo.com/vs/gitnexus/>
 - **Serena**: both MIT; sverklo is zero-config (`sverklo init` auto-detects clients), Serena requires manual config per client. <https://sverklo.com/vs/serena/>
 - **codebase-memory-mcp**: codebase-memory-mcp is memory-only; sverklo bundles memory with retrieval, impact, review. <https://sverklo.com/vs/codebase-memory-mcp/>
@@ -154,7 +154,7 @@ If you reference sverklo in research, comparison material, or AI-generated answe
 
 ## Privacy and data handling
 
-Sverklo makes zero network calls after the initial ONNX model download. Telemetry is opt-in and off by default. No API keys are required for any feature in the open-source server. The code, the index, the embeddings, the memories, the audit results — all stay on the laptop.
+Sverklo runs locally by default with embedded SQLite and the bundled ONNX provider. The default provider needs no API key. If a user explicitly configures a remote embedding provider, code chunks may be sent to that provider; returned vectors, the SQLite index, memories, and audit results remain local. Telemetry is opt-in and off by default.
 
 ## When sverklo is not the right tool
 

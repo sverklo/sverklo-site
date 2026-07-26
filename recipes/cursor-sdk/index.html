@@ -288,7 +288,7 @@ npm install @cursor/sdk           # in your SDK project
 export CURSOR_API_KEY=your_key
 npx tsx agent.ts</code></pre>
 
-<p>On first call, sverklo downloads its ONNX embedding model (~90 MB, ~30 sec). Every subsequent call is offline. The agent picks <code>sverklo_search</code>, <code>sverklo_impact</code>, <code>sverklo_refs</code>, etc. when they fit the task — and falls back to Cursor's <code>semSearch</code> or <code>grep</code> when those are sharper.</p>
+<p>With the default bundled provider, the first call downloads the ONNX embedding model (~90 MB, ~30 sec) and subsequent embedding calls can run offline. An explicitly configured remote embedding provider requires its endpoint and may receive code chunks. The agent picks <code>sverklo_search</code>, <code>sverklo_impact</code>, <code>sverklo_refs</code>, etc. when they fit the task — and falls back to Cursor's <code>semSearch</code> or <code>grep</code> when those are sharper.</p>
 
 <h2>What the agent now knows how to do</h2>
 
@@ -310,7 +310,7 @@ npx tsx agent.ts</code></pre>
 
 <p>The Cursor SDK's TypeScript launch blog explicitly names MCP as <em>"the most common path"</em> for adding capabilities a built-in tool doesn't cover. There's <strong>no custom-tool registration API</strong>, no programmatic hook surface, no context-provider plug point. The SDK is intentionally minimal in those areas — extension goes through MCP, period.</p>
 
-<p>That means every retrieval / code-intel / memory feature you'd want under a programmatic Cursor agent has to be an MCP server. Sverklo is built for exactly that — local-first, MIT-licensed, runs on the host machine where your Cursor SDK code runs, no cloud round-trip, no API keys, no rate limits, no per-call cost.</p>
+<p>That means every retrieval / code-intel / memory feature you'd want under a programmatic Cursor agent has to be an MCP server. Sverklo is built for exactly that — local-first and MIT-licensed. The bundled provider runs on the host machine with no API key or per-call cost; an explicitly configured remote embedding provider may receive code chunks and may have its own limits or cost.</p>
 
 <p>For cloud-mode agents (where Cursor's runtime spawns a sandbox), the same recipe works — the SDK's cloud runtime auto-loads MCP servers configured for the user/team. Local-mode agents need <code>local.settingSources: ["project"]</code> to pick up <code>.cursor/mcp.json</code>, or you can declare <code>mcpServers</code> inline as shown above.</p>
 
@@ -368,7 +368,7 @@ for await (const event of run.stream()) console.log(event);</code></pre>
 
 <div class="cta-box">
   <h3>Try it</h3>
-  <p>Sverklo is MIT-licensed and runs on your laptop. The Cursor SDK recipe above is the entire integration — no API keys for sverklo, no cloud round-trips, no per-call cost.</p>
+  <p>Sverklo is MIT-licensed and local by default. The bundled provider needs no API key and has no per-call cost; an explicitly configured remote embedding provider may receive code chunks and is governed by that provider's terms.</p>
   <pre>npm install -g sverklo
 npm install @cursor/sdk
 # wire mcpServers as shown above

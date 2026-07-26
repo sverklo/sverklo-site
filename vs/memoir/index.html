@@ -28,7 +28,7 @@
   "operatingSystem": "macOS, Linux, Windows",
   "url": "https://sverklo.com",
   "downloadUrl": "https://www.npmjs.com/package/sverklo",
-  "softwareVersion": "0.29.1",
+  "softwareVersion": "0.29.3",
   "license": "https://opensource.org/licenses/MIT",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
   "description": "Local-first MCP code-intelligence server with bi-temporal SHA-pinned agent memory. Hybrid retrieval (BM25 + ONNX embeddings + PageRank) for AI coding agents.",
@@ -48,7 +48,7 @@
       "name": "Is Sverklo a Memoir alternative?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sverklo and Memoir overlap on the memory-for-AI-agents dimension and diverge everywhere else. Sverklo bundles bi-temporal SHA-pinned memory with hybrid code retrieval, blast-radius analysis, and PR review — 37 MCP tools, MIT-licensed, production (v0.29.1). Memoir is memory-only — Apache 2.0, alpha (v0.1.9), built on the ProllyTree Merkle B-tree. If you want memory plus retrieval bundled, sverklo is the alternative. If you want memory-only with sharper per-branch checkout ergonomics, Memoir is its own thing."
+        "text": "Sverklo and Memoir overlap on the memory-for-AI-agents dimension and diverge everywhere else. Sverklo bundles bi-temporal SHA-pinned memory with hybrid code retrieval, blast-radius analysis, and PR review — 37 MCP tools, MIT-licensed, production (v0.29.3). Memoir is memory-only — Apache 2.0, alpha (v0.1.9), built on the ProllyTree Merkle B-tree. If you want memory plus retrieval bundled, sverklo is the alternative. If you want memory-only with sharper per-branch checkout ergonomics, Memoir is its own thing."
       }
     },
     {
@@ -292,7 +292,7 @@ body:has(header.top.nav-canonical) > #main {
     <div class="kicker">comparison</div>
     <h1>Sverklo vs <span class="accent">Memoir</span></h1>
     <p class="lede">
-      Both pitch <em>Git-style memory for AI agents</em>. Memoir (Apache 2.0, alpha, 239 stars) implements per-branch HEAD pointers over a Merkle B-tree — when you <code>git checkout feature-x</code>, the memory view auto-isolates. Sverklo (MIT, production v0.20.6) implements bi-temporal SHA-pinning — every memory carries <code>valid_from_sha</code> + <code>valid_until_sha</code> + <code>superseded_by</code>, so "what was true at commit <em>abc</em>?" is answerable for any commit in history.
+      Both pitch <em>Git-style memory for AI agents</em>. Memoir (Apache 2.0, alpha) implements per-branch HEAD pointers over a Merkle B-tree — when you <code>git checkout feature-x</code>, the memory view auto-isolates. Sverklo (MIT, production v0.29.3) implements bi-temporal SHA-pinning — every memory carries <code>valid_from_sha</code> + <code>valid_until_sha</code> + <code>superseded_by</code>, so "what was true at commit <em>abc</em>?" is answerable for any commit in history.
       <strong>Different abstractions on the same problem.</strong> Memoir's branch-snapshot is sharper UX for the active-development case; sverklo's bi-temporal is more rigorous for "what did this team believe at commit abc?" historical queries.
     </p>
   </div>
@@ -307,7 +307,7 @@ body:has(header.top.nav-canonical) > #main {
       </thead>
       <tbody>
         <tr><td>License</td><td><span class="tag-mit">MIT</span></td><td><span class="tag-mit">Apache 2.0</span></td></tr>
-        <tr><td>Status</td><td>Production (v0.20.6)</td><td>Alpha (v0.1.9)</td></tr>
+        <tr><td>Status</td><td>Production (v0.29.3)</td><td>Alpha (v0.1.9)</td></tr>
         <tr><td>Storage substrate</td><td>SQLite + sqlite-vec</td><td>ProllyTree (Merkle B-tree)</td></tr>
         <tr><td>Versioning model</td><td>Bi-temporal: <code>valid_from_sha</code> + <code>valid_until_sha</code> + <code>superseded_by</code></td><td>Per-branch HEAD pointers (Merkle KV)</td></tr>
         <tr><td>Point-in-time queries</td><td>Yes — any commit, any branch, any history depth</td><td>No — branch HEADs only. Source: <code>VersionedKvStore only supports branch checkout, not commit checkout</code></td></tr>
@@ -319,7 +319,6 @@ body:has(header.top.nav-canonical) > #main {
         <tr><td>Languages</td><td>10 first-class via tree-sitter, 14 via regex fallback</td><td>Memory store is language-agnostic</td></tr>
         <tr><td>Public benchmark</td><td><a href="/mcp/">180-task / 5-baseline retrieval bench</a></td><td>None published</td></tr>
         <tr><td>Install</td><td><code>npm install -g sverklo &amp;&amp; sverklo init</code></td><td><code>pip install memoir-ai</code> or Claude Code plugin</td></tr>
-        <tr><td>GitHub stars</td><td>—</td><td>239 (2026-05-09)</td></tr>
       </tbody>
     </table>
   </div>
@@ -346,7 +345,7 @@ body:has(header.top.nav-canonical) > #main {
         <ul>
           <li>You want one tool that bundles memory with hybrid code retrieval, blast-radius analysis, and PR review — not a memory-only library you'd glue to a separate retriever.</li>
           <li>Point-in-time queries matter — "what did this team believe about auth at commit abc?" is a question your agent or your reviewers actually need to answer.</li>
-          <li>You want a production-stable surface (v0.20.6) over an alpha library (v0.1.9).</li>
+          <li>You want a production-stable surface (v0.29.3) over an alpha library (v0.1.9).</li>
           <li>Bi-temporal correctness across rebases / force-pushes / merges is more important than per-branch checkout ergonomics.</li>
           <li>You're already using sverklo for code retrieval and want the memory layer to share the same MCP server.</li>
           <li>You're allergic to standing up a separate Python service (Memoir) when your stack is Node-first.</li>
